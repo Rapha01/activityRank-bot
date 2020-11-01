@@ -23,7 +23,8 @@ async function decrementWarmup() {
 
     while (warmup > 0) {
       await fct.sleep(1000);
-
+      warmup--;
+      
       if (warmup % 10 == 0)
         console.log('Warmup: ' + warmup + '.');
     }
