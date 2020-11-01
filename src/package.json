@@ -1,0 +1,23 @@
+{
+  "name": "activityRankManager",
+  "version": "4.0.0",
+  "description": "ActivityRank Manager",
+  "main": "app.js",
+  "scripts": {
+    "production": "NODE_ENV=production node ./app",
+    "development": "NODE_ENV=development node ./app",
+    "developmentNodemon": "nodemon --legacy-watch"
+  },
+  "dependencies": {
+    "nodemon": "*",
+    "express": "*",
+    "node-cron": "*",
+    "ejs": "*",
+    "node-fetch": "*",
+    "request": "*",
+    "promise-mysql": "*",
+    "net": "*"
+  },
+  "author": "Linck",
+  "license": ""
+}

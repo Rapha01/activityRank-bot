@@ -1,0 +1,10 @@
+USE `guild0`;
+DROP TABLE bonus;
+DROP TABLE command;
+DROP TABLE guild;
+DROP TABLE guildchannel;
+DROP TABLE guildmember;
+DROP TABLE guildrole;
+DROP TABLE textmessage;
+DROP TABLE voiceminute;
+DROP TABLE vote;
