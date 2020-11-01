@@ -42,7 +42,6 @@ function rankMessage(msg) {
         return resolve();
 
       // Check noxp channel & allowInvisibleXp
-
       await guildChannelModel.cache.load(msg.channel);
 
       if (msg.channel.appData.noXp)
@@ -52,7 +51,6 @@ function rankMessage(msg) {
         return resolve();
 
       // Check noxp role
-
       for (let role of msg.member.roles.cache) {
         role = role[1];
         await guildRoleModel.cache.load(role);
@@ -62,7 +60,6 @@ function rankMessage(msg) {
       }
 
       // Check textmessage cooldown
-
       await guildMemberModel.cache.load(msg.member);
       const nowSec = Date.now() / 1000;
 

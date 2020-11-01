@@ -33,25 +33,25 @@ module.exports = (msg) => {
 			await tokenBurn(msg.guild);
 
 			if (command == 'server' || command == 's')
-				commands.get('server')(msg,args);
+				await commands.get('server')(msg,args);
 			else if (command == 'member' || command == 'm')
-				commands.get('member')(msg,args);
+				await commands.get('member')(msg,args);
 			else if (command == 'channel' || command == 'c')
-				commands.get('channel')(msg,args);
+				await commands.get('channel')(msg,args);
 			else if (command == 'role' || command == 'r')
-				commands.get('role')(msg,args);
+				await commands.get('role')(msg,args);
 			else if (command == 'token' || command == 'tokens')
-				commands.get('token')(msg,args);
+				await commands.get('token')(msg,args);
 			else if (command == 'info' || command == 'i')
-				commands.get('info')(msg,args);
+				await commands.get('info')(msg,args);
 			else if (command == 'patchnotes' || command == 'p')
-				commands.get('patchnotes')(msg,args);
+				await commands.get('patchnotes')(msg,args);
 			else if (command == 'rank')
-				commands.get('rank')(msg,args);
+				await commands.get('rank')(msg,args);
 			else if (command == 'help' || command == 'h')
-				commands.get('help')(msg,args);
+				await commands.get('help')(msg,args);
 			else if (command == 'top' || command == 't')
-				commands.get('top')(msg,args);
+				await commands.get('top')(msg,args);
 			else
         await msg.channel.send('Unknown command. Type ``'+msg.guild.appData.prefix+'help`` for more information.\n');
 

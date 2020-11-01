@@ -7,7 +7,7 @@ const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 
-let roundMinutes = 1;
+let roundMinutes = 10;
 
 exports.start = async (client) => {
   let hrstart,hrend;
@@ -97,8 +97,8 @@ const noXp = (channel,member) => {
       if (!member.guild.appData.allowSoloXp && channel.members.size < 2)
         return resolve(true);
 
-      if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
-        return resolve(true);
+      //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
+        //return resolve(true);
 
       for (let role of member.roles.cache) {
         role = role[1];

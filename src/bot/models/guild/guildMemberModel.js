@@ -124,6 +124,7 @@ const loadDefaultCache = (dbHost) => {
       res = await shardDb.query(dbHost,`SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = 0 AND userId = 0`);
 
       defaultCache = res[0];
+      return resolve();
     } catch (e) { reject(e); }
   });
 }
