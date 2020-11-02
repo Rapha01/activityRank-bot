@@ -1,11 +1,6 @@
 const mysql = require('promise-mysql');
 const fetch = require('node-fetch');
-let keys = require('../../const/keys.js');
-
-if (process.env.NODE_ENV == 'production')
-  keys = keys.production;
-else
-  keys = keys.development;
+let keys = require('../../const/keys.js').get();
 
 let conn = null;
 

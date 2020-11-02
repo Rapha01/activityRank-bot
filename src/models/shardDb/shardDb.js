@@ -1,11 +1,6 @@
 const mysql = require('promise-mysql');
 const net = require('net');
-let keys = require('../../const/keys.js');
-
-if (process.env.NODE_ENV == 'production')
-  keys = keys.production;
-else
-  keys = keys.development;
+let keys = require('../../const/keys.js').get();
 
 let conns = {};
 

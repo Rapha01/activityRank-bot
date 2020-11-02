@@ -1,15 +1,8 @@
 const config = require('../../config.js');
-const keys = require('../../keys.js');
+const keys = require('../../keys.js').get();
 const fetch = require('node-fetch');
 
 let dBHost,dBApiAuth;
-if (process.env.NODE_ENV == 'production') {
-  dBHost = keys.botProduction.dBHost;
-  dBApiAuth = keys.botProduction.dBApiAuth;
-} else {
-  dBHost = keys.botDevelopment.dBHost;
-  dBApiAuth = keys.botDevelopment.dBApiAuth;
-}
 
 exports.getCreateSingle = (tablename,conditions) => {
   return new Promise(async function (resolve, reject) {
