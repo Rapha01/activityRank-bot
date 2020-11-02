@@ -3,30 +3,21 @@ const guildModel = require('../../models/guild/guildModel.js');
 const rankModel = require('../../models/rankModel.js');
 const userModel = require('../../models/userModel.js');
 const fct = require('../../../util/fct.js');
+const nameUtil = require('../../util/nameUtil.js');
 const Discord = require('discord.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
+const cooldownUtil = require('../../util/cooldownUtil.js');
 
 module.exports = (msg,targetUserId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
       await guildMemberModel.cache.load(msg.member);
       const myGuild = await guildModel.storage.get(msg.guild);
-      // Check Command cooldown
-
-      const isPremiumGuild = fct.isPremiumGuild(msg.guild);
-      const cd = fct.isPremiumGuild(msg.guild) ? 5 : 30;
-      const premiumLowersCooldownString = isPremiumGuild ? '' : errorMsgs.premiumLowersCooldown;
-
-      const toWait = fct.getMemberActionCooldown(msg.member,'lastStatsCmdDate',cd);
-      if (toWait > 0) {
-        await msg.channel.send(errorMsgs.activeStatsCooldown(cd,toWait) + premiumLowersCooldownString);
-        return resolve();
-      }
 
       if (!targetUserId)
         targetUserId = msg.author.id;
 
-      msg.member.appData.lastStatsCmdDate = Date.now() / 1000;
+      if (!await cooldownUtil.checkStatCommandsCooldown(msg)) return resolve();
 
       await sendMemberEmbed(msg,myGuild,targetUserId);
 
@@ -81,7 +72,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId) {
       let channelName = '';
       if (voiceChannelRanksMonth) {
         for (let i = 0; i < voiceChannelRanksMonth.length;i++) {
-          channelName = fct.getChannelName(msg.guild.channels.cache,voiceChannelRanksMonth[i].channelId);
+          channelName = nameUtil.getChannelName(msg.guild.channels.cache,voiceChannelRanksMonth[i].channelId);
 
           voiceChannelsString += '#' + (i+1) + ' ' + channelName + ' (' +
               (Math.round(voiceChannelRanksMonth[i]['month'] / 60 * 10) / 10) + ')\n';
@@ -90,7 +81,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId) {
 
       if (textChannelRanksMonth) {
         for (i = 0; i < textChannelRanksMonth.length;i++) {
-          channelName = fct.getChannelName(msg.guild.channels.cache,textChannelRanksMonth[i].channelId);
+          channelName = nameUtil.getChannelName(msg.guild.channels.cache,textChannelRanksMonth[i].channelId);
 
           textChannelsString += '#' + (i+1) + ' ' + channelName + ' (' +
               textChannelRanksMonth[i]['month'] + ')\n';
@@ -116,7 +107,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId) {
 
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('Stats for ' + fct.getGuildMemberAlias(targetMember) + ' on server ' + msg.guild.name, '')
+          .setAuthor('Stats for ' + nameUtil.getGuildMemberAlias(targetMember) + ' on server ' + msg.guild.name, '')
           .setColor('#4fd6c8')
           .setDescription(description)
           .setThumbnail(targetMember.user.avatarURL())

@@ -2,28 +2,15 @@ const guildMemberModel = require('../../models/guild/guildMemberModel.js');
 const guildModel = require('../../models/guild/guildModel.js');
 const rankModel = require('../../models/rankModel.js');
 const fct = require('../../../util/fct.js');
+const nameUtil = require('../../util/nameUtil.js');
 const Discord = require('discord.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
 
 module.exports = (msg,targetChannelId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-      // Check Command cooldown
-
       await guildMemberModel.cache.load(msg.member);
       const myGuild = await guildModel.storage.get(msg.guild);
-
-      const isPremiumGuild = fct.isPremiumGuild(msg.guild);
-      const cd = isPremiumGuild ? 5 : 30;
-      const premiumLowersCooldownString = isPremiumGuild ? '' : errorMsgs.premiumLowersCooldown;
-
-      const toWait = fct.getMemberActionCooldown(msg.member,'lastStatsCmdDate',cd);
-      if (toWait > 0) {
-        await msg.channel.send(errorMsgs.activeStatsCooldown(cd,toWait) + premiumLowersCooldownString);
-        return resolve();
-      }
-
-      // Extract options
 
       args = args.map(t => t.toLowerCase());
       const page = fct.extractPage(args,myGuild.entriesPerPage);
@@ -34,10 +21,10 @@ module.exports = (msg,targetChannelId,args) => {
         return resolve();
       }
 
+      if (!await cooldownUtil.checkStatCommandsCooldown(msg)) return resolve();
+
       if (!targetChannelId)
         targetChannelId = msg.channel.id;
-
-      msg.member.appData.lastStatsCmdDate = Date.now() / 1000;
 
       await sendChannelMembersEmbed(msg,myGuild,targetChannelId,time,page.from,page.to);
 
@@ -74,7 +61,7 @@ function sendChannelMembersEmbed(msg,myGuild,targetChannelId,time,from,to) {
         return resolve();
       }
 
-      await fct.addGuildMemberNamesToRanks(msg.guild,channelMemberRanks);
+      await nameUtil.addGuildMemberNamesToRanks(msg.guild,channelMemberRanks);
 
       let description = '';
 
@@ -95,7 +82,7 @@ function sendChannelMembersEmbed(msg,myGuild,targetChannelId,time,from,to) {
         else
           str = ':writing_hand: ' + channelMemberRanks[i][time];
 
-        guildMemberName = await fct.getGuildMemberName(msg.guild,channelMemberRanks[i].userId);
+        guildMemberName = await nameUtil.getGuildMemberName(msg.guild,channelMemberRanks[i].userId);
         embed.addField('#' + (from + i) + '  ' + guildMemberName, str,true);
       }
 

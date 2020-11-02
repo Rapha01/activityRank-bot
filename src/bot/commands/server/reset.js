@@ -1,6 +1,6 @@
 const resetModel = require('../../models/resetModel.js');
-const fct = require('../../../util/fct.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
+const cooldownUtil = require('../../util/cooldownUtil.js');
 
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
@@ -23,7 +23,7 @@ module.exports = (msg,args) => {
 
         await msg.channel.send('Stopped reset.');
       } else if (field == 'deletedmembers') {
-        const toWait = fct.getGuildActionCooldown(msg.guild,'lastResetDeletedMembers',cd);
+        const toWait = cooldownUtil.getCachedCooldown(msg.guild.appData,'lastResetDeletedMembers',cd);
         if (toWait > 0) {
           await msg.channel.send('You can start the server reset of deleted members once every ' + (cd / 60) + ' minutes, please wait ' + Math.ceil(toWait / 60) + ' more minutes.');
           return resolve();
@@ -36,7 +36,7 @@ module.exports = (msg,args) => {
         await msg.channel.send('Resetting, please wait...');
 
       } else if (field == 'deletedchannels') {
-        const toWait = fct.getGuildActionCooldown(msg.guild,'lastResetDeletedChannels',cd);
+        const toWait = cooldownUtil.getCachedCooldown(msg.guild.appData,'lastResetDeletedChannels',cd);
         if (toWait > 0) {
           await msg.channel.send('You can start the reset of deleted channels only once every ' + (cd / 60) + ' minutes, please wait ' + Math.ceil(toWait / 60) + ' more minutes.');
           return resolve();

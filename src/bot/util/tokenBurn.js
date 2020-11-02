@@ -1,5 +1,6 @@
-const guildModel = require('../bot/models/guild/guildModel.js');
-const fct = require('./fct.js');
+const guildModel = require('../models/guild/guildModel.js');
+const fct = require('../../util/fct.js');
+const cooldownUtil = require('./cooldownUtil.js');
 
 let tokenBurnCd;
 if (process.env.NODE_ENV == 'production') {
@@ -11,7 +12,7 @@ if (process.env.NODE_ENV == 'production') {
 module.exports = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (fct.getGuildActionCooldown(guild,'lastTokenBurnDate',tokenBurnCd) > 0)
+      if (cooldownUtil.getCachedCooldown(guild.appData,'lastTokenBurnDate',tokenBurnCd) > 0)
         return resolve();
       guild.appData.lastTokenBurnDate = Date.now() / 1000;
 

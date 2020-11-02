@@ -1,7 +1,7 @@
 const config = require('../../const/config.js');
 const fs = require('fs');
-const tokenBurn = require('../../util/tokenBurn.js');
-const askForPremium = require('../../util/askForPremium.js');
+const tokenBurn = require('../util/tokenBurn.js');
+const askForPremium = require('../util/askForPremium.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 
 const commandFiles = fs.readdirSync('./bot/commands').filter(file => file.endsWith('.js')).map(file => file.slice(0,-3));

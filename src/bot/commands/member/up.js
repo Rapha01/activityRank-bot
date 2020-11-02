@@ -5,18 +5,11 @@ const guildModel = require('../../models/guild/guildModel.js');
 const userModel = require('../../models/userModel.js');
 const fetch = require('node-fetch');
 const fct = require('../../../util/fct.js');
+const cooldownUtil = require('../../util/cooldownUtil.js');
 
 module.exports = (msg,targetUserId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-      // Check Command cooldown
-      await guildMemberModel.cache.load(msg.member);
-      const toWait = fct.getMemberActionCooldown(msg.member,'lastVoteDate',msg.guild.appData.voteCooldownSeconds);
-      if (toWait > 0) {
-        await msg.channel.send('You already voted recently. Please wait ' + Math.ceil(toWait / 60) + ' more minutes.');
-        return resolve();
-      }
-
       const targetMember = msg.guild.members.cache.get(targetUserId);
 
       if (!targetMember) {
@@ -24,12 +17,13 @@ module.exports = (msg,targetUserId,args) => {
         return resolve();
       }
 
+      await guildMemberModel.cache.load(msg.member);
+      await guildMemberModel.cache.load(targetMember);
+
       if (targetMember.user.bot) {
         await msg.channel.send('You cannot upvote bots.');
         return resolve();
       }
-
-      await guildMemberModel.cache.load(targetMember);
 
       if (targetUserId == msg.member.id) {
         await msg.channel.send('You cannot upvote yourself.');
@@ -56,7 +50,15 @@ module.exports = (msg,targetUserId,args) => {
       if (myUser.voteMultiplierUntil > nowDate)
         value = value * myUser.voteMultiplier;
 
+      // Check Command cooldown
+
+      const toWait = cooldownUtil.getCachedCooldown(msg.member.appData,'lastVoteDate',msg.guild.appData.voteCooldownSeconds);
+      if (toWait > 0) {
+        await msg.channel.send('You already voted recently. Please wait ' + Math.ceil(toWait / 60) + ' more minutes.');
+        return resolve();
+      }
       msg.member.appData.lastVoteDate = nowDate;
+
       await statFlushCache.addVote(targetMember,value);
 
       const upvoteStr = '';

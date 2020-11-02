@@ -1,4 +1,3 @@
-const fct = require('../util/fct.js');
 const publicIp = require('public-ip');
 const ipInt = require('ip-to-int');
 const fctModel = require('../models/fctModel.js');

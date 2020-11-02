@@ -2,28 +2,17 @@ const guildMemberModel = require('../../models/guild/guildMemberModel.js');
 const guildModel = require('../../models/guild/guildModel.js');
 const rankModel = require('../../models/rankModel.js');
 const fct = require('../../../util/fct.js');
+const cooldownUtil = require('../../util/cooldownUtil.js');
+const nameUtil = require('../../util/nameUtil.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
 const Discord = require('discord.js');
 
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-
-      // Check Command cooldown
       await guildMemberModel.cache.load(msg.member);
       const myGuild = await guildModel.storage.get(msg.guild);
 
-      const isPremiumGuild = fct.isPremiumGuild(msg.guild);
-      const cd = isPremiumGuild ? 5 : 30;
-      const premiumLowersCooldownString = isPremiumGuild ? '' : errorMsgs.premiumLowersCooldown;
-
-      const toWait = fct.getMemberActionCooldown(msg.member,'lastStatsCmdDate',cd);
-      if (toWait > 0) {
-        await msg.channel.send(errorMsgs.activeStatsCooldown(cd,toWait) + premiumLowersCooldownString);
-        return resolve();
-      }
-
-      // Extract options
       args = args.map(t => t.toLowerCase());
       const page = fct.extractPage(args,myGuild.entriesPerPage);
       const time = fct.extractTime(args);
@@ -33,7 +22,7 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      msg.member.appData.lastStatsCmdDate = Date.now() / 1000;
+      if (!await cooldownUtil.checkStatCommandsCooldown(msg)) return resolve();
 
       // Check type
       if (args.indexOf('channels') > -1)
@@ -101,7 +90,7 @@ function sendChannelsEmbed(msg,args,time,from,to) {
         else if (type == 'textMessage')
           str = ':writing_hand: ' + channelRanks[i][time];
 
-        embed.addField('#' + (from + i) + '  ' + fct.getChannelName(msg.guild.channels.cache,channelRanks[i].channelId), str);
+        embed.addField('#' + (from + i) + '  ' + nameUtil.getChannelName(msg.guild.channels.cache,channelRanks[i].channelId), str);
       }
 
       await msg.channel.send(embed);
@@ -140,7 +129,7 @@ function sendMembersEmbed(msg,args,myGuild,time,from,to) {
         return resolve();
       }
 
-      await fct.addGuildMemberNamesToRanks(msg.guild,memberRanks);
+      await nameUtil.addGuildMemberNamesToRanks(msg.guild,memberRanks);
 
       // Embed header
       let description = '';

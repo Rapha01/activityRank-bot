@@ -3,6 +3,7 @@ const guildModel = require('../models/guild/guildModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildRoleModel = require('../models/guild/guildRoleModel.js');
 const fct = require('../../util/fct.js');
+const nameUtil = require('../util/nameUtil.js');
 const errorMsgs = require('../../const/errorMsgs.js');
 
 module.exports = (msg,args) => {
@@ -51,7 +52,7 @@ function info(msg,myGuild) {
       embed.addField('**General**',
           'Tracking since: ' + new Date(myGuild.addDate * 1000).toLocaleString().substr(0,9) + '.\n' +
           'Notify levelup direct message: ' + (myGuild.notifyLevelupDm ? 'Yes' : 'No') + '.\n' +
-          'Notify levelup specific channel: ' + (myGuild.autopost_levelup ? '#' + fct.getChannelName(msg.guild.channels.cache,myGuild.autopost_levelup) : 'No') + '.\n' +
+          'Notify levelup specific channel: ' + (myGuild.autopost_levelup ? '#' + nameUtil.getChannelName(msg.guild.channels.cache,myGuild.autopost_levelup) : 'No') + '.\n' +
           'Notify levelup current channel: ' + (myGuild.notifyLevelupCurrentChannel ? 'Yes' : 'No') + '.\n' +
           'Notify levelup (dm and channel) with new roles: ' + (myGuild.notifyLevelupOnlyWithRole ? 'Yes' : 'No') + '.\n'+
           'Take away assigned roles on leveldown: ' + (myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No') + '.\n'+
@@ -142,7 +143,7 @@ function roles(msg,myGuild,from,to) {
       let role;
       for (myRole of roleAssignments) {
         role = msg.guild.roles.cache.get(myRole.roleId);
-        embed.addField(fct.getRoleName(msg.guild.roles.cache,myRole.roleId),getlevelString(myRole),true);
+        embed.addField(nameUtil.getRoleName(msg.guild.roles.cache,myRole.roleId),getlevelString(myRole),true);
       }
 
       if (roleAssignments.length == 0)
@@ -178,7 +179,7 @@ function noXpRoles(msg,myGuild,from,to) {
 
       let role;
       for (roleId of noXpRoleIds)
-        embed.addField(':no_entry_sign:',fct.getRoleName(msg.guild.roles.cache,roleId),true);
+        embed.addField(':no_entry_sign:',nameUtil.getRoleName(msg.guild.roles.cache,roleId),true);
 
       if (noXpRoleIds.length == 0)
         embed.setDescription('No roles to show here.');
@@ -204,7 +205,7 @@ function noXpChannels(msg,myGuild,from,to) {
 
       let channel;
       for (channelId of noXpChannelIds)
-        embed.addField(fct.getChannelTypeIcon(msg.guild.channels.cache,channelId),fct.getChannelName(msg.guild.channels.cache,channelId),true);
+        embed.addField(nameUtil.getChannelTypeIcon(msg.guild.channels.cache,channelId),nameUtil.getChannelName(msg.guild.channels.cache,channelId),true);
 
       if (noXpChannelIds.length == 0)
         embed.setDescription('No channels to show here.');
@@ -220,7 +221,7 @@ function noCommandChannels(msg,myGuild,from,to) {
     try {
       let description = '';
       if (msg.guild.appData.commandOnlyChannel != 0)
-        description += ':warning: The commandOnly channel is set. The bot will respond only in channel ' + fct.getChannelName(msg.guild.channels.cache,msg.guild.appData.commandOnlyChannel) + '. \n \n';
+        description += ':warning: The commandOnly channel is set. The bot will respond only in channel ' + nameUtil.getChannelName(msg.guild.channels.cache,msg.guild.appData.commandOnlyChannel) + '. \n \n';
 
       description += 'NoCommand channels (does not affect users with manage server permission): \n';
       const embed = new Discord.MessageEmbed()
@@ -234,7 +235,7 @@ function noCommandChannels(msg,myGuild,from,to) {
 
       let channel;
       for (channelId of noCommandChannelIds)
-        embed.addField(fct.getChannelTypeIcon(msg.guild.channels.cache,channelId),fct.getChannelName(msg.guild.channels.cache,channelId),true);
+        embed.addField(nameUtil.getChannelTypeIcon(msg.guild.channels.cache,channelId),nameUtil.getChannelName(msg.guild.channels.cache,channelId),true);
 
       if (noCommandChannelIds.length == 0)
         description += 'No channels to show here.','Use *' + msg.guild.appData.prefix + 'channel noCommand* to add some';

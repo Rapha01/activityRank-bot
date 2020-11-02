@@ -1,4 +1,5 @@
 const fct = require('../util/fct.js');
+const nameUtil = require('./util/nameUtil.js');
 const guildRoleModel = require('./models/guild/guildRoleModel.js');
 const Discord = require('discord.js');
 
@@ -88,7 +89,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
     gratulationMessage = replaceTagsLevelup(gratulationMessage,member,level);
 
     const levelupEmbed = new Discord.MessageEmbed()
-        .setTitle(fct.getGuildMemberAlias(member) + ' 🎖' + level)
+        .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
         .setAuthor('')
         .setColor('#4fd6c8')
         .setDescription(gratulationMessage)

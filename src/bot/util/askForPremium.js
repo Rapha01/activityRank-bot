@@ -1,5 +1,6 @@
-const userModel = require('../bot/models/userModel.js');
-const fct = require('./fct.js');
+const userModel = require('../models/userModel.js');
+const fct = require('../../util/fct.js');
+const cooldownUtil = require('./cooldownUtil.js');
 const Discord = require('discord.js');
 
 let askForPremiumCd;
@@ -14,7 +15,7 @@ if (process.env.NODE_ENV == 'production') {
 module.exports = (msg) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (fct.getGuildActionCooldown(msg.guild,'lastAskForPremiumDate',askForPremiumCdGuild) > 0)
+      if (cooldownUtil.getCachedCooldown(msg.guild.appData,'lastAskForPremiumDate',askForPremiumCdGuild) > 0)
         return resolve();
 
       if (fct.isPremiumGuild(msg.guild))
