@@ -20,7 +20,7 @@ start().catch(async (e) => {
   console.log(e);
   await fct.waitAndReboot(3000);
 });
- 
+
 async function start() {
   return new Promise(async function (resolve, reject) {
     try {
