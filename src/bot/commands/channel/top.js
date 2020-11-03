@@ -3,6 +3,7 @@ const guildModel = require('../../models/guild/guildModel.js');
 const rankModel = require('../../models/rankModel.js');
 const fct = require('../../../util/fct.js');
 const nameUtil = require('../../util/nameUtil.js');
+const cooldownUtil = require('../../util/cooldownUtil.js');
 const Discord = require('discord.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
 

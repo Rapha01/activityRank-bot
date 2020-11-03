@@ -54,7 +54,7 @@ function info(msg,myGuild) {
           'Notify levelup direct message: ' + (myGuild.notifyLevelupDm ? 'Yes' : 'No') + '.\n' +
           'Notify levelup specific channel: ' + (myGuild.autopost_levelup ? '#' + nameUtil.getChannelName(msg.guild.channels.cache,myGuild.autopost_levelup) : 'No') + '.\n' +
           'Notify levelup current channel: ' + (myGuild.notifyLevelupCurrentChannel ? 'Yes' : 'No') + '.\n' +
-          'Notify levelup (dm and channel) with new roles: ' + (myGuild.notifyLevelupOnlyWithRole ? 'Yes' : 'No') + '.\n'+
+          'Notify levelup (dm and channel) with new roles: ' + (myGuild.notifyLevelupWithRole ? 'Yes' : 'No') + '.\n'+
           'Take away assigned roles on leveldown: ' + (myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No') + '.\n'+
           'List entries per page: ' + myGuild.entriesPerPage + '.\n' +
           'Status: ' + (fct.isPremiumGuild(msg.guild) ? 'Premium' : 'Not Premium') + '.\n');
