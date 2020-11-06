@@ -1,4 +1,4 @@
-module.exports = [ 
+module.exports = [
   {
     tag: 'XP',
     title: 'User levels, XP and activity statistics',

@@ -15,22 +15,6 @@ const keys = {
       dbName: ''
     }
   },
-  development2: {
-    dblApiKey:'',
-    botId: '',
-    managerApiAuth: '',
-    managerHost: '',
-    managerDb: {
-      dbUser: '',
-      dbPassword: '',
-      dbName: ''
-    },
-    shardDb: {
-      dbUser: '',
-      dbPassword: '',
-      dbName: ''
-    }
-  },
   development: {
     dblApiKey:'',
     botId: '',

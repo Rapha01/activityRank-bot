@@ -1,4 +1,4 @@
-const keys = require('../const/keys.js');
+const keys = require('../const/keys.js').get();
 const mysql = require('promise-mysql');
 
 exports.apiResponseJson = (results,error) => {

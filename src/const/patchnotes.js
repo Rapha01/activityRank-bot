@@ -1,4 +1,17 @@
 module.exports = [
+  /*{
+    version: '4.2',
+    date: '2020-00-00',
+    time: '00:00:00',
+    title: '',
+    desc: '',
+    features: [
+      {title: '',desc: ''},
+    ],
+    fixes: [
+      {title: '',desc: ''},
+    ]
+  },*/
   {
     version: '4.1',
     date: '2020-09-06',
