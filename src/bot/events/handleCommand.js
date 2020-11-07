@@ -44,12 +44,16 @@ module.exports = (msg) => {
 				await commands.get('token')(msg,args);
 			else if (command == 'info' || command == 'i')
 				await commands.get('info')(msg,args);
+			else if (command == 'patchnote')
+				await commands.get('patchnote')(msg,args);
 			else if (command == 'patchnotes' || command == 'p')
 				await commands.get('patchnotes')(msg,args);
 			else if (command == 'rank')
 				await commands.get('rank')(msg,args);
 			else if (command == 'help' || command == 'h')
 				await commands.get('help')(msg,args);
+			else if (command == 'faq' || command == 'faqs' || command == 'f')
+				await commands.get('faq')(msg,args);
 			else if (command == 'top' || command == 't')
 				await commands.get('top')(msg,args);
 			else

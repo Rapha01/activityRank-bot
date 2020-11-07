@@ -13,9 +13,9 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      const patchnotes = msg.client.appData.texts.patchnotes.splice(page.from - 1,msg.guild.appData.entriesPerPage);
+      const faqs = msg.client.appData.texts.faqs.splice(page.from - 1,msg.guild.appData.entriesPerPage);
 
-      await msg.channel.send(patchnotesMainEmbed(patchnotes));
+      await msg.channel.send(faqMainEmbed(faqs));
       //await msg.channel.send('I have sent you the requested information.');
 
       resolve();
@@ -23,17 +23,17 @@ module.exports = (msg,args) => {
   });
 }
 
-function patchnotesMainEmbed (patchnotes) {
+function faqMainEmbed (faqs) {
   const embed = new Discord.MessageEmbed()
-    .setTitle('**ActivityRank Patchnotes**')
+    .setTitle('**ActivityRank FAQ**')
     .setColor(0x00AE86)
-    .setDescription('Check what\'s going on with ActivityRank bot. Use the patchnote command to see the version details. Like so: ``ar!patchnote 3.0``')
+    .setDescription('Check frequently asked questions for ActivityRank bot. You can go through multiple pages by appending a pagenumber to the command.')
     .setImage('')
     .setThumbnail('')
   ;
 
-  for (patchnote of patchnotes) {
-    embed.addField('Patch ' + patchnote.version + ' - ' + patchnote.title + ' (' + patchnote.date + ')' + '',patchnote.desc);
+  for (faq of faqs) {
+    embed.addField(' (' + faq.id + ') ' + faq.title + '',faq.desc);
   }
 
   return {embed};

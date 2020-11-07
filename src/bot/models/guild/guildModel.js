@@ -11,7 +11,7 @@ const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExt
 const cachedFields = [
     'prefix', 'tokens', 'showNicknames',
     'textMessageCooldownSeconds', 'voteCooldownSeconds', 'xpPerTextMessage', 'xpPerVoiceMinute',
-    'voteTag','voteEmote','bonusTag','bonusEmote',
+    'voteTag','voteEmote','bonusTag','bonusEmote','entriesPerPage',
     'xpPerVote', 'xpPerBonus', 'bonusPerTextMessage', 'bonusPerVoiceMinute',
     'bonusPerVote', 'bonusUntilDate', 'levelFactor',
     'allowMutedXp', 'allowSoloXp', 'allowInvisibleXp', 'allowDeafenedXp',

@@ -11,10 +11,9 @@ module.exports = (msg,targetChannelId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
       await guildMemberModel.cache.load(msg.member);
-      const myGuild = await guildModel.storage.get(msg.guild);
 
       args = args.map(t => t.toLowerCase());
-      const page = fct.extractPage(args,myGuild.entriesPerPage);
+      const page = fct.extractPage(args,msg.guild.appData.entriesPerPage);
       const time = fct.extractTime(args);
 
       if (page.number < 1 || page.number > 100) {
@@ -27,14 +26,14 @@ module.exports = (msg,targetChannelId,args) => {
       if (!targetChannelId)
         targetChannelId = msg.channel.id;
 
-      await sendChannelMembersEmbed(msg,myGuild,targetChannelId,time,page.from,page.to);
+      await sendChannelMembersEmbed(msg,targetChannelId,time,page.from,page.to);
 
     } catch (e) { reject(e); }
     resolve();
   });
 }
 
-function sendChannelMembersEmbed(msg,myGuild,targetChannelId,time,from,to) {
+function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
   return new Promise(async function (resolve, reject) {
     try {
       const targetChannel = msg.guild.channels.cache.get(targetChannelId);
