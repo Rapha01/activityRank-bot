@@ -47,7 +47,7 @@ const createPool = () => {
           } else { throw err; }
         });
 
-        console.log('Connected to managerDb.');
+        console.log('Connected to managerDb @' + keys.managerHost + '.');
       }
 
       resolve(pool);
