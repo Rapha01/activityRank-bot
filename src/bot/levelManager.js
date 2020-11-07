@@ -117,7 +117,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
 
     // Direct Message
     if (!notified && member.appData.notifyLevelupDm == true && member.guild.appData.notifyLevelupDm == true) {
-      levelupEmbed.setFooter('To disable direct messages from me type "'+ member.guild.appData.prefix +'member notifyLevelupDm off" in the server.');
+      levelupEmbed.setFooter('To disable direct messages from me type "'+ member.guild.appData.prefix +'member notifyLevelupDm" in the server.');
       await member.send(ping,levelupEmbed).then(res => notified = true).catch(e => console.log);
     }
 
