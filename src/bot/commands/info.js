@@ -91,6 +91,45 @@ function info(msg,myGuild) {
       embed.addField('NoXP channels','Please check ``' + myGuild.prefix + 'info noXpchannels``.');
       embed.addField('NoXP roles','Please check ``' + myGuild.prefix + 'info noXpRoles``.',true);
       embed.addField('NoCommand channels','Please check ``' + myGuild.prefix + 'info noCommandChannels``.',true);
+      embed.addField('Messages','Please check ``' + myGuild.prefix + 'info messages``.',true);
+
+      await msg.channel.send(embed);
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function messages(msg,myGuild,from,to) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      let entries = [];
+
+      entries.push({title:'levelupMessage',desc:myGuild.levelupMessage});
+      entries.push({title:'serverJoinMessage',desc:myGuild.serverJoinMessage});
+      entries.push({title:'roleAssignMessage',desc:myGuild.roleAssignMessage});
+      entries.push({title:'roleDeassignMessage',desc:myGuild.roleDeassignMessage});
+
+      for (let role of msg.guild.roles.cache) {
+        role = role[1];
+        await guildRoleModel.cache.load(role);
+
+        if (role.appData.assignMessage.trim() != '')
+          entries.push({title:'Assignment of ' + role.name,desc:role.appData.assignMessage});
+        if (role.appData.deassignMessage.trim() != '')
+          entries.push({title:'Deassignment of ' + role.name,desc:role.appData.deassignMessage});
+      }
+
+      const embed = new Discord.MessageEmbed()
+          .setTitle('')
+          .setAuthor('Messages info', '')
+          .setColor('#4fd6c8')
+          .setDescription('Review the set messages and texts for the bot.')
+          .setFooter(msg.client.appData.settings.footer);
+
+      console.log();
+      entries = entries.slice(from-1,to);
+      for (entry of entries)
+        embed.addField(entry.title,entry.desc != '' ? entry.desc : 'Not set.');
 
       await msg.channel.send(embed);
       resolve();
