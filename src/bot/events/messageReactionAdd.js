@@ -13,21 +13,30 @@ const skip = require('../skip.js');
 module.exports = (reaction) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (skip(reaction.message.guild))
-        return resolve();
-      if (reaction.message.author.bot)
-        return resolve();
+
+      console.log('AAA');
       if (!reaction.message.guild)
         return resolve();
+      const guild = reaction.message.guild;
 
-      await guildModel.cache.load(reaction.message.guild);
+      if (skip(reaction.message.guild))
+        return resolve();
 
-      if (reaction._emoji.name != emoji.get(reaction.message.guild.appData.voteEmote))
+      if (reaction.message.author.bot)
+        return resolve();
+
+      await guildModel.cache.load(guild);
+
+      if (reaction._emoji.name != emoji.get(guild.appData.voteEmote) && reaction._emoji.name != guild.appData.voteEmote)
         return resolve();
       console.log('BBB');
-      const targetMember = reaction.message.guild.members.cache.get(reaction.message.author.id);
+      let targetMember = guild.members.cache.get(reaction.message.author.id);
+      if (!targetMember)
+          targetMember = guild.members.fetch(reaction.message.author.id);
+      let member = guild.members.cache.get(reaction.users.cache.last().id);
+      if (!member)
+          member = guild.members.fetch(reaction.users.cache.last().id);
 
-      const member = reaction.message.guild.members.cache.get(reaction.users.cache.last().id);
       if (!targetMember || !member || member.user.bot)
         return resolve();
       console.log('CCC');
@@ -37,7 +46,7 @@ module.exports = (reaction) => {
       await guildMemberModel.cache.load(member);
       await guildMemberModel.cache.load(targetMember);
       console.log('EEE');
-      if (!reaction.message.guild.appData.reactionVote || !member.appData.reactionVote)
+      if (!guild.appData.reactionVote || !member.appData.reactionVote)
         return resolve();
 
       console.log('FFF');
@@ -59,7 +68,7 @@ module.exports = (reaction) => {
       if (myUser.voteMultiplierUntil > nowDate)
         value = value * myUser.voteMultiplier;
       console.log('HHH');
-      const toWait = cooldownUtil.getCachedCooldown(member.appData,'lastVoteDate',reaction.message.guild.appData.voteCooldownSeconds);
+      const toWait = cooldownUtil.getCachedCooldown(member.appData,'lastVoteDate',guild.appData.voteCooldownSeconds);
       if (toWait > 0)
         return resolve();
       console.log('III');
