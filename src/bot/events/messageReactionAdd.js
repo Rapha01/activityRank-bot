@@ -33,13 +33,14 @@ module.exports = (reaction) => {
       console.log('CCC');
       if (targetMember.id == member.id)
         return resolve();
-
+      console.log('DDD');
+      await guildMemberModel.cache.load(member);
+      await guildMemberModel.cache.load(targetMember);
+      console.log('EEE');
       if (!reaction.message.guild.appData.reactionVote || !member.appData.reactionVote)
         return resolve();
 
-      await guildMemberModel.cache.load(member);
-      await guildMemberModel.cache.load(targetMember);
-      console.log('DDD');
+      console.log('FFF');
       for (let role of targetMember.roles.cache) {
         role = role[1];
         await guildRoleModel.cache.load(role);
@@ -47,7 +48,7 @@ module.exports = (reaction) => {
         if (role.appData.noXp)
           return resolve();
       }
-
+      console.log('GGG');
       // Get author multiplier
       await userModel.cache.load(member.user);
       const myUser = await userModel.storage.get(member.user);
@@ -57,15 +58,15 @@ module.exports = (reaction) => {
 
       if (myUser.voteMultiplierUntil > nowDate)
         value = value * myUser.voteMultiplier;
-      console.log('EEE');
+      console.log('HHH');
       const toWait = cooldownUtil.getCachedCooldown(member.appData,'lastVoteDate',reaction.message.guild.appData.voteCooldownSeconds);
       if (toWait > 0)
         return resolve();
-      console.log('FFF');
+      console.log('III');
       member.appData.lastVoteDate = nowDate;
 
       await statFlushCache.addVote(targetMember,value);
-      console.log('GGG');
+      console.log('JJJ');
       resolve();
     } catch (e) { reject(e); }
   });
