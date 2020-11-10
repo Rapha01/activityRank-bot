@@ -13,7 +13,6 @@ const skip = require('../skip.js');
 module.exports = (reaction) => {
   return new Promise(async function (resolve, reject) {
     try {
-      console.log('ZZZ');
       if (skip(reaction.message.guild))
         return resolve();
       if (reaction.message.author.bot)
@@ -22,7 +21,7 @@ module.exports = (reaction) => {
         return resolve();
 
       await guildModel.cache.load(reaction.message.guild);
-      console.log('AAA');
+
       if (reaction._emoji.name != emoji.get(reaction.message.guild.appData.voteEmote))
         return resolve();
       console.log('BBB');
