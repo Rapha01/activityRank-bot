@@ -13,7 +13,7 @@ const cachedFields = [
     'textMessageCooldownSeconds', 'voteCooldownSeconds', 'xpPerTextMessage', 'xpPerVoiceMinute',
     'voteTag','voteEmote','bonusTag','bonusEmote','entriesPerPage',
     'xpPerVote', 'xpPerBonus', 'bonusPerTextMessage', 'bonusPerVoiceMinute',
-    'bonusPerVote', 'bonusUntilDate', 'levelFactor',
+    'bonusPerVote', 'bonusUntilDate', 'levelFactor','reactionVote',
     'allowMutedXp', 'allowSoloXp', 'allowInvisibleXp', 'allowDeafenedXp',
     'notifyLevelupDm','notifyLevelupWithRole', 'notifyLevelupCurrentChannel',
     'takeAwayAssignedRolesOnLevelDown','roleAssignMessage', 'roleDeassignMessage',

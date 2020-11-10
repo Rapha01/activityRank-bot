@@ -4,7 +4,7 @@ module.exports = (member) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (member.user.bot)
-        return;
+        return resolve();
 
 
       resolve();

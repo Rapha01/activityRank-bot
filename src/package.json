@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "discord.js": "12",
-    "emoji-regex": "*",
+    "node-emoji": "*",
     "ip-to-int": "*",
     "mysql": "^2.18.1",
     "node-cron": "*",

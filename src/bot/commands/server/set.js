@@ -63,6 +63,8 @@ module.exports = (msg,args) => {
         await votecooldown(msg,value);
       else if (field == 'levelfactor')
         await levelfactor(msg,value);
+      else if (field == 'reactionvote')
+        await reactionVote(msg,value);
       else if (field == 'allowmutedxp')
         await allowmutedxp(msg,value);
       else if (field == 'allowsoloxp')
@@ -444,6 +446,22 @@ function levelfactor(msg,value) {
       await guildModel.storage.set(msg.guild,'levelFactor',value);
       await resetModel.cache.resetGuildMembersAll(msg.guild);
       await msg.channel.send('Setting updated.');
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function reactionVote(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (msg.guild.appData.reactionVote) {
+        await guildModel.storage.set(msg.guild,'reactionVote',0);
+        await msg.channel.send('Users can no longer vote via a reaction with the voteEmote.');
+      } else {
+        await guildModel.storage.set(msg.guild,'reactionVote',1);
+        await msg.channel.send('Users can now vote via a reaction with the voteEmote.');
+      }
+
       resolve();
     } catch (e) { reject(e); }
   });

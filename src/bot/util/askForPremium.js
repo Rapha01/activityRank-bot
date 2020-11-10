@@ -8,8 +8,8 @@ if (process.env.NODE_ENV == 'production') {
   askForPremiumCdGuild = 3600 * 0.5;
   askForPremiumCdUser = 3600 * 24;
 } else {
-  askForPremiumCdGuild = 20;
-  askForPremiumCdUser = 60;
+  askForPremiumCdGuild = 3600 * 0.5; //20
+  askForPremiumCdUser = 3600 * 24; // 60
 }
 
 module.exports = (msg) => {

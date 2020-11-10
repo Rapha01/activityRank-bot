@@ -45,7 +45,7 @@ module.exports = (msg,targetUserId,args) => {
       const myUser = await userModel.storage.get(msg.member.user);
       const nowDate = Date.now() / 1000;
 
-      value = 1;
+      let value = 1;
 
       if (myUser.voteMultiplierUntil > nowDate)
         value = value * myUser.voteMultiplier;

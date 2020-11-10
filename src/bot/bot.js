@@ -21,6 +21,7 @@ const onGuildMemberAdd = require('./events/guildMemberAdd.js');
 const onGuildCreate = require('./events/guildCreate.js');
 const onGuildDelete = require('./events/guildDelete.js');
 const onGuildMemberRemove = require('./events/guildMemberRemove.js');
+const messageReactionAdd = require('./events/messageReactionAdd.js');
 
 start();
 
@@ -66,6 +67,7 @@ function initEventTriggers(client) {
   client.on('guildDelete', (guild) => {onGuildDelete(guild).catch(e => console.log(e));});
   client.on('guildMemberAdd', (member) => {onGuildMemberAdd(member).catch(e => console.log(e));});
   client.on('guildMemberRemove', (member) => {onGuildMemberRemove(member).catch(e => console.log(e));});
+  client.on('messageReactionAdd', (member) => {messageReactionAdd(member).catch(e => console.log(e));});
 }
 
 function initClientCaches(client) {

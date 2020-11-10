@@ -7,7 +7,7 @@ const promises = {};
 exports.cache = {};
 exports.storage = {};
 
-const cachedFields = ['notifyLevelupDm'];
+const cachedFields = ['notifyLevelupDm','reactionVote'];
 let defaultCache = null;
 let defaultAll = null;
 
