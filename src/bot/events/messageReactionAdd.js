@@ -13,8 +13,6 @@ const skip = require('../skip.js');
 module.exports = (reaction) => {
   return new Promise(async function (resolve, reject) {
     try {
-
-      console.log('AAA');
       if (!reaction.message.guild)
         return resolve();
       const guild = reaction.message.guild;
