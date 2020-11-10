@@ -8,26 +8,30 @@ const Discord = require('discord.js');
 const emoji = require('node-emoji');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const statFlushCache = require('../statFlushCache.js');
+const skip = require('../skip.js');
 
 module.exports = (reaction) => {
   return new Promise(async function (resolve, reject) {
     try {
+      console.log('ZZZ');
+      if (skip(reaction.message.guild))
+        return resolve();
       if (reaction.message.author.bot)
         return resolve();
       if (!reaction.message.guild)
         return resolve();
 
       await guildModel.cache.load(reaction.message.guild);
-
+      console.log('AAA');
       if (reaction._emoji.name != emoji.get(reaction.message.guild.appData.voteEmote))
         return resolve();
-
+      console.log('BBB');
       const targetMember = reaction.message.guild.members.cache.get(reaction.message.author.id);
 
       const member = reaction.message.guild.members.cache.get(reaction.users.cache.last().id);
       if (!targetMember || !member || member.user.bot)
         return resolve();
-
+      console.log('CCC');
       if (targetMember.id == member.id)
         return resolve();
 
@@ -36,7 +40,7 @@ module.exports = (reaction) => {
 
       await guildMemberModel.cache.load(member);
       await guildMemberModel.cache.load(targetMember);
-
+      console.log('DDD');
       for (let role of targetMember.roles.cache) {
         role = role[1];
         await guildRoleModel.cache.load(role);
@@ -54,15 +58,15 @@ module.exports = (reaction) => {
 
       if (myUser.voteMultiplierUntil > nowDate)
         value = value * myUser.voteMultiplier;
-
+      console.log('EEE');
       const toWait = cooldownUtil.getCachedCooldown(member.appData,'lastVoteDate',reaction.message.guild.appData.voteCooldownSeconds);
       if (toWait > 0)
         return resolve();
-
+      console.log('FFF');
       member.appData.lastVoteDate = nowDate;
 
       await statFlushCache.addVote(targetMember,value);
-
+      console.log('GGG');
       resolve();
     } catch (e) { reject(e); }
   });
