@@ -25,9 +25,14 @@ module.exports = (reaction) => {
 
       await guildModel.cache.load(guild);
 
-      if (reaction._emoji.name != emoji.get(guild.appData.voteEmote) && reaction._emoji.name != guild.appData.voteEmote)
-        return resolve();
-      console.log('BBB');
+      if (reaction._emoji.id == null) {
+        if (reaction._emoji.name != emoji.get(guild.appData.voteEmote) && reaction._emoji.name != guild.appData.voteEmote)
+          return resolve();
+      } else {
+        if ('<:' + reaction._emoji.name + ':' + reaction._emoji.id + '>' != guild.appData.voteEmote)
+          return resolve();
+      }
+
       let targetMember = guild.members.cache.get(reaction.message.author.id);
       if (!targetMember)
           targetMember = guild.members.fetch(reaction.message.author.id);
@@ -37,17 +42,16 @@ module.exports = (reaction) => {
 
       if (!targetMember || !member || member.user.bot)
         return resolve();
-      console.log('CCC');
+
       if (targetMember.id == member.id)
         return resolve();
-      console.log('DDD');
+
       await guildMemberModel.cache.load(member);
       await guildMemberModel.cache.load(targetMember);
-      console.log('EEE');
+
       if (!guild.appData.reactionVote || !member.appData.reactionVote)
         return resolve();
 
-      console.log('FFF');
       for (let role of targetMember.roles.cache) {
         role = role[1];
         await guildRoleModel.cache.load(role);
@@ -55,7 +59,7 @@ module.exports = (reaction) => {
         if (role.appData.noXp)
           return resolve();
       }
-      console.log('GGG');
+
       // Get author multiplier
       await userModel.cache.load(member.user);
       const myUser = await userModel.storage.get(member.user);
@@ -65,15 +69,15 @@ module.exports = (reaction) => {
 
       if (myUser.voteMultiplierUntil > nowDate)
         value = value * myUser.voteMultiplier;
-      console.log('HHH');
+
       const toWait = cooldownUtil.getCachedCooldown(member.appData,'lastVoteDate',guild.appData.voteCooldownSeconds);
       if (toWait > 0)
         return resolve();
-      console.log('III');
+
       member.appData.lastVoteDate = nowDate;
 
       await statFlushCache.addVote(targetMember,value);
-      console.log('JJJ');
+
       resolve();
     } catch (e) { reject(e); }
   });

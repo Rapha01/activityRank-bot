@@ -17,6 +17,8 @@ module.exports = (msg,targetUserId,args) => {
 
       if (field == 'notifylevelupdm')
         await notifylevelupdm(msg,targetUserId);
+      if (field == 'reactionvote')
+        await reactionVote(msg,targetUserId);
       else {
         await msg.channel.send(errorMsgs.invalidArgument.replace('<prefix>',msg.guild.appData.prefix));
         return resolve();
@@ -29,7 +31,7 @@ module.exports = (msg,targetUserId,args) => {
 function notifylevelupdm(msg,targetUserId) {
   return new Promise(async function (resolve, reject) {
     try {
-      if (targetUserId && targetUserId != msg.member.id) {
+      if (targetUserId != msg.member.id) {
         await msg.channel.send('This setting is personal and cannot be changed for other members.');
         return resolve();
       }
@@ -42,6 +44,29 @@ function notifylevelupdm(msg,targetUserId) {
       } else {
         await guildMemberModel.storage.set(msg.guild,targetUserId,'notifyLevelupDm',1);
         await msg.channel.send('You will receive levelup messages per dm from me.');
+      }
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function reactionVote(msg,targetUserId) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (targetUserId != msg.member.id) {
+        await msg.channel.send('This setting is personal and cannot be changed for other members.');
+        return resolve();
+      }
+
+      const myGuildMember = await guildMemberModel.storage.get(msg.guild,targetUserId);
+
+      if (myGuildMember.reactionVote) {
+        await guildMemberModel.storage.set(msg.guild,targetUserId,'reactionVote',0);
+        await msg.channel.send('Your reactions with the voteEmote ('+msg.guild.appData.voteEmote+') will no longer count as an ActivityRank vote.');
+      } else {
+        await guildMemberModel.storage.set(msg.guild,targetUserId,'reactionVote',1);
+        await msg.channel.send('Your reactions with the voteEmote ('+msg.guild.appData.voteEmote+') will now count as an ActivityRank vote (as long as the serveradmin has enabled the corresponding server setting).');
       }
 
       resolve();
