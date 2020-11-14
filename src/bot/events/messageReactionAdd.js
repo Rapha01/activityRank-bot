@@ -25,7 +25,7 @@ module.exports = (reaction) => {
 
       await guildModel.cache.load(guild);
 
-      if (reaction._emoji.id == null) {
+      if (!reaction._emoji.id) {
         if (reaction._emoji.name != emoji.get(guild.appData.voteEmote) && reaction._emoji.name != guild.appData.voteEmote)
           return resolve();
       } else {
