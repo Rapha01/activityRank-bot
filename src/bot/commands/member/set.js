@@ -20,9 +20,9 @@ module.exports = (msg,targetUserId,args) => {
 
       if (field == 'notifylevelupdm')
         await notifylevelupdm(msg,targetUserId);
-      if (field == 'reactionvote')
+      else if (field == 'reactionvote')
         await reactionVote(msg,targetUserId);
-      if (field == 'inviter')
+      else if (field == 'inviter')
         await inviter(msg,targetUserId);
       else {
         await msg.channel.send(errorMsgs.invalidArgument.replace('<prefix>',msg.guild.appData.prefix));

@@ -82,7 +82,7 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
         else
           str = ':writing_hand: ' + channelMemberRanks[i][time];
 
-        guildMemberName = await nameUtil.getGuildMemberName(msg.guild,channelMemberRanks[i].userId);
+        guildMemberName = (await nameUtil.getGuildMemberInfo(msg.guild,channelMemberRanks[i].userId)).name;
         embed.addField('#' + (from + i) + '  ' + guildMemberName, str,true);
       }
 
