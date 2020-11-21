@@ -30,6 +30,16 @@ module.exports = (msg,args) => {
         await bonusemote(msg,value);
       else if (field == 'prefix')
         await prefix(msg,value);
+      else if (field == 'textxp')
+        await textxp(msg,value);
+      else if (field == 'voicexp')
+        await voicexp(msg,value);
+      else if (field == 'invitexp')
+        await invitexp(msg,value);
+      else if (field == 'votexp')
+        await votexp(msg,value);
+      else if (field == 'bonusxp')
+        await bonusxp(msg,value);
       else if (field == 'entriesperpage')
         await entriesperpage(msg,value);
       else if (field == 'shownicknames')
@@ -51,12 +61,16 @@ module.exports = (msg,args) => {
         await xppertextmessage(msg,value);
       else if (field == 'xppervote')
         await xppervote(msg,value);
+      else if (field == 'xpperinvite')
+        await xpperinvite(msg,value);
       else if (field == 'bonuspertextmessage')
         await bonuspertextmessage(msg,value);
       else if (field == 'bonuspervoiceminute')
         await bonuspervoiceminute(msg,value);
       else if (field == 'bonuspervote')
         await bonuspervote(msg,value);
+      else if (field == 'bonusperinvite')
+        await bonusperinvite(msg,value);
       else if (field == 'bonusuntil')
         await bonusuntil(msg,value);
       else if (field == 'votecooldown')
@@ -209,6 +223,86 @@ function showNicknames(msg,value) {
   });
 }
 
+function textxp(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (msg.guild.appData.textXp) {
+        await guildModel.storage.set(msg.guild,'textXp',0);
+        await msg.channel.send('Text XP is now deactivated. It will not be shown in the stats anymore and the bot no longer counts messages in this server. Note: The already counted textmessages still add towards a user\'s totalXp - it is recommended to reset only text XP for everyone, so there is no hidden stat from the past, that is increasing a user\'s XP.');
+      } else {
+        await guildModel.storage.set(msg.guild,'textXp',1);
+        await msg.channel.send('Text XP is now activated. It will be shown in the stats and the bot now counts messages in this server.');
+      }
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function voicexp(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (msg.guild.appData.voiceXp) {
+        await guildModel.storage.set(msg.guild,'voiceXp',0);
+        await msg.channel.send('Voice XP is now deactivated. It will not be shown in the stats anymore and the bot no longer counts voice activity in this server. Note: The already counted hours still add towards a user\'s totalXp - it is recommended to reset only voice XP for everyone, so there is no hidden stat from the past, that is increasing a user\'s XP.');
+      } else {
+        await guildModel.storage.set(msg.guild,'voiceXp',1);
+        await msg.channel.send('Voice XP is now activated. It will be shown in the stats and the bot now counts voice activity in this server.');
+      }
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function invitexp(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (msg.guild.appData.inviteXp) {
+        await guildModel.storage.set(msg.guild,'inviteXp',0);
+        await msg.channel.send('Invite XP is now deactivated. It will not be shown in the stats anymore and the bot no longer counts invites in this server. Note: The already counted invites still add towards a user\'s totalXp - it is recommended to reset only invite XP for everyone, so there is no hidden stat from the past, that is increasing a user\'s XP.');
+      } else {
+        await guildModel.storage.set(msg.guild,'inviteXp',1);
+        await msg.channel.send('Invite XP is now activated. It will be shown in the stats and the bot now counts invites in this server.');
+      }
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function votexp(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (msg.guild.appData.voteXp) {
+        await guildModel.storage.set(msg.guild,'voteXp',0);
+        await msg.channel.send('Vote XP is now deactivated. It will not be shown in the stats anymore and the bot no longer counts votes in this server. Note: The already counted votes still add towards a user\'s totalXp - it is recommended to reset only vote XP for everyone, so there is no hidden stat from the past, that is increasing a user\'s XP.');
+      } else {
+        await guildModel.storage.set(msg.guild,'voteXp',1);
+        await msg.channel.send('Vote XP is now activated. It will be shown in the stats and the bot now counts votes in this server.');
+      }
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function bonusxp(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (msg.guild.appData.bonusXp) {
+        await guildModel.storage.set(msg.guild,'bonusXp',0);
+        await msg.channel.send('Bonus XP is now deactivated. It will not be shown in the stats anymore and the bot no longer counts bonus XP in this server. Note: The already counted bonus still adds towards a user\'s totalXp - it is recommended to reset only bonus XP for everyone, so there is no hidden stat from the past, that is increasing a user\'s XP.');
+      } else {
+        await guildModel.storage.set(msg.guild,'bonusXp',1);
+        await msg.channel.send('Bonus XP is now activated. It will be shown in the stats and the bot now counts bonus XP in this server.');
+      }
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
 function notifylevelupdm(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
@@ -299,7 +393,7 @@ function xppervoiceminute(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
       if (isNaN(value) || value > 5 || value < 0) {
-        await msg.channel.send('Points per minute needs to be a value within 0 and 5.');
+        await msg.channel.send('xpPerVoiceMinute needs to be a value within 0 and 5.');
         return resolve();
       }
 
@@ -315,7 +409,7 @@ function xppertextmessage(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
       if (isNaN(value) || value > 10 || value < 0) {
-        await msg.channel.send('Points per message needs to be a value within 0 and 10.');
+        await msg.channel.send('xpPerTextMessage needs to be a value within 0 and 10.');
         return resolve();
       }
 
@@ -336,6 +430,22 @@ function xppervote(msg,value) {
       }
 
       await guildModel.storage.set(msg.guild,'xpPerVote',value);
+      await resetModel.cache.resetGuildMembersAll(msg.guild);
+      await msg.channel.send('Setting updated.');
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function xpperinvite(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (isNaN(value) || value > 1000 || value < 0) {
+        await msg.channel.send('xpPerInvite needs to be a value within 0 and 1000.');
+        return resolve();
+      }
+
+      await guildModel.storage.set(msg.guild,'xpPerInvite',value);
       await resetModel.cache.resetGuildMembersAll(msg.guild);
       await msg.channel.send('Setting updated.');
       resolve();
@@ -364,7 +474,7 @@ function bonuspertextmessage(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
       if (isNaN(value) || value > 20 || value < 0) {
-        await msg.channel.send('Bonuspertextmessage needs to be a XP value within 0 and 20.');
+        await msg.channel.send('bonusPerTextMessage needs to be a XP value within 0 and 20.');
         return resolve();
       }
 
@@ -379,7 +489,7 @@ function bonuspervoiceminute(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
       if (isNaN(value) || value > 10 || value < 0) {
-        await msg.channel.send('bonuspervoiceminute needs to be a XP value within 0 and 10.');
+        await msg.channel.send('bonusPerVoiceMinute needs to be a XP value within 0 and 10.');
         return resolve();
       }
 
@@ -394,11 +504,26 @@ function bonuspervote(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
       if (isNaN(value) || value > 100 || value < 0) {
-        await msg.channel.send('Bonuspervote needs to be a XP value within 0 and 100.');
+        await msg.channel.send('bonusPerVote needs to be a XP value within 0 and 100.');
         return resolve();
       }
 
       await guildModel.storage.set(msg.guild,'bonusPerVote',value);
+      await msg.channel.send('Setting updated.');
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+function bonusperinvite(msg,value) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (isNaN(value) || value > 2000 || value < 0) {
+        await msg.channel.send('bonusPerInvite needs to be a XP value within 0 and 2000.');
+        return resolve();
+      }
+
+      await guildModel.storage.set(msg.guild,'bonusPerInvite',value);
       await msg.channel.send('Setting updated.');
       resolve();
     } catch (e) { reject(e); }

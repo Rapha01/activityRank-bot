@@ -107,10 +107,13 @@ function sendMembersEmbed(msg,args,myGuild,time,from,to) {
 
       if (args.indexOf('voice') > -1) {
         type = 'voiceMinute';
-        header += ' | By voice XP';
-      } else if (args.indexOf('text') > -1) {
+        header += ' | By voice (hours)';
+      } else if (args.indexOf('text') > -1 || args.indexOf('texts') > -1) {
         type = 'textMessage';
-        header += ' | By text XP';
+        header += ' | By text (messages)';
+      } else if (args.indexOf('invite') > -1 || args.indexOf('invites') > -1) {
+        type = 'invite';
+        header += ' | By invites';
       } else if (args.indexOf(myGuild.voteTag.toLowerCase()) > -1 || args.indexOf('vote') > -1) {
         type = 'vote';
         header += ' | By ' + myGuild.voteTag;
@@ -145,18 +148,24 @@ function sendMembersEmbed(msg,args,myGuild,time,from,to) {
           .setFooter(msg.client.appData.settings.footer);
 
       let i = 0;
-      let str = '';
+      let scoreStrings;
       let memberRank;
       while (memberRanks.length > 0) {
+        scoreStrings = [];
         memberRank = memberRanks.shift();
-        str = memberRank['totalScore' + time] + ' XP \\⬄ ' +
-        ':microphone2: ' + (Math.round(memberRank['voiceMinute' + time] / 60 * 10) / 10)
-        + ' :writing_hand: ' + memberRank['textMessage' + time] + ' '
-        + myGuild.voteEmote + ' ' + memberRank['vote' + time] + ' '
-        + myGuild.bonusEmote + ' ' + memberRank['bonus' + time];
 
+        if (msg.guild.appData.textXp)
+          scoreStrings.push(':writing_hand:' + ' ' + memberRank['textMessage' + time]);
+        if (msg.guild.appData.voiceXp)
+          scoreStrings.push(':microphone2:'  + ' ' + (Math.round(memberRank['voiceMinute' + time] / 60 * 10) / 10) );
+        if (msg.guild.appData.inviteXp)
+          scoreStrings.push(':envelope:' + ' ' + memberRank['invite' + time]);
+        if (msg.guild.appData.voteXp)
+          scoreStrings.push(myGuild.voteEmote + ' ' + memberRank['vote' + time]);
+        if (msg.guild.appData.bonusXp)
+          scoreStrings.push(myGuild.bonusEmote + ' ' + memberRank['bonus' + time]);
 
-        embed.addField('**#' + (from + i) + ' ' + memberRank.name + '** \\🎖' + Math.floor(memberRank.levelProgression) + '', str);
+        embed.addField('**#' + (from + i) + ' ' + memberRank.name + '** \\🎖' + Math.floor(memberRank.levelProgression) + '', memberRank['totalScore' + time] + ' XP \\⬄ ' + scoreStrings.join(':black_small_square:'));
         i++;
       }
 

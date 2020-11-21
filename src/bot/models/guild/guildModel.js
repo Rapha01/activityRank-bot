@@ -9,14 +9,15 @@ exports.storage = {};
 
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
-    'prefix', 'tokens', 'showNicknames',
-    'textMessageCooldownSeconds', 'voteCooldownSeconds', 'xpPerTextMessage', 'xpPerVoiceMinute',
+    'prefix','tokens','showNicknames',
+    'textXp','voiceXp','inviteXp','voteXp','bonusXp',
+    'textMessageCooldownSeconds','voteCooldownSeconds','xpPerTextMessage','xpPerVoiceMinute',
     'voteTag','voteEmote','bonusTag','bonusEmote','entriesPerPage',
-    'xpPerVote', 'xpPerBonus', 'bonusPerTextMessage', 'bonusPerVoiceMinute',
-    'bonusPerVote', 'bonusUntilDate', 'levelFactor','reactionVote',
-    'allowMutedXp', 'allowSoloXp', 'allowInvisibleXp', 'allowDeafenedXp',
-    'notifyLevelupDm','notifyLevelupWithRole', 'notifyLevelupCurrentChannel',
-    'takeAwayAssignedRolesOnLevelDown','roleAssignMessage', 'roleDeassignMessage',
+    'xpPerVote','xpPerInvite','xpPerBonus','bonusPerTextMessage','bonusPerVoiceMinute',
+    'bonusPerVote','bonusPerInvite','bonusUntilDate','levelFactor','reactionVote',
+    'allowMutedXp','allowSoloXp','allowInvisibleXp','allowDeafenedXp',
+    'notifyLevelupDm','notifyLevelupWithRole','notifyLevelupCurrentChannel',
+    'takeAwayAssignedRolesOnLevelDown','roleAssignMessage','roleDeassignMessage',
     'commandOnlyChannel',
     'autopost_serverJoin','autopost_levelup','levelupMessage','serverJoinMessage',
     'addDate'];

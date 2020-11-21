@@ -10,7 +10,6 @@ module.exports = (manager) => {
       const shards = await manager.broadcastEval(`
         const obj = {
           shardId: this.shard.ids[0],
-          status: this.user.presence.status,
           uptimeSeconds: this.uptime / 1000,
           readyDate: this.readyTimestamp,
           serverCount: this.guilds.cache.size

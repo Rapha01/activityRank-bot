@@ -6,7 +6,7 @@ let tokenBurnCd;
 if (process.env.NODE_ENV == 'production') {
   tokenBurnCd = 3600 * 4;
 } else {
-  tokenBurnCd = 5;
+  tokenBurnCd = 600;
 }
 
 module.exports = (guild) => {
@@ -21,7 +21,7 @@ module.exports = (guild) => {
       const tokensToBurn24h = fct.getTokensToBurn24h(guild.memberCount);
 
       if (lastBurnTimeDifference < tokenBurnCd)
-        return;
+        return resolve();
 
       await guildModel.storage.set(guild,'lastTokenBurnDate',Date.now() / 1000);
 
@@ -31,7 +31,7 @@ module.exports = (guild) => {
       if (myGuild.tokens < tokensToBurn24h)
         return resolve();
 
-      if (lastBurnTimeDifference > 86400 * 30)
+      if (lastBurnTimeDifference > 86400 * 30) // 1 month
         lastBurnTimeDifference = 86400 * 30;
 
       //console.log(myGuild.lastTokenBurnDate,myGuild.tokens,tokensToBurn24h);

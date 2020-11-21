@@ -32,6 +32,9 @@ function faqMainEmbed (faqs) {
     .setThumbnail('')
   ;
 
+  if (faqs.length == 0)
+    embed.setDescription('No FAQs to show on this page.');
+
   for (faq of faqs) {
     embed.addField(' (' + faq.id + ') ' + faq.title + '',faq.desc);
   }

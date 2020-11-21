@@ -1,5 +1,6 @@
 const guildMemberModel = require('../../models/guild/guildMemberModel.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
+const statFlushCache = require('../../statFlushCache.js');
 
 module.exports = (msg,targetUserId,args) => {
   return new Promise(async function (resolve, reject) {
@@ -12,6 +13,8 @@ module.exports = (msg,targetUserId,args) => {
       const field = args[0].toLowerCase();
       const value = args.slice(1,args.length+1).join(' ');
 
+      await guildMemberModel.cache.load(msg.member);
+
       if (!targetUserId)
         targetUserId = msg.member.id;
 
@@ -19,12 +22,54 @@ module.exports = (msg,targetUserId,args) => {
         await notifylevelupdm(msg,targetUserId);
       if (field == 'reactionvote')
         await reactionVote(msg,targetUserId);
+      if (field == 'inviter')
+        await inviter(msg,targetUserId);
       else {
         await msg.channel.send(errorMsgs.invalidArgument.replace('<prefix>',msg.guild.appData.prefix));
         return resolve();
       }
     } catch (e) { reject(e); }
     resolve();
+  });
+}
+
+function inviter(msg,targetUserId) {
+  return new Promise(async function (resolve, reject) {
+    try {
+      if (targetUserId == msg.member.id) {
+        await msg.channel.send('You cannot be the inviter of yourself.');
+        return resolve();
+      }
+
+      const myGuildMember = await guildMemberModel.storage.get(msg.guild,msg.member.id);
+      const myTargetGuildMember = await guildMemberModel.storage.get(msg.guild,targetUserId);
+
+      if (myGuildMember.inviter != 0) {
+        await msg.channel.send('You have already set your inviter. This setting is final.');
+        return resolve();
+      }
+
+      if (myTargetGuildMember.inviter != 0 && myTargetGuildMember.inviter == msg.member.id) {
+        await msg.channel.send('You cannot set your inviter to a person who has been invited by you.');
+        return resolve();
+      }
+
+      const targetMember = await msg.guild.members.fetch({user: targetUserId, withPresences:false, cache: false});
+
+      if (!targetMember) {
+        await msg.channel.send('Cannot find member. Your inviter has to be in this guild.');
+        return resolve();
+      }
+      await guildMemberModel.cache.load(targetMember);
+
+      await guildMemberModel.storage.set(msg.guild,msg.member.id,'inviter',targetUserId);
+
+      await statFlushCache.addInvite(targetMember,1);
+      await statFlushCache.addBonus(msg.member,msg.guild.appData.xpPerInvite);
+
+      await msg.channel.send('Your inviter has been set seccessfully. You will both get 1 invite added to your stats.');
+      resolve();
+    } catch (e) { reject(e); }
   });
 }
 

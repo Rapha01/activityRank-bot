@@ -17,7 +17,7 @@ exports.addTextMessage = (member,channel,count) => {
       await addTotalXp(member,count * member.guild.appData.xpPerTextMessage);
 
       if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
-        await exports.addBonus(member,member.guild.appData.bonusPerTextMessage);
+        await exports.addBonus(member,count * member.guild.appData.bonusPerTextMessage);
 
       resolve();
     } catch (e) { reject(e); }
@@ -48,6 +48,30 @@ exports.addVoiceMinute = (member,channel,count) => {
   });
 };
 
+
+exports.addInvite = (member,count) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      let inviteCache = buildStatFlushCache(member,'invite');
+
+      count = count * 1;
+
+      let entry = inviteCache[member.id];
+      if (!entry)
+        entry = inviteCache[member.id] = {guildId:member.guild.id,userId:member.id,count:count};
+      else
+        entry.count += count;
+
+      await addTotalXp(member,count * member.guild.appData.xpPerInvite);
+
+      if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
+        await exports.addBonus(member,count * member.guild.appData.bonusPerInvite);
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+};
+
 exports.addVote = (member,count) => {
   return new Promise(async function (resolve, reject) {
     try {
@@ -64,7 +88,7 @@ exports.addVote = (member,count) => {
       await addTotalXp(member,count * member.guild.appData.xpPerVote);
 
       if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
-        await exports.addBonus(member,member.guild.appData.bonusPerVote);
+        await exports.addBonus(member,count * member.guild.appData.bonusPerVote);
 
       resolve();
     } catch (e) { reject(e); }

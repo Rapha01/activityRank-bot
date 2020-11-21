@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const handoutVoiceminutes = require('./handoutVoiceminutes.js');
+const giveVoiceXp = require('./giveVoiceXp.js');
 const doResetJob = require('./doResetJob.js');
 //const texter = require('../texter.js');
 
@@ -11,7 +11,7 @@ if (process.env.NODE_ENV == 'production') {
 
 exports.start = (client) => {
   // Loops
-  handoutVoiceminutes.start(client);
+  giveVoiceXp.start(client);
   doResetJob.start();
 
   cron.schedule(logHighestGuildsInterval, async function() {

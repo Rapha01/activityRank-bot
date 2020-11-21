@@ -2,6 +2,7 @@ const set = require('./server/set.js');
 const reset = require('./server/reset.js');
 const stats = require('./server/stats.js');
 const top = require('./server/top.js');
+const info = require('./server/info.js');
 const errorMsgs = require('../../const/errorMsgs.js');
 
 module.exports = (msg,args) => {
@@ -23,6 +24,8 @@ module.exports = (msg,args) => {
         await top(msg,args);
       else if (subcommand == 'reset')
         await reset(msg,args);
+      else if (subcommand == 'info')
+        await info(msg,args);
       else {
         await msg.channel.send(errorMsgs.invalidSubcommand.replace('<prefix>',msg.guild.appData.prefix));
         return resolve();

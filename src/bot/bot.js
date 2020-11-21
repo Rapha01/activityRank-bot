@@ -6,12 +6,24 @@ const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 
 const client = new Discord.Client(
-  /*{ws: {intents:
-  [ 'GUILDS', 'GUILD_MESSAGES','GUILD_BANS','GUILD_EMOJIS',
-    'GUILD_INTEGRATIONS','GUILD_WEBHOOKS','GUILD_INVITES','GUILD_VOICE_STATES',
-    'GUILD_MESSAGES','GUILD_MESSAGE_REACTIONS','GUILD_PRESENCES','GUILD_MEMBERS',
-    'GUILD_MESSAGE_TYPING','DIRECT_MESSAGES','DIRECT_MESSAGE_REACTIONS','DIRECT_MESSAGE_TYPING'
-  ]}}*/
+  {ws: {intents:
+  [ 'GUILDS',
+    'GUILD_MEMBERS',
+    'GUILD_MESSAGES',
+    'GUILD_BANS',
+    'GUILD_EMOJIS',
+    'GUILD_INTEGRATIONS',
+    'GUILD_WEBHOOKS',
+    'GUILD_INVITES',
+    'GUILD_VOICE_STATES',
+    'GUILD_PRESENCES',
+    'GUILD_MESSAGES',
+    'GUILD_MESSAGE_REACTIONS',
+    'GUILD_MESSAGE_TYPING',
+    'DIRECT_MESSAGES',
+    'DIRECT_MESSAGE_REACTIONS',
+    'DIRECT_MESSAGE_TYPING'
+  ]}}
 );
 
 process.env.UV_THREADPOOL_SIZE = 50;
@@ -21,7 +33,7 @@ const onGuildMemberAdd = require('./events/guildMemberAdd.js');
 const onGuildCreate = require('./events/guildCreate.js');
 const onGuildDelete = require('./events/guildDelete.js');
 const onGuildMemberRemove = require('./events/guildMemberRemove.js');
-const messageReactionAdd = require('./events/messageReactionAdd.js');
+const onMessageReactionAdd = require('./events/messageReactionAdd.js');
 
 start();
 
@@ -67,7 +79,7 @@ function initEventTriggers(client) {
   client.on('guildDelete', (guild) => {onGuildDelete(guild).catch(e => console.log(e));});
   client.on('guildMemberAdd', (member) => {onGuildMemberAdd(member).catch(e => console.log(e));});
   client.on('guildMemberRemove', (member) => {onGuildMemberRemove(member).catch(e => console.log(e));});
-  client.on('messageReactionAdd', (member) => {messageReactionAdd(member).catch(e => console.log(e));});
+  client.on('messageReactionAdd', (member) => {onMessageReactionAdd(member).catch(e => console.log(e));});
 }
 
 function initClientCaches(client) {

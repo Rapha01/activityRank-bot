@@ -28,3 +28,22 @@ exports.checkStatCommandsCooldown = (msg) => {
     } catch (e) { reject(e); }
   });
 }
+
+exports.checkResetServerCommandCooldown = (msg) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const isPremiumGuild = fct.isPremiumGuild(msg.guild);
+      const cd = isPremiumGuild ? 5 : 30;
+      const premiumLowersCooldownString = isPremiumGuild ? '' : errorMsgs.premiumLowersCooldown;
+
+      const toWait = exports.getCachedCooldown(msg.guild.appData,'lastResetServer',cd);
+      if (toWait > 0) {
+        await msg.channel.send(errorMsgs.activeResetServerCommandCooldown(cd,toWait) + premiumLowersCooldownString);
+        return resolve(false);
+      }
+
+      msg.guild.appData.lastResetServer = Date.now() / 1000;
+      resolve(true);
+    } catch (e) { reject(e); }
+  });
+}

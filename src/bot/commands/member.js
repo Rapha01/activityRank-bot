@@ -3,6 +3,8 @@ const stats = require('./member/stats.js');
 const set = require('./member/set.js');
 const giveTake = require('./member/giveTake.js');
 const up = require('./member/up.js');
+const info = require('./member/info.js');
+const top = require('./member/top.js');
 const errorMsgs = require('../../const/errorMsgs.js');
 const fct = require('../../util/fct.js');
 
@@ -18,7 +20,7 @@ module.exports = (msg,args) => {
 
       for (i = 0; i < args.length; i++) {
         tmp = args[i].toLowerCase();
-        if (tmp == 'stats' || tmp == 'give' || tmp == 'take' || tmp == 'up' || tmp == 'down' || tmp == 'set' || tmp == 'reset') {
+        if (tmp == 'stats' || tmp == 'give' || tmp == 'take' || tmp == 'up' || tmp == 'down' || tmp == 'set' || tmp == 'reset' || tmp == 'info' || tmp == 'top') {
           subcommand = tmp;
           break;
         }
@@ -63,6 +65,10 @@ module.exports = (msg,args) => {
         await giveTake(msg,subcommand,targetUserId,args);
       else if (subcommand == 'up')
         await up(msg,targetUserId,args);
+      else if (subcommand == 'top')
+        await top(msg,targetUserId,args);
+      else if (subcommand == 'info')
+        await info(msg,targetUserId,args);
       else if (subcommand == 'set')
         await set(msg,targetUserId,args);
       else if (subcommand == 'reset')

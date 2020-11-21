@@ -77,7 +77,21 @@ exports.storage.resetGuildStats = (batchsize,guild) => {
   });
 }
 
-exports.storage.resetGuildMembers = (batchsize,guild,userIds) => {
+exports.storage.resetGuildStatsByType = (batchsize,guild,type) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+
+      const affectedRows = (await shardDb.query(guild.appData.dbHost,`DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`)).affectedRows;
+
+      if (affectedRows < batchsize)
+        exports.cache.resetGuildMembersAll(guild);
+
+      resolve(affectedRows);
+    } catch (e) { reject(e); }
+  });
+}
+
+exports.storage.resetGuildMembersStats = (batchsize,guild,userIds) => {
   return new Promise(async function (resolve, reject) {
     try {
       let affectedRows = 0;
@@ -98,7 +112,7 @@ exports.storage.resetGuildMembers = (batchsize,guild,userIds) => {
   });
 }
 
-exports.storage.resetGuildChannels = (batchsize,guild,channelIds) => {
+exports.storage.resetGuildChannelsStats = (batchsize,guild,channelIds) => {
   return new Promise(async function (resolve, reject) {
     try {
       let affectedRows = 0;

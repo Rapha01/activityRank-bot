@@ -71,7 +71,7 @@ const getSql = (type,entries) => {
     `;
   }
 
-  if (type == 'vote' || type == 'bonus') {
+  if (type == 'invite'|| type == 'vote' || type == 'bonus') {
     for (let entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
           LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),

@@ -77,7 +77,7 @@ exports.getChannelMemberRanks = (guild,channelId,type,time,from,to) => {
 }
 
 // Most active channels of a certain member
-exports.getGuildMemberChannelRanks = function(guild,userId,type,time,from,to) {
+exports.getGuildMemberTopChannels = function(guild,userId,type,time,from,to) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(guild.appData.dbHost,`SELECT channelId,${time} FROM ${type}
@@ -141,6 +141,9 @@ function getGuildMemberTotalScoreSql(guild, userId) {
   const voterankSql = `(SELECT userId,
         alltime AS voteAlltime
         FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS voterank`;
+  const inviterankSql = `(SELECT userId,
+        alltime AS inviteAlltime
+        FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS inviterank`;
   const bonusrankSql = `(SELECT userId,
         alltime AS bonusAlltime
         FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
@@ -151,14 +154,16 @@ function getGuildMemberTotalScoreSql(guild, userId) {
       IFNULL(voiceMinuteAlltime,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
       IFNULL(textMessageAlltime,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreAlltime,
       IFNULL(voteAlltime,0) * ${guild.appData.xpPerVote} AS voteScoreAlltime,
+      IFNULL(inviteAlltime,0) * ${guild.appData.xpPerInvite} AS inviteScoreAlltime,
       IFNULL(bonusAlltime,0) AS bonusScoreAlltime
       FROM ${memberIdSql}
       LEFT JOIN ${voicerankSql} ON userIds.userId = voicerank.userId
       LEFT JOIN ${textrankSql} ON userIds.userId = textrank.userId
       LEFT JOIN ${voterankSql} ON userIds.userId = voterank.userId
+      LEFT JOIN ${inviterankSql} ON userIds.userId = inviterank.userId
       LEFT JOIN ${bonusrankSql} ON userIds.userId = bonusrank.userId) AS memberrankraw`;
 
-  const memberTotalScoreAlltimeSql = `SELECT (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime FROM ${memberRankRawSql}`;
+  const memberTotalScoreAlltimeSql = `SELECT (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + inviteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime FROM ${memberRankRawSql}`;
 
   return memberTotalScoreAlltimeSql;
 }
@@ -187,6 +192,13 @@ function getGuildMemberRanksSql(guild) {
       week AS voteWeek,
       day AS voteDay
       FROM vote WHERE guildId = ${guild.id} AND alltime != 0) AS voteranks`;
+  const inviteranksSql = `(SELECT userId,
+      alltime AS inviteAlltime,
+      year AS inviteYear,
+      month AS inviteMonth,
+      week AS inviteWeek,
+      day AS inviteDay
+      FROM invite WHERE guildId = ${guild.id} AND alltime != 0) AS inviteranks`;
   const bonusranksSql = `(SELECT userId,
       alltime AS bonusAlltime,
       year AS bonusYear,
@@ -216,6 +228,11 @@ function getGuildMemberRanksSql(guild) {
       IFNULL(voteMonth,0) * ${guild.appData.xpPerVote} AS voteScoreMonth,
       IFNULL(voteWeek,0) * ${guild.appData.xpPerVote} AS voteScoreWeek,
       IFNULL(voteDay,0) * ${guild.appData.xpPerVote} AS voteScoreDay,
+      IFNULL(inviteAlltime,0) * ${guild.appData.xpPerInvite} AS inviteScoreAlltime,
+      IFNULL(inviteYear,0) * ${guild.appData.xpPerInvite} AS inviteScoreYear,
+      IFNULL(inviteMonth,0) * ${guild.appData.xpPerInvite} AS inviteScoreMonth,
+      IFNULL(inviteWeek,0) * ${guild.appData.xpPerInvite} AS inviteScoreWeek,
+      IFNULL(inviteDay,0) * ${guild.appData.xpPerInvite} AS inviteScoreDay,
       IFNULL(bonusAlltime,0) * ${guild.appData.xpPerBonus} AS bonusScoreAlltime,
       IFNULL(bonusYear,0) * ${guild.appData.xpPerBonus} AS bonusScoreYear,
       IFNULL(bonusMonth,0) * ${guild.appData.xpPerBonus} AS bonusScoreMonth,
@@ -236,6 +253,11 @@ function getGuildMemberRanksSql(guild) {
       IFNULL(voteMonth,0) AS voteMonth,
       IFNULL(voteWeek,0) AS voteWeek,
       IFNULL(voteDay,0) AS voteDay,
+      IFNULL(inviteAlltime,0) AS inviteAlltime,
+      IFNULL(inviteYear,0) AS inviteYear,
+      IFNULL(inviteMonth,0) AS inviteMonth,
+      IFNULL(inviteWeek,0) AS inviteWeek,
+      IFNULL(inviteDay,0) AS inviteDay,
       IFNULL(bonusAlltime,0) AS bonusAlltime,
       IFNULL(bonusYear,0) AS bonusYear,
       IFNULL(bonusMonth,0) AS bonusMonth,
@@ -245,48 +267,56 @@ function getGuildMemberRanksSql(guild) {
       LEFT JOIN ${voiceranksSql} ON userIds.userId = voiceranks.userId
       LEFT JOIN ${textranksSql} ON userIds.userId = textranks.userId
       LEFT JOIN ${voteranksSql} ON userIds.userId = voteranks.userId
+      LEFT JOIN ${inviteranksSql} ON userIds.userId = inviteranks.userId
       LEFT JOIN ${bonusranksSql} ON userIds.userId = bonusranks.userId) AS memberranksraw`;
 
   const memberRanksSql = `(SELECT memberranksraw.*,
-      (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime,
-      (voiceMinuteScoreYear + textMessageScoreYear + voteScoreYear + bonusScoreYear) AS totalScoreYear,
-      (voiceMinuteScoreMonth + textMessageScoreMonth + voteScoreMonth + bonusScoreMonth) AS totalScoreMonth,
-      (voiceMinuteScoreWeek + textMessageScoreWeek + voteScoreWeek + bonusScoreWeek) AS totalScoreWeek,
-      (voiceMinuteScoreDay + textMessageScoreDay + voteScoreDay + bonusScoreDay) AS totalScoreDay FROM ${memberRanksRawSql})`;
+      (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + inviteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime,
+      (voiceMinuteScoreYear + textMessageScoreYear + voteScoreYear + inviteScoreYear + bonusScoreYear) AS totalScoreYear,
+      (voiceMinuteScoreMonth + textMessageScoreMonth + voteScoreMonth + inviteScoreMonth + bonusScoreMonth) AS totalScoreMonth,
+      (voiceMinuteScoreWeek + textMessageScoreWeek + voteScoreWeek + inviteScoreWeek + bonusScoreWeek) AS totalScoreWeek,
+      (voiceMinuteScoreDay + textMessageScoreDay + voteScoreDay + inviteScoreDay + bonusScoreDay) AS totalScoreDay FROM ${memberRanksRawSql})`;
 
   return memberRanksSql;
 }
 
 function getGuildMemberRankSql(guild,userId) {
   const voicerankSql = `(SELECT userId,
-        SUM(alltime) AS voiceMinutealltime,
-        SUM(Year) AS voiceMinuteYear,
-        SUM(Month) AS voiceMinuteMonth,
-        SUM(Week) AS voiceMinuteWeek,
-        SUM(Day) AS voiceMinuteDay
+        SUM(alltime) AS voiceMinuteAlltime,
+        SUM(year) AS voiceMinuteYear,
+        SUM(month) AS voiceMinuteMonth,
+        SUM(week) AS voiceMinuteWeek,
+        SUM(day) AS voiceMinuteDay
         FROM voiceMinute WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
         GROUP BY userId) AS voicerank`;
   const textrankSql = `(SELECT userId,
-        SUM(alltime) AS textMessagealltime,
-        SUM(Year) AS textMessageYear,
-        SUM(Month) AS textMessageMonth,
-        SUM(Week) AS textMessageWeek,
-        SUM(Day) AS textMessageDay
+        SUM(alltime) AS textMessageAlltime,
+        SUM(year) AS textMessageYear,
+        SUM(month) AS textMessageMonth,
+        SUM(week) AS textMessageWeek,
+        SUM(day) AS textMessageDay
         FROM textMessage WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
         GROUP BY userId) AS textrank`;
   const voterankSql = `(SELECT userId,
-        alltime AS votealltime,
-        Year AS voteYear,
-        Month AS voteMonth,
-        Week AS voteWeek,
-        Day AS voteDay
+        alltime AS voteAlltime,
+        year AS voteYear,
+        month AS voteMonth,
+        week AS voteWeek,
+        day AS voteDay
         FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS voterank`;
+  const inviterankSql = `(SELECT userId,
+        alltime AS inviteAlltime,
+        year AS inviteYear,
+        month AS inviteMonth,
+        week AS inviteWeek,
+        day AS inviteDay
+        FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS inviterank`;
   const bonusrankSql = `(SELECT userId,
-        alltime AS bonusalltime,
-        Year AS bonusYear,
-        Month AS bonusMonth,
-        Week AS bonusWeek,
-        Day AS bonusDay
+        alltime AS bonusAlltime,
+        year AS bonusYear,
+        month AS bonusMonth,
+        week AS bonusWeek,
+        day AS bonusDay
         FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
   const memberIdSql = `(SELECT '${userId}' AS userId) AS userIds`;
 
@@ -307,6 +337,11 @@ function getGuildMemberRankSql(guild,userId) {
       IFNULL(voteMonth,0) * ${guild.appData.xpPerVote} AS voteScoreMonth,
       IFNULL(voteWeek,0) * ${guild.appData.xpPerVote} AS voteScoreWeek,
       IFNULL(voteDay,0) * ${guild.appData.xpPerVote} AS voteScoreDay,
+      IFNULL(inviteAlltime,0) * ${guild.appData.xpPerInvite} AS inviteScoreAlltime,
+      IFNULL(inviteYear,0) * ${guild.appData.xpPerInvite} AS inviteScoreYear,
+      IFNULL(inviteMonth,0) * ${guild.appData.xpPerInvite} AS inviteScoreMonth,
+      IFNULL(inviteWeek,0) * ${guild.appData.xpPerInvite} AS inviteScoreWeek,
+      IFNULL(inviteDay,0) * ${guild.appData.xpPerInvite} AS inviteScoreDay,
       IFNULL(bonusAlltime,0) * ${guild.appData.xpPerBonus} AS bonusScoreAlltime,
       IFNULL(bonusYear,0) * ${guild.appData.xpPerBonus} AS bonusScoreYear,
       IFNULL(bonusMonth,0) * ${guild.appData.xpPerBonus} AS bonusScoreMonth,
@@ -327,6 +362,11 @@ function getGuildMemberRankSql(guild,userId) {
       IFNULL(voteMonth,0) AS voteMonth,
       IFNULL(voteWeek,0) AS voteWeek,
       IFNULL(voteDay,0) AS voteDay,
+      IFNULL(inviteAlltime,0) AS inviteAlltime,
+      IFNULL(inviteYear,0) AS inviteYear,
+      IFNULL(inviteMonth,0) AS inviteMonth,
+      IFNULL(inviteWeek,0) AS inviteWeek,
+      IFNULL(inviteDay,0) AS inviteDay,
       IFNULL(bonusAlltime,0) AS bonusAlltime,
       IFNULL(bonusYear,0) AS bonusYear,
       IFNULL(bonusMonth,0) AS bonusMonth,
@@ -336,14 +376,15 @@ function getGuildMemberRankSql(guild,userId) {
       LEFT JOIN ${voicerankSql} ON userIds.userId = voicerank.userId
       LEFT JOIN ${textrankSql} ON userIds.userId = textrank.userId
       LEFT JOIN ${voterankSql} ON userIds.userId = voterank.userId
+      LEFT JOIN ${inviterankSql} ON userIds.userId = inviterank.userId
       LEFT JOIN ${bonusrankSql} ON userIds.userId = bonusrank.userId) AS memberrankraw`;
 
   const memberRankSql = `(SELECT memberrankraw.*,
-      (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime,
-      (voiceMinuteScoreYear + textMessageScoreYear + voteScoreYear + bonusScoreYear) AS totalScoreYear,
-      (voiceMinuteScoreMonth + textMessageScoreMonth + voteScoreMonth + bonusScoreMonth) AS totalScoreMonth,
-      (voiceMinuteScoreWeek + textMessageScoreWeek + voteScoreWeek + bonusScoreWeek) AS totalScoreWeek,
-      (voiceMinuteScoreDay + textMessageScoreDay + voteScoreDay + bonusScoreDay) AS totalScoreDay FROM ${memberRankRawSql})`;
+      (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + inviteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime,
+      (voiceMinuteScoreYear + textMessageScoreYear + voteScoreYear + inviteScoreYear + bonusScoreYear) AS totalScoreYear,
+      (voiceMinuteScoreMonth + textMessageScoreMonth + voteScoreMonth + inviteScoreMonth + bonusScoreMonth) AS totalScoreMonth,
+      (voiceMinuteScoreWeek + textMessageScoreWeek + voteScoreWeek + inviteScoreWeek + bonusScoreWeek) AS totalScoreWeek,
+      (voiceMinuteScoreDay + textMessageScoreDay + voteScoreDay + inviteScoreDay + bonusScoreDay) AS totalScoreDay FROM ${memberRankRawSql})`;
 
   return memberRankSql;
 }

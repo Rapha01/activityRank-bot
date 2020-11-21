@@ -12,28 +12,39 @@ module.exports = (member) => {
         return resolve();
 
       await guildModel.cache.load(member.guild);
-
-      // Stats
       await guildMemberModel.cache.load(member);
 
       // Roleassignments
       const level = fct.getLevel(fct.getLevelProgression(member.appData.totalScore,member.guild.appData.levelFactor));
       const roleAssignmentString = await levelManager.checkRoleAssignment(member,level);
 
-      // Activityboard
-      await autoPostServerJoin(member,roleAssignmentString);
+      // AutoPost serverjoin
+      if (member.guild.appData.autopost_serverJoin != 0)
+        await autoPostServerJoin(member,roleAssignmentString);
+
+      // Invite Xp
+      await giveInviteXp(member);
 
       resolve();
     } catch (e) { reject(e); }
   });
 }
 
+const giveInviteXp = (member) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      console.log(member);
+
+      //if (member.guild.appData.inviteXp)
+
+      resolve();
+    } catch (e) { reject(e); }
+  });
+};
+
 const autoPostServerJoin = (member,roleAssignmentString) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (member.guild.appData.autopost_serverJoin == 0)
-        return resolve();
-
       const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
       if (!channel)
         return resolve();
