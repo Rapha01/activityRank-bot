@@ -22,25 +22,12 @@ module.exports = (member) => {
       if (member.guild.appData.autopost_serverJoin != 0)
         await autoPostServerJoin(member,roleAssignmentString);
 
-      // Invite Xp
-      await giveInviteXp(member);
-
       resolve();
     } catch (e) { reject(e); }
   });
 }
 
-const giveInviteXp = (member) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      console.log(member);
 
-      //if (member.guild.appData.inviteXp)
-
-      resolve();
-    } catch (e) { reject(e); }
-  });
-};
 
 const autoPostServerJoin = (member,roleAssignmentString) => {
   return new Promise(async function (resolve, reject) {
