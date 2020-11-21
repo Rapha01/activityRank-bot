@@ -61,8 +61,8 @@ exports.getGuildMemberInfos = (guild,userIds) => {
         for (let fetchedMember of fetchedMembers) {
           infos[userId] = {};
           infos[userId].name = exports.getGuildMemberAlias(fetchedMember[1]);
-          infos[userId].avatarUrl = member.user.avatarURL(fetchedMember[1]);
-          infos[userId].joinedAt = member.joinedAt;
+          infos[userId].avatarUrl = fetchedMember.user.avatarURL(fetchedMember[1]);
+          infos[userId].joinedAt = fetchedMember.joinedAt;
         }
       }
 
