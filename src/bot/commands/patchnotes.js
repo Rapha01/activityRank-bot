@@ -37,5 +37,4 @@ function patchnotesMainEmbed (patchnotes) {
   }
 
   return {embed};
-  console.log(features);
 }

@@ -48,6 +48,9 @@ const rankVoiceGuild = (guild) => {
 
       await guildModel.cache.load(guild);
 
+      if (!guild.appData.voiceXp)
+        return resolve();
+      
       const voiceChannels = guild.channels.cache.filter(channel => channel.type == 'voice');
 
       for  (let channel of voiceChannels) {
@@ -73,10 +76,29 @@ const rankVoiceChannel = (channel) => {
         if (await noXp(channel,member))
           continue;
 
-        await statFlushCache.addVoiceMinute(member,channel,roundMinutes);
+        await rankVoiceMember(member,channel);
         await fct.sleep(300).catch(e => console.log(e));
       }
 
+      resolve();
+    } catch (e) { reject(e); }
+  });
+}
+
+const rankVoiceMember = (member,channel) => {
+  return new Promise(async function(resolve, reject) {
+    try {
+      /*const now = Date.now() / 1000;
+
+      if (!member.appData.lastVoiceXpDate) {
+        member.appData.lastVoiceXpDate = now;
+        return resolve();
+      }
+
+      console.log(now);*/
+
+
+      await statFlushCache.addVoiceMinute(member,channel,roundMinutes);
       resolve();
     } catch (e) { reject(e); }
   });

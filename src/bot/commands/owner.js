@@ -31,8 +31,6 @@ module.exports = (msg,args) => {
 function footer(msg,field,value) {
   return new Promise(async function (resolve, reject) {
     try {
-
-      console.log(field,value);
       await backupApi.setSingle('gl_admin',{id:0},field,value)
       await msg.channel.send('Setting updated.');
       resolve();

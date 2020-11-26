@@ -38,8 +38,8 @@ module.exports = (msg,args) => {
         await invitexp(msg,value);
       else if (field == 'votexp')
         await votexp(msg,value);
-      else if (field == 'bonusxp')
-        await bonusxp(msg,value);
+      //else if (field == 'bonusxp')
+        //await bonusxp(msg,value);
       else if (field == 'entriesperpage')
         await entriesperpage(msg,value);
       else if (field == 'shownicknames')

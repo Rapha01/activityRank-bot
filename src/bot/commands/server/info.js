@@ -51,6 +51,7 @@ function info(msg,myGuild) {
 
       embed.addField('**General**',
           'Tracking since: ' + new Date(myGuild.addDate * 1000).toLocaleString().substr(0,9) + '.\n' +
+          'Tracking stats: ' + (myGuild.textXp ? ':writing_hand: ' : '') + (myGuild.voiceXp ? ':microphone2: ' : '') + (myGuild.inviteXp ? ':envelope: ' : '') + (myGuild.voteXp ? myGuild.voteEmote+' ' : '') + (myGuild.bonusXp ? myGuild.bonusEmote+' ' : '') + '.\n' +
           'Notify levelup direct message: ' + (myGuild.notifyLevelupDm ? 'Yes' : 'No') + '.\n' +
           'Notify levelup specific channel: ' + (myGuild.autopost_levelup ? '#' + nameUtil.getChannelName(msg.guild.channels.cache,myGuild.autopost_levelup) : 'No') + '.\n' +
           'Notify levelup current channel: ' + (myGuild.notifyLevelupCurrentChannel ? 'Yes' : 'No') + '.\n' +
@@ -126,7 +127,6 @@ function messages(msg,myGuild,from,to) {
           .setDescription('Review the set messages and texts for the bot.')
           .setFooter(msg.client.appData.settings.footer);
 
-      console.log();
       entries = entries.slice(from-1,to);
       for (entry of entries)
         embed.addField(entry.title,entry.desc != '' ? entry.desc : 'Not set.');
@@ -140,7 +140,6 @@ function messages(msg,myGuild,from,to) {
 function levels(msg,myGuild,from,to) {
   return new Promise(async function (resolve, reject) {
     try {
-      console.log(from,to);
       const embed = new Discord.MessageEmbed()
           .setTitle('')
           .setAuthor('Levels info from ' + (from+1) + ' to ' + (to+1), '')

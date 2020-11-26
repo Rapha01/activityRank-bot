@@ -10,6 +10,14 @@ const cooldownUtil = require('../../util/cooldownUtil.js');
 module.exports = (msg,targetUserId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
+      if (!msg.guild.appData.voteXp) {
+        await msg.channel.send('Voting is disabled on this server.');
+        return resolve();
+      }
+
+      if (!targetUserId)
+        targetUserId = msg.member.id;
+
       const targetMember = msg.guild.members.cache.get(targetUserId);
 
       if (!targetMember) {

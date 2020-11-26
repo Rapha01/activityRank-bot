@@ -24,7 +24,7 @@ module.exports = (msg) => {
 
 			if (msg.channel.appData.noCommand && !msg.member.hasPermission("MANAGE_GUILD"))
 				return resolve();
-console.log(msg.guild.appData.commandOnlyChannel, msg.guild.appData.commandOnlyChannel, msg.channel.id);
+
 			if (msg.guild.appData.commandOnlyChannel != 0 && msg.guild.appData.commandOnlyChannel != msg.channel.id && !msg.member.hasPermission("MANAGE_GUILD"))
 				return resolve();
 

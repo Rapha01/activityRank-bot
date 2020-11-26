@@ -26,7 +26,7 @@ module.exports = (msg) => {
           await handleCommand(msg);
         else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id)
           await msg.channel.send('Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!');
-        else
+        else if (msg.guild.appData.textXp)
           await rankMessage(msg);
       }
 

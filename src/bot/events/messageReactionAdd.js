@@ -25,6 +25,9 @@ module.exports = (reaction) => {
 
       await guildModel.cache.load(guild);
 
+      if (!guild.appData.voteXp || !guild.appData.reactionVote)
+        return resolve();
+
       if (!reaction._emoji.id) {
         if (reaction._emoji.name != emoji.get(guild.appData.voteEmote) && reaction._emoji.name != guild.appData.voteEmote)
           return resolve();
@@ -40,16 +43,13 @@ module.exports = (reaction) => {
       if (!member)
           member = guild.members.fetch(reaction.users.cache.last().id);
 
-      if (!targetMember || !member || member.user.bot)
-        return resolve();
-
-      if (targetMember.id == member.id)
+      if (!targetMember || !member || member.user.bot || targetMember.id == member.id)
         return resolve();
 
       await guildMemberModel.cache.load(member);
       await guildMemberModel.cache.load(targetMember);
 
-      if (!guild.appData.reactionVote || !member.appData.reactionVote)
+      if (!member.appData.reactionVote)
         return resolve();
 
       for (let role of targetMember.roles.cache) {

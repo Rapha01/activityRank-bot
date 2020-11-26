@@ -50,7 +50,6 @@ exports.storage.resetGuildSettings = (batchsize,guild) => {
         exports.cache.resetGuild(guild);
       }
 
-      //console.log(res);
       resolve(affectedRows);
     } catch (e) { reject(e); }
   });

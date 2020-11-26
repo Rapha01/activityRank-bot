@@ -20,7 +20,7 @@ module.exports = (msg,targetUserId,args) => {
       const field = args[0].toLowerCase();
 
       if (field == 'stats') {
-        resetModel.resetJobs[msg.guild.id] = {type:'guildMembers',cmdChannel:msg.channel,userIds:[targetUserId]};
+        resetModel.resetJobs[msg.guild.id] = {type:'guildMembersStats',cmdChannel:msg.channel,userIds:[targetUserId]};
         await msg.channel.send('Resetting, please wait...');
       } else {
         await msg.channel.send(errorMsgs.invalidArgument.replace('<prefix>',msg.guild.appData.prefix));
