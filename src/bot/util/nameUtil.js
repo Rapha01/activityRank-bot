@@ -77,7 +77,7 @@ exports.getGuildMemberInfos = (guild,userIds) => {
       }
 
       resolve(infos);
-    } catch (e) { console.log(e); }
+    } catch (e) { return reject(e); }
   });
 }
 
@@ -86,7 +86,7 @@ exports.getGuildMemberInfo = (guild,userId) => {
     try {
       const guildMemberName = (await exports.getGuildMemberInfos(guild,[userId]))[userId];
       resolve(guildMemberName);
-    } catch (e) { console.log(e); }
+    } catch (e) { return reject(e); }
   });
 }
 
@@ -101,7 +101,7 @@ exports.addGuildMemberNamesToRanks = (guild,memberRanks) => {
         memberRank.name = memberInfos[memberRank.userId].name;
 
       resolve();
-    } catch (e) { console.log(e); }
+    } catch (e) { return reject(e); }
   });
 }
 

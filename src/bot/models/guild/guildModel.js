@@ -85,6 +85,7 @@ const buildCache = (guild) => {
       let cache = await shardDb.query(dbHost,`SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`);
 
       if (cache.length == 0) {
+        console.log
         await shardDb.query(dbHost,`INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${guild.id},${Math.floor(guild.me.joinedAt / 1000)},${Math.floor(Date.now() / 1000)})`);
         cache = await shardDb.query(dbHost,`SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`);
       }

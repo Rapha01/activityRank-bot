@@ -8,7 +8,7 @@ exports.userNotFound = 'User not found.';
 exports.activeStatCommandCooldown = (cd,toWait) => {
   return 'You can use stat commands only once per ' + cd + ' seconds, please wait ' + Math.ceil(toWait) + ' more seconds. ';
 }
-exports.activeStatCommandCooldown = (cd,toWait) => {
+exports.activeResetServerCommandCooldown = (cd,toWait) => {
   return 'You can start a server reset only once every ' + cd  + ' seconds, please wait ' + Math.ceil(toWait) + ' more seconds.';
 }
 exports.premiumLowersCooldown = 'You can significantly lower this cooldown by using tokens to activate premium time for your server. You can find further info about it here: https://activityrank.me/premium. ';

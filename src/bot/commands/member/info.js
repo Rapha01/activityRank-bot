@@ -22,7 +22,6 @@ module.exports = (msg,targetUserId,args) => {
 
       await sendMemberInfoEmbed(msg,myGuild,targetUserId);
 
-      console.log('  Sent score.');
       return resolve();
     } catch (e) { return reject(e); }
   });

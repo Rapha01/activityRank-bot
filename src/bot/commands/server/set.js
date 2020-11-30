@@ -425,7 +425,7 @@ function xppervote(msg,value) {
   return new Promise(async function (resolve, reject) {
     try {
       if (isNaN(value) || value > 100 || value < 0) {
-        await msg.channel.send('Points per ' + msg.guild.appData.votetag + ' needs to be a value within 0 and 100.');
+        await msg.channel.send('xpPerVote needs to be a value within 0 and 100.');
         return resolve();
       }
 
