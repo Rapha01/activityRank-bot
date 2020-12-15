@@ -41,7 +41,7 @@ const createPool = (dbHost) => {
           charset             : 'utf8mb4',
           supportBigNumbers   : true,
           bigNumberStrings    : true,
-          connectionLimit     : 300
+          connectionLimit     : 3
         });
 
         pools[dbHost].on('error', function(err) {
