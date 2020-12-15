@@ -79,11 +79,14 @@ function initEventTriggers(client) {
   client.on('voiceStateUpdate', async (oldState, newState) => {
     try {
       if (oldState.member.user.bot) return;
+      console.log(newState.guild);
 
       if (oldState.channel == null && newState.channel != null) {
+        await guildModel.cache.load(newState.guild);
         await guildMemberModel.cache.load(newState.member);
         await rankVoiceMember(newState.member,newState.channel);
       } else if (newState.channel == null) {
+        await guildModel.cache.load(oldState.guild);
         await guildMemberModel.cache.load(oldState.member);
         await rankVoiceMember(oldState.member,oldState.channel);
       }
