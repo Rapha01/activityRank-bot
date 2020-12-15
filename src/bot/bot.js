@@ -80,11 +80,11 @@ function initEventTriggers(client) {
     try {
       if (oldState.member.user.bot) return;
 
-      if (oldState.channel == null && newState.channel != null) {
+      if (oldState.channel == null && newState.channel != null && newState.member != null) {
         await guildModel.cache.load(newState.guild);
         await guildMemberModel.cache.load(newState.member);
         await rankVoiceMember(newState.member,newState.channel);
-      } else if (newState.channel == null) {
+      } else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
         await guildModel.cache.load(oldState.guild);
         await guildMemberModel.cache.load(oldState.member);
         await rankVoiceMember(oldState.member,oldState.channel);
