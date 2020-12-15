@@ -35,7 +35,7 @@ exports.info = {
     {title: 'Levels',command: '<prefix>info levels [ page ]',desc:'A list of levels and the XP you need for each.',example: '<prefix>s info levels'},
     {title: 'Roles',command: '<prefix>info roles [ page ]',desc:'A list of roles and the levels you need for each.',example: '<prefix>s info roles'},
     {title: 'No XP Channels',command: '<prefix>info noXpChannels [ page ]',desc:'A list of channels that don\'t give xp.',example: '<prefix>s info noXpChannels'},
-    {title: 'No XP Roles',command: '<prefix>info noXpRoles [ page ]',desc:'A list of roles that don\'t give xp.',example: '<prefix>s info noXpRoles'}
+    {title: 'No XP Roles',command: '<prefix>info noXpRoles [ page ]',desc:'A list of roles that don\'t give xp.',example: '<prefix>s info noXpRoles'},
     {title: 'Messages',command: '<prefix>info messages [ page ]',desc:'A list of your set messages.',example: '<prefix>s info messages'}
   ]
 };
