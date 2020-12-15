@@ -79,7 +79,6 @@ function initEventTriggers(client) {
   client.on('voiceStateUpdate', async (oldState, newState) => {
     try {
       if (oldState.member.user.bot) return;
-      console.log(newState.guild);
 
       if (oldState.channel == null && newState.channel != null) {
         await guildModel.cache.load(newState.guild);
