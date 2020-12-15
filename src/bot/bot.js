@@ -84,11 +84,11 @@ function initEventTriggers(client) {
         await guildModel.cache.load(newState.guild);
         await guildMemberModel.cache.load(newState.member);
         await rankVoiceMember(newState.member,newState.channel);
-      } else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
+      } /*else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
         await guildModel.cache.load(oldState.guild);
         await guildMemberModel.cache.load(oldState.member);
         await rankVoiceMember(oldState.member,oldState.channel);
-      }
+      }*/
 
     } catch (e) { console.log(e); }
   })
