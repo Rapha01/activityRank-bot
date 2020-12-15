@@ -4,6 +4,8 @@ const guildModel = require('./models/guild/guildModel.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
+const rankVoiceMember = require('./util/rankVoiceMember.js');
+const guildMemberModel = require('./models/guild/guildMemberModel.js');
 
 const client = new Discord.Client(
   {ws: {intents:
@@ -73,6 +75,21 @@ function initEventTriggers(client) {
     console.log('client.onError: ', err);
     //process.exit();
   });
+
+  client.on('voiceStateUpdate', async (oldState, newState) => {
+    try {
+      if (oldState.member.user.bot) return;
+
+      if (oldState.channel == null && newState.channel != null) {
+        await guildMemberModel.cache.load(newState.member);
+        await rankVoiceMember(newState.member,newState.channel);
+      } else if (newState.channel == null) {
+        await guildMemberModel.cache.load(oldState.member);
+        await rankVoiceMember(oldState.member,oldState.channel);
+      }
+
+    } catch (e) { console.log(e); }
+  })
 
   client.on('message', (msg) => {onMessage(msg).catch(e => console.log(e));});
   client.on('guildCreate', (guild) => {onGuildCreate(guild).catch(e => console.log(e));});

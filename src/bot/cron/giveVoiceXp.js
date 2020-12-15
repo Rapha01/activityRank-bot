@@ -1,41 +1,36 @@
 const levelManager = require('../levelManager.js');
 const fct = require('../../util/fct.js');
-const statFlushCache = require('../statFlushCache.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildRoleModel = require('../models/guild/guildRoleModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
-
-let roundMinutes = 10;
+const rankVoiceMember = require('../util/rankVoiceMember.js');
 
 exports.start = async (client) => {
   let hrstart,hrend;
 
   while (true) {
-
     hrstart = process.hrtime();
 
     for (let guild of client.guilds.cache) {
       guild = guild[1];
 
       try {
+        await fct.sleep(350);
+
         if (!skip(guild.id))
           await rankVoiceGuild(guild);
-      } catch (e) { console.log(e); }
 
-      try {
-        await fct.sleep(350);
       } catch (e) { console.log(e); }
     }
 
     try {
-      await fct.sleep(60000);
+      await fct.sleep(10000);
     } catch (e) { console.log(e); }
 
-    hrend = process.hrtime(hrstart);
-    roundMinutes =  Math.round(hrend[0] / 60);
-    console.log('RankVoice round finished after ' + roundMinutes + 'm.');
+    rankVoiceMember.round++;
+    console.log('RankVoice round finished after ' + Math.round(process.hrtime(hrstart)[0] / 60) + 'm.');
   }
 }
 
@@ -50,7 +45,7 @@ const rankVoiceGuild = (guild) => {
 
       if (!guild.appData.voiceXp)
         return resolve();
-      
+
       const voiceChannels = guild.channels.cache.filter(channel => channel.type == 'voice');
 
       for  (let channel of voiceChannels) {
@@ -77,28 +72,8 @@ const rankVoiceChannel = (channel) => {
           continue;
 
         await rankVoiceMember(member,channel);
-        await fct.sleep(300).catch(e => console.log(e));
+        await fct.sleep(350);
       }
-
-      resolve();
-    } catch (e) { reject(e); }
-  });
-}
-
-const rankVoiceMember = (member,channel) => {
-  return new Promise(async function(resolve, reject) {
-    try {
-      /*const now = Date.now() / 1000;
-
-      if (!member.appData.lastVoiceXpDate) {
-        member.appData.lastVoiceXpDate = now;
-        return resolve();
-      }
-
-      console.log(now);*/
-
-
-      await statFlushCache.addVoiceMinute(member,channel,roundMinutes);
       resolve();
     } catch (e) { reject(e); }
   });

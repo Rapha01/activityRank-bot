@@ -70,7 +70,8 @@ function sendMemberInfoEmbed(msg,myGuild,targetUserId) {
           .addField('Settings',
               'Notify levelup direct message: ' + (myGuild.notifyLevelupDm ? 'Yes' : 'No') + '.\n' +
               'Reaction vote: ' + (myGuild.reactionVote ? 'Yes' : 'No') + '.\n' )
-          .addField('Activity',lastActivityStr);
+          .addField('Recent Activity',lastActivityStr)
+          .addField('Stats','Rank: Use ``' + msg.guild.appData.prefix + 'm stats``.\n' + 'Channels: Use ``' + msg.guild.appData.prefix + 'm top channels``.');
 
 
 

@@ -45,10 +45,10 @@ function sendChannelsEmbed(msg,targetUserId,args,time,from,to) {
       let type,typestr;
       if (args.indexOf('voice') > -1) {
         type = 'voiceMinute';
-        typestr = 'voiceChannels';
+        typestr = 'voice';
       } else if (args.indexOf('text') > -1) {
         type = 'textMessage';
-        typestr = 'textChannels';
+        typestr = 'text';
       }
 
       if (!type) {
@@ -56,7 +56,8 @@ function sendChannelsEmbed(msg,targetUserId,args,time,from,to) {
         return resolve();
       }
 
-      let header = 'Toplist for ' + typestr + ' from ' + from + ' to ' + to + ' | ' + time;
+      const guildMemberInfo = await nameUtil.getGuildMemberInfo(msg.guild, targetUserId);
+      let header = time + ' ' + typestr + ' channel toplist for ' + guildMemberInfo.name  + ' from ' + from + ' to ' + to ;
 
       const guildMemberTopChannels = await rankModel.getGuildMemberTopChannels(msg.guild,targetUserId,type,time,from,to);
 
