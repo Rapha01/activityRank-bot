@@ -21,7 +21,7 @@ exports.voting = {
   subdesc: 'Upvote or invite another user for a bunch of XP. You can do this once every now and then (cooldown depends on the server settings).',
   subcommands: [
     {title: 'Inviter',command: '<prefix>member { @user | userName#tag | userId } set inviter',desc:'Set someone else as your inviter. He will receive invite XP and you will receive as much XP as bonus. You can set your inviter only once.',example: '<prefix>m username#0001 set inviter'},
-    {title: 'Upvote',command: '<prefix>member { @user | userName#tag | userId } up',desc:'Upvote someone (and grant some XP to the user)',example: '<prefix>member @user up. ' + '<prefix>m username#0001 up'},
+    {title: 'Upvote',command: '<prefix>member { @user | userName#tag | userId } up',desc:'Upvote someone (and grant some XP to the user)',example: '<prefix>m @user up. ' + '<prefix>m username#0001 up'},
   ]
 };
 
