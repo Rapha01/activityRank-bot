@@ -3,23 +3,25 @@ exports.stats = {
   desc: 'View server statistics.',
   subdesc: 'Get an ordered and filtered list of users and channels for your current server. Note that any command can be used in its shortcut form, using only the first letter. F.e. \'ar!s stats\'.',
   subcommands: [
-    {title: 'Members toplist',command: '<prefix>server top members (OR <prefix>top)',desc:'Shows the alltime most active users (top is the short form alias for this command).',example: '<prefix>server top members'},
-    {title: 'Members toplist [options]',command: '<prefix>server top members [ page ] [ alltime | year | month | week | day ] [ voice | text | <votetag> ]',desc:'Shows the n-th toplist page of most active users for the specified type and time.',example: '<prefix>server top members 2 week text'},
-    {title: 'Member stats',command: '<prefix>member stats',desc:'Your own stats.',example: '<prefix>member stats'},
-    {title: 'Member stats [options]',command: '<prefix>member [ @user | userName#tag | userId ] stats',desc:'Anothers stats',example: '<prefix>member 37065081423482880 stats'},
-    {title: 'Channels toplist',command: '<prefix>server top channels { text | voice }',desc:'Shows the alltime most active voice or text channels.',example: '<prefix>server top channels voice'},
-    {title: 'Channels toplist [options]',command: '<prefix>server top channels { text | voice } [ page ] [ alltime | year | month | week | day ]',desc:'Shows the n-th toplist page of most active voice or text channels for the specified time.',example: '<prefix>server top channels voice 2'},
+    {title: 'Members toplist',command: '<prefix>server top members (OR <prefix>top)',desc:'Shows the alltime most active users (top is the short form alias for this command).',example: '<prefix>s top members'},
+    {title: 'Members toplist [options]',command: '<prefix>server top members [ page ] [ alltime | year | month | week | day ] [ voice | text | <votetag> ]',desc:'Shows the n-th toplist page of most active users for the specified type and time.',example: '<prefix>s top members 2 week text'},
+    {title: 'Member stats',command: '<prefix>member stats',desc:'Your own stats.',example: '<prefix>m stats'},
+    {title: 'Member stats [options]',command: '<prefix>member [ @user | userName#tag | userId ] stats',desc:'Anothers stats',example: '<prefix>m 37065081423482880 stats'},
+    {title: 'Member top channels [options]',command: '<prefix>member [ @user | userName#tag | userId ] top channels text|voice',desc:'The channels the user was most active in',example: '<prefix>m 37065081423482880 top channels voice'},
+    {title: 'Channels toplist',command: '<prefix>server top channels { text | voice }',desc:'Shows the alltime most active voice or text channels.',example: '<prefix>s top channels voice'},
+    {title: 'Channels toplist [options]',command: '<prefix>server top channels { text | voice } [ page ] [ alltime | year | month | week | day ]',desc:'Shows the n-th toplist page of most active voice or text channels for the specified time.',example: '<prefix>s top channels voice 2'},
     {title: 'Channel member toplist',command: '<prefix>channel top members',desc:'Shows the alltime most active users of the current channel.',example: '<prefix>channel top members'},
-    {title: 'Channel member toplist [options]',command: '<prefix>channel [ #channel | channelName | channelId ] top members [ page ] [ alltime | year | month | week | day ]',desc:'Shows the n-th toplist page of most active members of the specified channel for the specified time.',example: '<prefix>channel #support top members 2 month'}
+    {title: 'Channel member toplist [options]',command: '<prefix>channel [ #channel | channelName | channelId ] top members [ page ] [ alltime | year | month | week | day ]',desc:'Shows the n-th toplist page of most active members of the specified channel for the specified time.',example: '<prefix>c #support top members 2 month'}
   ]
 };
 
 exports.voting = {
-  title: 'Voting',
-  desc: 'Upvote a user.',
-  subdesc: 'Upvote another user for a bunch of XP. You can do this once every now and then (cooldown depends on the server settings).',
+  title: 'Voting and inviting',
+  desc: 'Upvote or refer members.',
+  subdesc: 'Upvote or invite another user for a bunch of XP. You can do this once every now and then (cooldown depends on the server settings).',
   subcommands: [
-    {title: 'Upvote',command: '<prefix>member { @user | userName#tag | userId } up',desc:'Upvote someone (and grant some XP to the user)',example: '<prefix>member @user up. ' + '<prefix>member username#0001 up'},
+    {title: 'Inviter',command: '<prefix>member { @user | userName#tag | userId } set inviter',desc:'Set someone else as your inviter. He will receive invite XP and you will receive as much XP as bonus. You can set your inviter only once.' + '<prefix>m username#0001 set inviter'},
+    {title: 'Upvote',command: '<prefix>member { @user | userName#tag | userId } up',desc:'Upvote someone (and grant some XP to the user)',example: '<prefix>member @user up. ' + '<prefix>m username#0001 up'},
   ]
 };
 
@@ -28,11 +30,13 @@ exports.info = {
   desc: 'Information about the bots configuration on this server.',
   subdesc: 'View the bots settings for XP, leveling, roles and channels.',
   subcommands: [
-    {title: 'General',command: '<prefix>info',desc:'See general information and how much points you get for each activity.',example: '<prefix>info'},
-    {title: 'Levels',command: '<prefix>info levels [ page ]',desc:'A list of levels and the XP you need for each.',example: '<prefix>info levels'},
-    {title: 'Roles',command: '<prefix>info roles [ page ]',desc:'A list of roles and the levels you need for each.',example: '<prefix>info roles'},
-    {title: 'No XP Channels',command: '<prefix>info noXpChannels [ page ]',desc:'A list of channels that don\'t give xp.',example: '<prefix>info noXpChannels'},
-    {title: 'No XP Roles',command: '<prefix>info noXpRoles [ page ]',desc:'A list of roles that don\'t give xp.',example: '<prefix>info noXpRoles'}
+    {title: 'Server info',command: '<prefix>server info',desc:'See general information and how much points you get for each activity.',example: '<prefix>s info'},
+    {title: 'Member info',command: '<prefix>member [ @user | userName#tag | userId ] info',desc:'Anothers stats',example: '<prefix>m @Linck01 info'},
+    {title: 'Levels',command: '<prefix>info levels [ page ]',desc:'A list of levels and the XP you need for each.',example: '<prefix>s info levels'},
+    {title: 'Roles',command: '<prefix>info roles [ page ]',desc:'A list of roles and the levels you need for each.',example: '<prefix>s info roles'},
+    {title: 'No XP Channels',command: '<prefix>info noXpChannels [ page ]',desc:'A list of channels that don\'t give xp.',example: '<prefix>s info noXpChannels'},
+    {title: 'No XP Roles',command: '<prefix>info noXpRoles [ page ]',desc:'A list of roles that don\'t give xp.',example: '<prefix>s info noXpRoles'}
+    {title: 'Messages',command: '<prefix>info messages [ page ]',desc:'A list of your set messages.',example: '<prefix>s info messages'}
   ]
 };
 
@@ -53,7 +57,8 @@ exports.mysettings = {
   desc: 'Set your personal settings.',
   subdesc: 'Adjust settings like notifications for your member account.',
   subcommands: [
-    {title: 'Levelup messages',command: '<prefix>member set notifyLevelupDm ',desc:'Globaly turn on or off your own levelup messages from this bot for the current server.',example: '<prefix>member set notifyLevelupDm'}
+    {title: 'Levelup messages',command: '<prefix>member set notifyLevelupDm ',desc:'Globaly turn on or off your own levelup messages from this bot for the current server.',example: '<prefix>m set notifyLevelupDm'}
+    {title: 'Reaction voting',command: '<prefix>member set reactionVote ',desc:'Even if the admin has activated reactionVote for the server, you can still disable it only for you, if you want to keep tight control over who you are giving your votes to.',example: '<prefix>m set reactionVote'}
   ]
 };
 
@@ -74,6 +79,7 @@ exports.serverSettings = {
   subdesc: 'Adjust settings like prefix, emotes, and notifications.',
   subcommands: [
     {title: 'Prefix',command: '<prefix>server set prefix { text }',desc:'Changes the bots prefix for the server.',example: '<prefix>server set prefix /'},
+    {title: 'Stats modules',command: '<prefix>server set textXp | voiceXp | inviteXp | voteXp ',desc:'En- or disable a specific type of stat to be shown or recorded in your server. After disabling a stat type, it is recommended to reset the already recorded stats for this type for all members, otherwise the total XP will still include this data.',example: '<prefix>server set inviteXp'},
     {title: 'Vote tag',command: '<prefix>server set voteTag { text }',desc:'Customize the displayed word for the votescore.',example: '<prefix>server set voteTag gold'},
     {title: 'Vote emote',command: '<prefix>server set voteEmote { emote }',desc:'Customize the displayed emote for the votescore.',example: '<prefix>server set voteEmote :moneybag:'},
     {title: 'Bonus tag',command: '<prefix>server set bonusTag { text }',desc:'Customize the displayed word for the bonusscore.',example: '<prefix>server set bonusTag stars'},
@@ -98,7 +104,7 @@ exports.xpSettings = {
     {title: 'XP per activity',command: '<prefix>server set { xpPerTextMessage | xpPerVoiceMinute | xpPerVote } { digit }',desc:'Choose how much XP is given for each activity (Points per minute in voicechannel, textmessage or social upvote). Maximum of 100 for upvotes, 10 for textmessages and 5 for voiceminutes. Activating bonus xp can multiply XP for a set amount of time.',example: '<prefix>server set xpPerVoiceMinute 3'},
     {title: 'Vote cooldown',command: '<prefix>server set voteCooldown { seconds }',desc:'Every user on your server can submit a social upvotes, but only every now and then. Specify the seconds a user has to wait to make another vote. Can range from 180 (3 minutes) to 86400 seconds (24 hours).',example: '<prefix>server set voteCooldown 120'},
     {title: 'Text cooldown',command: '<prefix>server set textMessageCooldown { seconds }',desc:'Every user on your server can get xp for writing a textmessage, but only every now and then. Specify the seconds a user is locked for new textmessage XP after writing a textmessage. Can range from 0 to 120 seconds.',example: '<prefix>server set textMessageCooldown 10'},
-    //{title: '',command: '<prefix>server set allowReactionVotes ',desc:'Activating this causes every reaction with your voteEmote to automatically trigger an upvote (and cooldown).',example: '<prefix>server set allowReactionVotes '},
+    {title: 'Reaction Voting',command: '<prefix>server set reactionVote ',desc:'Activating this causes every reaction with your voteEmote to automatically trigger an upvote (and cooldown).',example: '<prefix>server set reactionVote '},
     {title: 'Muted Xp',command: '<prefix>server set allowMutedXp ',desc:'Allow users to gain XP while being muted in a voicechannel',example: '<prefix>server set allowMutedXp '},
     {title: 'Deafened Xp',command: '<prefix>server set allowDeafenedXp ',desc:'Allow users to gain XP while being deafened in a voicechannel',example: '<prefix>server set allowDeafenedXp '},
     {title: 'Solo Xp',command: '<prefix>server set allowSoloXp ',desc:'Allow users to gain XP in voicechannels if they are alone (bots don\'t count).',example: '<prefix>server set allowSoloXp '},
@@ -141,8 +147,8 @@ exports.autopost = {
   subdesc: 'Let the bot post on certain events like levelups or server joins into specified channels. You can direct all posts into a single channel or chose a different channel for each event. Specifying no channel will target the current channel. To deactivate it, specify the same channel again (or 0). Please make sure the bot has permissions to post in any channels you specify.',
   subcommands: [
     {title: 'Welcome channel',command: '<prefix>channel [ #channel | channelName | channelId ] autoPost serverJoin',desc:'Specify a channel to post your welcome messages in ',example: '<prefix>channel entrance-hall autoPost serverJoin. ' + '<prefix>channel 0 autoPost serverJoin'},
-    {title: 'Levelup channel',command: '<prefix>channel [ #channel | channelName | channelId ] autoPost levelup',desc:'Specify a channel to post levelup messages in. A user will get only one levelup message per levelup (priority: post_ channel > direct message).',example: '<prefix>channel entrance-hall autoPost levelup. ' + '<prefix>channel 1071031757292034 autoPost levelup'},
     {title: 'Welcome Message',command: '<prefix>server set serverJoinMessage { text }',desc:'Changes the welcome message for your post_joinserver channel. Use <mention> as a placeholder for the users ping, <name> for only the name and <servername> for the name of your server.',example: '<prefix>server set serverJoinMessage Our new member <mention> just joined. Welcome!'},
+    {title: 'Levelup channel',command: '<prefix>channel [ #channel | channelName | channelId ] autoPost levelup',desc:'Specify a channel to post levelup messages in. A user will get only one levelup message per levelup (priority: post_ channel > direct message).',example: '<prefix>channel entrance-hall autoPost levelup. ' + '<prefix>channel 1071031757292034 autoPost levelup'},
     {title: 'Levelup Message',command: '<prefix>server set levelupMessage { text }',desc:'Changes the message for levelups in channels and direct message. Use <mention> as a placeholder for the users ping, <name> for only the name, <level> for the level digit and <servername> for the name of your server.',example: '<prefix>server set levelupMessage Congratulations <mention>! You reached level <level>. Nice!'},
   ]
 };
@@ -152,9 +158,11 @@ exports.reset = {
   desc: 'Reset server statistics & settings (admin only).',
   subdesc: 'Reset server, channel, or user statistics. While a reset procedure is active, no commands will trigger the bot and no activity will be tracked.',
   subcommands: [
-    {title: 'Reset server',command: '<prefix>server reset { stats | settings | all }',desc:'Reset stats (voice, text, vote and bonus xp), settings (including no-xp channels, roleassignments, etc.) or both.',example: '<prefix>server reset stats'},
-    {title: 'Reset deleted channels and members',command: '<prefix>server reset { deletedMembers | deletedChannels }',desc:'Reset all scores of deleted users or channels. Be careful, all scores that were made in those channels / from that users will also be reset.',example: '<prefix>server reset deletedMembers'},
-    {title: 'Reset specific channels',command: '<prefix>channel { #channel | channelName | channelId } reset stats',desc:'Reset all scores associated with a specific channel.',example: '<prefix>channel screenshots reset stats. ' + '<prefix>channel 123456 reset stats'},
-    {title: 'Reset specific members',command: '<prefix>member { @user | userName#tag | userId } reset stats',desc:'Reset all scores associated with a specific user.',example: '<prefix>member @username reset stats. ' + '<prefix>member 123456 reset stats'}
+    {title: 'Reset server',command: '<prefix>server reset all',desc:'Reset everything, including settings and stats.',example: '<prefix>server reset all'},
+    {title: 'Reset settings',command: '<prefix>server reset settings',desc:'Reset only settings (including no-xp channels, roleassignments, etc.), but no stats.',example: '<prefix>server reset settings'},
+    {title: 'Reset stats',command: '<prefix>server reset { stats | textStats | voiceStats | invitestats | voteStats | bonusStats }',desc:'Reset all stats (voice, text, invite, vote and bonus xp) or only a single type of stats.',example: '<prefix>server reset stats'},
+    {title: 'Reset stats of all deleted channels or members',command: '<prefix>server reset { deletedMembers | deletedChannels }',desc:'Reset all scores of deleted users or channels. Be careful, all scores that were made in those channels / from that users will also be reset.',example: '<prefix>server reset deletedMembers'},
+    {title: 'Reset a channel\'s stats',command: '<prefix>channel { #channel | channelName | channelId } reset stats',desc:'Reset all scores associated with a specific channel.',example: '<prefix>channel screenshots reset stats. ' + '<prefix>channel 123456 reset stats'},
+    {title: 'Reset a member\'s stats',command: '<prefix>member { @user | userName#tag | userId } reset stats',desc:'Reset all scores associated with a specific user.',example: '<prefix>member @username reset stats. ' + '<prefix>member 123456 reset stats'}
   ]
 }; // GGGGGGGGGGGGGGG

@@ -1,17 +1,23 @@
 module.exports = [
-  /*{
+  {
     version: '4.2',
-    date: '2020-00-00',
+    date: '2020-12-15',
     time: '00:00:00',
-    title: '',
-    desc: '',
+    title: 'Reaction voting, invite Xp, hide stats types and list of set messages.',
+    desc: 'Finally you can upvote other people via a reaction with the voteEmote. Use invite XP by setting your invite to grant both of you some XP. It is now also possible to hide certain types of stats.',
     features: [
-      {title: '',desc: ''},
+      {title: 'Reaction Voting',desc: 'Use the voteEmote on any text post to trigger an upvote. This shares a cooldown with the command, but can be disabled globally by the admin. A member can also disable it personally.'},
+      {title: 'Invite Xp',desc: 'Use the member set inviter command to set your inviter. This will grant your inviter one invite and you some bonus XP. This setting is final and can only be set once.'},
+      {title: 'Reset stat types',desc: 'Reset commands for only resetting a certain type of stat f.e. textmessages.'},
+      {title: 'Hide and deactivate stat types',desc: 'Choose what types of stats should be shown and recorded by the bot in all stat commands.'},
+      {title: 'Smaller member stats card',desc: 'Reduced information on the member stats card. The stats command can now be used with a time keyword to query the specified time like with the top command. Also general information has been moved to the new member info command. The member\'s channel statistics has been moved to the new member top channel command.'},
+      {title: 'Member channel toplist',desc: 'The former monthly stats on the member stats embed can now be queried separately and for all times.'},
+      {title: 'New voice XP algorithm',desc: 'The counting of voice XP should be way more accurate now in total, but still only tick up once every few minutes.'},
     ],
     fixes: [
-      {title: '',desc: ''},
+      {title: 'Fix idle connection restarts',desc: 'After a certain database connection was not used for a period of time, because all relevant data was already cached in memory, it would cause an error and then restart the bot. This was fixed by adding connection pooling.'},
     ]
-  },*/
+  },
   {
     version: '4.1',
     date: '2020-09-06',
@@ -36,7 +42,7 @@ module.exports = [
     fixes: [
       {title: 'Unintended upvote of bots',desc: 'You can no longer upvote bots.'},
       {title: 'Sorting of votetag with capital letters',desc: 'Sorting did not work until now, if the votetag contained at least one capital letter.'},
-      {title: 'Fixed voice bonus XP.',desc: 'voice was not giving the correct amount of bonus XP during bonus times.'},
+      {title: 'Fixed voice bonus XP',desc: 'voice was not giving the correct amount of bonus XP during bonus times.'},
       {title: 'Fixed channel reset',desc: 'Channel resets resulted in wrong roleassignments and levelupmessages (because the internal cache was not flushed together with the persistent data)'},
       {title: 'Fixed 2x votepower message',desc: '2x votepower message was still showing after votepower expired.'},
       {title: 'Fixed remove roleassignments',desc: 'Fixed not being able to remove roleassignments if there are already 3 for a certain level.'},
