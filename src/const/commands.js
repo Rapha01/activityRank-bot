@@ -57,7 +57,7 @@ exports.mysettings = {
   desc: 'Set your personal settings.',
   subdesc: 'Adjust settings like notifications for your member account.',
   subcommands: [
-    {title: 'Levelup messages',command: '<prefix>member set notifyLevelupDm ',desc:'Globaly turn on or off your own levelup messages from this bot for the current server.',example: '<prefix>m set notifyLevelupDm'}
+    {title: 'Levelup messages',command: '<prefix>member set notifyLevelupDm ',desc:'Globaly turn on or off your own levelup messages from this bot for the current server.',example: '<prefix>m set notifyLevelupDm'},
     {title: 'Reaction voting',command: '<prefix>member set reactionVote ',desc:'Even if the admin has activated reactionVote for the server, you can still disable it only for you, if you want to keep tight control over who you are giving your votes to.',example: '<prefix>m set reactionVote'}
   ]
 };
