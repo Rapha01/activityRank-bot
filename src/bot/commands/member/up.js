@@ -1,6 +1,5 @@
 const statFlushCache = require('../../statFlushCache.js');
 const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const guildModel = require('../../models/guild/guildModel.js');
 const userModel = require('../../models/userModel.js');
 const fetch = require('node-fetch');
@@ -38,14 +37,9 @@ module.exports = (msg,targetUserId,args) => {
         return resolve();
       }
 
-      for (let role of targetMember.roles.cache) {
-        role = role[1];
-        await guildRoleModel.cache.load(role);
-
-        if (role.appData.noXp) {
-          await msg.channel.send('The member you are trying to upvote cannot be upvoted, because of an assigned noxp role.');
-          return resolve();
-        }
+      if (await fct.hasNoXpRole(targetMember)) {
+        await msg.channel.send('The member you are trying to upvote cannot be upvoted, because of an assigned noxp role.');
+        return resolve();
       }
 
       // Get author multiplier

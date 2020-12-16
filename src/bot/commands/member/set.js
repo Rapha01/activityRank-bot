@@ -36,6 +36,11 @@ module.exports = (msg,targetUserId,args) => {
 function inviter(msg,targetUserId) {
   return new Promise(async function (resolve, reject) {
     try {
+      if (!msg.guild.appData.inviteXp) {
+        await msg.channel.send('The invite XP module is paused on this server.');
+        return resolve();
+      }
+
       if (targetUserId == msg.member.id) {
         await msg.channel.send('You cannot be the inviter of yourself.');
         return resolve();
@@ -62,12 +67,17 @@ function inviter(msg,targetUserId) {
       }
       await guildMemberModel.cache.load(targetMember);
 
+      if (await fct.hasNoXpRole(targetMember)) {
+        await msg.channel.send('The member you are trying to set as your inviter cannot be selected, because of an assigned noXP role.');
+        return resolve();
+      }
+
       await guildMemberModel.storage.set(msg.guild,msg.member.id,'inviter',targetUserId);
 
       await statFlushCache.addInvite(targetMember,1);
       await statFlushCache.addBonus(msg.member,msg.guild.appData.xpPerInvite);
 
-      await msg.channel.send('Your inviter has been set seccessfully. You will both get 1 invite added to your stats.');
+      await msg.channel.send('Your inviter has been set successfully. You will both get 1 invite added to your stats.');
       resolve();
     } catch (e) { reject(e); }
   });

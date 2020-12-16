@@ -66,7 +66,11 @@ exports.storage.resetGuildStats = (batchsize,guild) => {
       if (affectedRows < batchsize)
         affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM vote WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
       if (affectedRows < batchsize)
+        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM invite WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
+      if (affectedRows < batchsize)
         affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM bonus WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
+      if (affectedRows < batchsize)
+        affectedRows += (await shardDb.query(guild.appData.dbHost,`UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
 
       if (affectedRows < batchsize)
         exports.cache.resetGuildMembersAll(guild);
@@ -79,8 +83,11 @@ exports.storage.resetGuildStats = (batchsize,guild) => {
 exports.storage.resetGuildStatsByType = (batchsize,guild,type) => {
   return new Promise(async function (resolve, reject) {
     try {
+      let affectedRows = 0;
 
-      const affectedRows = (await shardDb.query(guild.appData.dbHost,`DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`)).affectedRows;
+      affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`)).affectedRows;
+      if (type == 'invite' && affectedRows < batchsize)
+        affectedRows += (await shardDb.query(guild.appData.dbHost,`UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;;
 
       if (affectedRows < batchsize)
         exports.cache.resetGuildMembersAll(guild);
@@ -100,6 +107,8 @@ exports.storage.resetGuildMembersStats = (batchsize,guild,userIds) => {
         affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM voiceMinute WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
       if (affectedRows < batchsize)
         affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM vote WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
+      if (affectedRows < batchsize)
+        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM invite WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
       if (affectedRows < batchsize)
         affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM bonus WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
 

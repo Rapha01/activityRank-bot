@@ -37,7 +37,8 @@ const createPool = () => {
           dateStrings         : 'date',
           charset             : 'utf8mb4',
           supportBigNumbers   : true,
-          bigNumberStrings    : true
+          bigNumberStrings    : true,
+          connectionLimit     : 3
         });
 
         pool.on('error', function(err) {

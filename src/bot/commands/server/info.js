@@ -70,7 +70,7 @@ function info(msg,myGuild) {
             (Math.round(((myGuild.bonusUntilDate - Date.now() / 1000)/60/60)*10)/10)+'h left)\n' +
             myGuild.bonusPerTextMessage*myGuild.xpPerBonus + ' Bonus XP per textmessage.\n' +
             myGuild.bonusPerVoiceMinute*myGuild.xpPerBonus + ' Bonus XP per voiceminute.\n' +
-            myGuild.bonusPerVote*myGuild.xpPerBonus + ' Bonus XP for ' + myGuild.voteTag + '.\n' ;
+            myGuild.bonusPerVote*myGuild.xpPerBonus + ' Bonus XP for ' + myGuild.voteTag + '.\n';
 
       const textmessageCooldownString = myGuild.textMessageCooldownSeconds ? 'max every ' + myGuild.textMessageCooldownSeconds + ' seconds' : ' without any cooldown';
       embed.addField('**Points** ',
@@ -84,6 +84,7 @@ function info(msg,myGuild) {
           myGuild.xpPerTextMessage + ' XP per textmessage.\n' +
           myGuild.xpPerVoiceMinute + ' XP per voiceminute.\n' +
           myGuild.xpPerVote + ' XP for ' + myGuild.voteTag + '.\n' +
+          myGuild.xpPerInvite + ' XP for invites.\n' +
           bonusTimeString
           );
 

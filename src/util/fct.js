@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const Discord = require('discord.js');
+const guildRoleModel = require('../bot/models/guild/guildRoleModel.js');
 
 module.exports.maxBigInt = 9223372036854775807;
 module.exports.minIdInt = 1000000000000;
@@ -52,8 +53,6 @@ exports.dateTimeString = (date) => {
   return date.toISOString().slice(0, 19).replace('T', ' ');
 }
 
-
-
 exports.isPremiumGuild = (guild) => {
   if (guild.appData.addDate + 86400 * 7 > Date.now() / 1000)
     return true;
@@ -62,6 +61,22 @@ exports.isPremiumGuild = (guild) => {
     return true;
   else
     return false;
+}
+
+exports.hasNoXpRole = (member) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      for (let role of member.roles.cache) {
+        role = role[1];
+        await guildRoleModel.cache.load(role);
+
+        if (role.appData.noXp) {
+          return resolve(true);
+        }
+      }
+      resolve(false);
+    } catch (e) { reject(e); }
+  });
 }
 
 exports.getTokensToBurn24h = (memberCount) => {
