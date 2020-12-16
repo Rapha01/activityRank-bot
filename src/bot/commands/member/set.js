@@ -1,6 +1,7 @@
 const guildMemberModel = require('../../models/guild/guildMemberModel.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
 const statFlushCache = require('../../statFlushCache.js');
+const fct = require('../../../util/fct.js');
 
 module.exports = (msg,targetUserId,args) => {
   return new Promise(async function (resolve, reject) {
