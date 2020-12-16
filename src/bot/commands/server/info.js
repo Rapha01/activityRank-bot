@@ -64,13 +64,23 @@ function info(msg,myGuild) {
           'Burned: ' + myGuild.tokensBurned + '.\n');
 
       let bonusTimeString = '';
-
       if (myGuild.bonusUntilDate > Date.now() / 1000)
         bonusTimeString = '**!! Bonus XP Active !!** (' +
             (Math.round(((myGuild.bonusUntilDate - Date.now() / 1000)/60/60)*10)/10)+'h left)\n' +
             myGuild.bonusPerTextMessage*myGuild.xpPerBonus + ' Bonus XP per textmessage.\n' +
             myGuild.bonusPerVoiceMinute*myGuild.xpPerBonus + ' Bonus XP per voiceminute.\n' +
             myGuild.bonusPerVote*myGuild.xpPerBonus + ' Bonus XP for ' + myGuild.voteTag + '.\n';
+
+      let xpPerString = '';
+      if (msg.guild.appData.textXp)
+        xpPerString += myGuild.xpPerTextMessage + ' XP per textmessage.\n';
+      if (msg.guild.appData.voiceXp)
+        xpPerString += myGuild.xpPerVoiceMinute + ' XP per voiceminute.\n';
+      if (msg.guild.appData.voteXp)
+        xpPerString += myGuild.xpPerVote + ' XP for ' + myGuild.voteTag + '.\n';
+      if (msg.guild.appData.inviteXp)
+        xpPerString += myGuild.xpPerInvite + ' XP for invites.\n';
+
 
       const textmessageCooldownString = myGuild.textMessageCooldownSeconds ? 'max every ' + myGuild.textMessageCooldownSeconds + ' seconds' : ' without any cooldown';
       embed.addField('**Points** ',
@@ -81,10 +91,7 @@ function info(msg,myGuild) {
           'Deafened XP allowed: ' + (myGuild.allowDeafenedXp ? 'Yes' : 'No') + '\n' +
           'Invisible XP allowed: ' + (myGuild.allowInvisibleXp ? 'Yes' : 'No') + '\n' +
           'Levelfactor: ' + myGuild.levelFactor + ' XP.\n' +
-          myGuild.xpPerTextMessage + ' XP per textmessage.\n' +
-          myGuild.xpPerVoiceMinute + ' XP per voiceminute.\n' +
-          myGuild.xpPerVote + ' XP for ' + myGuild.voteTag + '.\n' +
-          myGuild.xpPerInvite + ' XP for invites.\n' +
+          xpPerString +
           bonusTimeString
           );
 

@@ -76,7 +76,7 @@ function inviter(msg,targetUserId) {
       await guildMemberModel.storage.set(msg.guild,msg.member.id,'inviter',targetUserId);
 
       await statFlushCache.addInvite(targetMember,1);
-      await statFlushCache.addBonus(msg.member,msg.guild.appData.xpPerInvite);
+      await statFlushCache.addInvite(msg.member,1);
 
       await msg.channel.send('Your inviter has been set successfully. You will both get 1 invite added to your stats.');
       resolve();
