@@ -67,7 +67,7 @@ exports.other = {
   desc: 'Get an overview of latest patches, check the detailed changes of a specific patch or view the FAQ.',
   subdesc: 'Reset server, channel, or user statistics.',
   subcommands: [
-    {title: 'FAQ',command: '<prefix>faq <digit>',desc:'Get a list of the frequently asked questions. Use the digit to page through.',example: '<prefix>patchnotes '},
+    {title: 'FAQ',command: '<prefix>faq <digit>',desc:'Get a list of the frequently asked questions. Use the digit to page through.',example: '<prefix>faq '},
     {title: 'Patchnotes',command: '<prefix>patchnotes <digit>',desc:'Get an overview of latest patches. Use the digit to page through.',example: '<prefix>patchnotes '},
     {title: 'Patchnote details',command: '<prefix>patchnote <version>',desc:'View the detailed changes of a specific patch.',example: '<prefix>patchnote 3.0'},
   ]
