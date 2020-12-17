@@ -30,7 +30,7 @@ exports.start = async (client) => {
     } catch (e) { console.log(e); }
 
     rankVoiceMember.round++;
-    console.log('RankVoice round finished after ' + Math.round(process.hrtime(hrstart)[0] / 60) + 'm.');
+    console.log('RankVoice round '+ rankVoiceMember.round +' finished after ' + Math.round(process.hrtime(hrstart)[0] / 60) + 'm.');
   }
 }
 
@@ -71,7 +71,7 @@ const rankVoiceChannel = (channel) => {
         if (await noXp(channel,member))
           continue;
 
-        await rankVoiceMember(member,channel);
+        await rankVoiceMember.update(member,channel);
         await fct.sleep(350);
       }
       resolve();

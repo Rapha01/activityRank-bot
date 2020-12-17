@@ -2,7 +2,7 @@ const statFlushCache = require('../statFlushCache.js');
 
 exports.round = 0;
 
-module.exports = (member,channel) => {
+exports.update = (member,channel) => {
   return new Promise(async function(resolve, reject) {
     try {
       const now = Date.now() / 1000;

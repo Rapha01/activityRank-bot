@@ -83,7 +83,7 @@ function initEventTriggers(client) {
       if (oldState.channel == null && newState.channel != null && newState.member != null) {
         await guildModel.cache.load(newState.guild);
         await guildMemberModel.cache.load(newState.member);
-        await rankVoiceMember(newState.member,newState.channel);
+        await rankVoiceMember.update(newState.member,newState.channel);
       } /*else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
         await guildModel.cache.load(oldState.guild);
         await guildMemberModel.cache.load(oldState.member);
