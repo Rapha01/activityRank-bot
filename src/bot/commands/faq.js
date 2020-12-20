@@ -13,10 +13,9 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      const faqs = msg.client.appData.texts.faqs.splice(page.from - 1,msg.guild.appData.entriesPerPage);
+      const faqs = msg.client.appData.texts.faqs.slice(page.from - 1,msg.guild.appData.entriesPerPage);
 
       await msg.channel.send(faqMainEmbed(faqs));
-      //await msg.channel.send('I have sent you the requested information.');
 
       resolve();
     } catch (e) { reject(e); }
@@ -35,7 +34,7 @@ function faqMainEmbed (faqs) {
   if (faqs.length == 0)
     embed.setDescription('No FAQs to show on this page.');
 
-  for (faq of faqs) {
+  for (let faq of faqs) {
     embed.addField(' (' + faq.id + ') ' + faq.title + '',faq.desc);
   }
 

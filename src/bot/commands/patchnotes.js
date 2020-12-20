@@ -13,7 +13,7 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      const patchnotes = msg.client.appData.texts.patchnotes.splice(page.from - 1,msg.guild.appData.entriesPerPage);
+      const patchnotes = msg.client.appData.texts.patchnotes.slice(page.from - 1,msg.guild.appData.entriesPerPage);
 
       await msg.channel.send(patchnotesMainEmbed(patchnotes));
       //await msg.channel.send('I have sent you the requested information.');
