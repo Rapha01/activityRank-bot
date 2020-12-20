@@ -100,3 +100,5 @@ module.exports = [
     desc: '-> For text messages `ar!s set xppertextmessage [0-10]`\n-> For voice `ar!s set xppervoiceminute [0-5]`\n-> For upvotes `ar!s set xpperupvote [0-100]`\n-> For invites `ar!s set xpperinvote [0-1000]`\n-> For text message cooldown `ar!s set textmessagecooldown [0-120]`',
   },
 ]
+
+// testchange
