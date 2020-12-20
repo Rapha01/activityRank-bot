@@ -76,11 +76,11 @@ exports.getRankedUserIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const textmessageUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`);
-      const voiceminuteUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`);
+      const voiceMinuteUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`);
       const voteUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0`);
       const bonusUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0`);
 
-      const ids = [...new Set([...textmessageUserIds, ...voiceminuteUserIds, ...voteUserIds, ...bonusUserIds])];
+      const ids = [...new Set([...textmessageUserIds, ...voiceMinuteUserIds, ...voteUserIds, ...bonusUserIds])];
 
       let userIds = [];
       for (let id of ids) {

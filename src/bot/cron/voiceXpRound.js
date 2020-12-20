@@ -7,31 +7,31 @@ const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 const rankVoiceMember = require('../util/rankVoiceMember.js');
 
-exports.start = async (client) => {
-  let hrstart,hrend;
-
-  while (true) {
-    hrstart = process.hrtime();
-
-    for (let guild of client.guilds.cache) {
-      guild = guild[1];
-
-      try {
-        await fct.sleep(350);
-
-        if (!skip(guild.id))
-          await rankVoiceGuild(guild);
-
-      } catch (e) { console.log(e); }
-    }
-
+module.exports = async (client) => {
+  return new Promise(async function(resolve, reject) {
     try {
-      await fct.sleep(10000);
-    } catch (e) { console.log(e); }
+      let hrstart,hrend;
 
-    rankVoiceMember.round++;
-    console.log('RankVoice round '+ rankVoiceMember.round +' finished after ' + Math.round(process.hrtime(hrstart)[0] / 60) + 'm.');
-  }
+      console.log('RankVoice round started.');
+      hrstart = process.hrtime();
+
+      for (let guild of client.guilds.cache) {
+        guild = guild[1];
+
+        try {
+          await fct.sleep(350);
+
+          if (!skip(guild.id))
+            await rankVoiceGuild(guild);
+
+        } catch (e) { console.log(e); }
+      }
+
+      rankVoiceMember.round++;
+      console.log('RankVoice round '+ rankVoiceMember.round +' finished after ' + Math.round(process.hrtime(hrstart)[0] / 60) + 'm.');
+      resolve();
+    } catch (e) { reject(e); }
+  });
 }
 
 //existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1

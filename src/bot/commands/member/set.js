@@ -66,6 +66,11 @@ function inviter(msg,targetUserId) {
         await msg.channel.send('Cannot find member. Your inviter has to be in this guild.');
         return resolve();
       }
+      if (targetMember.user.bot) {
+        await msg.channel.send('You cannot set a bot as your inviter.');
+        return resolve();
+      }
+
       await guildMemberModel.cache.load(targetMember);
 
       if (await fct.hasNoXpRole(targetMember)) {

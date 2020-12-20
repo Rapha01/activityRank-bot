@@ -4,19 +4,15 @@ const fct = require('../../util/fct.js');
 let jobIndex = 0,sleepTime,batchsize;
 
 if (process.env.NODE_ENV == 'production') {
-  sleepTime = 3000;
   batchsize = 10000;
 } else {
-  sleepTime = 3000;
-  batchsize = 3;
+  batchsize = 10;
 }
 
-exports.start = async () => {
-  let hrstart,hrend,resetJob,keys;
-
-  while (true) {
-    resetJob = null;
+module.exports = async () => {
+  return new Promise(async function(resolve, reject) {
     try {
+      let hrstart,hrend,resetJob,keys;
       keys = Object.keys(resetModel.resetJobs);
 
       if (keys.length > 0) {
@@ -25,17 +21,15 @@ exports.start = async () => {
 
         resetJob = resetModel.resetJobs[keys[jobIndex]];
         hrstart = process.hrtime();
-        await doResetJob(resetModel.resetJobs[keys[jobIndex]]);
+        await doResetJob(resetJob);
         hrend = process.hrtime(hrstart);
         jobIndex++;
         console.log('doResetJob ' + resetJob.type  + ' for ' + resetJob.cmdChannel.guild.id + ' finished after ' + hrend[0]  + 's.');
       }
-    } catch (e) { console.log(e); }
 
-    try {
-      await fct.sleep(sleepTime);
-    } catch (e) { console.log(e); return; }
-  }
+      resolve();
+    } catch (e) { console.log(e); }
+  });
 }
 
 const doResetJob = (resetJob) => {
@@ -54,9 +48,9 @@ const doResetJob = (resetJob) => {
       else if (resetJob.type == 'stats')
         count = await resetModel.storage.resetGuildStats(batchsize,resetJob.cmdChannel.guild);
       else if (resetJob.type == 'textstats')
-        count = await resetModel.storage.resetGuildStatsByType(batchsize,resetJob.cmdChannel.guild,'textmessage');
+        count = await resetModel.storage.resetGuildStatsByType(batchsize,resetJob.cmdChannel.guild,'textMessage');
       else if (resetJob.type == 'voicestats')
-        count = await resetModel.storage.resetGuildStatsByType(batchsize,resetJob.cmdChannel.guild,'voiceminute');
+        count = await resetModel.storage.resetGuildStatsByType(batchsize,resetJob.cmdChannel.guild,'voiceMinute');
       else if (resetJob.type == 'invitestats')
         count = await resetModel.storage.resetGuildStatsByType(batchsize,resetJob.cmdChannel.guild,'invite');
       else if (resetJob.type == 'votestats')

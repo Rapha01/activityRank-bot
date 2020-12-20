@@ -61,9 +61,9 @@ exports.getRankedChannelIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const textmessageUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT channelId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`);
-      const voiceminuteUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT channelId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`);
+      const voiceMinuteUserIds = await shardDb.query(guild.appData.dbHost,`SELECT DISTINCT channelId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`);
 
-      const ids = [...new Set([...textmessageUserIds, ...voiceminuteUserIds])];
+      const ids = [...new Set([...textmessageUserIds, ...voiceMinuteUserIds])];
 
       let channelIds = [];
       for (let id of ids) {

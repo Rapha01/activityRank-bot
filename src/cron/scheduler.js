@@ -44,13 +44,8 @@ exports.start = (manager) => {
 
 const startStatFlush = async (manager) => {
   while(true) {
-    try {
-      await statFlush(manager);
-    } catch (e) { console.log(e); }
-
-    try {
-      await fct.sleep(statFlushCacheInterval);
-    } catch (e) { console.log('statFlush loop aborted.' + e); return; }
+    await statFlush(manager).catch(e => console.log(e));
+    await fct.sleep(statFlushCacheInterval).catch(e => console.log(e));
   }
 }
 
@@ -58,12 +53,10 @@ const startUpdateSettings = async (manager) => {
   while(true) {
     try {
       const settings = await settingModel.storage.get();
-      manager.broadcastEval(`this.appData.settings = ${JSON.stringify(settings)}`);
+      await manager.broadcastEval(`this.appData.settings = ${JSON.stringify(settings)}`);
     } catch (e) { console.log(e); }
 
-    try {
-      await fct.sleep(updateSettingsInterval);
-    } catch (e) { console.log('updateSettings loop aborted.' + e); return; }
+    await fct.sleep(updateSettingsInterval).catch(e => console.log(e));
   }
 }
 
@@ -71,23 +64,16 @@ const startUpdateTexts = async (manager) => {
   while(true) {
     try {
       const texts = await textModel.storage.get();
-      manager.broadcastEval(`this.appData.texts = ${JSON.stringify(texts)}`);
+      await manager.broadcastEval(`this.appData.texts = ${JSON.stringify(texts)}`);
     } catch (e) { console.log(e); }
 
-    try {
-      await fct.sleep(updateTextsInterval);
-    } catch (e) { console.log('updateTexts loop aborted.' + e); return; }
+    await fct.sleep(updateTextsInterval).catch(e => console.log(e));
   }
 }
 
 const startSaveBotShardHealth = async (manager) => {
   while(true) {
-    try {
-      await saveBotShardHealth(manager);
-    } catch (e) { console.log(e); }
-
-    try {
-      await fct.sleep(saveBotShardHealthInterval);
-    } catch (e) { console.log('startSaveBotHealth loop aborted.' + e); return; }
+    await saveBotShardHealth(manager).catch(e => console.log(e));
+    await fct.sleep(saveBotShardHealthInterval).catch(e => console.log(e));
   }
 }
