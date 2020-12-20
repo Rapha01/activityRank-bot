@@ -6,7 +6,7 @@ exports.stats = {
     {title: 'Members toplist',command: '<prefix>server top members (OR <prefix>top)',desc:'Shows the alltime most active users (top is the short form alias for this command).',example: '<prefix>s top members'},
     {title: 'Members toplist [options]',command: '<prefix>server top members [ page ] [ alltime | year | month | week | day ] [ voice | text | <votetag> ]',desc:'Shows the n-th toplist page of most active users for the specified type and time.',example: '<prefix>s top members 2 week text'},
     {title: 'Member stats',command: '<prefix>member stats',desc:'Your own stats.',example: '<prefix>m stats'},
-    {title: 'Member stats [options]',command: '<prefix>member [ @user | userName#tag | userId ] stats',desc:'Anothers stats',example: '<prefix>m 37065081423482880 stats'},
+    {title: 'Member stats [options]',command: '<prefix>member [ @user | userName#tag | userId ] stats [ alltime | year | month | week | day ]',desc:'Anothers stats',example: '<prefix>m 37065081423482880 stats'},
     {title: 'Member top channels [options]',command: '<prefix>member [ @user | userName#tag | userId ] top channels text|voice',desc:'The channels the user was most active in',example: '<prefix>m 37065081423482880 top channels voice'},
     {title: 'Channels toplist',command: '<prefix>server top channels { text | voice }',desc:'Shows the alltime most active voice or text channels.',example: '<prefix>s top channels voice'},
     {title: 'Channels toplist [options]',command: '<prefix>server top channels { text | voice } [ page ] [ alltime | year | month | week | day ]',desc:'Shows the n-th toplist page of most active voice or text channels for the specified time.',example: '<prefix>s top channels voice 2'},
@@ -20,7 +20,7 @@ exports.voting = {
   desc: 'Upvote or refer members.',
   subdesc: 'Upvote or invite another user for a bunch of XP. You can do this once every now and then (cooldown depends on the server settings).',
   subcommands: [
-    {title: 'Inviter',command: '<prefix>member { @user | userName#tag | userId } set inviter',desc:'Set someone else as your inviter. He will receive invite XP and you will receive as much XP as bonus. You can set your inviter only once.',example: '<prefix>m username#0001 set inviter'},
+    {title: 'Inviter',command: '<prefix>member { @user | userName#tag | userId } set inviter',desc:'Set someone else as your inviter. Both of you will receive one invite. You can set your inviter only once.',example: '<prefix>m username#0001 set inviter'},
     {title: 'Upvote',command: '<prefix>member { @user | userName#tag | userId } up',desc:'Upvote someone (and grant some XP to the user)',example: '<prefix>m @user up. ' + '<prefix>m username#0001 up'},
   ]
 };
@@ -31,7 +31,7 @@ exports.info = {
   subdesc: 'View the bots settings for XP, leveling, roles and channels.',
   subcommands: [
     {title: 'Server info',command: '<prefix>server info',desc:'See general information and how much points you get for each activity.',example: '<prefix>s info'},
-    {title: 'Member info',command: '<prefix>member [ @user | userName#tag | userId ] info',desc:'Anothers stats',example: '<prefix>m @Linck01 info'},
+    {title: 'Member info',command: '<prefix>member [ @user | userName#tag | userId ] info',desc:'Your or another member\'s info profile.',example: '<prefix>m @Linck01 info'},
     {title: 'Levels',command: '<prefix>info levels [ page ]',desc:'A list of levels and the XP you need for each.',example: '<prefix>s info levels'},
     {title: 'Roles',command: '<prefix>info roles [ page ]',desc:'A list of roles and the levels you need for each.',example: '<prefix>s info roles'},
     {title: 'No XP Channels',command: '<prefix>info noXpChannels [ page ]',desc:'A list of channels that don\'t give xp.',example: '<prefix>s info noXpChannels'},
@@ -101,7 +101,7 @@ exports.xpSettings = {
   subdesc: 'Adjust settings like points per minute, roles on levelup or activate levelup messages for this server.',
   subcommands: [
     {title: 'Levelfactor',command: '<prefix>server set levelFactor { digit }',desc:'Choose how much more XP is needed for each subsequent level (Base is 100 XP). Needs to be within 20 and 400. Check ' + '<prefix>info levels to verify your settings.',example: '<prefix>server set levelFactor 100'},
-    {title: 'XP per activity',command: '<prefix>server set { xpPerTextMessage | xpPerVoiceMinute | xpPerVote } { digit }',desc:'Choose how much XP is given for each activity (Points per minute in voicechannel, textmessage or social upvote). Maximum of 100 for upvotes, 10 for textmessages and 5 for voiceminutes. Activating bonus xp can multiply XP for a set amount of time.',example: '<prefix>server set xpPerVoiceMinute 3'},
+    {title: 'XP per activity',command: '<prefix>server set { xpPerTextMessage | xpPerVoiceMinute | xpPerVote | xpPerInvite } { digit }',desc:'Choose how much XP is given for each activity (Points per minute in voicechannel, textmessage or social upvote). Maximum of 100 for upvotes, 10 for textmessages and 5 for voiceminutes. Activating bonus xp can multiply XP for a set amount of time.',example: '<prefix>server set xpPerVoiceMinute 3'},
     {title: 'Vote cooldown',command: '<prefix>server set voteCooldown { seconds }',desc:'Every user on your server can submit a social upvotes, but only every now and then. Specify the seconds a user has to wait to make another vote. Can range from 180 (3 minutes) to 86400 seconds (24 hours).',example: '<prefix>server set voteCooldown 120'},
     {title: 'Text cooldown',command: '<prefix>server set textMessageCooldown { seconds }',desc:'Every user on your server can get xp for writing a textmessage, but only every now and then. Specify the seconds a user is locked for new textmessage XP after writing a textmessage. Can range from 0 to 120 seconds.',example: '<prefix>server set textMessageCooldown 10'},
     {title: 'Reaction Voting',command: '<prefix>server set reactionVote ',desc:'Activating this causes every reaction with your voteEmote to automatically trigger an upvote (and cooldown).',example: '<prefix>server set reactionVote '},
