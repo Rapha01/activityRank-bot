@@ -14,18 +14,20 @@ if (process.env.NODE_ENV == 'production') {
   updateSettingsInterval = 300000;
   updateTextsInterval = 300000;
   saveBotShardHealthInterval = 180000;
+  statFlushCacheCronInterval = '30 * * * * *';
 } else {
   restartDelay = 86400000;
   statFlushCacheInterval = 5000;
   updateSettingsInterval = 10000;
   updateTextsInterval = 10000;
   saveBotShardHealthInterval = 8000;
+  statFlushCacheCronInterval = '*/10 * * * * *';
 }
 
 exports.start = (manager) => {
   return new Promise(async function (resolve, reject) {
     try {
-      startStatFlush(manager);
+      //startStatFlush(manager);
       startUpdateSettings(manager);
       startUpdateTexts(manager);
       startSaveBotShardHealth(manager);
@@ -37,17 +39,24 @@ exports.start = (manager) => {
         } catch (e) { console.log(e); }
       }, restartDelay);
 
+      cron.schedule(statFlushCacheCronInterval, async function() {
+        try {
+          await statFlush(manager);
+        } catch (e) { console.log(e); }
+      });
+
       resolve();
     } catch (e) { reject(e); }
   });
 }
 
+/*
 const startStatFlush = async (manager) => {
   while(true) {
     await statFlush(manager).catch(e => console.log(e));
     await fct.sleep(statFlushCacheInterval).catch(e => console.log(e));
   }
-}
+}*/
 
 const startUpdateSettings = async (manager) => {
   while(true) {
