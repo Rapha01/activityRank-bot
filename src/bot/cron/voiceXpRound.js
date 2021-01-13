@@ -1,11 +1,11 @@
 const levelManager = require('../levelManager.js');
 const fct = require('../../util/fct.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
-const guildRoleModel = require('../models/guild/guildRoleModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 const rankVoiceMember = require('../util/rankVoiceMember.js');
+const noXpUtil = require('../util/noXpUtil.js');
 
 module.exports = async (client) => {
   return new Promise(async function(resolve, reject) {
@@ -68,7 +68,7 @@ const rankVoiceChannel = (channel) => {
         member = member[1];
         await guildMemberModel.cache.load(member);
 
-        if (await noXp(channel,member))
+        if (await noXpUtil.noVoiceXp(channel,member))
           continue;
 
         await rankVoiceMember.update(member,channel);
@@ -79,36 +79,6 @@ const rankVoiceChannel = (channel) => {
   });
 }
 
-const noXp = (channel,member) => {
-  return new Promise(async function(resolve, reject) {
-    try {
-      if (member.user.bot)
-        return resolve(true);
-
-      if (!member.guild.appData.allowMutedXp && (member.voice.selfMute || member.voice.serverMute))
-        return resolve(true);
-
-      if (!member.guild.appData.allowDeafenedXp && (member.voice.selfDeaf || member.voice.serverDeaf))
-        return resolve(true);
-
-      if (!member.guild.appData.allowSoloXp && channel.members.size < 2)
-        return resolve(true);
-
-      //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
-        //return resolve(true);
-
-      for (let role of member.roles.cache) {
-        role = role[1];
-        await guildRoleModel.cache.load(role);
-
-        if (role.appData.noXp)
-          return resolve(true);
-      }
-
-      return resolve(false);
-    } catch (e) { reject(e); }
-  });
-}
 
 /*
 function existTwoUnmutedMembers(members) {

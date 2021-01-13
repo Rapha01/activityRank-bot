@@ -1,11 +1,8 @@
 const Discord = require('discord.js');
 const fct = require('../util/fct.js');
-const guildModel = require('./models/guild/guildModel.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
-const rankVoiceMember = require('./util/rankVoiceMember.js');
-const guildMemberModel = require('./models/guild/guildMemberModel.js');
 
 const client = new Discord.Client(
   {ws: {intents:
@@ -36,6 +33,7 @@ const onGuildCreate = require('./events/guildCreate.js');
 const onGuildDelete = require('./events/guildDelete.js');
 const onGuildMemberRemove = require('./events/guildMemberRemove.js');
 const onMessageReactionAdd = require('./events/messageReactionAdd.js');
+const onVoiceStateUpdate = require('./events/voiceStateUpdate.js');
 
 start();
 
@@ -76,29 +74,13 @@ function initEventTriggers(client) {
     //process.exit();
   });
 
-  client.on('voiceStateUpdate', async (oldState, newState) => {
-    try {
-      if (oldState.member.user.bot) return;
-
-      if (oldState.channel == null && newState.channel != null && newState.member != null) {
-        await guildModel.cache.load(newState.guild);
-        await guildMemberModel.cache.load(newState.member);
-        await rankVoiceMember.update(newState.member,newState.channel);
-      } /*else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
-        await guildModel.cache.load(oldState.guild);
-        await guildMemberModel.cache.load(oldState.member);
-        await rankVoiceMember(oldState.member,oldState.channel);
-      }*/
-
-    } catch (e) { console.log(e); }
-  })
-
   client.on('message', (msg) => {onMessage(msg).catch(e => console.log(e));});
   client.on('guildCreate', (guild) => {onGuildCreate(guild).catch(e => console.log(e));});
   client.on('guildDelete', (guild) => {onGuildDelete(guild).catch(e => console.log(e));});
   client.on('guildMemberAdd', (member) => {onGuildMemberAdd(member).catch(e => console.log(e));});
   client.on('guildMemberRemove', (member) => {onGuildMemberRemove(member).catch(e => console.log(e));});
   client.on('messageReactionAdd', (member) => {onMessageReactionAdd(member).catch(e => console.log(e));});
+  client.on('voiceStateUpdate', (oldState, newState) => {onVoiceStateUpdate(oldState, newState).catch(e => console.log(e));});
 }
 
 function initClientCaches(client) {
