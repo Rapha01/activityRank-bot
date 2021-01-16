@@ -8,9 +8,6 @@ exports.update = (member,channel) => {
     try {
       const now = Date.now() / 1000;
 
-      if (await noXpUtil.noVoiceXp(member,channel))
-        return resolve();
-
       if (!member.appData.lastVoiceXpDate || member.appData.lastVoiceXpRound < exports.round - 1) {
         member.appData.lastVoiceXpDate = now;
         member.appData.lastVoiceXpRound = exports.round;
@@ -25,6 +22,10 @@ exports.update = (member,channel) => {
         return resolve();
 
       member.appData.lastVoiceXpDate = now - remainderSeconds;
+
+      if (await noXpUtil.noVoiceXp(member,channel))
+        return resolve();
+
       await statFlushCache.addVoiceMinute(member,channel,minutesToAdd);
       resolve();
     } catch (e) { reject(e); }
