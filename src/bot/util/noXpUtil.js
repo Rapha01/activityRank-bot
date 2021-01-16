@@ -1,6 +1,6 @@
 const guildRoleModel = require('../models/guild/guildRoleModel.js');
 
-exports.noVoiceXp = (channel,member) => {
+exports.noVoiceXp = (member,channel) => {
   return new Promise(async function(resolve, reject) {
     try {
       if (member.user.bot)
@@ -14,7 +14,7 @@ exports.noVoiceXp = (channel,member) => {
 
       if (!member.guild.appData.allowSoloXp && channel.members.size < 2)
         return resolve(true);
-
+        
       //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
         //return resolve(true);
 

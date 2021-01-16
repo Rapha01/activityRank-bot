@@ -5,7 +5,6 @@ const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 const rankVoiceMember = require('../util/rankVoiceMember.js');
-const noXpUtil = require('../util/noXpUtil.js');
 
 module.exports = async (client) => {
   return new Promise(async function(resolve, reject) {
@@ -67,9 +66,6 @@ const rankVoiceChannel = (channel) => {
       for (let member of channel.members) {
         member = member[1];
         await guildMemberModel.cache.load(member);
-
-        if (await noXpUtil.noVoiceXp(channel,member))
-          continue;
 
         await rankVoiceMember.update(member,channel);
         await fct.sleep(350);
