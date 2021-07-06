@@ -5,6 +5,13 @@ const rankVoiceMember = require('../util/rankVoiceMember.js');
 module.exports = (oldState, newState) => {
   return new Promise(async function (resolve, reject) {
     try {
+      /*if (Math.random() < 0.1) {
+        console.log('AAAA');
+        console.log(oldState);
+        console.log(newState);
+        return resolve();
+      }*/
+
       if (oldState.member.user.bot) return;
 
       if (oldState.channel == null && newState.channel != null && newState.member != null) {
