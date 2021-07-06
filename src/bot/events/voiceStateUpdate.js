@@ -5,13 +5,16 @@ const rankVoiceMember = require('../util/rankVoiceMember.js');
 module.exports = (oldState, newState) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (Math.random() < 0.05) {
+      /*if (Math.random() < 0.05) {
         console.log('AAAA');
         console.log(oldState.member);
       }
-      return resolve();
+          return resolve();*/
 
-      if (oldState.member.user.bot) return;
+      if (!oldState.member)
+        return resolve();
+      if (oldState.member.user.bot)
+        return resolve();
 
       if (oldState.channel == null && newState.channel != null && newState.member != null) {
         await guildModel.cache.load(newState.guild);
