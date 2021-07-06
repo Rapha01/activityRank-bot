@@ -37,15 +37,11 @@ module.exports = (msg,args) => {
 
       let targetUserId, member;
 
-      if (!isNaN(userName) && parseInt(userName) < fct.maxBigInt && parseInt(userName) > fct.minIdInt) {
-        targetUserId = parseInt(userName);
-        //await msg.guild.members.fetch({user: targetUserId, withPresences:false, cache: true});
-        console.log('M: digit id');
-      } else if (msg.mentions.members.first()) {
+      if (!isNaN(userName) && userName < fct.maxBigInt && userName > fct.minIdInt) {
+        targetUserId = userName;
+      } else if (msg.mentions.members.first())
         targetUserId = msg.mentions.members.first().id;
-        console.log('M: mention');
-      } else if (userName != '') {
-        console.log('M: username');
+      else if (userName != '') {
         member = msg.guild.members.cache.find(mem => (mem.user.username + '#' + mem.user.discriminator) == userName);
         if (!member) {
           const fetchedMembers = await msg.guild.members.fetch({query:`${userName}`,withPresences:false}); // # discordapi
@@ -59,7 +55,7 @@ module.exports = (msg,args) => {
         } else
           targetUserId = member.id;
       }
-      console.log('targetUserId: ' + targetUserId);
+
       args = args.slice(i+1,args.length+1);
 
       subcommand = subcommand.toLowerCase();
