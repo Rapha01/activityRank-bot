@@ -49,8 +49,8 @@ function rankMessage(msg) {
       if (msg.channel.appData.noXp)
         return resolve();
 
-      if (!msg.guild.appData.allowInvisibleXp && msg.member.user.presence.status == 'offline')
-        return resolve();
+      //if (!msg.guild.appData.allowInvisibleXp && msg.member.user.presence.status == 'offline')
+      //  return resolve();
 
       // Check noxp role
       for (let role of msg.member.roles.cache) {
