@@ -40,10 +40,9 @@ exports.getChannelTypeIcon = (channels,channelId) => {
 exports.getGuildMemberInfos = (guild,userIds) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let userId,member,userIdsToFetch = [],infos = {};
-
+      let member,userIdsToFetch = [],infos = {};
       // Add cached
-      for (userId of userIds) {
+      for (let userId of userIds) {
         member = guild.members.cache.get(userId);
 
         if (member) {
@@ -59,10 +58,11 @@ exports.getGuildMemberInfos = (guild,userIds) => {
       if (userIdsToFetch.length > 0) {
         const fetchedMembers = await guild.members.fetch({user: userIdsToFetch, withPresences:false, cache: false});// #discordapi
         for (let fetchedMember of fetchedMembers) {
-          infos[userId] = {};
-          infos[userId].name = exports.getGuildMemberAlias(fetchedMember[1]);
-          infos[userId].avatarUrl = fetchedMember[1].user.avatarURL();
-          infos[userId].joinedAt = fetchedMember[1].joinedAt;
+          member = fetchedMember[1];
+          infos[member.id] = {};
+          infos[member.id].name = exports.getGuildMemberAlias(member);
+          infos[member.id].avatarUrl = member.user.avatarURL();
+          infos[member.id].joinedAt = member.joinedAt;
         }
       }
 

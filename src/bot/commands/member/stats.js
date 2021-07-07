@@ -31,7 +31,7 @@ module.exports = (msg,targetUserId,args) => {
 function sendMemberEmbed(msg,myGuild,targetUserId,time) {
   return new Promise(async function (resolve, reject) {
     try {
-      const targetMember = msg.guild.members.cache.get(targetUserId);
+      const targetMember = await msg.guild.members.fetch(targetUserId);
       if (!targetMember) {
         await msg.channel.send('Could not find member.');
         return resolve();
