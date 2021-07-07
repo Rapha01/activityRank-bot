@@ -13,7 +13,6 @@ const client = new Discord.Client(
     'GUILD_EMOJIS',
     'GUILD_INTEGRATIONS',
     'GUILD_WEBHOOKS',
-    'GUILD_INVITES',
     'GUILD_VOICE_STATES',
     'GUILD_MESSAGES',
     'GUILD_MESSAGE_REACTIONS',
