@@ -38,6 +38,8 @@ module.exports = (msg) => {
 function rankMessage(msg) {
   return new Promise(async function(resolve, reject) {
     try {
+      await msg.member.fetch(msg.author.id);
+
       if (!msg.member) // || hasCommandPrefix(msg.content.substr(0,4))
         return resolve();
 
