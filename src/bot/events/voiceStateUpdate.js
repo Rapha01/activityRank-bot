@@ -5,9 +5,11 @@ const rankVoiceMember = require('../util/rankVoiceMember.js');
 module.exports = (oldState, newState) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const member = await oldState.guild.members.fetch(oldState.id);
+      const member = await oldState.member;
 
       if (!member)
+        return resolve();
+      if (!member.user)
         return resolve();
       if (member.user.bot)
         return resolve();
