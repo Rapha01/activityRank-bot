@@ -12,8 +12,8 @@ module.exports = (oldState, newState) => {
       if (member.user.bot)
         return resolve();
 
+      await guildModel.cache.load(oldState.guild);
       await guildMemberModel.cache.load(member);
-      await guildModel.cache.load(newState.guild);
 
       if (oldState.channel == null && newState.channel != null && newState.member != null) {
         // Join
