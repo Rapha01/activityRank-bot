@@ -18,7 +18,7 @@ module.exports = async (client) => {
         guild = guild[1];
 
         try {
-          await fct.sleep(350);
+          await fct.sleep(200);
 
           if (!skip(guild.id))
             await rankVoiceGuild(guild);
@@ -65,10 +65,11 @@ const rankVoiceChannel = (channel) => {
     try {
       for (let member of channel.members) {
         member = member[1];
+        
         await guildMemberModel.cache.load(member);
 
         await rankVoiceMember.update(member,channel);
-        await fct.sleep(350);
+        await fct.sleep(200);
       }
       resolve();
     } catch (e) { reject(e); }

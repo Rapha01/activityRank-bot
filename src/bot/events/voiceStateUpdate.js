@@ -5,23 +5,27 @@ const rankVoiceMember = require('../util/rankVoiceMember.js');
 module.exports = (oldState, newState) => {
   return new Promise(async function (resolve, reject) {
     try {
-      //await oldState.guild.members.fetch(oldState.id);
+      const member = await oldState.guild.members.fetch(oldState.id);
 
-      if (!oldState.member)
+      if (!member)
         return resolve();
-      if (oldState.member.user.bot)
+      if (member.user.bot)
         return resolve();
+
+      await guildMemberModel.cache.load(member);
+      await guildModel.cache.load(newState.guild);
 
       if (oldState.channel == null && newState.channel != null && newState.member != null) {
-        await guildModel.cache.load(newState.guild);
-        await guildMemberModel.cache.load(newState.member);
+        // Join
+        await rankVoiceMember.update(member,newState.channel);
 
-        await rankVoiceMember.update(newState.member,newState.channel);
-      } /*else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
-        await guildModel.cache.load(oldState.guild);
-        await guildMemberModel.cache.load(oldState.member);
-        await rankVoiceMember(oldState.member,oldState.channel);
-      }*/
+      } else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
+        // Leave
+        await rankVoiceMember.update(member,oldState.channel);
+
+      } else {
+        // Switch or mute
+      }
 
       resolve();
     } catch (e) { reject(e); }

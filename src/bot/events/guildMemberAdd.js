@@ -27,8 +27,6 @@ module.exports = (member) => {
   });
 }
 
-
-
 const autoPostServerJoin = (member,roleAssignmentString) => {
   return new Promise(async function (resolve, reject) {
     try {

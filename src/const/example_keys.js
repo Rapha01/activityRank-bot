@@ -1,4 +1,4 @@
-module.exports = {
+const keys = {
   production: {
     botAuth: '',
     botId: '',
@@ -32,3 +32,10 @@ module.exports = {
     }
   }
 };
+
+module.exports.get = () => {
+  if (process.env.NODE_ENV == 'production')
+    return keys.production;
+  else
+    return keys.development;
+}

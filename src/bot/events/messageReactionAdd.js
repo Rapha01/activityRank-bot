@@ -36,18 +36,14 @@ module.exports = (reaction) => {
           return resolve();
       }
 
-      let targetMember = guild.members.cache.get(reaction.message.author.id);
-      if (!targetMember)
-          targetMember = guild.members.fetch(reaction.message.author.id);
-      let member = guild.members.cache.get(reaction.users.cache.last().id);
-      if (!member)
-          member = guild.members.fetch(reaction.users.cache.last().id);
+      let targetMember = await guild.members.fetch(reaction.message.author.id);
+      let member = await guild.members.fetch(reaction.users.cache.last().id);
 
       if (!targetMember || !member || member.user.bot || targetMember.id == member.id)
         return resolve();
 
-      await guildMemberModel.cache.load(member);
       await guildMemberModel.cache.load(targetMember);
+      await guildMemberModel.cache.load(member);
 
       if (!member.appData.reactionVote)
         return resolve();
