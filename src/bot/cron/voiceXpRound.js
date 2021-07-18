@@ -4,15 +4,22 @@ const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
-const rankVoiceMember = require('../util/rankVoiceMember.js');
+const statFlushCache = require('../statFlushCache.js');
+const noXpUtil = require('../util/noXpUtil.js');
+let minutesToAdd = 0,leftover= 0,round = 0,hrstart = process.hrtime();;
 
 module.exports = async (client) => {
   return new Promise(async function(resolve, reject) {
     try {
-      let hrstart,hrend;
+      const roundTimeSec = process.hrtime(hrstart)[0];
+      const secondsToAdd = roundTimeSec + leftover;
+      minutesToAdd = Math.floor(secondsToAdd / 60);
+      leftover = Math.round(secondsToAdd % 60);
+
+      hrstart = process.hrtime();
+      round++;
 
       console.log('RankVoice round started.');
-      hrstart = process.hrtime();
 
       for (let guild of client.guilds.cache) {
         guild = guild[1];
@@ -26,8 +33,10 @@ module.exports = async (client) => {
         } catch (e) { console.log(e); }
       }
 
-      rankVoiceMember.round++;
-      console.log('RankVoice round '+ rankVoiceMember.round +' finished after ' + Math.round(process.hrtime(hrstart)[0] / 60) + 'm.');
+      await fct.sleep(2000);
+
+      console.log('RankVoice round '+ round +' finished after ' + Math.round(roundTimeSec / 60) + 'm.\n ' + 'secondsToAdd ' + secondsToAdd + ', minutesToAdd ' + minutesToAdd + ', leftover ' + leftover );
+
       resolve();
     } catch (e) { reject(e); }
   });
@@ -65,16 +74,22 @@ const rankVoiceChannel = (channel) => {
     try {
       for (let member of channel.members) {
         member = member[1];
-        
+
         await guildMemberModel.cache.load(member);
 
-        await rankVoiceMember.update(member,channel);
-        await fct.sleep(200);
+        if (await noXpUtil.noVoiceXp(member,channel))
+          return resolve();
+
+        if (minutesToAdd > 0) {
+          await statFlushCache.addVoiceMinute(member,channel,minutesToAdd);
+          await fct.sleep(200);
+        }
       }
       resolve();
     } catch (e) { reject(e); }
   });
 }
+
 
 
 /*

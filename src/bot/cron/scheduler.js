@@ -37,7 +37,6 @@ exports.start = (client) => {
 const startVoiceXp = async (client) => {
   while(true) {
     await voiceXpRound(client).catch(e => console.log(e));
-    await fct.sleep(voiceXpRoundInterval).catch(e => console.log(e));
   }
 }
 
