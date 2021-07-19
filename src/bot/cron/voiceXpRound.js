@@ -6,7 +6,7 @@ const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 const statFlushCache = require('../statFlushCache.js');
 const noXpUtil = require('../util/noXpUtil.js');
-let minutesToAdd = 0,leftover= 0,round = 0,hrstart = process.hrtime();;
+let minutesToAdd = 0,leftover= 0,round = 0,hrstart = process.hrtime();
 
 module.exports = async (client) => {
   return new Promise(async function(resolve, reject) {
@@ -19,7 +19,7 @@ module.exports = async (client) => {
       hrstart = process.hrtime();
       round++;
 
-      console.log('RankVoice round started.');
+      //console.log('RankVoice round started.');
 
       for (let guild of client.guilds.cache) {
         guild = guild[1];
@@ -35,7 +35,7 @@ module.exports = async (client) => {
 
       await fct.sleep(2000);
 
-      console.log('RankVoice round '+ round +' finished after ' + Math.round(roundTimeSec / 60) + 'm.\n ' + 'secondsToAdd ' + secondsToAdd + ', minutesToAdd ' + minutesToAdd + ', leftover ' + leftover );
+      console.log('RankVoice round '+ round +' finished.\n' + 'secondsToAdd ' + secondsToAdd + ', minutesToAdd ' + minutesToAdd + ', leftover ' + leftover );
 
       resolve();
     } catch (e) { reject(e); }

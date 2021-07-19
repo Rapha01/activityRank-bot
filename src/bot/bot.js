@@ -78,7 +78,7 @@ function initEventTriggers(client) {
   client.on('guildMemberAdd', (member) => {onGuildMemberAdd(member).catch(e => console.log(e));});
   client.on('guildMemberRemove', (member) => {onGuildMemberRemove(member).catch(e => console.log(e));});
   client.on('messageReactionAdd', (member) => {onMessageReactionAdd(member).catch(e => console.log(e));});
-  client.on('voiceStateUpdate', (oldState, newState) => {onVoiceStateUpdate(oldState, newState).catch(e => console.log(e));});
+  //client.on('voiceStateUpdate', (oldState, newState) => {onVoiceStateUpdate(oldState, newState).catch(e => console.log(e));});
 }
 
 function initClientCaches(client) {

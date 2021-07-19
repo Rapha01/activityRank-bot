@@ -19,11 +19,11 @@ module.exports = (oldState, newState) => {
 
       if (oldState.channel == null && newState.channel != null && newState.member != null) {
         // Join
-        await rankVoiceMember.update(member,newState.channel);
+
 
       } else if (newState.channel == null && oldState.channel != null && oldState.member != null) {
         // Leave
-        await rankVoiceMember.update(member,oldState.channel);
+
 
       } else {
         // Switch or mute
