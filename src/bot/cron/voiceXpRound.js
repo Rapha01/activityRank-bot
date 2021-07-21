@@ -78,19 +78,18 @@ const rankVoiceChannel = (channel) => {
         await guildMemberModel.cache.load(member);
 
         if (await noXpUtil.noVoiceXp(member,channel))
-          return resolve();
+          continue;
 
         if (minutesToAdd > 0) {
           await statFlushCache.addVoiceMinute(member,channel,minutesToAdd);
           await fct.sleep(200);
         }
       }
-      resolve();
+
+      return resolve();
     } catch (e) { reject(e); }
   });
 }
-
-
 
 /*
 function existTwoUnmutedMembers(members) {

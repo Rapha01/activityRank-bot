@@ -1,6 +1,6 @@
 const guildModel = require('../models/guild/guildModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const rankVoiceMember = require('../util/rankVoiceMember.js');
+
 
 module.exports = (oldState, newState) => {
   return new Promise(async function (resolve, reject) {
