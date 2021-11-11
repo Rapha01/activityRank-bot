@@ -2,14 +2,13 @@ const mysql = require('promise-mysql');
 const net = require('net');
 let keys = require('../../const/keys').get();
 let dbuser,dbpassword,dbname,pools = {};
+let pool;
 
 module.exports.query = (dbHost,sql) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (!pools[dbHost])
-        await createPool(dbHost);
-
-      resolve(await pools[dbHost].query(sql));
+      if (!pool) {await createPool()};
+      resolve(await pool.query(sql));
     } catch (e) { reject(e); }
   });
 };
@@ -17,10 +16,8 @@ module.exports.query = (dbHost,sql) => {
 module.exports.getConnection = (dbHost) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (!pools[dbHost])
-        await createPool(dbHost);
-
-      resolve(await pools[dbHost].getConnection(sql));
+      if (!pool) {await createPool(dbHost)};
+      resolve(await pool.getConnection(sql));
     } catch (e) { reject(e); }
   });
 };
@@ -28,12 +25,10 @@ module.exports.getConnection = (dbHost) => {
 const createPool = (dbHost) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (!pools[dbHost]) {
-        if (!net.isIP(dbHost))
-          return reject('Query triggered without defined dbHost. dbHost: ' + dbHost + '.');
+      if (!pool) {
 
-        pools[dbHost] = await mysql.createPool({
-          host                : dbHost,
+        pool = await mysql.createPool({
+          host                : dbHost, 
           user                : keys.shardDb.dbUser,
           password            : keys.shardDb.dbPassword,
           database            : keys.shardDb.dbName,
@@ -44,18 +39,18 @@ const createPool = (dbHost) => {
           connectionLimit     : 3
         });
 
-        pools[dbHost].on('error', function(err) {
+        pool.on('error', function(err) {
           console.log('ShardDb pool error.');
           if(err.code === 'PROTOCOL_CONNECTION_LOST') {
             console.log('PROTOCOL_CONNECTION_LOST for shardDb @' + dbHost + '. Deleting connection.');
-            delete pools[dbHost];
+            pool = null;
           } else { throw err; }
         });
 
         console.log('Connected to dbShard ' + dbHost);
       }
-
-      resolve(pools[dbHost]);
+      
+      resolve(pool);
     } catch (e) { reject(e); }
   });
 };

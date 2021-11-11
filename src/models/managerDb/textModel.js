@@ -6,7 +6,7 @@ exports.cache = {};
 exports.storage.get = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      const texts = await managerDb.fetch(null,'/api/texts/','get');
+      const texts = await managerDb.fetch(null,':3005/api/texts/','get');
 
       resolve(texts);
     } catch (e) { reject(e); }
