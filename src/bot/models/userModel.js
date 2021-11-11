@@ -110,7 +110,7 @@ const loadDefaultCache = (dbHost) => {
       let res = await shardDb.query(dbHost,`SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`);
 
       if (res.length == 0)
-        await conn.query(dbHost,`INSERT IGNORE INTO user (userId) VALUES (0)`);
+        await shardDb.query(dbHost,`INSERT IGNORE INTO user (userId) VALUES (0)`);
 
       res = await shardDb.query(dbHost,`SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`);
 
