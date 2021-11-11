@@ -5,7 +5,7 @@ module.exports = (manager) => {
     try {
       const hrstart = process.hrtime();
       const shardCaches = await manager.fetchClientValues('appData.statFlushCache');
-      const res = manager.broadcastEval((c) => c.appData.statFlushCache = {});
+      const res = manager.broadcastEval('this.appData.statFlushCache = {}');
 
       let statFlushCache = combineShardCaches(shardCaches);
 
