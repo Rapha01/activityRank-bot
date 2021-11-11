@@ -7,40 +7,42 @@ const statFlushCache = require('../statFlushCache.js');
 const fct = require('../../util/fct.js');
 const skip = require('../skip.js');
 
-module.exports = (msg) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (msg.author.bot == true || !msg.guild)
-        return resolve();
-      if (skip(msg.guild.id))
-        return resolve();
+module.exports = {
+	name: 'messageCreate',
+	execute(msg) {
+        return new Promise(async function (resolve,reject) {
+            try {
+                if (msg.author.bot == true) {
+                    return resolve();
+                } else if (!msg.guild) {
+                    msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'),
+                                ephemeral: true })
+                } else if (skip(msg.guildId)) {
+                    return resolve();
+                } else if (msg.channel.type == 'GUILD_TEXT' && msg.type == 'DEFAULT' && msg.system == false) {
+                    await guildModel.cache.load(msg.guild);
+                    
+                    if (msg.content.startsWith(msg.guild.appData.prefix)) { 
+                        await handleCommand(msg); 
+                    } else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
+                        await msg.reply({ content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
+                    } else if (msg.guild.appData.textXp) { await rankMessage(msg); }
+                }
 
-      if (msg.channel.type == 'dm') {
-          msg.channel.send('Hi. Please use your commands inside ' +
-              'the channel of a server i am in.\n Thanks!');
+                resolve();
+            } catch (e) { reject(e); }
+        });
+        
+	},
+};
 
-      } else if (msg.channel.type == 'text' && msg.type == 'DEFAULT' && msg.system == false) {
-        await guildModel.cache.load(msg.guild);
-
-        if (msg.content.startsWith(msg.guild.appData.prefix))
-          await handleCommand(msg);
-        else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id)
-          await msg.channel.send('Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!');
-        else if (msg.guild.appData.textXp)
-          await rankMessage(msg);
-      }
-
-      resolve();
-    } catch (e) { reject(e); }
-  });
-}
 
 function rankMessage(msg) {
   return new Promise(async function(resolve, reject) {
     try {
       await msg.guild.members.fetch(msg.author.id);
 
-      if (!msg.member) // || hasCommandPrefix(msg.content.substr(0,4))
+      if (!msg.member)
         return resolve();
 
       // Check noxp channel & allowInvisibleXp
@@ -48,9 +50,6 @@ function rankMessage(msg) {
 
       if (msg.channel.appData.noXp)
         return resolve();
-
-      //if (!msg.guild.appData.allowInvisibleXp && msg.member.user.presence.status == 'offline')
-      //  return resolve();
 
       // Check noxp role
       for (let role of msg.member.roles.cache) {
