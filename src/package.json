@@ -1,6 +1,6 @@
 {
-  "name": "activityRankBot",
-  "version": "4.1.0",
+  "name": "activity-rank-bot",
+  "version": "5.0.0",
   "description": "ActivityRank Bot",
   "main": "app.js",
   "scripts": {
@@ -8,24 +8,26 @@
     "development": "NODE_ENV=development node ./app",
     "developmentNodemon": "nodemon --legacy-watch"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Linck01/activityRankBot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "rank"
+  ],
   "dependencies": {
-    "discord.js": "12",
-    "node-emoji": "*",
-    "ip-to-int": "*",
-    "mysql": "^2.18.1",
-    "node-cron": "*",
-    "node-fetch": "^2.6.0",
-    "nodemon": "1.19.4",
-    "public-ip": "*",
-    "request": "^2.88.2",
-    "require-from-string": "*",
-    "promise-mysql": "*",
-    "net": "*"
+    "discord.js": "^13.3.1",
+    "ip-to-int": "^0.3.1",
+    "node-cron": "^3.0.0",
+    "node-emoji": "^1.11.0",
+    "promise-mysql": "^5.0.4",
+    "public-ip": "^4.0.4"
   },
   "author": "Linck",
-  "devDependencies": {},
-  "license": "",
-  "repository": {
-    "type": "git"
-  }
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  },
+  "license": ""
 }
