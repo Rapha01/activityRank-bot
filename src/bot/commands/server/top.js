@@ -144,8 +144,7 @@ function sendMembersEmbed(msg,args,myGuild,time,from,to) {
           .setTitle(header)
           .setAuthor('')
           .setDescription(description)
-          .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setColor('#4fd6c8');
 
       let i = 0;
       let scoreStrings;
@@ -169,7 +168,7 @@ function sendMembersEmbed(msg,args,myGuild,time,from,to) {
         i++;
       }
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
     } catch (e) { reject(e); }
     resolve();
   });
