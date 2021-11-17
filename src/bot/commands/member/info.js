@@ -75,7 +75,7 @@ function sendMemberInfoEmbed(msg,myGuild,targetUserId) {
 
 
 
-      await msg.channel.send({embed});
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { return reject(e); }
   });

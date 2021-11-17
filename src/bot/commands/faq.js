@@ -13,9 +13,9 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      const faqs = msg.client.appData.texts.faqs.slice(page.from - 1,msg.guild.appData.entriesPerPage);
+      const faqs = JSON.parse(msg.client.appData.texts).faqs.slice(page.from - 1,msg.guild.appData.entriesPerPage);
 
-      await msg.channel.send(faqMainEmbed(faqs));
+      await msg.channel.send({embeds:[faqMainEmbed(faqs)]});
 
       resolve();
     } catch (e) { reject(e); }
@@ -38,6 +38,6 @@ function faqMainEmbed (faqs) {
     embed.addField(' (' + faq.id + ') ' + faq.title + '',faq.desc);
   }
 
-  return {embed};
+  return embed;
   console.log(features);
 }

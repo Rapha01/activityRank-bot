@@ -102,7 +102,7 @@ function info(msg,myGuild) {
       embed.addField('NoCommand channels','Please check ``' + myGuild.prefix + 's info noCommandChannels``.',true);
       embed.addField('Messages','Please check ``' + myGuild.prefix + 's info messages``.',true);
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });
