@@ -139,7 +139,7 @@ function messages(msg,myGuild,from,to) {
       for (entry of entries)
         embed.addField(entry.title,entry.desc != '' ? entry.desc : 'Not set.');
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });
@@ -167,7 +167,7 @@ function levels(msg,myGuild,from,to) {
       for (level of levels)
         embed.addField(':military_medal:' + level.nr,level.localXp + ' (' + level.totalXp + ')',true);
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });
@@ -195,7 +195,7 @@ function roles(msg,myGuild,from,to) {
       if (roleAssignments.length == 0)
         embed.setDescription('No roles to show here.');
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });
@@ -230,7 +230,7 @@ function noXpRoles(msg,myGuild,from,to) {
       if (noXpRoleIds.length == 0)
         embed.setDescription('No roles to show here.');
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });
@@ -256,7 +256,7 @@ function noXpChannels(msg,myGuild,from,to) {
       if (noXpChannelIds.length == 0)
         embed.setDescription('No channels to show here.');
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });
@@ -288,7 +288,7 @@ function noCommandChannels(msg,myGuild,from,to) {
 
       embed.setDescription(description);
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { reject(e); }
   });

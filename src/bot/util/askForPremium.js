@@ -50,7 +50,7 @@ const sendAskForPremiumEmbed = (msg) => {
 
       embed.addField(`The maintenance and development of this bot depend on your support!`, `<@${msg.member.id}> Please consider helping this server to go Premium. All features of the bot are free, but Premium servers receive additional (current and upcoming) quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). Simply go to https://activityrank.me/premium to load a few tokens on your user account. These tokens can then be redeemed for premium time on any server. Thank you!`);
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
 
     } catch (e) { reject(e); }
     resolve();

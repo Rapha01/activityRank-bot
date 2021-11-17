@@ -86,7 +86,7 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
         embed.addField('#' + (from + i) + '  ' + guildMemberName, str,true);
       }
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
     } catch (e) { reject(e); }
     resolve();
   });

@@ -93,7 +93,7 @@ function sendChannelsEmbed(msg,args,time,from,to) {
         embed.addField('#' + (from + i) + '  ' + nameUtil.getChannelName(msg.guild.channels.cache,channelRanks[i].channelId), str);
       }
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
     } catch (e) { reject(e); }
     resolve();
   });
