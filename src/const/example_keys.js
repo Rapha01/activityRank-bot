@@ -29,6 +29,10 @@ const keys = {
       dbUser: '',
       dbPassword: '',
       dbName: ''
+    },
+    admin: {
+      serverIds: [''],
+      channelIds: ['']
     }
   }
 };
