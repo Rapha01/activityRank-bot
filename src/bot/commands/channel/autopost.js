@@ -4,7 +4,7 @@ const guildModel = require('../../models/guild/guildModel.js');
 module.exports = (msg,targetChannelId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (!msg.member.hasPermission("MANAGE_GUILD")) {
+      if (!msg.member.permissionsIn(msg.channel).has("MANAGE_GUILD")) {
         await msg.channel.send('You need the permission to manage the server, in order to use this command.');
         return resolve();
       }
