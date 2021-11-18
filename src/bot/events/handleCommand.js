@@ -22,7 +22,7 @@ module.exports = (msg) => {
 
 			await guildChannelModel.cache.load(msg.channel);
 
-			if (msg.channel.appData.noCommand && !msg.member.hasPermission("MANAGE_GUILD"))
+			if (msg.channel.appData.noCommand && !msg.member.permissionsIn(msg.channel).has("MANAGE_GUILD"))
 				return resolve();
 
 			if (msg.guild.appData.commandOnlyChannel != 0 && msg.guild.appData.commandOnlyChannel != msg.channel.id && !msg.member.hasPermission("MANAGE_GUILD"))
