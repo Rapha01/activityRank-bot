@@ -8,9 +8,9 @@ module.exports = (msg,args) => {
       let helpEmbed = helpMainEmbed(msg.guild,JSON.parse(msg.client.appData.texts).commands);
 
       if (args.length > 0) {
-        for (section in msg.client.appData.texts.commands) {
+        for (section in JSON.parse(msg.client.appData.texts).commands) {
           if (section.toLowerCase() == args[0].toLowerCase())
-            helpEmbed = helpFeatureEmbed(msg.guild,msg.client.appData.texts.commands[section]);
+            helpEmbed = helpFeatureEmbed(msg.guild,JSON.parse(msg.client.appData.texts).commands[section]);
         }
       }
 
@@ -47,5 +47,5 @@ function helpFeatureEmbed (guild,section) {
   for (command of section.subcommands)
     embed.addField(command.title + '\n' + command.command.replace(/<prefix>/g,guild.appData.prefix),command.desc + '\nex.: ``' + command.example.replace(/<prefix>/g,guild.appData.prefix) + '``');
 
-  return {embed};
+  return embed;
 }
