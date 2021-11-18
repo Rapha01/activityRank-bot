@@ -12,6 +12,7 @@ module.exports = {
 	execute(msg) {
         return new Promise(async function (resolve,reject) {
             try {
+                let types = ['GUILD_TEXT', 'GUILD_PUBLIC_THREAD', 'GUILD_PRIVATE_THREAD']
                 if (msg.author.bot == true) {
                     return resolve();
                 } else if (!msg.guild) {
@@ -19,7 +20,7 @@ module.exports = {
                                 ephemeral: true })
                 } else if (skip(msg.guildId)) {
                     return resolve();
-                } else if (msg.channel.type == 'GUILD_TEXT' && msg.type == 'DEFAULT' && msg.system == false) {
+                } else if (types.includes(msg.channel.type) && msg.type == 'DEFAULT' && msg.system == false) {
                     await guildModel.cache.load(msg.guild);
                     
                     if (msg.content.startsWith(msg.guild.appData.prefix)) { 
@@ -27,6 +28,10 @@ module.exports = {
                     } else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
                         await msg.reply({ content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
                     } else if (msg.guild.appData.textXp) { await rankMessage(msg); }
+                } else {
+                    console.log(msg.channel.type);
+                    console.log(msg.type);
+                    console.log(msg.system)
                 }
 
                 resolve();
