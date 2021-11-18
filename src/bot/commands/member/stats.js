@@ -65,7 +65,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId,time) {
           .setColor('#4fd6c8')
           .setDescription(description)
           .setThumbnail(targetMember.user.avatarURL({dynamic:true}))
-          .setFooter(JSON.parse(msg.client.appData.settings).footer ? JSON.parse(msg.client.appData.settings).footer : "")
+          .setFooter(JSON.parse(msg.client.appData.settings).footer)
 
       let scoreStrings = [];
       let infoStrings = [];

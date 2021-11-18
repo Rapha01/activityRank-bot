@@ -8,9 +8,12 @@ module.exports = {
         return new Promise(async function (resolve, reject) {
             try {
                 const member = await oldState.member;
-                if (!member) { return resolve(); }
-                if (!member.user) { return resolve(); }
-                if (member.user.bot) { return resolve(); }
+                if (!member) 
+                    return resolve();
+                if (!member.user) 
+                    return resolve();
+                if (member.user.bot) 
+                    return resolve();
 
                 await guildModel.cache.load(oldState.guild);
                 await guildMemberModel.cache.load(member);
