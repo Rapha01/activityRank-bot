@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
@@ -11,21 +13,15 @@ module.exports = {
         }
 
         try {
-            /******* Command Handler  *******/
-            // TODO: permissionLevels, cooldown {seconds, allowedUses}
 
-            // Features: ~~dmOnly, guildOnly~~, permissionLevels, 
-            // botServerPermissions, botChannelPermissions, userServerPermissions, userChannelPermissions,
-            // description, cooldown {seconds, allowedUses}
-            
-            //dmOnly
             if (command.dmOnly && interaction.channel.type != 'DM') {
 	            return interaction.reply({ content: 'I can\'t execute that command in guilds!', ephemeral: true });
             }
             if (command.guildOnly && interaction.channel.type === 'DM') {
 	            return interaction.reply({ content: 'I can\'t execute that command inside DMs!', ephemeral: true });
             }
-            //Perms
+
+
             if (command.userChannelPermissions) {
             	const authorPerms = interaction.member.permissionsIn(interaction.channel);
             	if (!authorPerms || !authorPerms.has(command.userChannelPermissions))
@@ -47,10 +43,38 @@ module.exports = {
             		return interaction.reply({ content: 'I do not have the permissions required to do this! Please contact a server admin.', ephemeral: true });
             }
 
-            //cooldowns
-            
-            /******* /Command Handler *******/
+
+            const { cooldowns } = interaction.client;
+
+            if (!cooldowns.has(command.name)) {
+            	cooldowns.set(command.name, new Discord.Collection());
+            }
+
+            const now = Date.now();
+            const timestamps = cooldowns.get(command.name);
+            const cooldownAmount = (command.cooldown || 3) * 1000;
+
+            if (command.cooldown) {
+                const { cooldowns } = interaction.client;
+                if (!cooldowns.has(command.name))
+                    cooldowns.set(command.name, new Discord.Collection());
+                const now = Date.now();
+                const timestamps =  cooldowns.get(command.name);
+                const cooldownAmount = command.cooldown * 1000;
+
+                if (timestamps.has(interaction.member.id)) {
+                	const expirationTime = timestamps.get(interaction.member.id) + cooldownAmount;
+
+                	if (now < expirationTime) {
+                		const timeLeft = (expirationTime - now) / 1000;
+                		return message.reply({ content: `Please wait ${timeLeft.toFixed(1)} more second${timeLeft.toFixed(1) > 1 ? "s" : ""} before reusing the \`/${command.name}\` command!`, ephemeral: true });
+                	}
+                }
+            }
+
+
             await command.execute(interaction);
+
         } catch (e) {
             console.error(e);
             await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
