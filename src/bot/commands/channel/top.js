@@ -45,9 +45,9 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
       let type;
       let header = 'Toplist for channel ' + targetChannel.name + ' from ' + from + ' to ' + to + ' | ' + time;
 
-      if (targetChannel.type == 'voice')
+      if (targetChannel.type == 'GUILD_VOICE')
         type = 'voiceMinute';
-      else if (targetChannel.type == 'text')
+      else if (targetChannel.type == 'GUILD_TEXT')
         type = 'textMessage';
       else {
         await msg.channel.send('Channel is not of type voice or text.');
