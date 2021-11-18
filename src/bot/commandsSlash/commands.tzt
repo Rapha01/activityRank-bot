@@ -1,0 +1,26 @@
+
+let test = class Command {
+  name: string;
+  dmOnly?: boolean;
+  guildOnly?: boolean;
+  nsfw?: boolean;
+  permissionLevels?:
+    | PermissionLevels[]
+    | ((
+      message: Message,
+      command: Command,
+      guild?: Guild,
+    ) => boolean | Promise<boolean>);
+  botServerPermissions?: Permission[];
+  botChannelPermissions?: Permission[];
+  userServerPermissions?: Permission[];
+  userChannelPermissions?: Permission[];
+  description?: string;
+  cooldown?: {
+    seconds: number;
+    allowedUses?: number;
+  };
+  arguments?: CommandArgument[];
+  subcommands?: Collection<string, Command>;
+  execute?: (message: Message, args: any, guild?: Guild) => unknown;
+}
