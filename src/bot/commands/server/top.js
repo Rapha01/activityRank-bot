@@ -81,7 +81,7 @@ function sendChannelsEmbed(msg,args,time,from,to) {
           .setTitle(header)
           .setAuthor('')
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(JSON.parse(msg.client.appData.settings).footer);
 
       let str = '';
       for (let i = 0; i < channelRanks.length;i++) {
