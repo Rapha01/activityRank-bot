@@ -26,6 +26,7 @@ const intents = [
 
 const client = new Client({ intents: intents });
 
+client.cooldowns = new Collection();
 client.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));

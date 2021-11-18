@@ -6,7 +6,9 @@
   "scripts": {
     "production": "NODE_ENV=production node ./app",
     "development": "NODE_ENV=development node ./app",
-    "developmentNodemon": "nodemon --legacy-watch"
+    "developmentNodemon": "nodemon --legacy-watch",
+    "deployTest": "node ./bot/deploy-local-commands",
+    "deploy": "node ./bot/deploy-commands"
   },
   "repository": {
     "type": "git",

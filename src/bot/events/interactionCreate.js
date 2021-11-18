@@ -46,6 +46,8 @@ module.exports = {
             	if (!authorPerms || !authorPerms.has(command.botServerPermissions))
             		return interaction.reply({ content: 'I do not have the permissions required to do this! Please contact a server admin.', ephemeral: true });
             }
+
+            //cooldowns
             
             /******* /Command Handler *******/
             await command.execute(interaction);
