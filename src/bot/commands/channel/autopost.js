@@ -8,7 +8,7 @@ module.exports = (msg,targetChannelId,args) => {
         await msg.channel.send('You need the permission to manage the server, in order to use this command.');
         return resolve();
       }
-      if (!msg.guild.me.hasPermission('MANAGE_CHANNELS')) {
+      if (!msg.guild.me.permissionsIn(msg.channel).has("MANAGE_CHANNELS")) {
         await msg.channel.send('The bot has no permission to manage channels. Please kick and reinvite it with the new invitelink found on discordbots.org. Your servers stats will ***not*** reset.');
         return resolve();
       }
