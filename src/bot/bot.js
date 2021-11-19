@@ -28,12 +28,12 @@ const client = new Client({ intents: intents });
 
 client.commands = new Collection();
 
-const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const command = require(`./commandsSlash/${file}`);
-	client.commands.set(command.data.name, command);
-}
+// const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
+// 
+// for (const file of commandFiles) {
+// 	const command = require(`./commandsSlash/${file}`);
+// 	client.commands.set(command.data.name, command);
+// }
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
