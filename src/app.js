@@ -13,8 +13,9 @@ const managerOptions = {
   // totalShards: 20
 }
 
-const Discord = require('discord.js');
-const manager = new Discord.ShardingManager('./bot/bot.js', managerOptions);
+const { ShardingManager } = require('discord.js');
+const manager = new ShardingManager('./bot/bot.js', managerOptions);
+
 
 start().catch(async (e) => {
   console.log(e);

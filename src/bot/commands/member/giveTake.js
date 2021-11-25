@@ -9,7 +9,7 @@ module.exports = (msg,command,targetUserId,args) => {
         await msg.channel.send('Could not find member.');
         return resolve();
       }
-      if (!msg.member.hasPermission("MANAGE_GUILD")) {
+      if (!msg.member.permissionsIn(msg.channel).has("MANAGE_GUILD")) {
         await msg.channel.send('You need the permission to manage the server, in order to use this command.');
         return resolve();
       }

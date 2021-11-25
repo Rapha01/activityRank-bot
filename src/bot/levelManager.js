@@ -31,7 +31,7 @@ exports.checkRoleAssignment = (member,level) => {
       let roleMessages = [],memberHasRole;
       const roles = member.guild.roles.cache;
 
-      if (roles.size == 0 || !member.guild.me.hasPermission('MANAGE_ROLES'))
+      if (roles.size == 0 || !member.guild.me.permissions.has("MANAGE_ROLES"))
         return resolve(roleMessages);
 
       for (let role of roles) {

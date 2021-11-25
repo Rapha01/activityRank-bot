@@ -62,7 +62,7 @@ function sendMemberInfoEmbed(msg,myGuild,targetUserId) {
           .setAuthor('Info for ' + targetMemberInfo.name + ' on server ' + msg.guild.name, '')
           .setColor('#4fd6c8')
           .setThumbnail(targetMemberInfo.avatarUrl)
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(JSON.parse(msg.client.appData.settings).footer)
           .addField('General',
               'Joined: ' + (new Date(targetMemberInfo.joinedAt)).toString().slice(0,16)  + '\n' +
               'Inviter: ' + inviterInfo.name )
@@ -75,7 +75,7 @@ function sendMemberInfoEmbed(msg,myGuild,targetUserId) {
 
 
 
-      await msg.channel.send({embed});
+      await msg.channel.send({embeds:[embed]});
       resolve();
     } catch (e) { return reject(e); }
   });

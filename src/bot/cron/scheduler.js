@@ -20,9 +20,12 @@ exports.start = (client) => {
 
   cron.schedule(logHighestGuildsInterval, async function() {
     try {
-      const maxGuilds = client.guilds.cache.sort(
+      const sort = client.guilds.cache.sort(
           (a, b) => (a.memberCount < b.memberCount) ? 1 : -1)
-          .array().slice(0,20);
+          // .array().slice(0,20);
+      let maxGuilds = []
+      await sort.forEach((e) => maxGuilds.push(e));
+      maxGuilds.slice(0,20);
 
       let str = '';
       for (let maxGuild of maxGuilds)

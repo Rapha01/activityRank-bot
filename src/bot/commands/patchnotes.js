@@ -13,9 +13,9 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      const patchnotes = msg.client.appData.texts.patchnotes.slice(page.from - 1,msg.guild.appData.entriesPerPage);
+      const patchnotes = JSON.parse(msg.client.appData.texts).patchnotes.slice(page.from - 1,msg.guild.appData.entriesPerPage);
 
-      await msg.channel.send(patchnotesMainEmbed(patchnotes));
+      await msg.channel.send({embeds:[patchnotesMainEmbed(patchnotes)]});
       //await msg.channel.send('I have sent you the requested information.');
 
       resolve();
@@ -36,5 +36,5 @@ function patchnotesMainEmbed (patchnotes) {
     embed.addField('Patch ' + patchnote.version + ' - ' + patchnote.title + ' (' + patchnote.date + ')' + '',patchnote.desc);
   }
 
-  return {embed};
+  return embed;
 }

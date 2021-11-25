@@ -5,54 +5,54 @@ const fct = require('../../util/fct.js');
 const rankModel = require('../models/rankModel.js');
 const Discord = require('discord.js');
 
-module.exports = (member) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (member.user.bot)
-        return resolve();
+module.exports = {
+	name: 'guildMemberAdd',
+	execute(member) {
+        return new Promise(async function (resolve, reject) {
+            try {
+                if (member.user.bot) { return resolve(); }
+                await guildModel.cache.load(member.guild);
+                await guildMemberModel.cache.load(member);
 
-      await guildModel.cache.load(member.guild);
-      await guildMemberModel.cache.load(member);
+                // Roleassignments
+                const level = fct.getLevel(fct.getLevelProgression(member.appData.totalScore,member.guild.appData.levelFactor));
+                const roleAssignmentString = await levelManager.checkRoleAssignment(member,level);
 
-      // Roleassignments
-      const level = fct.getLevel(fct.getLevelProgression(member.appData.totalScore,member.guild.appData.levelFactor));
-      const roleAssignmentString = await levelManager.checkRoleAssignment(member,level);
+                // AutoPost serverjoin
+                if (member.guild.appData.autopost_serverJoin != 0) { await autoPostServerJoin(member,roleAssignmentString); }
 
-      // AutoPost serverjoin
-      if (member.guild.appData.autopost_serverJoin != 0)
-        await autoPostServerJoin(member,roleAssignmentString);
-
-      resolve();
-    } catch (e) { reject(e); }
-  });
-}
+                resolve();
+            } catch (e) { reject(e); }
+        });
+    },
+};
 
 const autoPostServerJoin = (member,roleAssignmentString) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
-      if (!channel)
-        return resolve();
+    return new Promise(async function (resolve, reject) {
+        try {
+            const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
+            if (!channel)
+                return resolve();
 
-      let welcomeMessage;
-      if (member.guild.appData.serverJoinMessage != '')
-        welcomeMessage = member.guild.appData.serverJoinMessage;
-      else
-        welcomeMessage = 'Welcome <mention>. Have a good time here!';
+            let welcomeMessage;
+            if (member.guild.appData.serverJoinMessage != '')
+                welcomeMessage = member.guild.appData.serverJoinMessage;
+            else
+                welcomeMessage = 'Welcome <mention>. Have a good time here!';
 
-      welcomeMessage = welcomeMessage + '\n' + roleAssignmentString;
-      welcomeMessage = welcomeMessage.replace(/<mention>/g,'<@' + member.id + '>').replace(/<name>/g,member.user.username).replace(/<servername>/g,member.guild.name).replace(/<level>/g,'1');
+            welcomeMessage = welcomeMessage + '\n' + roleAssignmentString;
+            welcomeMessage = welcomeMessage.replace(/<mention>/g,'<@' + member.id + '>').replace(/<name>/g,member.user.username).replace(/<servername>/g,member.guild.name).replace(/<level>/g,'1');
 
-      const welcomeEmbed = new Discord.MessageEmbed()
-          .setTitle(member.user.username)
-          .setAuthor('')
-          .setColor('#4fd6c8')
-          .setDescription(welcomeMessage)
-          .setThumbnail(member.user.avatarURL())
+            const welcomeEmbed = new Discord.MessageEmbed()
+                .setTitle(member.user.username)
+                .setAuthor('')
+                .setColor('#4fd6c8')
+                .setDescription(welcomeMessage)
+                .setThumbnail(member.user.avatarURL())
 
-      await channel.send('<@' + member.id + '>',welcomeEmbed);
+            await channel.send('<@' + member.id + '>',welcomeEmbed);
 
-      resolve();
-    } catch (e) { reject(e); }
-  });
+            resolve();
+        } catch (e) { reject(e); }
+    });
 };

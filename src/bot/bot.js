@@ -1,104 +1,86 @@
-const Discord = require('discord.js');
+const fs = require('fs');
+const { Client, Collection, Intents } = require('discord.js');
+const { botAuth } = require('../const/keys.js')
 const fct = require('../util/fct.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 
-const client = new Discord.Client(
-  {ws: {intents:
-  [ 'GUILDS',
-    'GUILD_MEMBERS',
-    'GUILD_MESSAGES',
-    'GUILD_BANS',
-    'GUILD_EMOJIS',
-    'GUILD_INTEGRATIONS',
-    'GUILD_WEBHOOKS',
-    'GUILD_VOICE_STATES',
-    'GUILD_MESSAGES',
-    'GUILD_MESSAGE_REACTIONS',
-    'GUILD_MESSAGE_TYPING',
-    'DIRECT_MESSAGES',
-    'DIRECT_MESSAGE_REACTIONS',
-    'DIRECT_MESSAGE_TYPING'
-  ]}}
-);
+const flags = Intents.FLAGS
+const intents = [
+    flags.GUILDS,
+    // flags.GUILD_MEMBERS, // !!! PRIVILEGED !!!
+    // flags.GUILD_MESSAGES,
+    flags.GUILD_BANS,
+    flags.GUILD_EMOJIS_AND_STICKERS,
+    flags.GUILD_INTEGRATIONS,
+    flags.GUILD_WEBHOOKS,
+    flags.GUILD_VOICE_STATES,
+    flags.GUILD_MESSAGES,
+    flags.GUILD_MESSAGE_REACTIONS,
+    flags.GUILD_MESSAGE_TYPING,
+    flags.DIRECT_MESSAGES,
+    flags.DIRECT_MESSAGE_REACTIONS,
+    flags.DIRECT_MESSAGE_TYPING
+]
+
+const client = new Client({ intents: intents });
+
+client.commands = new Collection();
+
+// const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
+// 
+// for (const file of commandFiles) {
+// 	const command = require(`./commandsSlash/${file}`);
+// 	client.commands.set(command.data.name, command);
+// }
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
-const onMessage = require('./events/message.js');
-const onGuildMemberAdd = require('./events/guildMemberAdd.js');
-const onGuildCreate = require('./events/guildCreate.js');
-const onGuildDelete = require('./events/guildDelete.js');
-const onGuildMemberRemove = require('./events/guildMemberRemove.js');
-const onMessageReactionAdd = require('./events/messageReactionAdd.js');
-const onVoiceStateUpdate = require('./events/voiceStateUpdate.js');
 
 start();
 
 async function start() {
-  try {
-    //await texter.initTexts();
-    await initClientCaches(client);
-    initEventTriggers(client);
+    try {
+        //await texter.initTexts();
+        await initClientCaches(client);
 
-    await client.login();
-  } catch (e) {
-    console.log(e);
-    await fct.waitAndReboot(3000);
-  }
+        await client.login();
+    } catch (e) {
+        console.log(e);
+        await fct.waitAndReboot(3000);
+    }
 }
 
-function initEventTriggers(client) {
-  client.on('ready', async () => {
-    try {
-      console.log(`Logged in as ${client.user.tag}!`);
+const eventFiles = fs.readdirSync('./bot/events').filter(file => file.endsWith('.js'));
 
-      client.user.setActivity('Calculating..');
-
-      await cronScheduler.start(client);
-
-    } catch (e) { console.log(e); }
-  });
-
-  client.on('disconnect', (msg, code) => {
-    if (code === 0)
-      return console.log('client.onDisconnect: ',msg);
-
-    client.connect();
-  });
-
-  client.on('error', (err) => {
-    console.log('client.onError: ', err);
-    //process.exit();
-  });
-
-  client.on('message', (msg) => {onMessage(msg).catch(e => console.log(e));});
-  client.on('guildCreate', (guild) => {onGuildCreate(guild).catch(e => console.log(e));});
-  client.on('guildDelete', (guild) => {onGuildDelete(guild).catch(e => console.log(e));});
-  client.on('guildMemberAdd', (member) => {onGuildMemberAdd(member).catch(e => console.log(e));});
-  client.on('guildMemberRemove', (member) => {onGuildMemberRemove(member).catch(e => console.log(e));});
-  client.on('messageReactionAdd', (member) => {onMessageReactionAdd(member).catch(e => console.log(e));});
-  //client.on('voiceStateUpdate', (oldState, newState) => {onVoiceStateUpdate(oldState, newState).catch(e => console.log(e));});
+for (const file of eventFiles) {
+	const event = require(`./events/${file}`);
+	if (event.once) {
+	    client.once(event.name, (...args) => event.execute(...args));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args));
+	}
 }
 
 function initClientCaches(client) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      client.appData = {};
-      client.appData.statFlushCache = {};
-      client.appData.botShardStat = { commands1h: 0, botInvites1h: 0, botKicks1h: 0, voiceMinutes1h: 0, textMessages1h: 0, roleAssignments1h: 0, rolesDeassignments1h: 0 };
-      textModel.cache.load(client);
-      settingModel.cache.load(client);
+    return new Promise(async function (resolve, reject) {
+        try {
+            client.appData = {};
+            client.appData.statFlushCache = {};
+            client.appData.botShardStat = { commands1h: 0, botInvites1h: 0, botKicks1h: 0, voiceMinutes1h: 0, textMessages1h: 0, roleAssignments1h: 0, rolesDeassignments1h: 0 };
+            textModel.cache.load(client);
+            settingModel.cache.load(client);
 
-      resolve();
-    } catch (e) { console.log(e); }
-  });
+            resolve();
+        } catch (e) { console.log(e); }
+    });
 }
 
 process.on('SIGINT', () => {
-  console.info('SIGINT signal received in Shard.');
+    console.info('SIGINT signal received in Shard.');
 });
 
 process.on('SIGTERM', () => {
-  console.info('SIGTERM signal received in Shard.');
+    console.info('SIGTERM signal received in Shard.');
 });

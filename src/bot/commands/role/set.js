@@ -4,11 +4,11 @@ const errorMsgs = require('../../../const/errorMsgs.js');
 module.exports = (msg,targetRoleId,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (!msg.member.hasPermission("MANAGE_GUILD")) {
+      if (!msg.member.permissionsIn(msg.channel).has("MANAGE_GUILD")) {
         await msg.channel.send('You need the permission to manage the server, in order to use this command.');
         return resolve();
       }
-      if (!msg.guild.me.hasPermission('MANAGE_ROLES')) {
+      if (!msg.guild.me.permissionsIn(msg.channel).has("MANAGE_ROLES")) {
         await msg.channel.send('You have an old version of the bot with no permission to manage roles. Please kick and reinvite it with the new invitelink found on discordbots.org. Your servers stats will ***not*** reset.');
         return resolve();
       }

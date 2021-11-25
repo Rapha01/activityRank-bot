@@ -58,22 +58,31 @@ const startStatFlush = async (manager) => {
   }
 }*/
 
+function _updateSettings(client, { settings }) {client.appData.settings = settings}
+
 const startUpdateSettings = async (manager) => {
   while(true) {
     try {
-      const settings = await settingModel.storage.get();
-      await manager.broadcastEval(`this.appData.settings = ${JSON.stringify(settings)}`);
+      let s = await settingModel.storage.get();
+      s = JSON.stringify(s);
+      // await manager.broadcastEval(`this.appData.settings = ${JSON.stringify(settings)}`);
+      await manager.broadcastEval(_updateSettings, {context:{settings:s}});
     } catch (e) { console.log(e); }
 
     await fct.sleep(updateSettingsInterval).catch(e => console.log(e));
   }
 }
 
+function _updateTexts(client, { texts }) {client.appData.texts = texts}
+
 const startUpdateTexts = async (manager) => {
   while(true) {
     try {
-      const texts = await textModel.storage.get();
-      await manager.broadcastEval(`this.appData.texts = ${JSON.stringify(texts)}`);
+      let t = await textModel.storage.get();
+      t = JSON.stringify(t);
+      // console.log(t)
+      // await manager.broadcastEval((c,{t}) => c.appData.texts = t, { context: { t: t } } ); // `this.appData.texts = ${JSON.stringify(texts)}`);
+      await manager.broadcastEval(_updateTexts, {context:{texts:t}})
     } catch (e) { console.log(e); }
 
     await fct.sleep(updateTextsInterval).catch(e => console.log(e));

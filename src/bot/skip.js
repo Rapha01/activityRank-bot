@@ -1,5 +1,5 @@
 const fct = require('../util/fct.js');
-let warump;
+let warmup;
 
 if (process.env.NODE_ENV == 'production') {
   warmup = 60;
@@ -24,7 +24,7 @@ async function decrementWarmup() {
     while (warmup > 0) {
       await fct.sleep(1000);
       warmup--;
-      
+
       if (warmup % 10 == 0)
         console.log('Warmup: ' + warmup + '.');
     }

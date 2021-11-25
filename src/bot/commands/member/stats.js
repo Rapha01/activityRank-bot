@@ -65,7 +65,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId,time) {
           .setColor('#4fd6c8')
           .setDescription(description)
           .setThumbnail(targetMember.user.avatarURL({dynamic:true}))
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(JSON.parse(msg.client.appData.settings).footer)
 
       let scoreStrings = [];
       let infoStrings = [];
@@ -88,7 +88,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId,time) {
       embed.addField('Stats',scoreStrings.join('\n'));
 
 
-      await msg.channel.send({embed});
+      await msg.channel.send({ embeds: [ embed ] });
       resolve();
     } catch (e) { return reject(e); }
   });

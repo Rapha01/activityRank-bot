@@ -45,9 +45,9 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
       let type;
       let header = 'Toplist for channel ' + targetChannel.name + ' from ' + from + ' to ' + to + ' | ' + time;
 
-      if (targetChannel.type == 'voice')
+      if (targetChannel.type == 'GUILD_VOICE')
         type = 'voiceMinute';
-      else if (targetChannel.type == 'text')
+      else if (targetChannel.type == 'GUILD_TEXT')
         type = 'textMessage';
       else {
         await msg.channel.send('Channel is not of type voice or text.');
@@ -73,7 +73,7 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
           .setAuthor('')
           .setDescription(description)
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(JSON.parse(msg.client.appData.settings).footer);
 
       let str = '',guildMemberName;
       for (let i = 0; i < channelMemberRanks.length;i++) {
@@ -86,7 +86,7 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
         embed.addField('#' + (from + i) + '  ' + guildMemberName, str,true);
       }
 
-      await msg.channel.send(embed);
+      await msg.channel.send({embeds:[embed]});
     } catch (e) { reject(e); }
     resolve();
   });
