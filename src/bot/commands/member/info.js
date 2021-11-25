@@ -62,7 +62,7 @@ function sendMemberInfoEmbed(msg,myGuild,targetUserId) {
           .setAuthor('Info for ' + targetMemberInfo.name + ' on server ' + msg.guild.name, '')
           .setColor('#4fd6c8')
           .setThumbnail(targetMemberInfo.avatarUrl)
-          .setFooter(JSON.parse(msg.client.appData.settings).footer)
+          .setFooter(msg.client.appData.settings.footer)
           .addField('General',
               'Joined: ' + (new Date(targetMemberInfo.joinedAt)).toString().slice(0,16)  + '\n' +
               'Inviter: ' + inviterInfo.name )
