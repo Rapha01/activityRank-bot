@@ -5,6 +5,7 @@ const errorMsgs = require('../../const/errorMsgs.js');
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
     try {
+      console.log(msg.client.appData.texts.commands);
       let helpEmbed = helpMainEmbed(msg.guild,msg.client.appData.texts.commands);
 
       if (args.length > 0) {
@@ -23,6 +24,7 @@ module.exports = (msg,args) => {
 }
 
 function helpMainEmbed (guild,sections) {
+
   const embed = new Discord.MessageEmbed()
     .setAuthor('ActivityRank Manual')
     .setColor(0x00AE86)

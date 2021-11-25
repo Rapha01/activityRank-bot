@@ -79,7 +79,7 @@ const startUpdateTexts = async (manager) => {
   while(true) {
     try {
       let t = await textModel.storage.get();
-      t = JSON.stringify(t);
+      // t = JSON.stringify(t);
       // console.log(t)
       // await manager.broadcastEval((c,{t}) => c.appData.texts = t, { context: { t: t } } ); // `this.appData.texts = ${JSON.stringify(texts)}`);
       await manager.broadcastEval(_updateTexts, {context:{texts:t}})
