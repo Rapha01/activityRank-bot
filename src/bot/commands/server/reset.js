@@ -6,7 +6,11 @@ const cd = 600;
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
     try {
+<<<<<<< HEAD
       if (!msg.member.permissionsIn(msg.channel).has("MANAGE_GUILD")) {
+=======
+      if (!msg.member.hasPermission("MANAGE_GUILD")) {
+>>>>>>> parent of 9c92fef (Attn. Rapha - how do you manage footer? For now, just using this to make it work)
         await msg.channel.send('You need the permission to manage the server, in order to use this command.');
         return resolve();
       }

@@ -65,7 +65,11 @@ function sendMemberEmbed(msg,myGuild,targetUserId,time) {
           .setColor('#4fd6c8')
           .setDescription(description)
           .setThumbnail(targetMember.user.avatarURL({dynamic:true}))
+<<<<<<< HEAD
           .setFooter(JSON.parse(msg.client.appData.settings).footer)
+=======
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : "")
+>>>>>>> parent of 9c92fef (Attn. Rapha - how do you manage footer? For now, just using this to make it work)
 
       let scoreStrings = [];
       let infoStrings = [];
