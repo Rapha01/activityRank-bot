@@ -2,7 +2,7 @@ const guildModel = require('../models/guild/guildModel.js');
 
 module.exports = {
 	name: 'guildDelete',
-	execute(member) {
+	execute(guild) {
         return new Promise(async function (resolve, reject) {
             try {
                 await guildModel.cache.load(guild);
