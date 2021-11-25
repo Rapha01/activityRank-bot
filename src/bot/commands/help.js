@@ -5,12 +5,12 @@ const errorMsgs = require('../../const/errorMsgs.js');
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let helpEmbed = helpMainEmbed(msg.guild,JSON.parse(msg.client.appData.texts).commands);
+      let helpEmbed = helpMainEmbed(msg.guild,msg.client.appData.texts.commands);
 
       if (args.length > 0) {
-        for (section in JSON.parse(msg.client.appData.texts).commands) {
+        for (section in msg.client.appData.texts.commands) {
           if (section.toLowerCase() == args[0].toLowerCase())
-            helpEmbed = helpFeatureEmbed(msg.guild,JSON.parse(msg.client.appData.texts).commands[section]);
+            helpEmbed = helpFeatureEmbed(msg.guild,msg.client.appData.texts.commands[section]);
         }
       }
 

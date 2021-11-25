@@ -13,7 +13,7 @@ module.exports = (msg,args) => {
         return resolve();
       }
 
-      const faqs = JSON.parse(msg.client.appData.texts).faqs.slice(page.from - 1,msg.guild.appData.entriesPerPage);
+      const faqs = msg.client.appData.texts.faqs.slice(page.from - 1,msg.guild.appData.entriesPerPage);
 
       await msg.channel.send({embeds:[faqMainEmbed(faqs)]});
 

@@ -6,10 +6,10 @@ const fct = require('../../util/fct.js');
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let patchnotesEmbed = patchnotesVersionEmbed(JSON.parse(msg.client.appData.texts).patchnotes[0]);
+      let patchnotesEmbed = patchnotesVersionEmbed(msg.client.appData.texts.patchnotes[0]);
 
       if (args.length > 0) {
-        for (let patchnote of JSON.parse(msg.client.appData.texts).patchnotes) {
+        for (let patchnote of msg.client.appData.texts.patchnotes) {
           if (patchnote.version == args[0].toLowerCase())
             patchnotesEmbed = patchnotesVersionEmbed(patchnote);
         }
