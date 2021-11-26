@@ -54,7 +54,7 @@ const rankVoiceGuild = (guild) => {
       if (!guild.appData.voiceXp)
         return resolve();
 
-      const voiceChannels = guild.channels.cache.filter(channel => channel.type == 'voice');
+      const voiceChannels = guild.channels.cache.filter(channel => channel.type == 'GUILD_VOICE');
 
       for  (let channel of voiceChannels) {
         channel = channel[1];
