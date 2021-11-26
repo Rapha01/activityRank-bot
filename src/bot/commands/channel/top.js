@@ -73,7 +73,7 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
           .setAuthor('')
           .setDescription(description)
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
       let str = '',guildMemberName;
       for (let i = 0; i < channelMemberRanks.length;i++) {

@@ -92,7 +92,7 @@ function sendChannelsEmbed(msg,args,myGuild,type,time,from,to) {
           .setTitle(header)
           .setAuthor('')
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
       let str = '';
       for (let i = 0; i < channelRanks.length;i++) {
@@ -146,7 +146,7 @@ function sendChannelMembersEmbed(msg,args,myGuild,time,from,to) {
           .setTitle(header)
           .setAuthor('')
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
       let str = '';
       for (let i = 0; i < channelMemberRanks.length;i++) {
@@ -209,7 +209,7 @@ function sendGuildMembersEmbed(msg,args,myGuild,time,from,to) {
           .setAuthor('')
           .setDescription(description)
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
       let i = 0;
       let str = '';

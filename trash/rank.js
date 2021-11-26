@@ -114,7 +114,7 @@ function sendMemberEmbed(msg,myGuild,targetMemberId) {
           .setColor('#4fd6c8')
           .setDescription(description)
           .setThumbnail(targetMember.user.avatarURL)
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
           .addField('Level ' + level + ' (' + rank.totalScoreAlltime + ' XP)','Progress to next level: ' + (Math.floor(levelProgression % 1 * 100)) + '%\n')
           .addField(':microphone2: (hours)',
               '  Alltime #' + voicePositionAlltime + ' (' + (Math.round(rank.voiceMinuteAlltime / 60 * 10) / 10) + ')\n' +

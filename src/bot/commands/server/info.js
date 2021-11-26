@@ -47,7 +47,7 @@ function info(msg,myGuild) {
           .setAuthor('Info for server ' + msg.guild.name, '')
           .setColor('#4fd6c8')
           .setThumbnail(msg.guild.iconURL)
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
 
       embed.addField('**General**',
           'Tracking since: ' + new Date(myGuild.addDate * 1000).toLocaleString().substr(0,9) + '.\n' +
@@ -133,7 +133,7 @@ function messages(msg,myGuild,from,to) {
           .setAuthor('Messages info', '')
           .setColor('#4fd6c8')
           .setDescription('Review the set messages and texts for the bot.')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
       entries = entries.slice(from-1,to);
       for (entry of entries)
@@ -153,7 +153,7 @@ function levels(msg,myGuild,from,to) {
           .setAuthor('Levels info from ' + (from+1) + ' to ' + (to+1), '')
           .setColor('#4fd6c8')
           .setDescription('XP needed to reach next level (total XP).\nLevelfactor: ' + myGuild.levelFactor + '.')
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
 
       let levels = [],localXp = 100,totalXp = 0;
       for (let i = 2; i < to + 2; i++) {
@@ -181,7 +181,7 @@ function roles(msg,myGuild,from,to) {
           .setAuthor('Roles info', '')
           .setDescription('This servers activity roles and their respective levels.')
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
 
       let roleAssignments = await guildRoleModel.storage.getRoleAssignments(msg.guild);
       roleAssignments = roleAssignments.slice(from-1,to);
@@ -218,7 +218,7 @@ function noXpRoles(msg,myGuild,from,to) {
           .setAuthor('NoXP roles info', '')
           .setColor('#4fd6c8')
           .setDescription('Activity from users with these roles will not give xp.')
-          .setFooter(msg.client.appData.settings.footer);
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
       let noXpRoleIds = await guildRoleModel.getNoXpRoleIds(msg.guild);
       noXpRoleIds = noXpRoleIds.slice(from-1,to);
@@ -244,7 +244,7 @@ function noXpChannels(msg,myGuild,from,to) {
           .setAuthor('NoXP channels info', '')
           .setColor('#4fd6c8')
           .setDescription('Activity in these channels will not give xp.')
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
 
       let noXpChannelIds = await guildChannelModel.getNoXpChannelIds(msg.guild);
       noXpChannelIds = noXpChannelIds.slice(from-1,to);
@@ -274,7 +274,7 @@ function noCommandChannels(msg,myGuild,from,to) {
           .setTitle('')
           .setAuthor('NoCommand channels info', '')
           .setColor('#4fd6c8')
-          .setFooter(msg.client.appData.settings.footer)
+          .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
 
       let noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(msg.guild);
       noCommandChannelIds = noCommandChannelIds.slice(from-1,to);
