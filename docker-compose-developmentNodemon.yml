@@ -9,6 +9,7 @@ services:
     volumes:
       - ./docker/mysql_init:/docker-entrypoint-initdb.d
       - ./data:/var/lib/mysql
+      - ./scripts/my.cnf:/etc/mysql/my.cnf
     ports:
       - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
