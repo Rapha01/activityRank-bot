@@ -10,7 +10,8 @@ module.exports = {
 	execute(member) {
         return new Promise(async function (resolve, reject) {
             try {
-                if (member.user.bot) { return resolve(); }
+                console.log('add')
+                // if (member.user.bot) { return resolve(); }
                 await guildModel.cache.load(member.guild);
                 await guildMemberModel.cache.load(member);
 
@@ -19,6 +20,7 @@ module.exports = {
                 const roleAssignmentString = await levelManager.checkRoleAssignment(member,level);
 
                 // AutoPost serverjoin
+                console.log(member.guild.appData)
                 if (member.guild.appData.autopost_serverJoin != 0) { await autoPostServerJoin(member,roleAssignmentString); }
 
                 resolve();
@@ -29,6 +31,7 @@ module.exports = {
 
 const autoPostServerJoin = (member,roleAssignmentString) => {
     return new Promise(async function (resolve, reject) {
+        console.log('sjn')
         try {
             const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
             if (!channel)
@@ -50,7 +53,7 @@ const autoPostServerJoin = (member,roleAssignmentString) => {
                 .setDescription(welcomeMessage)
                 .setThumbnail(member.user.avatarURL())
 
-            await channel.send('<@' + member.id + '>',welcomeEmbed);
+            await channel.send({ content: `<@${member.id}>`, embeds: [welcomeEmbed]});
 
             resolve();
         } catch (e) { reject(e); }
