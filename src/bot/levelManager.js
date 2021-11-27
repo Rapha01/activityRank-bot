@@ -101,7 +101,11 @@ const sendGratulationMessage = (member,roleMessages,level) => {
       if (member.lastMessageChannelID) {
         const channel = member.guild.channels.cache.get(member.lastMessageChannelID);
         if (channel) {
-          await channel.send(ping,levelupEmbed).then(res => notified = true).catch(e => console.log);
+          let msg = { embeds: [ levelupEmbed ] };
+          if (ping)
+            msg['content'] = ping;
+
+          await channel.send(msg).then(res => notified = true).catch(e => console.log);
         }
       }
     }
@@ -111,14 +115,22 @@ const sendGratulationMessage = (member,roleMessages,level) => {
       const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
 
       if (channel) {
-        await channel.send(ping,levelupEmbed).then(res => notified = true).catch(e => console.log);
+        let msg = { embeds: [ levelupEmbed ] };
+        if (ping)
+          msg['content'] = ping;
+
+        await channel.send(msg).then(res => notified = true).catch(e => console.log);
       }
     }
 
     // Direct Message
     if (!notified && member.appData.notifyLevelupDm == true && member.guild.appData.notifyLevelupDm == true) {
       levelupEmbed.setFooter('To disable direct messages from me type "'+ member.guild.appData.prefix +'member notifyLevelupDm" in the server.');
-      await member.send(ping,levelupEmbed).then(res => notified = true).catch(e => console.log);
+      let msg = { embeds: [ levelupEmbed ] };
+      if (ping)
+        msg['content'] = ping;
+
+      await member.send(msg).then(res => notified = true).catch(e => console.log);
     }
 
     resolve();

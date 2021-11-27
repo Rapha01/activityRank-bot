@@ -9,8 +9,7 @@ const textModel = require('../models/managerDb/textModel.js');
 const flags = Intents.FLAGS
 const intents = [
     flags.GUILDS,
-    // flags.GUILD_MEMBERS, // !!! PRIVILEGED !!!
-    // flags.GUILD_MESSAGES,
+    flags.GUILD_MEMBERS, // !!! PRIVILEGED !!!
     flags.GUILD_BANS,
     flags.GUILD_EMOJIS_AND_STICKERS,
     flags.GUILD_INTEGRATIONS,
