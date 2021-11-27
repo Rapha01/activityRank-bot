@@ -25,7 +25,7 @@ start().catch(async (e) => {
 async function start() {
   return new Promise(async function (resolve, reject) {
     try {
-      await manager.spawn('auto',5500,60000);
+      await manager.spawn('auto',10000,120000);
 
       await scheduler.start(manager);
       resolve();
