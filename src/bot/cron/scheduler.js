@@ -8,7 +8,7 @@ if (process.env.NODE_ENV == 'production') {
   voiceXpRoundInterval = 10000;
   resetJobInterval = 3000;
 } else {
-  logHighestGuildsInterval = '0 */2 * * * *';
+  logHighestGuildsInterval = '*/20 * * * * *';
   voiceXpRoundInterval = 10000;
   resetJobInterval = 3000;
 }
@@ -21,15 +21,11 @@ exports.start = (client) => {
   cron.schedule(logHighestGuildsInterval, async function() {
     try {
       const sort = client.guilds.cache.sort(
-          (a, b) => (a.memberCount < b.memberCount) ? 1 : -1)
-          // .array().slice(0,20);
-      let maxGuilds = []
-      await sort.forEach((e) => maxGuilds.push(e));
-      maxGuilds.slice(0,20);
+          (a, b) => (a.memberCount < b.memberCount) ? 1 : -1).first(20);
 
       let str = '';
-      for (let maxGuild of maxGuilds)
-        str += maxGuild.memberCount + ' ' + maxGuild.name + ' \n';
+      for (let a of sort)
+        str += a.memberCount + ' ' + a.name + ' \n';
 
       console.log('maxGuilds for shard ' + client.shard.ids[0] + ' \n' + str);
     } catch (e) { console.log(e); }

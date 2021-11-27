@@ -10,7 +10,6 @@ module.exports = {
 	execute(member) {
         return new Promise(async function (resolve, reject) {
             try {
-                console.log('add')
                 // if (member.user.bot) { return resolve(); }
                 await guildModel.cache.load(member.guild);
                 await guildMemberModel.cache.load(member);
@@ -20,7 +19,6 @@ module.exports = {
                 const roleAssignmentString = await levelManager.checkRoleAssignment(member,level);
 
                 // AutoPost serverjoin
-                console.log(member.guild.appData)
                 if (member.guild.appData.autopost_serverJoin != 0) { await autoPostServerJoin(member,roleAssignmentString); }
 
                 resolve();
