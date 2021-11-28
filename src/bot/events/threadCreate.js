@@ -3,7 +3,8 @@ module.exports = {
 	execute(thread) {
         return new Promise(async function (resolve, reject) {
             try {
-                thread.join()
+                if (thread.type == 'GUILD_PUBLIC_THREAD')
+                    thread.join()
                 resolve();
             } catch (e) { reject(e); }
         });
