@@ -28,7 +28,7 @@ const client = new Client({ intents: intents });
 client.commands = new Collection();
 
 // const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
-// 
+//
 // for (const file of commandFiles) {
 // 	const command = require(`./commandsSlash/${file}`);
 // 	client.commands.set(command.data.name, command);
@@ -56,9 +56,17 @@ const eventFiles = fs.readdirSync('./bot/events').filter(file => file.endsWith('
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
-	    client.once(event.name, (...args) => event.execute(...args));
+	    client.once(event.name, async (...args) => {
+        try {
+          await event.execute(...args);
+        } catch (e) { console.log(e); }
+      });
 	} else {
-		client.on(event.name, (...args) => event.execute(...args));
+		client.on(event.name, async (...args) => {
+      try {
+          await event.execute(...args);
+      } catch (e) { console.log(e); }
+    });
 	}
 }
 
