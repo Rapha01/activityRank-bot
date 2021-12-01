@@ -19,7 +19,7 @@ module.exports = {
                                 ephemeral: true })
                 } else if (skip(msg.guildId)) {
                     return resolve();
-                } else if (msg.channel.type == 'GUILD_TEXT' || 'GUILD_NEWS' && msg.type == 'DEFAULT' && msg.system == false) {
+                } else if ((msg.channel.type == 'GUILD_TEXT') || (msg.channel.type == 'GUILD_NEWS') && msg.type == 'DEFAULT' && msg.system == false) {
                     await guildModel.cache.load(msg.guild);
                     
                     if (msg.content.startsWith(msg.guild.appData.prefix)) { 
