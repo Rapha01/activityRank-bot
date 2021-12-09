@@ -19,10 +19,7 @@ module.exports = {
                       ephemeral: true })
         } else if (skip(msg.guildId)) {
           return resolve();
-        }
-        await guildMemberModel.cache.load(msg.member);
-        msg.member.appData.lastMessageChannelId = msg.channel.id;
-        if (msg.channel.type == 'GUILD_TEXT' && msg.type == 'DEFAULT' && msg.system == false) {
+        } else if (msg.channel.type == 'GUILD_TEXT' && msg.type == 'DEFAULT' && msg.system == false) {
           await guildModel.cache.load(msg.guild);
           
           if (msg.content.startsWith(msg.guild.appData.prefix)) { 
@@ -45,6 +42,9 @@ function rankMessage(msg) {
 
       if (!msg.member)
         return resolve();
+
+      await guildMemberModel.cache.load(msg.member);
+      msg.member.appData.lastMessageChannelId = msg.channel.id;
 
       // Check noxp channel & allowInvisibleXp
       await guildChannelModel.cache.load(msg.channel);
