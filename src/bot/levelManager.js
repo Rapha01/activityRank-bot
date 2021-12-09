@@ -98,8 +98,8 @@ const sendGratulationMessage = (member,roleMessages,level) => {
     // Active Channel
     let notified = false;
     if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
-      if (member.lastMessageChannelID) {
-        const channel = member.guild.channels.cache.get(member.lastMessageChannelID);
+      if (member.appData.lastMessageChannelId) {
+        const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
         if (channel) {
           let msg = { embeds: [ levelupEmbed ] };
           if (ping)
