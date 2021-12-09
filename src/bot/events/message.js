@@ -8,32 +8,33 @@ const fct = require('../../util/fct.js');
 const skip = require('../skip.js');
 
 module.exports = {
-	name: 'messageCreate',
-	execute(msg) {
-        return new Promise(async function (resolve,reject) {
-            try {
-                if (msg.author.bot == true) {
-                    return resolve();
-                } else if (!msg.guild) {
-                    msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'),
-                                ephemeral: true })
-                } else if (skip(msg.guildId)) {
-                    return resolve();
-                } else if (msg.channel.type == 'GUILD_TEXT' && msg.type == 'DEFAULT' && msg.system == false) {
-                    await guildModel.cache.load(msg.guild);
-                    
-                    if (msg.content.startsWith(msg.guild.appData.prefix)) { 
-                        await handleCommand(msg); 
-                    } else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
-                        await msg.reply({ content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
-                    } else if (msg.guild.appData.textXp) { await rankMessage(msg); }
-                }
-
-                resolve();
-            } catch (e) { reject(e); }
-        });
-        
-	},
+  name: 'messageCreate',
+  execute(msg) {
+    return new Promise(async function (resolve,reject) {
+      try {
+        if (msg.author.bot == true) {
+          return resolve();
+        } else if (!msg.guild) {
+          msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'),
+                      ephemeral: true })
+        } else if (skip(msg.guildId)) {
+          return resolve();
+        }
+        await guildMemberModel.cache.load(msg.member);
+        msg.member.appData.lastMessageChannelId = msg.channel.id;
+        if (msg.channel.type == 'GUILD_TEXT' && msg.type == 'DEFAULT' && msg.system == false) {
+          await guildModel.cache.load(msg.guild);
+          
+          if (msg.content.startsWith(msg.guild.appData.prefix)) { 
+            await handleCommand(msg); 
+          } else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
+            await msg.reply({ content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
+          } else if (msg.guild.appData.textXp) { await rankMessage(msg); }
+        }
+        resolve();
+      } catch (e) { reject(e); }
+    });
+  },
 };
 
 
