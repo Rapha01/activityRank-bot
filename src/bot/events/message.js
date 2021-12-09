@@ -62,7 +62,6 @@ function rankMessage(msg) {
       }
 
       // Check textmessage cooldown
-      await guildMemberModel.cache.load(msg.member);
       const nowSec = Date.now() / 1000;
 
       if (typeof msg.guild.appData.textMessageCooldownSeconds !== 'undefined') {
