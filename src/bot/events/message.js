@@ -19,7 +19,6 @@ module.exports = {
 	execute(msg) {
         return new Promise(async function (resolve,reject) {
             try {
-                console.log(msg.guild.me.permissions.missing('294172224721'))
                 if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || msg.type != 'DEFAULT')
                     return resolve();
               
@@ -38,7 +37,6 @@ module.exports = {
               if (msg.content.startsWith(msg.guild.appData.prefix)) {
                   if (msg.guild.me.permissions.missing('294172224721')) {
                       if (msg.guild.appData.permsWarningCooldown <= 1) {
-                          console.log('triggered');
                           msg.guild.appData.permsWarningCooldown = 5
                           const warning = new MessageEmbed()
                               .setAuthor('WARNING', 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png')
@@ -47,8 +45,6 @@ module.exports = {
                           await msg.channel.send({embeds:[warning]})
                       } else { 
                           msg.guild.appData.permsWarningCooldown = (msg.guild.appData.permsWarningCooldown - 1) || 5;
-                          console.log(msg.guild.appData);
-                          console.log(msg.guild.appData.permsWarningCooldown);
                       }
                   }
                   await handleCommand(msg);
