@@ -5,11 +5,11 @@ const Discord = require('discord.js');
 
 let askForPremiumCd;
 if (process.env.NODE_ENV == 'production') {
-  askForPremiumCdGuild = 3600 * 0.5;
-  askForPremiumCdUser = 3600 * 24;
+  askForPremiumCdGuild = 3600 * 0.4;
+  askForPremiumCdUser = 3600 * 6;
 } else {
-  askForPremiumCdGuild = 3600 * 0.5; //20
-  askForPremiumCdUser = 3600 * 24; // 60
+  askForPremiumCdGuild = 3600 * 0.4; //20
+  askForPremiumCdUser = 3600 * 6; // 60
 }
 
 module.exports = (msg) => {
@@ -48,7 +48,7 @@ const sendAskForPremiumEmbed = (msg) => {
           .setColor('#4fd6c8')
           .setThumbnail(msg.client.user.displayAvatarURL());
 
-      embed.addField(`The maintenance and development of this bot depend on your support!`, `<@${msg.member.id}> Please consider helping this server to go Premium. All features of the bot are free, but Premium servers receive additional (current and upcoming) quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). Simply go to https://activityrank.me/premium to load a few tokens on your user account. These tokens can then be redeemed for premium time on any server. Thank you!`);
+      embed.addField(`The maintenance and development of this bot depend on your support!`, `<@${msg.member.id}> Please consider helping this server to go Premium. All features of the bot are free, but Premium servers receive additional (current and upcoming) quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). Simply go to https://activityrank.me/premium to buy a few tokens for your user account or get some **TOKENS FOR FREE** by regularly upvoting the bot on https://top.gg/bot/534589798267224065. These tokens can then be redeemed for premium time on any server. **Thank you!**`);
 
       await msg.channel.send({embeds:[embed]});
 
