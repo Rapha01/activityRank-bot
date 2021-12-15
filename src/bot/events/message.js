@@ -39,18 +39,9 @@ module.exports = {
               }
               
               if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) { await rankMessage(msg); }
-              
-              else if (acceptedChannelTypes.includes(msg.channel.type) && msg.type == 'DEFAULT' && msg.system == false) {
-                    await guildModel.cache.load(msg.guild);
-                    
-                    if (msg.content.startsWith(msg.guild.appData.prefix)) { 
-                        await handleCommand(msg); 
-                    } else if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
-                        await msg.reply({ content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
-                    } else if (msg.guild.appData.textXp) { await rankMessage(msg); }
-                }
 
-                resolve();
+              return resolve();
+
             } catch (e) { reject(e); }
         });
 	},
