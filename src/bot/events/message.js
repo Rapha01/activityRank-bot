@@ -91,7 +91,7 @@ function rankMessage(msg) {
       // Add Score
       await statFlushCache.addTextMessage(msg.member,channel,1);
 
-      resolve();
+      return resolve();
     } catch (e) { reject(e); }
   });
 }
