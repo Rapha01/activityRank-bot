@@ -6,6 +6,7 @@ const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const statFlushCache = require('../statFlushCache.js');
 const fct = require('../../util/fct.js');
 const skip = require('../skip.js');
+const { MessageEmbed } = require('discord.js')
 
 const acceptedChannelTypes = [
     'GUILD_TEXT',
@@ -18,6 +19,7 @@ module.exports = {
 	execute(msg) {
         return new Promise(async function (resolve,reject) {
             try {
+                console.log(msg.guild.me.permissions.missing('294172224721'))
                 if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || msg.type != 'DEFAULT')
                     return resolve();
               
@@ -34,6 +36,21 @@ module.exports = {
                 } 
                 
               if (msg.content.startsWith(msg.guild.appData.prefix)) {
+                  if (msg.guild.me.permissions.missing('294172224721')) {
+                      if (msg.guild.appData.permsWarningCooldown <= 1) {
+                          console.log('triggered');
+                          msg.guild.appData.permsWarningCooldown = 5
+                          const warning = new MessageEmbed()
+                              .setAuthor('WARNING', 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png')
+                              .setDescription(`Your bot is missing permissions it needs to function properly! Please ask an administrator or your server owner to [click here to **reinvite it.**](https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands)`)
+                              .setColor('#ffcc00')
+                          await msg.channel.send({embeds:[warning]})
+                      } else { 
+                          msg.guild.appData.permsWarningCooldown = (msg.guild.appData.permsWarningCooldown - 1) || 5;
+                          console.log(msg.guild.appData);
+                          console.log(msg.guild.appData.permsWarningCooldown);
+                      }
+                  }
                   await handleCommand(msg);
                   return resolve();
               }
