@@ -32,7 +32,7 @@ module.exports = (msg) => {
 }
 
 const sendPermissionsEmbed = async (msg) => {
-  if (!msg.guild.me.permissions.missing('294172224721'))
+  if (!msg.guild.me.permissions.missing('294172224721').length)
     return;
   
   const embed = new MessageEmbed()
