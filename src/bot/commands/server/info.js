@@ -30,6 +30,8 @@ module.exports = (msg,args) => {
         await noXpRoles(msg,myGuild,page.from,page.to);
       else if (subcommand == 'messages')
         await messages(msg,myGuild,page.from,page.to);
+      else if (subcommand == 'perms')
+        await permissions(msg,myGuild);
       else {
         await msg.channel.send(errorMsgs.invalidSubcommand.replace('<prefix>',msg.guild.appData.prefix));
         return resolve();
@@ -292,4 +294,32 @@ function noCommandChannels(msg,myGuild,from,to) {
       resolve();
     } catch (e) { reject(e); }
   });
+}
+
+async function permissions(msg,myGuild) {
+  const embed = new Discord.MessageEmbed()
+    .setAuthor(`Permission Info`, '')
+    .setColor('#4fd6c8')
+    .setThumbnail(msg.guild.iconURL)
+    .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
+  
+  const missingPerms = msg.guild.me.permissions.missing('294172224721');
+  if (!missingPerms.length) {
+    embed.addField('✅ All Permissions are Correct ✅', 'Your bot has all the permissions it needs.')
+  } else {
+    const botRole = msg.guild.me.roles.botRole;
+    embed.addField(
+      `❌ Missing ${missingPerms.length} Permissions ❌`, 
+      `Your bot is missing the following permissions: \n${missingPerms.join(', \n')}`
+    )
+    if (botRole)
+      embed.addField('Solutions', `You may add the above permissions to ${botRole} or another role added to your bot.`);
+    else
+      embed.addField('Solutions', 'Please add the above permissions to any role that your bot has.');
+    
+  }
+
+
+
+  await msg.channel.send({embeds:[embed]});
 }
