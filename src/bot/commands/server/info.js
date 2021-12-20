@@ -312,10 +312,11 @@ async function permissions(msg,myGuild) {
       `❌ Missing ${missingPerms.length} Permissions ❌`, 
       `Your bot is missing the following permissions: \n${missingPerms.join(', \n')}`
     )
+    const botInviteLink = 'https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands';
     if (botRole)
-      embed.addField('Solutions', `You may add the above permissions to ${botRole} or another role added to your bot.`);
+      embed.addField('Solutions', `You may add the above permissions to ${botRole} or another role added to your bot. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
     else
-      embed.addField('Solutions', 'Please add the above permissions to any role that your bot has.');
+      embed.addField('Solutions', `Please add the above permissions to any role that your bot has. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
     
   }
 
