@@ -3,7 +3,7 @@ module.exports = {
 	async execute(interaction) {
         if (!interaction.isCommand()) return;
 
-        let path = "/commandsSlash";
+        let path = "./commandsSlash";
         path = path.concat("/", interaction.commandName)
         const group = await interaction.options.getSubcommandGroup(false);
         const sub = await interaction.options.getSubcommand(false);
