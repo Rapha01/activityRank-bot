@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { Client, Collection, Intents } = require('discord.js');
 const { botAuth } = require('../const/keys.js')
 const fct = require('../util/fct.js');
@@ -27,12 +28,29 @@ const client = new Client({ intents: intents });
 
 client.commands = new Collection();
 
-// const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
-//
-// for (const file of commandFiles) {
-// 	const command = require(`./commandsSlash/${file}`);
-// 	client.commands.set(command.data.name, command);
-// }
+
+let files = [];
+
+function getRecursive(dir) {
+    fs.readdirSync(dir).forEach(file => {
+        const absolute = path.join(dir, file);
+        if (fs.statSync(absolute).isDirectory()) 
+            return getRecursive(absolute);
+        return files.push(absolute);
+    });
+}
+
+getRecursive(path.resolve(__dirname, './commandsSlash'));
+
+files = files.map(fileName => fileName.replace(__dirname, '.'));
+
+files.forEach(fileName => {
+    const command = require(fileName);
+    client.commands.set(fileName, command);
+});
+
+console.log('✅ Commands Loaded ✅');
+
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
@@ -51,7 +69,7 @@ async function start() {
     }
 }
 
-const eventFiles = fs.readdirSync('./bot/events').filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync(path.resolve(__dirname, './events')).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);

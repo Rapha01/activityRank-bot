@@ -25,3 +25,11 @@ Please visit our support discord server: https://discord.com/invite/DE3eQ8H
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+
+## Important formatting information
+
+### Slash commands
+Slash commands can be found in the [commandsSlash](./src/bot/commandsSlash) folder. 
+The top-level files contain the `data` in the form of a `SlashCommandBuilder`. 
+Folders represent SubCommands and SubCommandGroups, and the files inside them only need an `async execute(i)` function.
