@@ -6,6 +6,10 @@ const fct = require('../util/fct.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
+const deploy = {
+    local: require('./interactionDeployment/deploy-local.js'),
+    global: require('./interactionDeployment/deploy-global.js')
+}
 
 const flags = Intents.FLAGS
 const intents = [
@@ -25,6 +29,14 @@ const intents = [
 ]
 
 const client = new Client({ intents: intents });
+
+async function beginDeploy() {
+    if (process.env.NODE_ENV == 'production')
+        await deploy.global();
+    else
+        await deploy.local();
+}
+beginDeploy();
 
 client.commands = new Collection();
 
