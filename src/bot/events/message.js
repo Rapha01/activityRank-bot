@@ -6,44 +6,58 @@ const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const statFlushCache = require('../statFlushCache.js');
 const fct = require('../../util/fct.js');
 const skip = require('../skip.js');
+const { MessageEmbed } = require('discord.js')
+const checkBotPermissions = require('../util/checkBotPermissions.js');
+
+const acceptedChannelTypes = [
+    'GUILD_TEXT',
+    'GUILD_NEWS',
+    'GUILD_PUBLIC_THREAD'
+]
 
 module.exports = {
-  name: 'messageCreate',
-  execute(msg) {
-    return new Promise(async function (resolve,reject) {
-      try {
-        if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || msg.channel.type != 'GUILD_TEXT' || msg.type != 'DEFAULT')
-          return resolve();
+	name: 'messageCreate',
+	execute(msg) {
+        return new Promise(async function (resolve,reject) {
+            try {
+                if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || msg.type != 'DEFAULT')
+                    return resolve();
+              
+                if (!msg.guild) {
+                    await msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'), ephemeral: true });
+                    return resolve();
+                } 
+              
+                await guildModel.cache.load(msg.guild);
+              
+                if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
+                    await msg.reply({content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
+                    return resolve();
+                } 
+                
+              if (msg.content.startsWith(msg.guild.appData.prefix)) {
+                  await checkBotPermissions(msg);
+                  await handleCommand(msg);
+                  return resolve();
+              }
+              
+              if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) { await rankMessage(msg); }
 
-        if (!msg.guild) {
-          await msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'), ephemeral: true })
-          return resolve();
-        }
+              return resolve();
 
-        await guildModel.cache.load(msg.guild);
-
-        if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
-          await msg.reply({ content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
-          return resolve();
-        }
-
-        if (msg.content.startsWith(msg.guild.appData.prefix)) {
-          await handleCommand(msg);
-          return resolve();
-        }
-
-        if (msg.guild.appData.textXp) { await rankMessage(msg); }
-
-        return resolve();
-      } catch (e) { return reject(e); }
-    });
-  },
+            } catch (e) { reject(e); }
+        });
+	},
 };
 
 
 function rankMessage(msg) {
   return new Promise(async function(resolve, reject) {
     try {
+      let channel = msg.channel;
+      if (msg.channel.type ==  'GUILD_PUBLIC_THREAD')
+        channel = msg.channel.parent;
+    
       await msg.guild.members.fetch(msg.author.id);
 
       if (!msg.member)
@@ -53,9 +67,9 @@ function rankMessage(msg) {
       msg.member.appData.lastMessageChannelId = msg.channel.id;
 
       // Check noxp channel & allowInvisibleXp
-      await guildChannelModel.cache.load(msg.channel);
+      await guildChannelModel.cache.load(channel);
 
-      if (msg.channel.appData.noXp)
+      if (channel.appData.noXp)
         return resolve();
 
       // Check noxp role
@@ -78,9 +92,9 @@ function rankMessage(msg) {
       }
 
       // Add Score
-      await statFlushCache.addTextMessage(msg.member,msg.channel,1);
+      await statFlushCache.addTextMessage(msg.member,channel,1);
 
-      resolve();
+      return resolve();
     } catch (e) { reject(e); }
   });
 }

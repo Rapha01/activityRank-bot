@@ -47,7 +47,7 @@ function sendChannelMembersEmbed(msg,targetChannelId,time,from,to) {
 
       if (targetChannel.type == 'GUILD_VOICE')
         type = 'voiceMinute';
-      else if (targetChannel.type == 'GUILD_TEXT')
+      else if (targetChannel.type == 'GUILD_TEXT' || 'GUILD_NEWS')
         type = 'textMessage';
       else {
         await msg.channel.send('Channel is not of type voice or text.');
