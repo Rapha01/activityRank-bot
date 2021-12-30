@@ -3,7 +3,7 @@ const fct = require('../../util/fct.js');
 const cooldownUtil = require('./cooldownUtil.js');
 const { MessageEmbed } = require('discord.js');
 const { stripIndent } = require('common-tags');
-const { botInviteLink } = require('../../const/keys.js').get();
+const { botInviteLink } = require('../../const/config.js');
 
 
 let checkPermissionsCd;

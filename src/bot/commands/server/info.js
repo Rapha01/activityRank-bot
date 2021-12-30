@@ -5,7 +5,7 @@ const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const fct = require('../../../util/fct.js');
 const nameUtil = require('../../util/nameUtil.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
-const { botInviteLink } = require('../../../const/keys.js').get();
+const { botInviteLink } = require('../../../const/config.js');
 
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
