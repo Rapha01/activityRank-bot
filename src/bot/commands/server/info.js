@@ -5,6 +5,7 @@ const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const fct = require('../../../util/fct.js');
 const nameUtil = require('../../util/nameUtil.js');
 const errorMsgs = require('../../../const/errorMsgs.js');
+const { botInviteLink } = require('../../../const/keys.js').get();
 
 module.exports = (msg,args) => {
   return new Promise(async function (resolve, reject) {
@@ -312,7 +313,6 @@ async function permissions(msg,myGuild) {
       `❌ Missing ${missingPerms.length} Permissions ❌`, 
       `Your bot is missing the following permissions: \n${missingPerms.join(', \n')}`
     )
-    const botInviteLink = 'https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands';
     if (botRole)
       embed.addField('Solutions', `You may add the above permissions to ${botRole} or another role added to your bot. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
     else

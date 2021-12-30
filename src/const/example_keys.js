@@ -4,6 +4,7 @@ const keys = {
     botId: '',
     managerApiAuth: '',
     managerHost: '',
+    botInviteLink: '',
     managerDb: {
       dbUser: '',
       dbPassword: '',
@@ -13,6 +14,10 @@ const keys = {
       dbUser: '',
       dbPassword: '',
       dbName: ''
+    },
+    admin: {
+      serverIds: [''],
+      channelIds: ['']
     }
   },
   development: {
@@ -20,6 +25,7 @@ const keys = {
     botId: '',
     managerApiAuth: '',
     managerHost: '',
+    botInviteLink: '',
     managerDb: {
       dbUser: '',
       dbPassword: '',
