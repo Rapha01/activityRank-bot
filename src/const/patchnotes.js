@@ -1,5 +1,23 @@
 module.exports = [
   {
+    version: '4.3',
+    date: '2021-12-30',
+    time: '00:00:00'.
+    title: 'Backend changes, and preparations for Slash Commands',
+    features: [
+      {title: 'Node.js 16 / Discord.js v13',desc: 'Upgraded our versions of Node.js and Discord.js to allow for more new features.'},
+      {title: 'Thread Support',desc: 'Public threads now give XP to their parent channels. Private threads will still not give xp.'},
+      {title: 'Announcement Channels',desc: 'Announcement channels will now function like Text Channels.'},
+      {title: 'Permission Warnings',desc: 'From time to time, if you are lacking permissions a warning embed will display to remind you to update your bot\'s permissions.'},
+      {title: 'Permission',desc: ''},
+
+    ],
+    fixes: [
+      {title: 'Current Channel',desc: 'Fixed issues with notifying about new levelups in the current channel'},
+      {title: 'Version Updates',desc: 'Updating Node and Discord.js created a lot of unforseen bugs, so we apologize for the downtime. As we roll out slash commands, hopefully it will turn out to have been worth it!'},
+    ]
+  },
+  {
     version: '4.2',
     date: '2020-12-15',
     time: '00:00:00',
