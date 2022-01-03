@@ -1,6 +1,9 @@
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
+        if (interaction.isButton() || interaction.isSelectMenu())
+            await component(interaction);
+
         if (!interaction.isCommand()) return;
 
         let path = "./commandsSlash";
@@ -24,3 +27,16 @@ module.exports = {
         }
 	},
 };
+
+const component = async (interaction) => {
+    const command = interaction.client.commands.get(interaction.customId);
+
+    if (!command) return;
+
+    try {
+        await command.component(interaction);
+    } catch (e) {
+        console.error(e);
+        await interaction.reply({ content: 'There was an error while executing this component!', ephemeral: true });
+    }
+}
