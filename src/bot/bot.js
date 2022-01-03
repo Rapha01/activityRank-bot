@@ -61,6 +61,11 @@ files.forEach(fileName => {
     client.commands.set(fileName, command);
 });
 
+for (const file of fs.readdirSync(path.resolve(__dirname, './contextMenus'))) {
+    const fileName = `./contextMenus/${file}`;
+    client.commands.set(fileName, require(fileName));
+}
+
 console.log('✅ Commands Loaded ✅');
 
 

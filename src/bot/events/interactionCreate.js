@@ -3,6 +3,8 @@ module.exports = {
 	async execute(interaction) {
         if (interaction.isButton() || interaction.isSelectMenu())
             await component(interaction);
+        if (interaction.isUserContextMenu())
+            await userCtx(interaction);
 
         if (!interaction.isCommand()) return;
 
@@ -38,5 +40,15 @@ const component = async (interaction) => {
     } catch (e) {
         console.error(e);
         await interaction.reply({ content: 'There was an error while executing this component!', ephemeral: true });
+    }
+}
+
+const userCtx = async (interaction) => {
+    const command = interaction.client.commands.get(`./contextMenus/${interaction.commandName}.js`);
+    try {
+        await command.execute(interaction);
+    } catch (e) {
+        console.error(e);
+        await interaction.reply({ content: 'There was an error while executing this interaction!', ephemeral: true });
     }
 }

@@ -6,12 +6,17 @@ const { botId, botAuth } = require('../../const/keys.js').get();
 
 const commands = [];
 const commandFiles = fs.readdirSync(path.resolve(__dirname, '../commandsSlash')).filter(file => file.endsWith('.js') && !file.startsWith('-'));
+const contextFiles = fs.readdirSync(path.resolve(__dirname, '../contextMenus')).filter(file => file.endsWith('.js') && !file.startsWith('-'));
 
 
 module.exports = async () => {
     for (const file of commandFiles) {
 	    const command = require(`../commandsSlash/${file}`);
 	    commands.push(command.data.toJSON());
+    }
+    for (const file of contextFiles) {
+        const command = require(`../contextMenus/${file}`);
+        commands.push(command.data.toJSON());
     }
     
     const rest = new REST({ version: '9' }).setToken(botAuth);
