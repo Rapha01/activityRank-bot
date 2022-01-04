@@ -3,8 +3,8 @@ const fct = require('../../util/fct.js');
 const cooldownUtil = require('./cooldownUtil.js');
 const { MessageEmbed } = require('discord.js');
 const { stripIndent } = require('common-tags');
+const { botInviteLink } = require('../../const/config.js');
 
-const botInviteLink = 'https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands'
 
 let checkPermissionsCd;
 if (process.env.NODE_ENV == 'production') {
