@@ -1,15 +1,10 @@
 const fs = require('fs');
-const path = require('path');
 const { Client, Collection, Intents } = require('discord.js');
 const { botAuth } = require('../const/keys.js')
 const fct = require('../util/fct.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
-const deploy = {
-    local: require('./interactionDeployment/deploy-local.js'),
-    global: require('./interactionDeployment/deploy-global.js')
-}
 
 const flags = Intents.FLAGS
 const intents = [
@@ -30,44 +25,14 @@ const intents = [
 
 const client = new Client({ intents: intents });
 
-async function beginDeploy() {
-    if (process.env.NODE_ENV == 'production')
-        await deploy.global();
-    else
-        await deploy.local();
-}
-beginDeploy();
-
 client.commands = new Collection();
 
-
-let files = [];
-
-function getRecursive(dir) {
-    fs.readdirSync(dir).forEach(file => {
-        const absolute = path.join(dir, file);
-        if (fs.statSync(absolute).isDirectory()) 
-            return getRecursive(absolute);
-        return files.push(absolute);
-    });
-}
-
-getRecursive(path.resolve(__dirname, './commandsSlash'));
-
-files = files.map(fileName => fileName.replace(__dirname, '.'));
-
-files.forEach(fileName => {
-    const command = require(fileName);
-    client.commands.set(fileName, command);
-});
-
-for (const file of fs.readdirSync(path.resolve(__dirname, './contextMenus'))) {
-    const fileName = `./contextMenus/${file}`;
-    client.commands.set(fileName, require(fileName));
-}
-
-console.log('✅ Commands Loaded ✅');
-
+// const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
+//
+// for (const file of commandFiles) {
+// 	const command = require(`./commandsSlash/${file}`);
+// 	client.commands.set(command.data.name, command);
+// }
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
@@ -86,7 +51,7 @@ async function start() {
     }
 }
 
-const eventFiles = fs.readdirSync(path.resolve(__dirname, './events')).filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync('./bot/events').filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
