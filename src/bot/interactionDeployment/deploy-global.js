@@ -9,7 +9,7 @@ const commandFiles = fs.readdirSync(path.resolve(__dirname, '../commandsSlash'))
 const contextFiles = fs.readdirSync(path.resolve(__dirname, '../contextMenus')).filter(file => file.endsWith('.js') && !file.startsWith('-'));
 
 
-module.exports = async () => {
+module.exports = () => {
     for (const file of commandFiles) {
 	    const command = require(`../commandsSlash/${file}`);
 	    commands.push(command.data.toJSON());
@@ -23,7 +23,7 @@ module.exports = async () => {
 
     try {
 		console.log(`Refreshing GLOBAL application (/) commands.`);
-        await rest.put(
+        rest.put(
 			Routes.applicationCommands(botId),
 			{ body: commands },
 		);
