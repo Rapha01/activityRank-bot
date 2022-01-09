@@ -27,7 +27,6 @@ const intents = [
 
 const client = new Client({ intents: intents });
 
-loadCommands(client);
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
@@ -38,6 +37,8 @@ async function start() {
     try {
         //await texter.initTexts();
         await initClientCaches(client);
+
+        await loadCommands(client);
 
         await client.login();
     } catch (e) {
