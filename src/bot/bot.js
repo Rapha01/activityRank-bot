@@ -1,10 +1,12 @@
 const fs = require('fs');
+const path = require('path');
 const { Client, Collection, Intents } = require('discord.js');
 const { botAuth } = require('../const/keys.js')
 const fct = require('../util/fct.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
+const loadCommands = require('./interactionDeployment/cmdLoader.js');
 
 const flags = Intents.FLAGS
 const intents = [
@@ -25,14 +27,6 @@ const intents = [
 
 const client = new Client({ intents: intents });
 
-client.commands = new Collection();
-
-// const commandFiles = fs.readdirSync('./bot/commandsSlash').filter(file => file.endsWith('.js'));
-//
-// for (const file of commandFiles) {
-// 	const command = require(`./commandsSlash/${file}`);
-// 	client.commands.set(command.data.name, command);
-// }
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
@@ -44,6 +38,8 @@ async function start() {
         //await texter.initTexts();
         await initClientCaches(client);
 
+        await loadCommands(client);
+
         await client.login();
     } catch (e) {
         console.log(e);
@@ -51,7 +47,7 @@ async function start() {
     }
 }
 
-const eventFiles = fs.readdirSync('./bot/events').filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync(path.resolve(__dirname, './events')).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
