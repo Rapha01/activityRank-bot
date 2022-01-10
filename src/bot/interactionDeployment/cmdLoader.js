@@ -3,8 +3,6 @@ const path = require('path');
 const { Collection } = require('discord.js');
 const deployGlobal = require('./deploy-global.js')
 
-
-
 let files = [];
 
 function getRecursive(dir) {
@@ -18,7 +16,7 @@ function getRecursive(dir) {
 
 getRecursive(path.resolve(__dirname, '../commandsSlash'));
 
-files = files.map(fileName => fileName.replace(__dirname, '.'));
+files = files.map(fileName => fileName.replace(path.join(__dirname, '../'), ''));
 
 module.exports = (client) => {
 
@@ -28,7 +26,7 @@ module.exports = (client) => {
     client.commands = new Collection()
 
     files.forEach(fileName => {
-        const command = require(fileName);
+        const command = require(`../${fileName}`);
         client.commands.set(fileName, command);
     });
 
