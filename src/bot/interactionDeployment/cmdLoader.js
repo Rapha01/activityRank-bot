@@ -32,8 +32,8 @@ module.exports = (client) => {
 
 
     for (const file of fs.readdirSync(path.resolve(__dirname, '../contextMenus'))) {
-        const fileName = `../contextMenus/${file}`;
-        client.commands.set(fileName, require(fileName));
+        const fileName = `contextMenus/${file}`;
+        client.commands.set(fileName, require(`../${fileName}`));
     }
 
     console.log('✅ Internal Commands Loaded ✅');
