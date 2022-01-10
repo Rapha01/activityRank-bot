@@ -6,7 +6,7 @@ const { stripIndent } = require('common-tags');
 const row = new MessageActionRow()
 	.addComponents(
 		new MessageSelectMenu()
-			.setCustomId('./commandsSlash/help.js')
+			.setCustomId('commandsSlash/help.js')
 			.setPlaceholder('Nothing selected')
 			.addOptions([
         { label: 'Server Statistics', value: 'stats', emoji: ''}, 

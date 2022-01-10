@@ -45,7 +45,7 @@ const component = async (interaction) => {
 }
 
 const userCtx = async (interaction) => {
-    const command = interaction.client.commands.get(`./contextMenus/${interaction.commandName}.js`);
+    const command = interaction.client.commands.get(`contextMenus/${interaction.commandName}.js`);
     try {
         await command.execute(interaction);
     } catch (e) {
