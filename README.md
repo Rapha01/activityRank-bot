@@ -1,7 +1,7 @@
 # ActivityRank Discord Bot
 A discord bot dedicated to Levels, XP, Rankings and Statistics. Sharded and capable of running distributed on multiple machines.
 
-[Live Bot Invite Link](https://discord.com/oauth2/authorize?client_id=534589798267224065&permissions=2114448593&scope=bot)
+[Live Bot Invite Link](https://discord.com/oauth2/authorize?client_id=534589798267224065&permissions=275884919872&scope=bot%20applications.commands)
 
 ## Other Repos
 

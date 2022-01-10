@@ -8,9 +8,9 @@ const { botInviteLink } = require('../../const/config.js');
 
 let checkPermissionsCd;
 if (process.env.NODE_ENV == 'production') {
-  checkPermissionsCd = 3600 * 0.4;
+  checkPermissionsCd = 604800; // 1 week
 } else {
-  checkPermissionsCd = 3600 * 0.4; //20
+  checkPermissionsCd = 3600 * 0.4; //24 mins
 }
 
 

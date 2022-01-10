@@ -1,27 +1,28 @@
 module.exports = {
 	name: 'interactionCreate',
 	async execute(interaction) {
-        if (interaction.isButton() || interaction.isSelectMenu())
-            await component(interaction);
-        if (interaction.isUserContextMenu())
-            await userCtx(interaction);
-
-        if (!interaction.isCommand()) return;
-
-        let path = "./commandsSlash";
-        path = path.concat("/", interaction.commandName)
-        const group = await interaction.options.getSubcommandGroup(false);
-        const sub = await interaction.options.getSubcommand(false);
-        if (group)
-            path = path.concat("/", group);
-        if (sub)
-            path = path.concat("/", sub);
-        path = path.concat(".js");
-        const command = interaction.client.commands.get(path);
-
-        if (!command) return;
-
         try {
+            if (interaction.isButton() || interaction.isSelectMenu())
+                await component(interaction);
+            if (interaction.isUserContextMenu())
+                await userCtx(interaction);
+
+            if (!interaction.isCommand()) return;
+
+            let path = "commandsSlash";
+            path = path.concat("/", interaction.commandName)
+            const group = await interaction.options.getSubcommandGroup(false);
+            const sub = await interaction.options.getSubcommand(false);
+            if (group)
+                path = path.concat("/", group);
+            if (sub)
+                path = path.concat("/", sub);
+            path = path.concat(".js");
+            const command = interaction.client.commands.get(path);
+
+            if (!command) return;
+
+
             await command.execute(interaction);
         } catch (e) {
             console.error(e);
