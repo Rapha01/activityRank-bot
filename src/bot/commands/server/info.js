@@ -181,7 +181,7 @@ function roles(msg,myGuild,from,to) {
     try {
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('Roles info', '')
+          .setAuthor({ name: 'Roles info' })
           .setDescription('This servers activity roles and their respective levels.')
           .setColor('#4fd6c8')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
@@ -218,7 +218,7 @@ function noXpRoles(msg,myGuild,from,to) {
     try {
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('NoXP roles info', '')
+          .setAuthor({ name: 'NoXP roles info' })
           .setColor('#4fd6c8')
           .setDescription('Activity from users with these roles will not give xp.')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
@@ -244,7 +244,7 @@ function noXpChannels(msg,myGuild,from,to) {
     try {
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('NoXP channels info', '')
+          .setAuthor({ name: 'NoXP channels info' })
           .setColor('#4fd6c8')
           .setDescription('Activity in these channels will not give xp.')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
@@ -275,7 +275,7 @@ function noCommandChannels(msg,myGuild,from,to) {
       description += 'NoCommand channels (does not affect users with manage server permission): \n';
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('NoCommand channels info', '')
+          .setAuthor({ name: 'NoCommand channels info' })
           .setColor('#4fd6c8')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
 
@@ -299,7 +299,7 @@ function noCommandChannels(msg,myGuild,from,to) {
 
 async function permissions(msg,myGuild) {
   const embed = new Discord.MessageEmbed()
-    .setAuthor(`Permission Info`, '')
+    .setAuthor({ name: 'Permission Info' })
     .setColor('#4fd6c8')
     .setThumbnail(msg.guild.iconURL)
     .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
