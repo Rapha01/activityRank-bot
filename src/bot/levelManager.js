@@ -90,7 +90,6 @@ const sendGratulationMessage = (member,roleMessages,level) => {
 
     const levelupEmbed = new Discord.MessageEmbed()
         .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
-        .setAuthor('')
         .setColor('#4fd6c8')
         .setDescription(gratulationMessage)
         .setThumbnail(member.user.avatarURL())

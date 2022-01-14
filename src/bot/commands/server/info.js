@@ -47,7 +47,7 @@ function info(msg,myGuild) {
     try {
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('Info for server ' + msg.guild.name, '')
+          .setAuthor({ name: `Info for server ${msg.guild.name}` })
           .setColor('#4fd6c8')
           .setThumbnail(msg.guild.iconURL)
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
@@ -133,7 +133,7 @@ function messages(msg,myGuild,from,to) {
 
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('Messages info', '')
+          .setAuthor({ name: 'Messages info' })
           .setColor('#4fd6c8')
           .setDescription('Review the set messages and texts for the bot.')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
@@ -153,7 +153,7 @@ function levels(msg,myGuild,from,to) {
     try {
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('Levels info from ' + (from+1) + ' to ' + (to+1), '')
+          .setAuthor({ name: `Levels info from ${from+1}`}'Levels info from ' + (from+1) + ' to ' + (to+1), '')
           .setColor('#4fd6c8')
           .setDescription('XP needed to reach next level (total XP).\nLevelfactor: ' + myGuild.levelFactor + '.')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')

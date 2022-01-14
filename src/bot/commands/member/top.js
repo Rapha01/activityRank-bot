@@ -68,7 +68,6 @@ function sendChannelsEmbed(msg,targetUserId,args,time,from,to) {
 
       let embed = new Discord.MessageEmbed()
           .setTitle(header)
-          .setAuthor('')
           .setColor('#4fd6c8')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '');
 
