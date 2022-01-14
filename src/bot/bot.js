@@ -6,7 +6,7 @@ const fct = require('../util/fct.js');
 const cronScheduler = require('./cron/scheduler.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
-const loadCommands = require('./interactionDeployment/cmdLoader.js');
+const loadCommands = require('./util/cmdLoader');
 
 const flags = Intents.FLAGS
 const intents = [

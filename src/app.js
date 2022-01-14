@@ -2,7 +2,7 @@ const scheduler = require('./cron/scheduler.js');
 const fct = require('./util/fct.js');
 const config = require('./const/config.js');
 const keys = require('./const/keys.js').get();
-const deployGlobal = require('./bot/interactionDeployment/deploy-global.js');
+const deployGlobal = require('./util/deploy-global');
 //const updateGl = require('./cron/updateGl.js');
 
 if(!process.env.NODE_ENV || process.env.NODE_ENV != 'production')
