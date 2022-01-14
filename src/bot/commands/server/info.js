@@ -153,7 +153,7 @@ function levels(msg,myGuild,from,to) {
     try {
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor({ name: `Levels info from ${from+1}`}'Levels info from ' + (from+1) + ' to ' + (to+1), '')
+          .setAuthor({ name: `Levels info from ${from+1} to ${to+1}` })
           .setColor('#4fd6c8')
           .setDescription('XP needed to reach next level (total XP).\nLevelfactor: ' + myGuild.levelFactor + '.')
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')
