@@ -46,7 +46,6 @@ const autoPostServerJoin = (member,roleAssignmentString) => {
 
             const welcomeEmbed = new Discord.MessageEmbed()
                 .setTitle(member.user.username)
-                .setAuthor('')
                 .setColor('#4fd6c8')
                 .setDescription(welcomeMessage)
                 .setThumbnail(member.user.avatarURL())

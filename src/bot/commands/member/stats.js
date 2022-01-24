@@ -61,7 +61,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId,time) {
 
       let embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor(time + ' stats on server ' + msg.guild.name, '')
+          .setAuthor({ name: `${time} stats on server ${msg.guild.name}` })
           .setColor('#4fd6c8')
           .setDescription(description)
           .setThumbnail(targetMember.user.avatarURL({dynamic:true}))

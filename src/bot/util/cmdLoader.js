@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { Collection } = require('discord.js');
-const deployGlobal = require('./deploy-global.js')
 
 let files = [];
 
@@ -20,8 +19,8 @@ files = files.map(fileName => fileName.replace(path.join(__dirname, '../'), ''))
 
 module.exports = (client) => {
 
-    if (process.env.NODE_ENV == 'production')
-        deployGlobal();
+    // if (process.env.NODE_ENV == 'production')
+    //     deployGlobal();
 
     client.commands = new Collection()
 

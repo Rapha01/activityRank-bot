@@ -47,7 +47,7 @@ module.exports = {
 
 function helpMainEmbed (guild,sections) {
   const embed = new MessageEmbed()
-    .setAuthor('ActivityRank Manual')
+    .setAuthor({ name: 'ActivityRank Manual' })
     .setColor(0x00AE86)
     .setDescription(stripIndent`
       **[Website](https://activityrank.me/commands)**

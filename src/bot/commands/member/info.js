@@ -59,7 +59,7 @@ function sendMemberInfoEmbed(msg,myGuild,targetUserId) {
 
       const embed = new Discord.MessageEmbed()
           .setTitle('')
-          .setAuthor('Info for ' + targetMemberInfo.name + ' on server ' + msg.guild.name, '')
+          .setAuthor({ name: `Info for ${targetMemberInfo.name} on server ${msg.guild.name}` })
           .setColor('#4fd6c8')
           .setThumbnail(targetMemberInfo.avatarUrl)
           .setFooter(msg.client.appData.settings.footer ? msg.client.appData.settings.footer : '')

@@ -2,6 +2,7 @@ const scheduler = require('./cron/scheduler.js');
 const fct = require('./util/fct.js');
 const config = require('./const/config.js');
 const keys = require('./const/keys.js').get();
+const deployGlobal = require('./util/deploy-global');
 //const updateGl = require('./cron/updateGl.js');
 
 if(!process.env.NODE_ENV || process.env.NODE_ENV != 'production')
@@ -26,6 +27,8 @@ async function start() {
   return new Promise(async function (resolve, reject) {
     try {
       await manager.spawn({delay: 10000, timeout: 120000});
+      if (process.env.NODE_ENV == 'production')
+        deployGlobal();
 
       await scheduler.start(manager);
       resolve();

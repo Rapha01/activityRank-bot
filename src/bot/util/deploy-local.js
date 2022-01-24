@@ -26,7 +26,7 @@ module.exports = async (client) => {
                 Routes.applicationGuildCommands(botId, guild),
                 { body: commands }
             );
-            console.log(`Loaded local application (/) commands in guild ${guild}}`)
+            console.log(`Loaded local application (/) commands in guild ${guild}`)
         }
 		console.log(`Successfully reloaded local application (/) commands.`);
 	} catch (error) {

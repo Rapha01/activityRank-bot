@@ -1,5 +1,5 @@
 const cronScheduler = require('../cron/scheduler.js');
-const localDeploy = require('../interactionDeployment/deploy-local.js');
+const localDeploy = require('../util/deploy-local');
 
 module.exports = {
 	name: 'ready',
