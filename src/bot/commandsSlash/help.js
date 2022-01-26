@@ -63,8 +63,11 @@ function helpFeatureEmbed(guild, section) {
     .setTitle(`**Manual - ${section.title}**`)
     .setDescription(section.subdesc);
 
-  for (const command of section.subcommands)
-    embed.addField(`${command.title}\n${command.command.replace(/<prefix>/g, guild.appData.prefix)}`, `${command.desc}\nex.: \`\`${command.example.replace(/<prefix>/g, guild.appData.prefix)}\`\``);
-
+  for (const command of section.subcommands) {
+    embed.addField(
+      `${command.title}\n${command.command.replace(/<prefix>/g, guild.appData.prefix)}`,
+      `${command.desc}\nex.: \`\`${command.example.replace(/<prefix>/g, guild.appData.prefix)}\`\``,
+    );
+  }
   return embed;
 }
