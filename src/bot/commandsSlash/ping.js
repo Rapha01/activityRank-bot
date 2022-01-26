@@ -14,7 +14,7 @@ module.exports = {
         { name: '🔁 Roundtrip Latency 🔁', value: `\`\`\`${sent.createdTimestamp - i.createdTimestamp}ms\`\`\`` },
         { name: '💗 API Heartbeat 💗', value: `\`\`\`${Math.round(i.client.ws.ping)}ms\`\`\`` },
       )
-      .setTimestamp()
+      .setTimestamp();
     await i.editReply({ embeds: [pingEmbed], ephemeral: true });
-  }
-}
+  },
+};
