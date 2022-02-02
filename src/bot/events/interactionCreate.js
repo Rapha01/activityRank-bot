@@ -32,7 +32,7 @@ module.exports = {
 };
 
 const component = async (interaction) => {
-  const command = interaction.client.commands.get(interaction.customId);
+  const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
 
   if (!command) return;
 
