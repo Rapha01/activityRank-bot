@@ -21,7 +21,7 @@ const _bool = {
 
 const e = new MessageEmbed()
   .setAuthor({
-    name: 'Member Settings',
+    name: 'Personal Settings',
     iconURL: 'attachment://cog.png',
   })
   .setColor(0x00AE86);
@@ -37,7 +37,8 @@ module.exports.execute = async (i) => {
     row.addComponents(new MessageButton()
       .setLabel(field[0])
       .setStyle(_bool[myGuildMember[field[1]]])
-      .setCustomId(`commandsSlash/settings.js m ${i.member.id} ${field[1]}`))
+      .setCustomId(`commandsSlash/settings.js p ${i.member.id} ${field[1]}`));
+    e.addField(field[0], field[2]);
   }
 
   const msg = await i.reply({
@@ -46,7 +47,7 @@ module.exports.execute = async (i) => {
     files: ['./bot/const/img/cog.png'],
     fetchReply: true,
   });
-  setTimeout(() => {
+  setTimeout(async () => {
     await msg.delete().catch();
   }, 60000);
 };
@@ -55,7 +56,7 @@ module.exports.component = async (i) => {
   const data = i.customId.split(' ');
   data.shift();
   data.shift();
-  if (i.member.id !== data[0]) return await i.deferReply()
+  if (i.member.id !== data[0]) return await i.deferReply();
 
   await guildMemberModel.cache.load(i.member);
   const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
@@ -65,7 +66,7 @@ module.exports.component = async (i) => {
   await guildMemberModel.storage.set(i.guild, i.member.id, data[1], res);
 
   const row = i.message.components[0];
-  const comp = row.components.find(element => element.customId == i.customId)
+  const comp = row.components.find(element => element.customId == i.customId);
   comp.setStyle(_bool[res]);
-  i.update({components: [row]})
-}
+  i.update({ components: [row] });
+};
