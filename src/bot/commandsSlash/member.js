@@ -30,5 +30,12 @@ module.exports = {
         .setDescription('The amount of XP to take')
         .setMinValue(1)
         .setMaxValue(1_000_000)
+        .setRequired(true)))
+    .addSubcommand(sc => sc
+      .setName('inviter')
+      .setDescription('Set a member as your inviter')
+      .addUserOption(o => o
+        .setName('member')
+        .setDescription('The user that invited you to the server')
         .setRequired(true))),
 };
