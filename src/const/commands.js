@@ -122,7 +122,8 @@ exports.bonusxp = {
   desc: 'Give and take bonus xp to your members (admin only).',
   subdesc: 'The text, voice and vote scores are not adjustable by the admins. For this you can use the bonus score - grant your members XP for special events or boost up your most loyal members when switching to this bot.',
   subcommands: [
-    {title: 'Give or take bonus XP',command: '<prefix>member [ @user | userName#tag | userId ] { give | take } { digit }',desc:'Give bonus XP to a user.',example: '<prefix>member @user give 200. ' + '<prefix>member username#0001 give 200'},
+    {title: 'Member bonus XP',command: '<prefix>member [ @user | userName#tag | userId ] { give | take } { digit }',desc:'Give bonus XP to a user.',example: '<prefix>member @user give 200. ' + '<prefix>member username#0001 give 200'},
+    {title: 'Role bonus XP',command: '<prefix>role { @role | roleName | roleId } { give | take } { digit }',desc:'Give bonus XP to all users with a certain role.',example: '<prefix>role @master give 200. ' },
   ]
 };
 
