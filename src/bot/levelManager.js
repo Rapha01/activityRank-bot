@@ -113,7 +113,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
     if (!notified && member.guild.appData.autopost_levelup != 0) {
       const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
 
-      if (channel) {
+      if (channel && channel.send) {
         let msg = { embeds: [ levelupEmbed ] };
         if (ping)
           msg['content'] = ping;
