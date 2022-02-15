@@ -108,7 +108,8 @@ exports.addBonus = (member,count) => {
       else
         entry.count += count;
 
-      await addTotalXp(member,count * member.guild.appData.xpPerBonus);
+      if (member.appData)
+        await addTotalXp(member,count * member.guild.appData.xpPerBonus);
 
       resolve();
     } catch (e) { reject(e); }

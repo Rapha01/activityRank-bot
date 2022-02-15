@@ -41,13 +41,13 @@ module.exports = (msg,command,targetRoleId,args) => {
       }
 
       await guildRoleModel.cache.load(targetRole);
-      const members = msg.guild.roles.cache.get(targetRoleId).members; //.map(m=>m.user.id);
-      console.log(members);
+
+      const members = await msg.guild.members.fetch({cache: false, withPresences: false}); //.map(m=>m.user.id);
 
       for (let member of members) {
         member = member[1];
-        await guildMemberModel.cache.load(member);
-        await statFlushCache.addBonus(member,value);
+        if (member.roles.cache.has(targetRoleId))
+          await statFlushCache.addBonus(member,value);
       }
 
       await msg.channel.send('Successfully changed bonus XP.' );
