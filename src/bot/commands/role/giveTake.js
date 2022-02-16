@@ -43,19 +43,19 @@ module.exports = (msg,command,targetRoleId,args) => {
       await guildRoleModel.cache.load(targetRole);
 
       const members = await msg.guild.members.fetch({cache: false, withPresences: false, force: true}); //.map(m=>m.user.id);
-      console.log('Role give members size', members.size);
+      console.log('Role give members ', members.size);
 
-      let c = 0;
+      let affected = 0;
       for (let member of members) {
         member = member[1];
         if (member.roles.cache.has(targetRoleId)){
             await statFlushCache.addBonus(member,value);
-            c++;
+            affected++;
         }
       }
-      console.log('Role give affected size', c);
+      console.log('Role give affected members', affected);
 
-      await msg.channel.send('Successfully changed bonus XP.' );
+      await msg.channel.send('Successfully changed bonus XP for '  + affected + ' members.');
 
       resolve();
     } catch (e) { reject(e); }
