@@ -13,11 +13,11 @@ module.exports = {
     const faqs = i.client.appData.texts.faqs;
 
     if (!faq)
-      return await i.reply({embeds:[faqReducedEmbed(faqs)]});
+      return await i.reply({ embeds:[faqReducedEmbed(faqs)] });
 
     if (faq < 1 || faq > 100)
       return await i.reply({ content: 'The FAQ must be within 1 and 100.', ephemeral: true });
-    
+
     const item = faqs.find(o => o.id == faq);
     const embed = new MessageEmbed()
       .setTitle(`**ActivityRank FAQ #${faq}**`)
@@ -28,29 +28,12 @@ module.exports = {
     else
       embed.addField(`**${item.title}**`, item.desc);
 
-    i.reply({embeds:[embed]});
-  }
-}
+    i.reply({ embeds:[embed] });
+  },
+};
 
 
-function faqMainEmbed (faqs) {
-  const embed = new MessageEmbed()
-    .setTitle('**ActivityRank FAQ**')
-    .setColor(0x00AE86)
-    .setDescription('Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.')
-  ;
-
-  if (faqs.length == 0)
-    embed.setDescription('No FAQs to show on this page.');
-
-  for (let faq of faqs) {
-    embed.addField(' (' + faq.id + ') ' + faq.title + '',faq.desc);
-  }
-
-  return embed;
-}
-
-function faqReducedEmbed (faqs) {
+function faqReducedEmbed(faqs) {
   const embed = new MessageEmbed()
     .setTitle('**ActivityRank FAQ**')
     .setColor(0x00AE86)
@@ -59,9 +42,9 @@ function faqReducedEmbed (faqs) {
 
   if (faqs.length == 0)
     embed.setDescription('No FAQs to show!');
-  
-  let titles = faqs.map(faq => `**${faq.id}.** ${faq.title} \n`);
-  embed.setDescription(embed.description + '\n\n' + titles.join(''))
+
+  const titles = faqs.map(faq => `**${faq.id}.** ${faq.title} \n`);
+  embed.setDescription(embed.description + '\n\n' + titles.join(''));
 
   return embed;
 }

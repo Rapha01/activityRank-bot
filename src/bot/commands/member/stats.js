@@ -84,7 +84,7 @@ function sendMemberEmbed(msg,myGuild,targetUserId,time) {
       infoStrings.push('Next Level: ' + (Math.floor(levelProgression % 1 * 100)) + '%\n');
 
 
-      embed.addField('#' + totalScorePosition + ' **' + guildMemberInfo.name + '** \\🎖' + Math.floor(levelProgression),infoStrings.join('\n'));
+      embed.addField('#' + totalScorePosition + ' **' + guildMemberInfo.name + '** \\🎖 ' + Math.floor(levelProgression),infoStrings.join('\n'));
       embed.addField('Stats',scoreStrings.join('\n'));
 
 
