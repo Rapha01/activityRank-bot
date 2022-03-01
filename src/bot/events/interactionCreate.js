@@ -32,6 +32,7 @@ module.exports = {
 };
 
 const component = async (interaction) => {
+  if (interaction.customId.split(' ')[0] === 'ignore') return;
   const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
 
   if (!command) return;
