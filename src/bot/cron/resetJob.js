@@ -62,9 +62,25 @@ const doResetJob = (resetJob) => {
       else if (resetJob.type == 'guildChannelsStats' && resetJob.channelIds.length > 0)
         count = await resetModel.storage.resetGuildChannelsStats(batchsize,resetJob.cmdChannel.guild,resetJob.channelIds);
 
-      await resetJob.cmdChannel.send('Reset ' + count + ' rows...');
+      if ('ref' in resetJob) {
+        await resetJob.ref.followUp({
+          content: `Reset ${count} rows...`,
+          ephemeral: true,
+        });
+      } else {
+        await resetJob.cmdChannel.send('Reset ' + count + ' rows...');
+      }
+
       if (count < batchsize) {
-        await resetJob.cmdChannel.send('Finished reset.');
+        if ('ref' in resetJob) {
+          await resetJob.ref.followUp({
+            content: 'Finished reset.',
+            ephemeral: true,
+          });
+        } else {
+          await resetJob.cmdChannel.send('Finished reset.');
+        }
+
         delete resetModel.resetJobs[resetJob.cmdChannel.guild.id];
       }
 
