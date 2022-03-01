@@ -35,24 +35,23 @@ module.exports.execute = async (i) => {
     components: [confirmRow],
   });
   const filter = (interaction) => interaction.user.id === i.user.id;
-  msg.awaitMessageComponent({ filter, time: 15000 })
-    .then(async (interaction) => {
-      if (interaction.customId.split(' ')[1] === 'confirm') {
-        resetModel.resetJobs[i.guild.id] = { type: 'guildMembersStats', ref: i, cmdChannel: i.channel, userIds: [uid] };
-        return interaction.reply({
-          content: 'Resetting, please wait...',
-          ephemeral: true,
-        });
-      }
-      interaction.reply({
-        content: 'Reset cancelled.',
+  try {
+    const interaction = msg.awaitMessageComponent({ filter, time: 15_000 });
+    if (interaction.customId.split(' ')[1] === 'confirm') {
+      resetModel.resetJobs[i.guild.id] = { type: 'guildMemberStats', ref: i, cmdChannel: i.channel, userIds: [uid] };
+      return interaction.reply({
+        content: 'Resetting, please wait...',
         ephemeral: true,
       });
-    })
-    .catch(() => {
-      i.followUp({
-        content: 'Action timed out.',
-        ephemeral: true,
-      });
+    }
+    interaction.reply({
+      content: 'Reset cancelled.',
+      ephemeral: true,
     });
+  } catch (e) {
+    i.followUp({
+      content: 'Action timed out.',
+      ephemeral: true,
+    });
+  }
 };
