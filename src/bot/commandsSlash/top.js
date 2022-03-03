@@ -38,8 +38,8 @@ module.exports.data = new SlashCommandBuilder()
     .addStringOption(o => o
       .setName('type')
       .setDescription('The type of channel')
-      .addChoice('Text', 'text')
-      .addChoice('Voice', 'voice')
+      .addChoice('Text', 'textMessage')
+      .addChoice('Voice', 'voiceMinute')
       .setRequired(true))
     .addStringOption(_timedef)
     .addIntegerOption(_page))
@@ -116,6 +116,7 @@ exports.sendMembersEmbed = async (i, type) => {
       (Math.round(((guild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10)
     }h left) \n`);
   }
+  if (i.client.appData.settings.footer) e.setFooter(i.client.appData.settings.footer);
 
   let iter = 0;
   let scoreStrings;
