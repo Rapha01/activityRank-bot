@@ -1,7 +1,7 @@
 const shardDb = require('./shardDb.js');
 const managerDb = require('./managerDb.js');
 
-statsTables = ['textMessage','voiceMinute','vote','bonus'];
+const statsTables = ['textMessage','voiceMinute','vote','bonus','invite'];
 
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 
