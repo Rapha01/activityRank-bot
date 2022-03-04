@@ -49,9 +49,13 @@ module.exports.execute = async (i) => {
       ephemeral: true,
     });
   } catch (e) {
-    i.followUp({
-      content: 'Action timed out.',
-      ephemeral: true,
-    });
+    if (e.name === 'Error [INTERACTION_COLLECTOR_ERROR]') {
+      i.followUp({
+        content: 'Action timed out.',
+        ephemeral: true,
+      });
+    } else {
+      throw e;
+    }
   }
 };
