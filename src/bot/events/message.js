@@ -12,15 +12,19 @@ const checkBotPermissions = require('../util/checkBotPermissions.js');
 const acceptedChannelTypes = [
     'GUILD_TEXT',
     'GUILD_NEWS',
-    'GUILD_PUBLIC_THREAD'
-]
+    'GUILD_PUBLIC_THREAD',
+];
+const acceptedMessageTypes = [
+  'DEFAULT',
+  'REPLY',
+];
 
 module.exports = {
 	name: 'messageCreate',
 	execute(msg) {
         return new Promise(async function (resolve,reject) {
             try {
-                if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || msg.type != 'DEFAULT')
+                if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || acceptedMessageTypes.includes(msg.type))
                     return resolve();
               
                 if (!msg.guild) {
