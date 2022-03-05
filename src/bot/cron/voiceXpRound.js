@@ -6,20 +6,12 @@ const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 const statFlushCache = require('../statFlushCache.js');
 const noXpUtil = require('../util/noXpUtil.js');
-let minutesToAdd = 0,leftover= 0,round = 0,hrstart = process.hrtime();
+let minutesToAdd = 0,leftover= 0,round = 0;
 
 module.exports = async (client) => {
   return new Promise(async function(resolve, reject) {
     try {
-      const roundTimeSec = process.hrtime(hrstart)[0];
-      const secondsToAdd = roundTimeSec + leftover;
-      minutesToAdd = Math.floor(secondsToAdd / 60);
-      leftover = Math.round(secondsToAdd % 60);
-
-      hrstart = process.hrtime();
-      round++;
-
-      //console.log('RankVoice round started.');
+      const roundStart = Date.now() / 1000;
 
       for (let guild of client.guilds.cache) {
         guild = guild[1];
@@ -35,8 +27,13 @@ module.exports = async (client) => {
 
       await fct.sleep(2000);
 
-      console.log('RankVoice round '+ round +' finished.\n' + 'secondsToAdd ' + secondsToAdd + ', minutesToAdd ' + minutesToAdd + ', leftover ' + leftover );
-
+      const roundEnd = Date.now() / 1000;
+      const secondsToAdd = (roundEnd - roundStart) + leftover;
+      minutesToAdd = Math.floor(secondsToAdd / 60);
+      leftover = Math.round(secondsToAdd % 60);
+      //console.log(client.options.shards);
+      console.log('RankVoice for shard ' + client.options.shards[0] + ' round '+ round +' finished. ' + 'minutesToAdd ' + minutesToAdd + ', leftover ' + leftover );
+      round++;
       resolve();
     } catch (e) { reject(e); }
   });
