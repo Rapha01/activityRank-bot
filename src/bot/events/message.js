@@ -24,7 +24,7 @@ module.exports = {
 	execute(msg) {
         return new Promise(async function (resolve,reject) {
             try {
-                if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || acceptedMessageTypes.includes(msg.type))
+                if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || !acceptedMessageTypes.includes(msg.type))
                     return resolve();
               
                 if (!msg.guild) {
