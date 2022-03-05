@@ -100,6 +100,12 @@ exports.extractPage = (args,entriesPerPage) => {
     return {page:page,from:from,to:to};
 }
 
+exports.extractPageSimple = (page, entriesPerPage) => {
+  const from = Math.max((page - 1) * entriesPerPage + 1);
+  const to = page * entriesPerPage;
+  return { page, from, to };
+};
+
 exports.extractTime = (args) => {
     let time = 'Alltime';
 

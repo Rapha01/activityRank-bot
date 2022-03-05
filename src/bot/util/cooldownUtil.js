@@ -10,7 +10,7 @@ exports.getCachedCooldown = (cache,field,cd) => {
     return remaining;
 }
 
-exports.checkStatCommandsCooldown = (msg) => {
+exports.checkStatCommandsCooldown = (msg, interaction = false) => {
   return new Promise(async function (resolve, reject) {
     try {
       const isPremiumGuild = fct.isPremiumGuild(msg.guild);
@@ -19,7 +19,14 @@ exports.checkStatCommandsCooldown = (msg) => {
 
       const toWait = exports.getCachedCooldown(msg.member.appData,'lastStatCmdDate',cd);
       if (toWait > 0) {
-        await msg.channel.send(errorMsgs.activeStatCommandCooldown(cd,toWait) + premiumLowersCooldownString);
+        if (interaction) {
+          await interaction.reply({
+            content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+            ephemeral: true,
+          });
+        } else {
+          await msg.channel.send(errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString);
+        }
         return resolve(false);
       }
 
