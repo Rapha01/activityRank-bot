@@ -36,7 +36,7 @@ module.exports.execute = async (i) => {
   });
   const filter = (interaction) => interaction.user.id === i.user.id;
   try {
-    const interaction = msg.awaitMessageComponent({ filter, time: 15_000 });
+    const interaction = await msg.awaitMessageComponent({ filter, time: 15_000 });
     if (interaction.customId.split(' ')[1] === 'confirm') {
       resetModel.resetJobs[i.guild.id] = { type: 'guildMemberStats', ref: i, cmdChannel: i.channel, userIds: [uid] };
       return interaction.reply({
@@ -49,9 +49,13 @@ module.exports.execute = async (i) => {
       ephemeral: true,
     });
   } catch (e) {
-    i.followUp({
-      content: 'Action timed out.',
-      ephemeral: true,
-    });
+    if (e.name === 'Error [INTERACTION_COLLECTOR_ERROR]') {
+      i.followUp({
+        content: 'Action timed out.',
+        ephemeral: true,
+      });
+    } else {
+      throw e;
+    }
   }
 };

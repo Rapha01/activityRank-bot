@@ -41,13 +41,13 @@ module.exports.execute = async (i) => {
   });
   const filter = (interaction) => interaction.user.id === i.user.id;
   try {
-    const interaction = msg.awaitMessageComponent({ filter, time: 15_000 });
+    const interaction = await msg.awaitMessageComponent({ filter, time: 15_000 });
     if (interaction.customId.split(' ')[1] === 'confirm') {
       if (field == 'deletedmembers') {
         const userIds = await resetModel.storage.getDeletedUserIds(i.guild);
 
         resetModel.resetJobs[i.guild.id] = { type: 'guildMembersStats', ref: i, cmdChannel: i.channel, userIds: userIds };
-        await i.reply({
+        await interaction.reply({
           content: 'Resetting, please wait...',
           ephemeral: true,
         });
@@ -55,7 +55,7 @@ module.exports.execute = async (i) => {
         const channelIds = await resetModel.storage.getDeletedChannelIds(i.guild);
 
         resetModel.resetJobs[i.guild.id] = { type: 'guildChannelsStats', ref: i, cmdChannel: i.channel, channelIds: channelIds };
-        await i.reply({
+        await interaction.reply({
           content: 'Resetting, please wait...',
           ephemeral: true,
         });
@@ -70,21 +70,26 @@ module.exports.execute = async (i) => {
         || field == 'bonusstats'
       ) {
         resetModel.resetJobs[i.guild.id] = { type: field, cmdChannel: i.channel };
-        await i.reply({
+        await interaction.reply({
           content: 'Resetting, please wait...',
           ephemeral: true,
         });
       }
       i.guild.appData.lastResetServer = Date.now() / 1000;
+    } else {
+      interaction.reply({
+        content: 'Reset cancelled.',
+        ephemeral: true,
+      });
     }
-    interaction.reply({
-      content: 'Reset cancelled.',
-      ephemeral: true,
-    });
   } catch (e) {
-    i.followUp({
-      content: 'Action timed out.',
-      ephemeral: true,
-    });
+    if (e.name === 'Error [INTERACTION_COLLECTOR_ERROR]') {
+      i.followUp({
+        content: 'Action timed out.',
+        ephemeral: true,
+      });
+    } else {
+      throw e;
+    }
   }
 };
