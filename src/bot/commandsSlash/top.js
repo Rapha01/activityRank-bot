@@ -6,6 +6,7 @@ const cooldownUtil = require('../util/cooldownUtil.js');
 const nameUtil = require('../util/nameUtil.js');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ChannelType: { GuildText } } = require('discord-api-types/v9');
 
 const _timedef = (_ => _
   .setName('period')
@@ -62,7 +63,22 @@ module.exports.data = new SlashCommandBuilder()
     .setName('invites')
     .setDescription('The top members, ordered by invites!')
     .addStringOption(_timedef)
-    .addIntegerOption(_page));
+    .addIntegerOption(_page))
+  .addSubcommandGroup(scg => scg
+    .setName('in')
+    .setDescription('The top members in the category')
+    .addSubcommand(sc => sc
+      .setName('channel')
+      .setDescription('The top members in the specified channel')
+      .addChannelOption(o => o
+        .setName('channel')
+        .setDescription('The channel to check')
+        .setRequired(true)
+        .addChannelTypes([
+          GuildText,
+        ]))
+      .addStringOption(_timedef)
+      .addIntegerOption(_page)));
 /*
   .addSubcommand(sc => sc
     .setName('role')
