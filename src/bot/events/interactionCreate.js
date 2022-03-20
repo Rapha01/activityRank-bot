@@ -7,7 +7,7 @@ module.exports = {
       if (interaction.isUserContextMenu())
         await userCtx(interaction);
 
-      if (!interaction.isCommand()) return;
+      if (!interaction.isCommand() && !interaction.isAutocomplete()) return;
 
       let path = 'commandsSlash';
       path = path.concat('/', interaction.commandName);
@@ -22,8 +22,8 @@ module.exports = {
 
       if (!command) return;
 
-
-      await command.execute(interaction);
+      if (interaction.isCommand()) await command.execute(interaction);
+      else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
     } catch (e) {
       console.error(e);
       await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
