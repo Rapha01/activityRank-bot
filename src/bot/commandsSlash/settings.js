@@ -58,4 +58,6 @@ module.exports.data = new SlashCommandBuilder()
         .addChannelType(GuildText))
       .addBooleanOption(o => o
         .setName('disable')
-        .setDescription('If this is set to true, the message will not send. Do not set both options.'))));
+        .setDescription(
+          'If this is set to true, welcome messages will be disabled. Do not set both this and the channel option.',
+        ))));
