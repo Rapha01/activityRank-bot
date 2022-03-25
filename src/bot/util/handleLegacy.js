@@ -2,6 +2,7 @@
 /* eslint-disable no-inline-comments */
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('./cooldownUtil.js');
+const userModel = require('../models/userModel.js');
 const { MessageEmbed } = require('discord.js');
 const { stripIndent } = require('common-tags');
 const { botInviteLink } = require('../../const/config.js');
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV == 'production') {
 }
 
 module.exports = async (msg) => {
+  await userModel.cache.load(msg.member.user);
   if (cooldownUtil.getCachedCooldown(msg.guild.appData, 'lastHandleLegacyDate', handleLegacyCdGuild) > 0)
     return;
   if (cooldownUtil.getCachedCooldown(msg.member.user.appData, 'lastHandleLegacyDate', handleLegacyCdUser) > 0)
