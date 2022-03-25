@@ -142,4 +142,21 @@ module.exports.data = new SlashCommandBuilder()
         .setMinValue(60)
         .setMaxValue(4320)
         .setRequired(true)
-        .setAutocomplete(true))));
+        .setAutocomplete(true))))
+  .addSubcommand(sc => sc
+    .setName('use-module')
+    .setDescription('Enable or disable a module')
+    .addStringOption(o => o
+      .setName('module')
+      .setDescription('The module to enable or disable')
+      .addChoices([
+        ['Text Messages', 'textXp'],
+        ['Time in VC', 'voiceXp'],
+        ['Upvotes', 'voteXp'],
+        ['Invited Members', 'inviteXp'],
+      ])
+      .setRequired(true))
+    .addBooleanOption(o => o
+      .setName('enabled')
+      .setDescription('Whether or not this module should be enabled')
+      .setRequired(true)));
