@@ -26,6 +26,7 @@
     "ip-to-int": "^0.3.1",
     "node-cron": "^3.0.0",
     "node-emoji": "^1.11.0",
+    "pretty-ms": "^7.0.1",
     "promise-mysql": "^5.0.4",
     "public-ip": "^4.0.4"
   },
