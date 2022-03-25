@@ -83,7 +83,7 @@ module.exports.data = new SlashCommandBuilder()
     .setName('xp')
     .setDescription('Settings relating to XP gains')
     .addSubcommand(sc => sc
-      .setName('xp-per-text')
+      .setName('xp-per-message')
       .setDescription('The amount of XP gained per text message')
       .addIntegerOption(_xpPer(1, 10)))
     .addSubcommand(sc => sc
@@ -116,5 +116,30 @@ module.exports.data = new SlashCommandBuilder()
         .setDescription('The time to wait, in seconds')
         .setMinValue(180)
         .setMaxValue(86400)
+        .setRequired(true)
+        .setAutocomplete(true))))
+  .addSubcommandGroup(sg => sg
+    .setName('bonus')
+    .setDescription('Settings relating to bonus XP and bonustime')
+    .addSubcommand(sc => sc
+      .setName('xp-per-message')
+      .setDescription('The amount of bonus XP gained per text message during bonus time')
+      .addIntegerOption(_xpPer(1, 20)))
+    .addSubcommand(sc => sc
+      .setName('xp-per-voiceminute')
+      .setDescription('The amount of bonus XP gained per minute spent in a voice call during bonus time')
+      .addIntegerOption(_xpPer(1, 10)))
+    .addSubcommand(sc => sc
+      .setName('xp-per-vote')
+      .setDescription('The amount of bonus XP gained per upvote during bonus time')
+      .addIntegerOption(_xpPer(1, 100)))
+    .addSubcommand(sc => sc
+      .setName('start')
+      .setDescription('Starts bonus time for the specified duration')
+      .addIntegerOption(o => o
+        .setName('time')
+        .setDescription('The time for the bonus time to last, in minutes')
+        .setMinValue(60)
+        .setMaxValue(4320)
         .setRequired(true)
         .setAutocomplete(true))));
