@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const guildModel = require('../../../models/guild/guildModel.js');
+const guildModel = require('../../models/guild/guildModel.js');
 const { stripIndent } = require('common-tags');
 
 const _prettify = {
