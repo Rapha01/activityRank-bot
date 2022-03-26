@@ -56,6 +56,27 @@ module.exports.data = new SlashCommandBuilder()
       .setName('enable')
       .setDescription('Whether to remove roles upon leveldown')
       .setRequired(true)))
+  .addSubcommand(sc => sc
+    .setName('notify-dm')
+    .setDescription('Whether or not to allow members to be notified of their levelups via DM')
+    .addBooleanOption(o => o
+      .setName('enable')
+      .setDescription('True: Allow members to be DMed. False: Do not allow.')
+      .setRequired(true)))
+  .addSubcommand(sc => sc
+    .setName('notify-current-channel')
+    .setDescription('Whether or not to allow members to be notified of their levelups via their last used channel')
+    .addBooleanOption(o => o
+      .setName('enable')
+      .setDescription('True: Notify members in their last used channel. False: Do not allow.')
+      .setRequired(true)))
+  .addSubcommand(sc => sc
+    .setName('notify-with-role')
+    .setDescription('Whether or not to send levelup messages when a roleAssign message is being sent')
+    .addBooleanOption(o => o
+      .setName('enable')
+      .setDescription('True: Send both messages. False: Send only the roleAssign message.')
+      .setRequired(true)))
   .addSubcommandGroup(sg => sg
     .setName('autosend')
     .setDescription('Change autosend messages')

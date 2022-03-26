@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ChannelType: { GuildText, GuildVoice } } = require('discord-api-types/v9');
 
 
 const _lvl = (desc) => (_ => _
@@ -43,6 +44,27 @@ module.exports.data = new SlashCommandBuilder()
       .setName('deassign-message')
       .setDescription('Set a custom Deassign Message, for one role only')
       .addRoleOption(o => o.setName('role').setDescription('The role to give the message to').setRequired(true))))
+  .addSubcommandGroup(sg => sg
+    .setName('channel')
+    .setDescription('Change a channel\'s settings')
+    .addSubcommand(sc => sc
+      .setName('no-xp')
+      .setDescription('Set a channel to noXp; a user sending messages or talking in this channel will not gain XP')
+      .addChannelOption(o => o
+        .setName('channel').setDescription('The channel to set as noXp')
+        .addChannelTypes([GuildText, GuildVoice]).setRequired(true)))
+    .addSubcommand(sc => sc
+      .setName('no-command')
+      .setDescription('Set a channel to noCommand; commands will not register in this channel.')
+      .addChannelOption(o => o
+        .setName('channel').setDescription('The channel to set as noCommand')
+        .addChannelType(GuildText).setRequired(true)))
+    .addSubcommand(sc => sc
+      .setName('command-only')
+      .setDescription('Set a channel to commandOnly; all other channels will function as noCommand.')
+      .addChannelOption(o => o
+        .setName('channel').setDescription('The channel to set as commandOnly')
+        .addChannelType(GuildText).setRequired(true))))
   .addSubcommandGroup(sg => sg
     .setName('xp')
     .setDescription('Settings relating to XP gains')
