@@ -1,3 +1,5 @@
+const checkUserPerms = require('../util/checkMemberPermissions');
+
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
@@ -20,7 +22,13 @@ module.exports = {
       path = path.concat('.js');
       const command = interaction.client.commands.get(path);
 
-      if (!command) return;
+      if (!command) return console.log('No command found: ', path);
+
+      console.log(path);
+
+      if ([
+        'settings', 'config',
+      ].includes(interaction.commandName) && !checkUserPerms(interaction)) return console.log('Perms failed: ', path);
 
       if (interaction.isCommand()) await command.execute(interaction);
       else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
