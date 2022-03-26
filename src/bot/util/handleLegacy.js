@@ -36,7 +36,7 @@ module.exports = async (msg) => {
 const sendLegacyWarningEmbed = function(msg) {
   const e = new MessageEmbed()
     .setAuthor({ name: 'WARNING', iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png' })
-    .setDescription(stripIndent`On <t:1648508400>, we will be ending support for commands written with a prefix.
+    .setDescription(stripIndent`On <t:1649746800>, we will be ending support for commands written with a prefix.
             This is not our decision; Discord has mandated this action. 
             If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
             [Join our support server](https://discordapp.com/invite/DE3eQ8H) if you have any questions.`)
