@@ -9,10 +9,10 @@ const generateRow = (i, myGuildMember) => {
     new MessageButton().setLabel('Notify levelup via DM'),
     new MessageButton().setLabel('Reaction voting'),
   ];
-  r[0].setCustomId(`commandsSlash/usersettings.js ${i.member.id} notifyLevelupDm`);
+  r[0].setCustomId(`commandsSlash/config-member.js ${i.member.id} notifyLevelupDm`);
   r[0].setStyle(myGuildMember.notifyLevelupDm ? 'SUCCESS' : 'DANGER');
 
-  r[1].setCustomId(`commandsSlash/usersettings.js ${i.member.id} reactionVote`);
+  r[1].setCustomId(`commandsSlash/config-member.js ${i.member.id} reactionVote`);
   r[1].setDisabled(!i.guild.appData.voteXp || !i.guild.appData.reactionVote);
   r[1].setStyle(myGuildMember.reactionVote ? 'SUCCESS' : 'DANGER');
   return r;
@@ -22,10 +22,10 @@ const _close = (i) => new MessageActionRow()
   .addComponents(new MessageButton()
     .setLabel('Close')
     .setStyle('DANGER')
-    .setCustomId(`commandsSlash/usersettings.js ${i.member.id} closeMenu`));
+    .setCustomId(`commandsSlash/config-member.js ${i.member.id} closeMenu`));
 
 module.exports.data = new SlashCommandBuilder()
-  .setName('usersettings')
+  .setName('config-member')
   .setDescription('Change your personal settings');
 
 module.exports.execute = async (i) => {
