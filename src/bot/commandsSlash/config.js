@@ -5,7 +5,7 @@ const { ChannelType: { GuildText } } = require('discord-api-types/v9');
 module.exports.data = new SlashCommandBuilder()
   .setName('config')
   .setDescription('Configure the bot!')
-  .addSubcommand(sc => sc
+  /* .addSubcommand(sc => sc
     .setName('entries-per-page')
     .setDescription('The number of items to display per embed')
     .addIntegerOption(o => o
@@ -76,7 +76,7 @@ module.exports.data = new SlashCommandBuilder()
     .addBooleanOption(o => o
       .setName('enable')
       .setDescription('True: Send both messages. False: Send only the roleAssign message.')
-      .setRequired(true)))
+      .setRequired(true))) */
   .addSubcommandGroup(sg => sg
     .setName('autosend')
     .setDescription('Change autosend messages')
@@ -95,10 +95,7 @@ module.exports.data = new SlashCommandBuilder()
       .addChannelOption(o => o
         .setName('channel')
         .setDescription('The channel to post the message in')
-        .addChannelType(GuildText))
-      .addBooleanOption(o => o
-        .setName('disable')
-        .setDescription('If this is set to true, welcome messages will be disabled.')))
+        .addChannelType(GuildText)))
     .addSubcommand(sc => sc
       .setName('levelup-message')
       .setDescription('The message to send when a member levels up'))
@@ -108,7 +105,4 @@ module.exports.data = new SlashCommandBuilder()
       .addChannelOption(o => o
         .setName('channel')
         .setDescription('The channel to post the message in')
-        .addChannelType(GuildText))
-      .addBooleanOption(o => o
-        .setName('disable')
-        .setDescription('If this is set to true, levelup messages will be disabled.'))));
+        .addChannelType(GuildText))));
