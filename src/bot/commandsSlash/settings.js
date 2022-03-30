@@ -60,7 +60,22 @@ module.exports.data = new SlashCommandBuilder()
       .setName('invite')
       .setDescription('The amount of XP gained per invitation')
       .setMinValue(1).setMaxValue(1000)))
-  .addSubcommandGroup(sg => sg
+  .addSubcommand(sc => sc
+    .setName('cooldown')
+    .setDescription('Set the amount of time a member must wait before gaining XP from an activity')
+    .addIntegerOption(o => o
+      .setName('message')
+      .setDescription('The time between messages counting')
+      .setMinValue(0)
+      .setMaxValue(120)
+      .setAutocomplete(true))
+    .addIntegerOption(o => o
+      .setName('vote')
+      .setDescription('The time to wait before a member can vote again')
+      .setMinValue(180)
+      .setMaxValue(86400)
+      .setAutocomplete(true)))
+  /* .addSubcommandGroup(sg => sg
     .setName('xp')
     .setDescription('Settings relating to XP gains')
     .addSubcommand(sc => sc
@@ -82,7 +97,7 @@ module.exports.data = new SlashCommandBuilder()
         .setMinValue(180)
         .setMaxValue(86400)
         .setRequired(true)
-        .setAutocomplete(true))))
+        .setAutocomplete(true)))) */
   .addSubcommand(sc => sc
     .setName('bonus-xp-per')
     .setDescription('Set the amount of bonus XP gained during bonus time')
