@@ -9,12 +9,12 @@ const _lvl = (desc) => (_ => _
   .setMaxValue(2000)
   .setMinValue(0));
 
-const _xpPer = (min, max) => (_ => _
+/* const _xpPer = (min, max) => (_ => _
   .setName('amount')
   .setDescription('The amount of XP to give for this activity')
   .setMinValue(min)
   .setMaxValue(max)
-  .setRequired(true));
+  .setRequired(true)); */
 
 module.exports.data = new SlashCommandBuilder()
   .setName('settings')
@@ -44,46 +44,34 @@ module.exports.data = new SlashCommandBuilder()
       .setName('deassign-message')
       .setDescription('Set a custom Deassign Message, for one role only')
       .addRoleOption(o => o.setName('role').setDescription('The role to give the message to').setRequired(true))))
-  .addSubcommandGroup(sg => sg
+  .addSubcommand(sc => sc
     .setName('channel')
     .setDescription('Change a channel\'s settings')
-    .addSubcommand(sc => sc
-      .setName('no-xp')
-      .setDescription('Set a channel to noXp; a user sending messages or talking in this channel will not gain XP')
-      .addChannelOption(o => o
-        .setName('channel').setDescription('The channel to set as noXp')
-        .addChannelTypes([GuildText, GuildVoice]).setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('no-command')
-      .setDescription('Set a channel to noCommand; commands will not register in this channel.')
-      .addChannelOption(o => o
-        .setName('channel').setDescription('The channel to set as noCommand')
-        .addChannelType(GuildText).setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('command-only')
-      .setDescription('Set a channel to commandOnly; all other channels will function as noCommand.')
-      .addChannelOption(o => o
-        .setName('channel').setDescription('The channel to set as commandOnly')
-        .addChannelType(GuildText).setRequired(true))))
+    .addChannelOption(o => o
+      .setName('channel').setDescription('The channel to modify')
+      .addChannelTypes([GuildText, GuildVoice]).setRequired(true)))
+  .addSubcommand(sc => sc
+    .setName('xp-per')
+    .setDescription('Set the amount of XP gained')
+    .addIntegerOption(o => o
+      .setName('message')
+      .setDescription('The amount of XP gained per message sent')
+      .setMinValue(1).setMaxValue(10))
+    .addIntegerOption(o => o
+      .setName('voiceminute')
+      .setDescription('The amount of XP gained per minute spent in VC')
+      .setMinValue(1).setMaxValue(5))
+    .addIntegerOption(o => o
+      .setName('vote')
+      .setDescription('The amount of XP gained per upvote')
+      .setMinValue(1).setMaxValue(100))
+    .addIntegerOption(o => o
+      .setName('invite')
+      .setDescription('The amount of XP gained per invitation')
+      .setMinValue(1).setMaxValue(1000)))
   .addSubcommandGroup(sg => sg
     .setName('xp')
     .setDescription('Settings relating to XP gains')
-    .addSubcommand(sc => sc
-      .setName('xp-per-message')
-      .setDescription('The amount of XP gained per text message')
-      .addIntegerOption(_xpPer(1, 10)))
-    .addSubcommand(sc => sc
-      .setName('xp-per-voiceminute')
-      .setDescription('The amount of XP gained per minute spent in a voice call')
-      .addIntegerOption(_xpPer(1, 5)))
-    .addSubcommand(sc => sc
-      .setName('xp-per-invite')
-      .setDescription('The amount of XP gained per user invited')
-      .addIntegerOption(_xpPer(1, 1000)))
-    .addSubcommand(sc => sc
-      .setName('xp-per-vote')
-      .setDescription('The amount of XP gained per upvote')
-      .addIntegerOption(_xpPer(1, 100)))
     .addSubcommand(sc => sc
       .setName('message-cooldown')
       .setDescription('The amount of time a member must wait before gaining XP from a message')
@@ -104,45 +92,53 @@ module.exports.data = new SlashCommandBuilder()
         .setMaxValue(86400)
         .setRequired(true)
         .setAutocomplete(true))))
-  .addSubcommandGroup(sg => sg
+  .addSubcommand(sc => sc
+    .setName('bonus-xp-per')
+    .setDescription('Set the amount of bonus XP gained during bonus time')
+    .addIntegerOption(o => o
+      .setName('message')
+      .setDescription('The amount of XP gained per message sent')
+      .setMinValue(1).setMaxValue(20))
+    .addIntegerOption(o => o
+      .setName('voiceminute')
+      .setDescription('The amount of XP gained per minute spent in VC')
+      .setMinValue(1).setMaxValue(10))
+    .addIntegerOption(o => o
+      .setName('vote')
+      .setDescription('The amount of XP gained per upvote')
+      .setMinValue(1).setMaxValue(100))
+    .addIntegerOption(o => o
+      .setName('invite')
+      .setDescription('The amount of XP gained per invitation')
+      .setMinValue(1).setMaxValue(2000)))
+  .addSubcommand(sc => sc
+    .setName('bonus-start')
+    .setDescription('Starts bonustime for the specified duration')
+    .addIntegerOption(o => o
+      .setName('time')
+      .setDescription('The time for the bonus time to last, in minutes')
+      .setMinValue(60)
+      .setMaxValue(4320)
+      .setRequired(true)
+      .setAutocomplete(true)))
+  .addSubcommand(sc => sc
     .setName('bonus')
-    .setDescription('Settings relating to bonus XP and bonustime')
-    .addSubcommand(sc => sc
-      .setName('xp-per-message')
-      .setDescription('The amount of bonus XP gained per text message during bonus time')
-      .addIntegerOption(_xpPer(1, 20)))
-    .addSubcommand(sc => sc
-      .setName('xp-per-voiceminute')
-      .setDescription('The amount of bonus XP gained per minute spent in a voice call during bonus time')
-      .addIntegerOption(_xpPer(1, 10)))
-    .addSubcommand(sc => sc
-      .setName('xp-per-vote')
-      .setDescription('The amount of bonus XP gained per upvote during bonus time')
-      .addIntegerOption(_xpPer(1, 100)))
-    .addSubcommand(sc => sc
-      .setName('start')
-      .setDescription('Starts bonus time for the specified duration')
-      .addIntegerOption(o => o
-        .setName('time')
-        .setDescription('The time for the bonus time to last, in minutes')
-        .setMinValue(60)
-        .setMaxValue(4320)
-        .setRequired(true)
-        .setAutocomplete(true)))
-    .addSubcommand(sc => sc
-      .setName('bonus-tag')
-      .setDescription('Set the phrase to be used instead of \'bonuses\'')
-      .addStringOption(o => o
-        .setName('tag')
-        .setDescription('The bonusTag to set')
-        .setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('bonus-emote')
-      .setDescription('Set the emoji to be used instead of 🏆')
-      .addStringOption(o => o
-        .setName('emote')
-        .setDescription('The bonusEmote to set')
-        .setRequired(true))))
+    .setDescription('Set your bonusTag and emote')
+    .addStringOption(o => o
+      .setName('tag')
+      .setDescription('The bonusTag to set'))
+    .addStringOption(o => o
+      .setName('emote')
+      .setDescription('The bonusEmote to set')))
+  .addSubcommand(sc => sc
+    .setName('vote')
+    .setDescription('Set your voteTag and emote')
+    .addStringOption(o => o
+      .setName('tag')
+      .setDescription('The voteTag to set'))
+    .addStringOption(o => o
+      .setName('emote')
+      .setDescription('The voteEmote to set')))
   .addSubcommand(sc => sc
     .setName('use-module')
     .setDescription('Enable or disable a module')
@@ -168,21 +164,4 @@ module.exports.data = new SlashCommandBuilder()
       .setDescription('The levelfactor to use in the server')
       .setMinValue(20)
       .setMaxValue(400)
-      .setRequired(true)))
-  .addSubcommandGroup(sg => sg
-    .setName('vote')
-    .setDescription('Commands relating to votes')
-    .addSubcommand(sc => sc
-      .setName('tag')
-      .setDescription('Set the phrase to be used instead of \'votes\'')
-      .addStringOption(o => o
-        .setName('tag')
-        .setDescription('The voteTag to set')
-        .setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('emote')
-      .setDescription('Set the emoji to be used instead of ❤️')
-      .addStringOption(o => o
-        .setName('emote')
-        .setDescription('The voteEmote to set')
-        .setRequired(true))));
+      .setRequired(true)));
