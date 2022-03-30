@@ -75,29 +75,6 @@ module.exports.data = new SlashCommandBuilder()
       .setMinValue(180)
       .setMaxValue(86400)
       .setAutocomplete(true)))
-  /* .addSubcommandGroup(sg => sg
-    .setName('xp')
-    .setDescription('Settings relating to XP gains')
-    .addSubcommand(sc => sc
-      .setName('message-cooldown')
-      .setDescription('The amount of time a member must wait before gaining XP from a message')
-      .addIntegerOption(o => o
-        .setName('time')
-        .setDescription('The time to wait, in seconds')
-        .setMinValue(0)
-        .setMaxValue(120)
-        .setRequired(true)
-        .setAutocomplete(true)))
-    .addSubcommand(sc => sc
-      .setName('vote-cooldown')
-      .setDescription('The amount of time a member must wait before upvoting again')
-      .addIntegerOption(o => o
-        .setName('time')
-        .setDescription('The time to wait, in seconds')
-        .setMinValue(180)
-        .setMaxValue(86400)
-        .setRequired(true)
-        .setAutocomplete(true)))) */
   .addSubcommand(sc => sc
     .setName('bonus-xp-per')
     .setDescription('Set the amount of bonus XP gained during bonus time')
@@ -170,4 +147,36 @@ module.exports.data = new SlashCommandBuilder()
       .setDescription('The levelfactor to use in the server')
       .setMinValue(20)
       .setMaxValue(400)
-      .setRequired(true)));
+      .setRequired(true)))
+  .addSubcommand(sc => sc
+    .setName('global')
+    .setDescription('Sets global settings'))
+  .addSubcommandGroup(sg => sg
+    .setName('autosend')
+    .setDescription('Change autosend messages')
+    .addSubcommand(sc => sc
+      .setName('assign-message')
+      .setDescription('Set the Assign Message, for when no custom one is set'))
+    .addSubcommand(sc => sc
+      .setName('deassign-message')
+      .setDescription('Set the Deassign Message, for when no custom one is set'))
+    .addSubcommand(sc => sc
+      .setName('join-message')
+      .setDescription('The message to send when a member joins the server'))
+    .addSubcommand(sc => sc
+      .setName('join-channel')
+      .setDescription('The channel to post a join message in when a member joins the server')
+      .addChannelOption(o => o
+        .setName('channel')
+        .setDescription('The channel to post the message in')
+        .addChannelType(GuildText)))
+    .addSubcommand(sc => sc
+      .setName('levelup-message')
+      .setDescription('The message to send when a member levels up'))
+    .addSubcommand(sc => sc
+      .setName('levelup-channel')
+      .setDescription('The channel to post a levelup message in when a member levels up')
+      .addChannelOption(o => o
+        .setName('channel')
+        .setDescription('The channel to post the message in')
+        .addChannelType(GuildText))));
