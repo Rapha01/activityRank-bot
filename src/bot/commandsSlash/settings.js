@@ -28,31 +28,13 @@ module.exports.data = new SlashCommandBuilder()
       .setName('deassign-level')
       .setDescription('The level a member must be at to lose this role')
       .setMinValue(1).setMaxValue(2000)))
-  .addSubcommandGroup(sg => sg
-    .setName('role')
-    .setDescription('Change a role\'s settings')
-    /* .addSubcommand(sc => sc
-      .setName('assign-level')
-      .setDescription('Set the level at which the specified role will be assigned')
-      .addRoleOption(o => o.setName('role').setDescription('The role to assign').setRequired(true))
-      .addIntegerOption(_lvl('The level at which the role will assign')))
-    .addSubcommand(sc => sc
-      .setName('deassign-level')
-      .setDescription('Set the level at which the specified role will be removed')
-      .addRoleOption(o => o.setName('role').setDescription('The role to remove').setRequired(true))
-      .addIntegerOption(_lvl('The level at which the role will be removed'))) */
-    .addSubcommand(sc => sc
-      .setName('no-xp')
-      .setDescription('Set a role to noXp; a user with this role will not gain XP')
-      .addRoleOption(o => o.setName('role').setDescription('The role to set as noXp').setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('assign-message')
-      .setDescription('Set a custom Assign Message, for one role only')
-      .addRoleOption(o => o.setName('role').setDescription('The role to give the message to').setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('deassign-message')
-      .setDescription('Set a custom Deassign Message, for one role only')
-      .addRoleOption(o => o.setName('role').setDescription('The role to give the message to').setRequired(true))))
+  .addSubcommand(sc => sc
+    .setName('role-options')
+    .setDescription('Change a role\'s main settings')
+    .addRoleOption(o => o
+      .setName('role')
+      .setDescription('The role to set levels of')
+      .setRequired(true)))
   .addSubcommand(sc => sc
     .setName('channel')
     .setDescription('Change a channel\'s settings')
