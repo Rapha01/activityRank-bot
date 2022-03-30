@@ -77,6 +77,16 @@ exports.storage.getRoleAssignmentsByLevel = (guild,type,level) => {
   });
 }
 
+exports.storage.getRoleAssignmentsByRole = (guild,roleId) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const res = await shardDb.query(guild.appData.dbHost,`SELECT * FROM guildRole WHERE guildId = ${guild.id} AND roleId = ${roleId}`);
+
+      return resolve(res);
+    } catch (e) { reject(e); }
+  });
+}
+
 exports.getNoXpRoleIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {

@@ -2,27 +2,36 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { ChannelType: { GuildText, GuildVoice } } = require('discord-api-types/v9');
 
 
-const _lvl = (desc) => (_ => _
+/* const _lvl = (desc) => (_ => _
   .setName('level')
   .setDescription(desc)
   .setRequired(true)
   .setMaxValue(2000)
   .setMinValue(0));
-
-/* const _xpPer = (min, max) => (_ => _
-  .setName('amount')
-  .setDescription('The amount of XP to give for this activity')
-  .setMinValue(min)
-  .setMaxValue(max)
-  .setRequired(true)); */
+ */
 
 module.exports.data = new SlashCommandBuilder()
   .setName('settings')
   .setDescription('Change your server\'s settings!')
+  .addSubcommand(sc => sc
+    .setName('role-levels')
+    .setDescription('Change a role\'s assign- and deassign-levels')
+    .addRoleOption(o => o
+      .setName('role')
+      .setDescription('The role to set levels of')
+      .setRequired(true))
+    .addIntegerOption(o => o
+      .setName('assign-level')
+      .setDescription('The level a member must be at to gain this role')
+      .setMinValue(1).setMaxValue(2000))
+    .addIntegerOption(o => o
+      .setName('deassign-level')
+      .setDescription('The level a member must be at to lose this role')
+      .setMinValue(1).setMaxValue(2000)))
   .addSubcommandGroup(sg => sg
     .setName('role')
     .setDescription('Change a role\'s settings')
-    .addSubcommand(sc => sc
+    /* .addSubcommand(sc => sc
       .setName('assign-level')
       .setDescription('Set the level at which the specified role will be assigned')
       .addRoleOption(o => o.setName('role').setDescription('The role to assign').setRequired(true))
@@ -31,7 +40,7 @@ module.exports.data = new SlashCommandBuilder()
       .setName('deassign-level')
       .setDescription('Set the level at which the specified role will be removed')
       .addRoleOption(o => o.setName('role').setDescription('The role to remove').setRequired(true))
-      .addIntegerOption(_lvl('The level at which the role will be removed')))
+      .addIntegerOption(_lvl('The level at which the role will be removed'))) */
     .addSubcommand(sc => sc
       .setName('no-xp')
       .setDescription('Set a role to noXp; a user with this role will not gain XP')
