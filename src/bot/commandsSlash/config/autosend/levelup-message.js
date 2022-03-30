@@ -3,6 +3,13 @@ const { Modal, TextInputComponent, showModal } = require('discord-modals');
 
 
 module.exports.execute = async function(i) {
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+    return await i.reply({
+      content: 'You need the permission to manage the server in order to use this command.',
+      ephemeral: true,
+    });
+  }
+
   const m = new Modal()
     .setCustomId('commandsSlash/settings/autosend/levelup-message.js')
     .setTitle('Welcome Message')
