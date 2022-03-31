@@ -43,8 +43,6 @@ module.exports.execute = async (i) => {
     });
   }
 
-  console.log(await guildModel.storage.get(i.guild));
-
   const e = new MessageEmbed()
     .setAuthor({ name: 'Server Settings' }).setColor(0x00AE86)
     .addField('Use Nicknames',
