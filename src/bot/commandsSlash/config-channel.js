@@ -2,8 +2,8 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { ChannelType: { GuildText, GuildVoice } } = require('discord-api-types/v9');
 const { oneLine } = require('common-tags');
-const guildChannelModel = require('../../models/guild/guildChannelModel.js');
-const guildModel = require('../../models/guild/guildModel.js');
+const guildChannelModel = require('../models/guild/guildChannelModel.js');
+const guildModel = require('../models/guild/guildModel.js');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-channel')
