@@ -18,6 +18,8 @@ const generateRow = (i, id, type, myChannel) => {
     new MessageButton().setLabel('No XP'),
     new MessageButton().setLabel('No Commands'),
     new MessageButton().setLabel('Command Only'),
+    new MessageButton().setLabel('Server Join Channel'),
+    new MessageButton().setLabel('Levelup Channel'),
   ];
   r[0].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noXp`);
   r[0].setStyle(myChannel.noXp ? 'SUCCESS' : 'DANGER');
@@ -28,10 +30,19 @@ const generateRow = (i, id, type, myChannel) => {
   r[1].setDisabled(type === 'GUILD_VOICE');
   if (r[1].disabled) r[1].setStyle('SECONDARY');
 
-  r[2].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnly`);
+  r[2].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnlyChannel`);
   r[2].setStyle(i.guild.appData.commandOnlyChannel == id ? 'SUCCESS' : 'DANGER');
   r[2].setDisabled(type === 'GUILD_VOICE');
   if (r[2].disabled) r[2].setStyle('SECONDARY');
+
+  r[3].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_serverJoin`);
+  r[3].setDisabled(type === 'GUILD_VOICE');
+  r[3].setStyle(i.guild.appData.autopost_serverJoin == id ? 'SUCCESS' : 'DANGER');
+
+  r[4].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_levelup`);
+  r[4].setDisabled(type === 'GUILD_VOICE');
+  r[4].setStyle(i.guild.appData.autopost_levelup == id ? 'SUCCESS' : 'DANGER');
+
 
   return r;
 };
@@ -58,11 +69,13 @@ module.exports.execute = async (i) => {
     .setDescription(channel.toString()).setColor(0x00AE86)
     .addField('No XP', 'If this is enabled, no xp will be given in this channel.');
 
-  if (channel.type == 'GUILD_TEXT') {
+  if (channel.type === 'GUILD_TEXT') {
     e.addField('No Commands', 'If this is enabled, commands will not work in this channel.');
     e.addField('Command Only',
       oneLine`If this is enabled, this will be the **only channel commands will work in**, 
       unless you have the \`manage server\` permission.`);
+    e.addField('Server Join Channel', 'If this is enabled, server join messages will be sent to this channel.');
+    e.addField('Levelup Channel', 'If this is enabled, levelup messages will be sent to this channel.');
   }
 
   i.reply({
@@ -93,8 +106,8 @@ module.exports.component = async (i) => {
     }
   } else {
     // eslint-disable-next-line no-lonely-if
-    if (i.guild.appData.commandOnlyChannel == channelId) await guildModel.storage.set(i.guild, 'commandOnlyChannel', 0);
-    else await guildModel.storage.set(i.guild, 'commandOnlyChannel', channelId);
+    if (i.guild.appData[type] == channelId) await guildModel.storage.set(i.guild, type, 0);
+    else await guildModel.storage.set(i.guild, type, channelId);
   }
 
   await i.update({ components: [
