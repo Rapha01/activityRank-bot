@@ -51,7 +51,7 @@ module.exports = {
     const toWait = cooldownUtil.getCachedCooldown(i.member.appData, 'lastVoteDate', i.guild.appData.voteCooldownSeconds);
     if (toWait > 0) {
       return await i.reply({
-        content: `You already voted recently. Please wait ${Math.ceil(toWait / 60)} more minutes.`,
+        content: `You already voted recently. You will be able to vote again <t:${Math.ceil(toWait + nowDate)}:R>.`,
         ephemeral: true,
       });
     }
