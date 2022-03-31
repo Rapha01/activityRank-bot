@@ -59,7 +59,7 @@ module.exports.execute = async (i) => {
     .addField('No XP', 'If this is enabled, no xp will be given in this channel.');
 
   if (channel.type == 'GUILD_TEXT') {
-    e.addField('No Commands', 'If this is enabled, commands not work in this channel.');
+    e.addField('No Commands', 'If this is enabled, commands will not work in this channel.');
     e.addField('Command Only',
       oneLine`If this is enabled, this will be the **only channel commands will work in**, 
       unless you have the \`manage server\` permission.`);
