@@ -2,6 +2,7 @@ const config = require('../../const/config.js');
 const fs = require('fs');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
+const handleLegacy = require('../util/handleLegacy');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 
 const commandFiles = fs.readdirSync('./bot/commands').filter(file => file.endsWith('.js')).map(file => file.slice(0,-3));
@@ -61,6 +62,10 @@ module.exports = (msg) => {
         await msg.channel.send('Unknown command. Type ``'+msg.guild.appData.prefix+'help`` for more information.\n');
 
 			await askForPremium(msg);
+
+			// filter unreleased / cmds
+			if (!['server', 'role'].includes(command))
+				await handleLegacy(msg);
 
 			resolve();
     } catch (e) { reject(e); }
