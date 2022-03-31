@@ -18,14 +18,26 @@ const generateRows = async (i) => {
     new MessageButton().setLabel('Notify in Last Active Channel').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupCurrentChannel`),
     new MessageButton().setLabel('Replace Levelup Message With Role Message').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupWithRole`),
   ];
+  const r3 = [
+    new MessageButton().setEmoji('✍️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} textXp`),
+    new MessageButton().setEmoji('🎙️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voiceXp`),
+    new MessageButton().setEmoji('✉️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} inviteXp`),
+    new MessageButton().setEmoji('❤️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voteXp`),
+  ];
   r1.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? 'SUCCESS' : 'DANGER'));
   r2.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? 'SUCCESS' : 'DANGER'));
+  r3.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? 'SUCCESS' : 'DANGER'));
   if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle('DANGER');
   if (parseInt(myGuild.autopost_levelup)) {
     r2[1].setDisabled(true).setStyle('DANGER');
     r2[2].setDisabled(true).setStyle('DANGER');
   }
-  return [new MessageActionRow().addComponents(r1), new MessageActionRow().addComponents(r2), _close(i)];
+  return [
+    new MessageActionRow().addComponents(r1),
+    new MessageActionRow().addComponents(r2),
+    new MessageActionRow().addComponents(r3),
+    _close(i),
+  ];
 };
 
 
