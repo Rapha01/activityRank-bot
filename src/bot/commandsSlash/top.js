@@ -160,6 +160,5 @@ exports.sendMembersEmbed = async (i, type) => {
 
   await i.reply({
     embeds: [e],
-    ephemeral: true,
   });
 };

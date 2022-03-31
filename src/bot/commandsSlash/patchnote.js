@@ -23,7 +23,6 @@ module.exports.execute = async (i) => {
 
   await i.reply({
     embeds: [e],
-    ephemeral: true,
   });
 };
 
