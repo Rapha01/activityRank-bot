@@ -60,7 +60,7 @@ const rankVoiceGuild = (guild) => {
         channel = channel[1];
         await guildChannelModel.cache.load(channel);
 
-        if (!channel.appData.noXp)
+        if (!channel.appData.noXp && existMultipleMembers(channel.members))
           await rankVoiceChannel(channel);
       }
 
@@ -91,6 +91,17 @@ const rankVoiceChannel = (channel) => {
   });
 }
 
+function existMultipleMembers(members) {
+  if (members.size < 2) return false;
+
+  let activeMembers = 0;
+  for (let member of members) {
+    member = member[1];
+    if (!member.user.bot) activeMembers++;
+  }
+  if (activeMembers >= 2) return true;
+  else return false;
+}
 /*
 function existTwoUnmutedMembers(members) {
   if (members.size < 2)
