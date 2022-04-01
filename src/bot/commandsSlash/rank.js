@@ -82,7 +82,7 @@ module.exports.execute = async (i) => {
   infoStrings.push('Next Level: ' + (Math.floor(levelProgression % 1 * 100)) + '%\n');
 
   embed.addField(
-    '#' + totalScorePosition + ' **' + guildMemberInfo.name + '** \\🎖 ' + Math.floor(levelProgression),
+    '#' + totalScorePosition + ' **' + guildMemberInfo.name + '** 🎖 ' + Math.floor(levelProgression),
     infoStrings.join('\n'),
   );
   embed.addField('Stats', scoreStrings.join('\n'));
