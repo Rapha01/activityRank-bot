@@ -124,7 +124,9 @@ const sendGratulationMessage = (member,roleMessages,level) => {
 
     // Direct Message
     if (!notified && member.appData.notifyLevelupDm == true && member.guild.appData.notifyLevelupDm == true) {
-      levelupEmbed.setFooter('To disable direct messages from me type "'+ member.guild.appData.prefix +'member notifyLevelupDm" in the server.');
+      levelupEmbed.setFooter({
+        text: 'To disable direct messages from me, type `/config-member` in the server.',
+      });
       let msg = { embeds: [ levelupEmbed ] };
       if (ping)
         msg['content'] = ping;
