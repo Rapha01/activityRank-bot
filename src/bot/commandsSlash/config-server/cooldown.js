@@ -24,7 +24,7 @@ module.exports.execute = async function(i) {
     });
   }
 
-  for (const k in items) if (items[k]) await guildModel.storage.set(i.guild, k, items[k]);
+  for (const k in items) if (items[k] != null) await guildModel.storage.set(i.guild, k, items[k]);
   i.reply({
     embeds: [new MessageEmbed().setAuthor({ name: 'Cooldown Values' }).setColor(0x00AE86)
       .setDescription(stripIndent`
