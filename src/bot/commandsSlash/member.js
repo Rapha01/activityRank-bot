@@ -37,12 +37,5 @@ module.exports = {
       .addUserOption(o => o
         .setName('member')
         .setDescription('The user that invited you to the server')
-        .setRequired(true)))
-    .addSubcommand(sc => sc
-      .setName('reset')
-      .setDescription('Reset a member\'s statistics')
-      .addUserOption(o => o
-        .setName('member')
-        .setDescription('The member to reset stats of')
         .setRequired(true))),
 };
