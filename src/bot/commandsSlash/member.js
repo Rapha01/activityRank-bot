@@ -8,15 +8,15 @@ module.exports = {
     .addSubcommand(sc => sc
       .setName('give')
       .setDescription('Adds bonus XP to a member')
+      .addUserOption(o => o
+        .setName('member')
+        .setDescription('The member to give XP to')
+        .setRequired(true))
       .addIntegerOption(o => o
         .setName('amount')
         .setDescription('The amount of XP to give')
         .setMinValue(1)
         .setMaxValue(1_000_000)
-        .setRequired(true))
-      .addUserOption(o => o
-        .setName('member')
-        .setDescription('The member to give XP to')
         .setRequired(true)))
     .addSubcommand(sc => sc
       .setName('take')
