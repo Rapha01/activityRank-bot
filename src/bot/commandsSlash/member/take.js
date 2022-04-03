@@ -13,7 +13,7 @@ module.exports.execute = async (i) => {
 
   await statFlushCache.addBonus(member, -i.options.getInteger('amount'));
   await i.reply({
-    content: '✅ Successfully changed bonus XP.',
+    content: `Successfully removed ${i.options.getInteger('amount')} bonus XP from ${member}!`,
     ephemeral: true,
   });
 };

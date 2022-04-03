@@ -63,9 +63,7 @@ module.exports = (msg) => {
 
 			await askForPremium(msg);
 
-			// filter unreleased / cmds
-			if (!['server', 'role'].includes(command))
-				await handleLegacy(msg);
+			await handleLegacy(msg);
 
 			resolve();
     } catch (e) { reject(e); }

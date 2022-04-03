@@ -32,7 +32,16 @@ module.exports.data = new SlashCommandBuilder()
     .setName('user')
     .setDescription('The top users in the server!')
     .addStringOption(_timedef)
-    .addIntegerOption(_page))
+    .addIntegerOption(_page)
+    .addStringOption(o => o
+      .setName('type')
+      .setDescription('Order by a type of XP')
+      .addChoices([
+        ['Text', 'textMessage'],
+        ['Voice', 'voiceMinute'],
+        ['Like', 'vote'],
+        ['Invite', 'invite'],
+      ])))
   .addSubcommand(sc => sc
     .setName('channel')
     .setDescription('The top channels in the server!')
@@ -42,26 +51,6 @@ module.exports.data = new SlashCommandBuilder()
       .addChoice('Text', 'textMessage')
       .addChoice('Voice', 'voiceMinute')
       .setRequired(true))
-    .addStringOption(_timedef)
-    .addIntegerOption(_page))
-  .addSubcommand(sc => sc
-    .setName('text')
-    .setDescription('The top members, ordered by text!')
-    .addStringOption(_timedef)
-    .addIntegerOption(_page))
-  .addSubcommand(sc => sc
-    .setName('voice')
-    .setDescription('The top members, ordered by voice!')
-    .addStringOption(_timedef)
-    .addIntegerOption(_page))
-  .addSubcommand(sc => sc
-    .setName('likes')
-    .setDescription('The top members, ordered by likes!')
-    .addStringOption(_timedef)
-    .addIntegerOption(_page))
-  .addSubcommand(sc => sc
-    .setName('invites')
-    .setDescription('The top members, ordered by invites!')
     .addStringOption(_timedef)
     .addIntegerOption(_page))
   .addSubcommandGroup(scg => scg
@@ -160,6 +149,5 @@ exports.sendMembersEmbed = async (i, type) => {
 
   await i.reply({
     embeds: [e],
-    ephemeral: true,
   });
 };

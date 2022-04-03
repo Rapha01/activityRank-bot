@@ -10,8 +10,8 @@ const { botInviteLink } = require('../../const/config.js');
 
 let handleLegacyCdGuild, handleLegacyCdUser;
 if (process.env.NODE_ENV == 'production') {
-  handleLegacyCdGuild = 3600 * 0.4;
-  handleLegacyCdUser = 3600 * 6;
+  handleLegacyCdGuild = 5400 * 0.4;
+  handleLegacyCdUser = 5400 * 6;
 } else {
   handleLegacyCdGuild = 3600 * 0.4; // 20
   handleLegacyCdUser = 3600 * 6; // 60

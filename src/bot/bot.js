@@ -26,6 +26,7 @@ const intents = [
 ]
 
 const client = new Client({ intents: intents });
+require('discord-modals')(client);
 
 
 process.env.UV_THREADPOOL_SIZE = 50;

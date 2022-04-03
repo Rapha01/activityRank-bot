@@ -1,7 +1,32 @@
+const checkUserPerms = require('../util/checkMemberPermissions');
+const guildChannelModel = require('../models/guild/guildChannelModel.js');
+
+
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
     try {
+      await guildChannelModel.cache.load(interaction.channel);
+
+      if (interaction.channel.appData.noCommand
+        && !interaction.member.permissionsIn(interaction.channel).has('MANAGE_GUILD')
+      ) {
+        return await interaction.reply({
+          content: 'This is a noCommand channel, and you are not an admin.',
+          ephemeral: true,
+        });
+      }
+
+      if (interaction.guild.appData.commandOnlyChannel != 0
+        && interaction.guild.appData.commandOnlyChannel != interaction.channel.id
+        && !interaction.member.permissionsIn(interaction.channel).has('MANAGE_GUILD')
+      ) {
+        return await interaction.reply({
+          content: `Commands can only be used in <#${interaction.guild.appData.commandOnlyChannel}> unless you are an admin.`,
+          ephemeral: true,
+        });
+      }
+
       if (interaction.isButton() || interaction.isSelectMenu())
         await component(interaction);
       if (interaction.isUserContextMenu())
@@ -20,7 +45,13 @@ module.exports = {
       path = path.concat('.js');
       const command = interaction.client.commands.get(path);
 
-      if (!command) return;
+      if (!command) return console.log('No command found: ', path);
+
+      console.log(path);
+
+      if ([
+        'settings', 'config',
+      ].includes(interaction.commandName) && !checkUserPerms(interaction)) return console.log('Perms failed: ', path);
 
       if (interaction.isCommand()) await command.execute(interaction);
       else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
