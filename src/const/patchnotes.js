@@ -1,5 +1,26 @@
 module.exports = [
   {
+    version: '4.3',
+    date: '2022-04-02',
+    time: '00:00:00',
+    title: 'Backend Upgrades and Slash Commands',
+    desc: 'Slash commands are now a feature, and are now fully supported. There are also lots of small adjustments and bugfixes; nearly every bug in #known-bugs was fixed. Also, added a new developer!',
+    features: [
+      {title: 'Node.js 16 / Discord.js v13',desc: 'Upgraded our versions of Node.js and Discord.js to allow for more new features.'},
+      {title: 'Thread Support',desc: 'Public threads now give XP to their parent channels. Private threads will still not give xp.'},
+      {title: 'Permission Warnings',desc: 'From time to time, if you are lacking permissions a warning embed will display to remind you to update your bot\'s permissions.'},
+      {title: 'Slash Commands',desc: 'Discord\'s Slash Command feature has been implemented.'},
+      {title: 'Command Rewrite (yes, again)',desc: 'Yet again, we changed the structure of commands to make them fit with slash commands.'},
+    ],
+    fixes: [
+      {title: 'Current Channel',desc: 'Fixed issues with notifying about new levelups in the current channel'},
+      {title: 'iOS Profile Bug',desc: 'The medal emoji will now be shown on iOS as well'},
+      {title: 'Solo XP Fixes',desc: 'Previously, if a member was in a channel with a bot, the bot would count as a member allowing bypass of the soloXp setting. This has been patched.'},
+      {title: 'DM Message Disabling',desc: 'Fixed the footer message of DMs to deactivate those messages'},
+      {title: 'Animated Welcome Message',desc: 'Fixed profile gifs not playing in a welcome message'},
+    ]
+  },
+  {
     version: '4.2',
     date: '2020-12-15',
     time: '00:00:00',
