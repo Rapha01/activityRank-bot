@@ -57,7 +57,7 @@ exports.mysettings = {
   desc: 'Set your personal settings.',
   subdesc: 'Adjust settings like notifications for your member account.',
   subcommands: [
-    {title: 'Levelup messages',command: '<prefix>member set notifyLevelupDm ',desc:'Globaly turn on or off your own levelup messages from this bot for the current server.',example: '<prefix>m set notifyLevelupDm'},
+    {title: 'Levelup messages',command: '<prefix>member set notifyLevelupDm ',desc:'Globaly turn on or off your own levelup messages from this bot.',example: '<prefix>m set notifyLevelupDm'},
     {title: 'Reaction voting',command: '<prefix>member set reactionVote ',desc:'Even if the admin has activated reactionVote for the server, you can still disable it only for you, if you want to keep tight control over who you are giving your votes to.',example: '<prefix>m set reactionVote'}
   ]
 };
@@ -79,17 +79,17 @@ exports.serverSettings = {
   subdesc: 'Adjust settings like prefix, emotes, and notifications.',
   subcommands: [
     {title: 'Prefix',command: '<prefix>server set prefix { text }',desc:'Changes the bots prefix for the server.',example: '<prefix>server set prefix /'},
-    {title: 'Stats modules',command: '<prefix>server set textXp | voiceXp | inviteXp | voteXp ',desc:'En- or disable a specific type of stat to be shown or recorded in your server. After disabling a stat type, it is recommended to reset the already recorded stats for this type for all members, otherwise the total XP will still include this data.',example: '<prefix>server set inviteXp'},
+    {title: 'Stats modules',command: '<prefix>server set textXp | voiceXp | inviteXp | voteXp ',desc:'En- or disable a specific type of stat to be shown or recorded in your server. After disabling a stat type, it is recommended to reset the already recorded stats of this type for all members, otherwise the total XP will still include this data.',example: '<prefix>server set inviteXp'},
     {title: 'Vote tag',command: '<prefix>server set voteTag { text }',desc:'Customize the displayed word for the votescore.',example: '<prefix>server set voteTag gold'},
     {title: 'Vote emote',command: '<prefix>server set voteEmote { emote }',desc:'Customize the displayed emote for the votescore.',example: '<prefix>server set voteEmote :moneybag:'},
     {title: 'Bonus tag',command: '<prefix>server set bonusTag { text }',desc:'Customize the displayed word for the bonusscore.',example: '<prefix>server set bonusTag stars'},
-    {title: 'Bonus emote',command: '<prefix>server set bonusEmote { emote }',desc:'Customize the displayed emote for the bonuscore.',example: '<prefix>server set bonusEmote :star:'},
-    {title: 'Entries per page',command: '<prefix>server set entriesPerPage { digit }',desc:'Changes the length of the list of users in the top commands.',example: '<prefix>server set entriesPerPage 10'},
+    {title: 'Bonus emote',command: '<prefix>server set bonusEmote { emote }',desc:'Customize the displayed emote for the bonusscore.',example: '<prefix>server set bonusEmote :star:'},
+    {title: 'Entries per page',command: '<prefix>server set entriesPerPage { digit }',desc:'Changes the amount of items shown in the list commands.',example: '<prefix>server set entriesPerPage 10'},
     {title: 'Show nicknames',command: '<prefix>server set showNicknames ',desc:'Enabling this option will display the users nicknames (instead of the username) in the stats.',example: '<prefix>server set showNicknames '},
-    {title: 'No-command channels',command: '<prefix>channel [ #channel | channelName | channelId ] set noCommand ',desc:'Define channels where the bot does not respond to commands (but still record xp).',example: '<prefix>channel discussion set noCommand. <prefix>channel 123456 set noCommand '},
+    {title: 'No-command channels',command: '<prefix>channel [ #channel | channelName | channelId ] set noCommand ',desc:'Define channels where the bot does not respond to commands (but will still record xp).',example: '<prefix>channel discussion set noCommand. <prefix>channel 123456 set noCommand '},
     {title: 'Command-only channel',command: '<prefix>channel [ #channel | channelName | channelId ] set commandOnly ',desc:'Define one channel where commands are allowed, while all other channels get ignored (except for users with MANAGE_SERVER permission).',example: '<prefix>channel botspam set commandOnly'},
     {title: 'Dm notifications',command: '<prefix>server set notifyLevelupDm ',desc:'Choose if you want your users to get direct messaged every levelup (and newly assigned role). A user will get only one levelup message per levelup (priority: active channel > autopost channel > direct message).',example: '<prefix>server set notifyLevelupDm '},
-    {title: 'Channel notifications',command: '<prefix>server set notifyLevelupCurrentChannel ',desc:'Choose if you want your users to get messaged levelups in their currently active text channel. A user will get only one levelup message per levelup (priority: active channel > autopost channel > direct message).',example: '<prefix>server set notifyLevelupCurrentChannel '},
+    {title: 'Channel notifications',command: '<prefix>server set notifyLevelupCurrentChannel ',desc:'Choose if you want your users to get messaged levelups in their last active text channel. A user will get only one levelup message per levelup (priority: active channel > autopost channel > direct message).',example: '<prefix>server set notifyLevelupCurrentChannel '},
     {title: 'Levelup with roleassignment message',command: '<prefix>server set notifyLevelupWithRole ',desc:'Optionally do or do not add the levelup message at levels, where a roleassignment message is sent anyways (for dm and channel messages).',example: '<prefix>server set notifyLevelupWithRole '},
     {title: 'Levelup message',command: '<prefix>server set levelupMessage [ text ]',desc:'Changes the message for levelups in current channel and direct message. Use <mention> as a placeholder for the users ping, <name> for only the name, <level> for the level digit and <servername> for the name of your server.',example: '<prefix>server set levelupMessage Congratulations <mention>! You reached level <level>. Nice!'},
   ]
@@ -98,28 +98,28 @@ exports.serverSettings = {
 exports.xpSettings = {
   title: 'XP settings',
   desc: 'Set XP and level settings (admin only).',
-  subdesc: 'Adjust settings like points per minute, roles on levelup or activate levelup messages for this server.',
+  subdesc: 'Adjust settings like XP per minute, roles on levelup or activate levelup messages for this server.',
   subcommands: [
-    {title: 'Levelfactor',command: '<prefix>server set levelFactor { digit }',desc:'Choose how much more XP is needed for each subsequent level (Base is 100 XP). Needs to be within 20 and 400. Check ' + '<prefix>info levels to verify your settings.',example: '<prefix>server set levelFactor 100'},
+    {title: 'Levelfactor',command: '<prefix>server set levelFactor { digit }',desc:'Choose how much more XP is needed for each subsequent level (Default is 100 XP). Needs to be within 20 and 400. Check ' + '<prefix>info levels to verify your settings.',example: '<prefix>server set levelFactor 100'},
     {title: 'XP per activity',command: '<prefix>server set { xpPerTextMessage | xpPerVoiceMinute | xpPerVote | xpPerInvite } { digit }',desc:'Choose how much XP is given for each activity (Points per minute in voicechannel, textmessage or social upvote). Maximum of 100 for upvotes, 10 for textmessages and 5 for voiceminutes. Activating bonus xp can multiply XP for a set amount of time.',example: '<prefix>server set xpPerVoiceMinute 3'},
     {title: 'Vote cooldown',command: '<prefix>server set voteCooldown { seconds }',desc:'Every user on your server can submit a social upvotes, but only every now and then. Specify the seconds a user has to wait to make another vote. Can range from 180 (3 minutes) to 86400 seconds (24 hours).',example: '<prefix>server set voteCooldown 120'},
     {title: 'Text cooldown',command: '<prefix>server set textMessageCooldown { seconds }',desc:'Every user on your server can get xp for writing a textmessage, but only every now and then. Specify the seconds a user is locked for new textmessage XP after writing a textmessage. Can range from 0 to 120 seconds.',example: '<prefix>server set textMessageCooldown 10'},
     {title: 'Reaction Voting',command: '<prefix>server set reactionVote ',desc:'Activating this causes every reaction with your voteEmote to automatically trigger an upvote (and cooldown).',example: '<prefix>server set reactionVote '},
-    {title: 'Muted Xp',command: '<prefix>server set allowMutedXp ',desc:'Allow users to gain XP while being muted in a voicechannel',example: '<prefix>server set allowMutedXp '},
-    {title: 'Deafened Xp',command: '<prefix>server set allowDeafenedXp ',desc:'Allow users to gain XP while being deafened in a voicechannel',example: '<prefix>server set allowDeafenedXp '},
-    {title: 'Solo Xp',command: '<prefix>server set allowSoloXp ',desc:'Allow users to gain XP in voicechannels if they are alone (bots don\'t count).',example: '<prefix>server set allowSoloXp '},
-    {title: 'Invisible Xp',command: '<prefix>server set allowInvisibleXp ',desc:'Allow users to gain XP while being invisible (marked as offline).',example: '<prefix>server set allowInvisibleXp '},
+    {title: 'Muted Xp',command: '<prefix>server set allowMutedXp ',desc:'Toggle users ability to gain XP while being muted in a voicechannel',example: '<prefix>server set allowMutedXp '},
+    {title: 'Deafened Xp',command: '<prefix>server set allowDeafenedXp ',desc:'Toggle users ability to gain XP while being deafened in a voicechannel',example: '<prefix>server set allowDeafenedXp '},
+    {title: 'Solo Xp',command: '<prefix>server set allowSoloXp ',desc:'Toogle users ability to gain XP in voicechannels if they are alone (bots don\'t count).',example: '<prefix>server set allowSoloXp '},
+    {title: 'Invisible Xp',command: '<prefix>server set allowInvisibleXp ',desc:'Toggle users ability to gain XP while being invisible (marked as offline).',example: '<prefix>server set allowInvisibleXp '},
     /*{title: '',command: '<prefix>server set allowSilentXp ',desc:'Allow users to gain xp in voicechannels if they are not speaking. If this option is set to off, it will only count xp if the users microphone has activated at least once in the last 5 minutes.',example: '<prefix>server set allowSilentXp '},*/
-    {title: 'Bonus Xp',command: '<prefix>server set { bonusPerTextMessage | bonusPerVoiceMinute | bonusPerVote } { digit }',desc:'Set how much bonus is given for textmessages during bonus xp times. This feature won\'t be active until the bonusuntil command was used to set the duration of your bonus xp time. Maximum of 100 for upvotes, 20 for textmessages and 10 for voiceminutes.',example: '<prefix>server set bonusPerTextMessage 3'},
-    {title: 'Bonus time',command: '<prefix>server set bonusUntil { minutes }',desc:'Activate the bonus XP times, like double XP weekends, by setting the duration of it. Mininum of 10 to maximum 4320 minutes (= 72 hours).',example: '<prefix>server set bonusUntil 1440'},
-    {title: 'NoXp Channels',command: '<prefix>channel [ #channel | channelName | channelId ] set noXp ',desc:'Choose channels (text or voice) to not score points from.',example: '<prefix>channel afk set noXp. <prefix>channel 123456 set noXp '},
+    {title: 'Bonus Xp',command: '<prefix>server set { bonusPerTextMessage | bonusPerVoiceMinute | bonusPerVote } { digit }',desc:'Set how much bonus is given for texts, voice or votes during bonus xp times. This feature won\'t be active until the bonusuntil command was used to set the duration of your bonus xp time. Maximum of 100 for upvotes, 20 for textmessages and 10 for voiceminutes.',example: '<prefix>server set bonusPerTextMessage 3'},
+    {title: 'Bonus time',command: '<prefix>server set bonusUntil { minutes }',desc:'Activate the bonus XP times, fe. double XP weekends, by setting the duration of it. Mininum of 10 to maximum 4320 minutes (= 72 hours).',example: '<prefix>server set bonusUntil 1440'},
+    {title: 'NoXp Channels',command: '<prefix>channel [ #channel | channelName | channelId ] set noXp ',desc:'Choose channels (text or voice) to not score XP from.',example: '<prefix>channel afk set noXp. <prefix>channel 123456 set noXp '},
     {title: 'NoXp Roles',command: '<prefix>role { @role | roleName | roleId } set noXp ',desc:'Exclude roles from getting XP through speaking, writing or voting.',example: '<prefix>role guest set noXp '}
   ]
 };
 
 exports.bonusxp = {
   title: 'Bonus XP',
-  desc: 'Give and take bonus xp to your members (admin only).',
+  desc: 'Give and take bonus XP to and from your members (admin only).',
   subdesc: 'The text, voice and vote scores are not adjustable by the admins. For this you can use the bonus score - grant your members XP for special events or boost up your most loyal members when switching to this bot.',
   subcommands: [
     {title: 'Member bonus XP',command: '<prefix>member [ @user | userName#tag | userId ] { give | take } { digit }',desc:'Give bonus XP to a user.',example: '<prefix>member @user give 200. ' + '<prefix>member username#0001 give 200'},
@@ -160,8 +160,8 @@ exports.reset = {
   subdesc: 'Reset server, channel, or user statistics. While a reset procedure is active, no commands will trigger the bot and no activity will be tracked.',
   subcommands: [
     {title: 'Reset server',command: '<prefix>server reset all',desc:'Reset everything, including settings and stats.',example: '<prefix>server reset all'},
-    {title: 'Reset settings',command: '<prefix>server reset settings',desc:'Reset only settings (including no-xp channels, roleassignments, etc.), but no stats.',example: '<prefix>server reset settings'},
-    {title: 'Reset stats',command: '<prefix>server reset { stats | textStats | voiceStats | invitestats | voteStats | bonusStats }',desc:'Reset all stats (voice, text, invite, vote and bonus xp) or only a single type of stats.',example: '<prefix>server reset stats'},
+    {title: 'Reset settings',command: '<prefix>server reset settings',desc:'Reset only settings (including no-xp channels, roleassignments, etc.), but not stats.',example: '<prefix>server reset settings'},
+    {title: 'Reset stats',command: '<prefix>server reset { stats | textStats | voiceStats | invitestats | voteStats | bonusStats }',desc:'Reset all stats (voice, text, invite, vote and bonus xp) or choose only a single type of stats.',example: '<prefix>server reset stats'},
     {title: 'Reset stats of all deleted channels or members',command: '<prefix>server reset { deletedMembers | deletedChannels }',desc:'Reset all scores of deleted users or channels. Be careful, all scores that were made in those channels / from that users will also be reset.',example: '<prefix>server reset deletedMembers'},
     {title: 'Reset a channel\'s stats',command: '<prefix>channel { #channel | channelName | channelId } reset stats',desc:'Reset all scores associated with a specific channel.',example: '<prefix>channel screenshots reset stats. ' + '<prefix>channel 123456 reset stats'},
     {title: 'Reset a member\'s stats',command: '<prefix>member { @user | userName#tag | userId } reset stats',desc:'Reset all scores associated with a specific user.',example: '<prefix>member @username reset stats. ' + '<prefix>member 123456 reset stats'}
