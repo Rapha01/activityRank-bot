@@ -48,7 +48,7 @@ const autoPostServerJoin = (member,roleAssignmentString) => {
                 .setTitle(member.user.username)
                 .setColor('#4fd6c8')
                 .setDescription(welcomeMessage)
-                .setThumbnail(member.user.avatarURL())
+                .setThumbnail(member.user.avatarURL({ dynamic: true }))
 
             await channel.send({ content: `<@${member.id}>`, embeds: [welcomeEmbed]});
 
