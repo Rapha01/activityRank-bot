@@ -38,7 +38,7 @@ module.exports.execute = async (i) => {
   try {
     const interaction = await msg.awaitMessageComponent({ filter, time: 15_000 });
     if (interaction.customId.split(' ')[1] === 'confirm') {
-      resetModel.resetJobs[i.guild.id] = { type: 'guildMemberStats', ref: i, cmdChannel: i.channel, userIds: [uid] };
+      resetModel.resetJobs[i.guild.id] = { type: 'guildMembersStats', ref: i, cmdChannel: i.channel, userIds: [uid] };
       return interaction.reply({
         content: 'Resetting, please wait...',
         ephemeral: true,
