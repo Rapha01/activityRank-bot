@@ -1,7 +1,8 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
-// const { oneLine } = require('common-tags');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const { Modal, TextInputComponent, showModal } = require('discord-modals');
+const nameUtil = require('../util/nameUtil.js');
+const { parseRole } = require('../util/parser');
 
 
 const generateRow = (i, id, myRole) => {
@@ -48,12 +49,12 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const role = i.options.getRole('role');
-  const myRole = await guildRoleModel.storage.get(i.guild, role.id);
+  const { id } = await parseRole(i);
+  const myRole = await guildRoleModel.storage.get(i.guild, id);
 
   const e = new MessageEmbed()
     .setAuthor({ name: 'Role Settings' })
-    .setDescription(role.toString()).setColor(0x00AE86)
+    .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, id)).setColor(0x00AE86)
     .addField('No XP', 'If this is enabled, no xp will be given to members that have this role.')
     .addField('Assign Message',
       'This is the message sent when this role is given to a member. Defaults to the global assignMessage.')
@@ -62,7 +63,7 @@ module.exports.execute = async (i) => {
 
   i.reply({
     embeds: [e],
-    components: [new MessageActionRow().addComponents(generateRow(i, role.id, myRole)), _close(i)],
+    components: [new MessageActionRow().addComponents(generateRow(i, id, myRole)), _close(i)],
   });
 
 };

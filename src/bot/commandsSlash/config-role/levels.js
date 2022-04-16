@@ -1,8 +1,18 @@
 const { MessageEmbed } = require('discord.js');
 const { commaListsAnd } = require('common-tags');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
+const nameUtil = require('../util/nameUtil.js');
+const { parseRole } = require('../util/parser');
 
 module.exports.execute = async function(i) {
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+    return i.reply({
+      content: 'You need the permission to manage the server in order to use this command.',
+      ephemeral: true,
+    });
+  }
+
+  const { id } = await parseRole(i);
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
@@ -35,11 +45,11 @@ module.exports.execute = async function(i) {
         ephemeral: true,
       });
     }
-    if (items[k]) await guildRoleModel.storage.set(i.guild, i.options.getRole('role').id, k, items[k]);
+    if (items[k]) await guildRoleModel.storage.set(i.guild, id, k, items[k]);
   }
-  const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, i.options.getRole('role').id);
+  const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, id);
   const e = new MessageEmbed().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
-    .setDescription(i.options.getRole('role').toString());
+    .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, id));
   const roleAssignLevels = x.map(o => o.assignLevel != 0 ? `\`${o.assignLevel}\`` : null);
   const roleDeassignLevels = x.map(o => o.deassignLevel != 0 ? `\`${o.deassignLevel}\`` : null);
   if (!roleAssignLevels.every(o => o === null)) e.addField('Assignment Levels', commaListsAnd(roleAssignLevels));

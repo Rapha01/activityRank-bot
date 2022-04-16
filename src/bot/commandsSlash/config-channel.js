@@ -4,13 +4,17 @@ const { ChannelType: { GuildText, GuildVoice } } = require('discord-api-types/v9
 const { oneLine } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
+const nameUtil = require('../util/nameUtil.js');
+const { parseChannel } = require('../util/parser');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-channel')
   .setDescription('Change a channel\'s settings!')
   .addChannelOption(o => o
     .setName('channel').setDescription('The channel to modify')
-    .addChannelTypes([GuildText, GuildVoice]).setRequired(true));
+    .addChannelTypes([GuildText, GuildVoice]))
+  .addStringOption(o => o
+    .setName('id').setDescription('The ID of the channel to modify'));
 
 
 const generateRow = (i, id, type, myChannel) => {
@@ -54,6 +58,21 @@ const _close = (i) => new MessageActionRow()
     .setCustomId(`commandsSlash/config-channel.js ${i.member.id} - - closeMenu`));
 
 module.exports.execute = async (i) => {
+  const resolvedChannel = await parseChannel(i);
+  /* const cid = i.options.get('channel')?.value || i.options.get('id')?.value;
+  if (!cid) {
+    return await i.reply({
+      content: 'You need to specify either a channel or a channel\'s ID!',
+      ephemeral: true,
+    });
+  }
+  if (!sf().test(cid)) {
+    return await i.reply({
+      content: 'The `id` field must be a valid snowflake!',
+      ephemeral: true,
+    });
+  }
+  const channel = i.guild.channels.cache.get(cid); */
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
@@ -61,15 +80,14 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const channel = i.options.getChannel('channel');
-  const myChannel = await guildChannelModel.storage.get(i.guild, channel.id);
+  const myChannel = await guildChannelModel.storage.get(i.guild, resolvedChannel.id);
 
   const e = new MessageEmbed()
     .setAuthor({ name: 'Channel Settings' })
-    .setDescription(channel.toString()).setColor(0x00AE86)
+    .setDescription(nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id)).setColor(0x00AE86)
     .addField('No XP', 'If this is enabled, no xp will be given in this channel.');
 
-  if (channel.type === 'GUILD_TEXT') {
+  if (!resolvedChannel.channel || resolvedChannel.channel.type === 'GUILD_TEXT') {
     e.addField('No Commands', 'If this is enabled, commands will not work in this channel.');
     e.addField('Command Only',
       oneLine`If this is enabled, this will be the **only channel commands will work in**, 
@@ -80,7 +98,11 @@ module.exports.execute = async (i) => {
 
   i.reply({
     embeds: [e],
-    components: [new MessageActionRow().addComponents(generateRow(i, channel.id, channel.type, myChannel)), _close(i)],
+    components: [
+      new MessageActionRow().addComponents(
+        generateRow(i, resolvedChannel.id, resolvedChannel.channel ? resolvedChannel.channel.type : 'GUILD_TEXT', myChannel)),
+      _close(i),
+    ],
   });
 
 };
