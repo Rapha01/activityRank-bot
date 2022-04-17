@@ -1,8 +1,8 @@
 const { MessageEmbed } = require('discord.js');
 const { commaListsAnd } = require('common-tags');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const nameUtil = require('../util/nameUtil.js');
-const { parseRole } = require('../util/parser');
+const nameUtil = require('../../util/nameUtil.js');
+const { parseRole } = require('../../util/parser');
 
 module.exports.execute = async function(i) {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {

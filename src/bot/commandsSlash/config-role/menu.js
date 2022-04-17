@@ -1,8 +1,8 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const { Modal, TextInputComponent, showModal } = require('discord-modals');
-const nameUtil = require('../util/nameUtil.js');
-const { parseRole } = require('../util/parser');
+const nameUtil = require('../../util/nameUtil.js');
+const { parseRole } = require('../../util/parser');
 
 
 const generateRow = (i, id, myRole) => {
