@@ -53,12 +53,15 @@ const rankVoiceGuild = (guild) => {
 
       const voiceChannels = guild.channels.cache.filter(channel => channel.type == 'GUILD_VOICE');
 
-      for  (let channel of voiceChannels) {
+      for (let channel of voiceChannels) {
         channel = channel[1];
         await guildChannelModel.cache.load(channel);
 
-        if (!channel.appData.noXp && existMultipleMembers(channel.members))
+        if (!channel.appData.noXp && (guild.appData.allowSoloXp || existMultipleMembers(channel.members)))
           await rankVoiceChannel(channel);
+
+        // if (!channel.appData.noXp && existMultipleMembers(channel.members))
+        //   await rankVoiceChannel(channel);
       }
 
       resolve();
