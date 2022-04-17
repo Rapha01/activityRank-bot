@@ -46,3 +46,24 @@ module.exports.parseRole = async (i) => {
     else throw e;
   }
 };
+
+
+module.exports.parseMember = async (i) => {
+  const mid = i.options.get('member')?.value || i.options.getString('id');
+  if (!mid) {
+    return i.reply({
+      content: 'You need to specify either a member or a member\'s ID!',
+      ephemeral: true,
+    });
+  }
+  try {
+    return {
+      id: mid,
+      member: await i.guild.members.fetch(mid),
+    };
+  } catch (e) {
+    if (e.code === Constants.APIErrors.MISSING_ACCESS)
+      return { id: mid, role: null };
+    else throw e;
+  }
+};

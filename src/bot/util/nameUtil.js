@@ -108,6 +108,15 @@ exports.getGuildMemberInfo = (guild,userId) => {
   });
 }
 
+exports.getGuildMemberMention = (members, memberId) => {
+  const role = members.get(memberId);
+
+  if (role)
+    return role.toString();
+  else
+    return `Deleted [${memberId}]`;
+};
+
 exports.addGuildMemberNamesToRanks = (guild,memberRanks) => {
   return new Promise(async function (resolve, reject) {
     try {
