@@ -57,7 +57,7 @@ module.exports.data = new SlashCommandBuilder()
     .addIntegerOption(o => o
       .setName('time')
       .setDescription('The time for the bonus time to last, in minutes')
-      .setMinValue(60)
+      .setMinValue(0)
       .setMaxValue(4320)
       .setRequired(true)
       .setAutocomplete(true)));
