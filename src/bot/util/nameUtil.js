@@ -7,6 +7,15 @@ exports.getChannelName = (channels,channelId) => {
     return 'Deleted [' + channelId + ']';
 }
 
+exports.getChannelMention = (channels, channelId) => {
+  const channel = channels.get(channelId);
+
+  if (channel)
+    return channel.toString();
+  else
+    return `Deleted [${channelId}]`;
+};
+
 exports.getChannelType = (channels,channelId) => {
   const channel = channels.get(channelId);
 
@@ -24,6 +33,15 @@ exports.getRoleName = (roles,roleId) => {
   else
     return 'Deleted [' + roleId + ']\n';
 }
+
+exports.getRoleMention = (roles, roleId) => {
+  const role = roles.get(roleId);
+
+  if (role)
+    return role.toString();
+  else
+    return `Deleted [${roleId}]`;
+};
 
 exports.getChannelTypeIcon = (channels,channelId) => {
   const channel = channels.get(channelId);
@@ -89,6 +107,15 @@ exports.getGuildMemberInfo = (guild,userId) => {
     } catch (e) { return reject(e); }
   });
 }
+
+exports.getGuildMemberMention = (members, memberId) => {
+  const role = members.get(memberId);
+
+  if (role)
+    return role.toString();
+  else
+    return `Deleted [${memberId}]`;
+};
 
 exports.addGuildMemberNamesToRanks = (guild,memberRanks) => {
   return new Promise(async function (resolve, reject) {

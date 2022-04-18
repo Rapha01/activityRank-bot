@@ -1,4 +1,5 @@
 const checkUserPerms = require('../util/checkMemberPermissions');
+const guildModel = require('../models/guild/guildModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 
 
@@ -6,6 +7,7 @@ module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
     try {
+      await guildModel.cache.load(interaction.guild);
       await guildChannelModel.cache.load(interaction.channel);
 
       if (interaction.channel.appData.noCommand

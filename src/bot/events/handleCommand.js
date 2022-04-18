@@ -2,7 +2,7 @@ const config = require('../../const/config.js');
 const fs = require('fs');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
-const handleLegacy = require('../util/handleLegacy');
+const { handleLegacy, handleDeprecation, legacySupportExpired } = require('../util/handleLegacy');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 
 const commandFiles = fs.readdirSync('./bot/commands').filter(file => file.endsWith('.js')).map(file => file.slice(0,-3));
@@ -14,6 +14,18 @@ for (const file of commandFiles)
 module.exports = (msg) => {
   return new Promise(async function (resolve, reject) {
     try {
+
+			const start = 1650697200; // Sat Apr 23 2022 07:00:00 GMT+0000
+			const end = 1651734000; // Thu May 05 2022 07:00:00 GMT+0000
+			const duration = 1036800; // 12 days
+
+			if (Date.now() / 1000 > end)
+				return legacySupportExpired(msg);
+
+			const chance = ((Math.floor(Date.now() / 1000) - start) / duration) * 0.65;
+			// frequency increases over time, up to 65% just before legacySupportExpired
+			if (Math.random() < chance)
+				return handleDeprecation(msg, chance);
 
       const withoutPrefix = msg.content.slice(msg.guild.appData.prefix.length);
     	const split = withoutPrefix.split(/ +/);

@@ -79,7 +79,7 @@ const info = async (i, myGuild) => {
 }
     Notify levelup (dm and channel) with new roles: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
     Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
-    List entries per pageL ${myGuild.entriesPerPage}
+    List entries per page ${myGuild.entriesPerPage}
     Status: ${fct.isPremiumGuild(i.guild) ? 'Premium' : 'Not Premium'}`,
   );
   e.addField('**Tokens**',

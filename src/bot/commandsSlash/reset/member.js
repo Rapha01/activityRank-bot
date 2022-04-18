@@ -1,21 +1,17 @@
 const { MessageActionRow, MessageButton } = require('discord.js');
 const resetModel = require('../../models/resetModel.js');
+const nameUtil = require('../../util/nameUtil');
+const { parseMember } = require('../../util/parser');
 
 
 module.exports.execute = async (i) => {
-  const uid = i.options.get('member')?.value || i.options.get('id')?.value;
-  if (!uid) {
-    return await i.reply({
-      content: 'You need to specify either a member or a user\'s ID!',
-      ephemeral: true,
-    });
-  }
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
+  const { id } = await parseMember(i);
   const confirmRow = new MessageActionRow().addComponents(
     new MessageButton()
       .setCustomId('ignore confirm')
@@ -29,7 +25,7 @@ module.exports.execute = async (i) => {
       .setStyle('SECONDARY'),
   );
   const msg = await i.reply({
-    content: `Are you sure you want to reset all the statistics of ${await i.client.users.fetch(uid)}?`,
+    content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(i.guild.members.cache, id)}?`,
     ephemeral: true,
     fetchReply: true,
     components: [confirmRow],
@@ -38,7 +34,7 @@ module.exports.execute = async (i) => {
   try {
     const interaction = await msg.awaitMessageComponent({ filter, time: 15_000 });
     if (interaction.customId.split(' ')[1] === 'confirm') {
-      resetModel.resetJobs[i.guild.id] = { type: 'guildMemberStats', ref: i, cmdChannel: i.channel, userIds: [uid] };
+      resetModel.resetJobs[i.guild.id] = { type: 'guildMembersStats', ref: i, cmdChannel: i.channel, userIds: [id] };
       return interaction.reply({
         content: 'Resetting, please wait...',
         ephemeral: true,
