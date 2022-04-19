@@ -12,12 +12,12 @@ module.exports.execute = async function(i) {
   await guildModel.storage.set(i.guild, 'bonusUntilDate', endsAt);
   await i.reply({
     content: `Bonus time has started! It will end <t:${endsAt}:R>.`,
-    ephemeral: true,
   });
 };
 
 module.exports.autocomplete = async (i) => {
   i.respond([
+    { name: 'End Now', value: 0 },
     { name: '1 hour', value: 60 },
     { name: '3 hours', value: 180 },
     { name: '12 hours', value: 720 },
