@@ -32,22 +32,24 @@ const generateRow = (i, id, type, myChannel) => {
   r[1].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noCommand`);
   r[1].setDisabled(Boolean(parseInt(i.guild.appData.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? 'SUCCESS' : 'DANGER');
-  r[1].setDisabled(type === 2);
+  r[1].setDisabled(type === '2');
   if (r[1].disabled) r[1].setStyle('SECONDARY');
 
   r[2].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnlyChannel`);
   r[2].setStyle(i.guild.appData.commandOnlyChannel == id ? 'SUCCESS' : 'DANGER');
-  r[2].setDisabled(type === 2);
+  r[2].setDisabled(type === '2');
   if (r[2].disabled) r[2].setStyle('SECONDARY');
 
   r[3].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_serverJoin`);
-  r[3].setDisabled(type === 2);
+  r[3].setDisabled(type === '2');
   r[3].setStyle(i.guild.appData.autopost_serverJoin == id ? 'SUCCESS' : 'DANGER');
+  if (r[3].disabled) r[3].setStyle('SECONDARY');
+
 
   r[4].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_levelup`);
-  r[4].setDisabled(type === 2);
+  r[4].setDisabled(type === '2');
   r[4].setStyle(i.guild.appData.autopost_levelup == id ? 'SUCCESS' : 'DANGER');
-
+  if (r[4].disabled) r[4].setStyle('SECONDARY');
 
   return r;
 };
@@ -103,7 +105,7 @@ module.exports.execute = async (i) => {
       new MessageActionRow().addComponents(
         generateRow(i,
           resolvedChannel.id,
-          resolvedChannel.channel ? channelTypes.indexOf(resolvedChannel.channel.type) : 0,
+          resolvedChannel.channel ? channelTypes.indexOf(resolvedChannel.channel.type).toString() : '0',
           myChannel)),
       _close(i),
     ],
