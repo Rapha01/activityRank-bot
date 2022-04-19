@@ -6,6 +6,7 @@ const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const nameUtil = require('../util/nameUtil.js');
 const { parseChannel } = require('../util/parser');
+const { channelTypes } = require('../util/constants');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-channel')
@@ -31,20 +32,20 @@ const generateRow = (i, id, type, myChannel) => {
   r[1].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noCommand`);
   r[1].setDisabled(Boolean(parseInt(i.guild.appData.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? 'SUCCESS' : 'DANGER');
-  r[1].setDisabled(type === 'GUILD_VOICE');
+  r[1].setDisabled(type === 2);
   if (r[1].disabled) r[1].setStyle('SECONDARY');
 
   r[2].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnlyChannel`);
   r[2].setStyle(i.guild.appData.commandOnlyChannel == id ? 'SUCCESS' : 'DANGER');
-  r[2].setDisabled(type === 'GUILD_VOICE');
+  r[2].setDisabled(type === 2);
   if (r[2].disabled) r[2].setStyle('SECONDARY');
 
   r[3].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_serverJoin`);
-  r[3].setDisabled(type === 'GUILD_VOICE');
+  r[3].setDisabled(type === 2);
   r[3].setStyle(i.guild.appData.autopost_serverJoin == id ? 'SUCCESS' : 'DANGER');
 
   r[4].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_levelup`);
-  r[4].setDisabled(type === 'GUILD_VOICE');
+  r[4].setDisabled(type === 2);
   r[4].setStyle(i.guild.appData.autopost_levelup == id ? 'SUCCESS' : 'DANGER');
 
 
@@ -100,7 +101,10 @@ module.exports.execute = async (i) => {
     embeds: [e],
     components: [
       new MessageActionRow().addComponents(
-        generateRow(i, resolvedChannel.id, resolvedChannel.channel ? resolvedChannel.channel.type : 'GUILD_TEXT', myChannel)),
+        generateRow(i,
+          resolvedChannel.id,
+          resolvedChannel.channel ? channelTypes.indexOf(resolvedChannel.channel.type) : 0,
+          myChannel)),
       _close(i),
     ],
   });
