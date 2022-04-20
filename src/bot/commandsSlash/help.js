@@ -1,12 +1,13 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton } = require('discord.js');
 const { stripIndent } = require('common-tags');
+const { supportServerInviteLink } = require('../../const/config');
 
 
 const row = new MessageActionRow()
   .addComponents(
     new MessageSelectMenu()
-      .setCustomId('commandsSlash/help.js')
+      .setCustomId('commandsSlash/help.js select')
       .setPlaceholder('Nothing selected')
       .addOptions([
         { label: 'Server Statistics', value: 'stats', emoji: '' },
@@ -22,6 +23,10 @@ const row = new MessageActionRow()
         { label: 'Autopost messages', value: 'autopost', emoji: '' },
         { label: 'Resets', value: 'reset', emoji: '' },
       ]),
+    new MessageButton()
+      .setCustomId('commandsSlash/help.js closeMenu')
+      .setLabel('Close')
+      .setStyle('DANGER'),
   );
 
 
@@ -34,10 +39,14 @@ module.exports = {
     await i.reply({ embeds:[helpEmbed], components: [row] });
   },
   async component(i) {
-    let e = i.message.embeds[0];
-    e = helpFeatureEmbed(i.guild, i.client.appData.texts.commands[i.values[0]]);
-    i.update({ embeds:[e] });
-    return;
+    const type = i.customId.split(' ')[1];
+    if (type === 'closeMenu') {
+      i.message.delete();
+    } else if (type === 'select') {
+      let e = i.message.embeds[0];
+      e = helpFeatureEmbed(i.guild, i.client.appData.texts.commands[i.values[0]]);
+      i.update({ embeds:[e] });
+    }
   },
 };
 
@@ -48,7 +57,7 @@ function helpMainEmbed(guild, sections) {
     .setColor(0x00AE86)
     .setDescription(stripIndent`
       **[Website](https://activityrank.me/commands)**
-      **[Support Server](https://discord.com/invite/DE3eQ8H)**
+      **[Support Server](${supportServerInviteLink})**
       By using this bot you accept the **[terms and conditions](https://activityrank.me/termsandconditions)**.`);
 
   for (const command in sections)
