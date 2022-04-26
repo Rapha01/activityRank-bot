@@ -26,6 +26,7 @@ module.exports.data = new SlashCommandBuilder()
     ]));
 
 module.exports.execute = async (i) => {
+  await i.deferReply();
   await guildMemberModel.cache.load(i.member);
 
   if (!await cooldownUtil.checkStatCommandsCooldown(i, i)) return;
@@ -87,8 +88,7 @@ module.exports.execute = async (i) => {
   );
   embed.addField('Stats', scoreStrings.join('\n'));
 
-
-  await i.reply({
+  await i.editReply({
     embeds: [embed],
   });
 
