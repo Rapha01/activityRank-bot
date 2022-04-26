@@ -4,39 +4,39 @@ const { stripIndent } = require('common-tags');
 const { supportServerInviteLink } = require('../../const/config');
 
 
-const row = new MessageActionRow()
-  .addComponents(
-    new MessageSelectMenu()
-      .setCustomId('commandsSlash/help.js select')
-      .setPlaceholder('Nothing selected')
-      .addOptions([
-        { label: 'Server Statistics', value: 'stats', emoji: '' },
-        { label: 'Voting and Inviting', value: 'voting', emoji: '' },
-        { label: 'Configuration Info', value: 'info', emoji: '' },
-        { label: 'Tokens', value: 'token', emoji: '' },
-        { label: 'Personal Settings', value: 'mysettings', emoji: '' },
-        { label: 'FAQ and Patchnotes', value: 'other', emoji: '' },
-        { label: 'Server Settings', value: 'serverSettings', emoji: '' },
-        { label: 'XP Settings', value: 'xpSettings', emoji: '' },
-        { label: 'Bonus XP', value: 'bonusxp', emoji: '' },
-        { label: 'Role autoassignments', value: 'roleAssignments', emoji: '' },
-        { label: 'Autopost messages', value: 'autopost', emoji: '' },
-        { label: 'Resets', value: 'reset', emoji: '' },
-      ]),
-    new MessageButton()
-      .setCustomId('commandsSlash/help.js closeMenu')
-      .setLabel('Close')
-      .setStyle('DANGER'),
-  );
-
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Shows information for operating the bot'),
   async execute(i) {
     const helpEmbed = helpMainEmbed(i.guild, i.client.appData.texts.commands);
-    await i.reply({ embeds:[helpEmbed], components: [row] });
+    await i.reply({ embeds:[helpEmbed], components: [
+      new MessageActionRow().addComponents(
+        new MessageSelectMenu()
+          .setCustomId('commandsSlash/help.js select')
+          .setPlaceholder('Nothing selected')
+          .addOptions([
+            { label: 'Server Statistics', value: 'stats', emoji: '' },
+            { label: 'Voting and Inviting', value: 'voting', emoji: '' },
+            { label: 'Configuration Info', value: 'info', emoji: '' },
+            { label: 'Tokens', value: 'token', emoji: '' },
+            { label: 'Personal Settings', value: 'mysettings', emoji: '' },
+            { label: 'FAQ and Patchnotes', value: 'other', emoji: '' },
+            { label: 'Server Settings', value: 'serverSettings', emoji: '' },
+            { label: 'XP Settings', value: 'xpSettings', emoji: '' },
+            { label: 'Bonus XP', value: 'bonusxp', emoji: '' },
+            { label: 'Role autoassignments', value: 'roleAssignments', emoji: '' },
+            { label: 'Autopost messages', value: 'autopost', emoji: '' },
+            { label: 'Resets', value: 'reset', emoji: '' },
+          ]),
+      ),
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setCustomId('commandsSlash/help.js closeMenu')
+          .setLabel('Close')
+          .setStyle('DANGER'),
+      ),
+    ] });
   },
   async component(i) {
     const type = i.customId.split(' ')[1];
