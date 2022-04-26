@@ -10,9 +10,7 @@ module.exports = {
       await guildModel.cache.load(interaction.guild);
       await guildChannelModel.cache.load(interaction.channel);
 
-      if (interaction.channel.appData.noCommand
-        && !interaction.member.permissionsIn(interaction.channel).has('MANAGE_GUILD')
-      ) {
+      if (interaction.channel.appData.noCommand && !interaction.member.permissionsIn(interaction.channel).has('MANAGE_GUILD')) {
         return await interaction.reply({
           content: 'This is a noCommand channel, and you are not an admin.',
           ephemeral: true,
@@ -31,39 +29,46 @@ module.exports = {
 
       if (interaction.isButton() || interaction.isSelectMenu())
         await component(interaction);
-      if (interaction.isUserContextMenu())
+      else if (interaction.isUserContextMenu())
         await userCtx(interaction);
+      else if (interaction.isCommand() || interaction.isAutocomplete()) {
+        const path = await getPath(interaction);
+        const command = interaction.client.commands.get(path);
+        if (!command)
+          return console.log('No command found: ', path)
+        if (['settings', 'config',].includes(interaction.commandName) && !checkUserPerms(interaction))
+          return console.log('Perms failed: ', path);
 
-      if (!interaction.isCommand() && !interaction.isAutocomplete()) return;
+        if (interaction.isCommand()) await command.execute(interaction);
+        else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
+      }
 
-      let path = 'commandsSlash';
-      path = path.concat('/', interaction.commandName);
-      const group = await interaction.options.getSubcommandGroup(false);
-      const sub = await interaction.options.getSubcommand(false);
-      if (group)
-        path = path.concat('/', group);
-      if (sub)
-        path = path.concat('/', sub);
-      path = path.concat('.js');
-      const command = interaction.client.commands.get(path);
-
-      if (!command) return console.log('No command found: ', path);
-
-      console.log(path);
-
-      if ([
-        'settings', 'config',
-      ].includes(interaction.commandName) && !checkUserPerms(interaction)) return console.log('Perms failed: ', path);
-
-      if (interaction.isCommand()) await command.execute(interaction);
-      else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
     } catch (e) {
-      await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+      if (!interaction.replied) {
+        if (interaction.deferred)
+          await interaction.editReply({ content: 'There was an error while executing this command!', ephemeral: true });
+        else
+          await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+      }
       throw e;
     }
   },
 };
 
+const getPath = async (interaction) => {
+  let path = 'commandsSlash';
+  path = path.concat('/', interaction.commandName);
+  const group = await interaction.options.getSubcommandGroup(false);
+  const sub = await interaction.options.getSubcommand(false);
+  if (group)
+    path = path.concat('/', group);
+  if (sub)
+    path = path.concat('/', sub);
+  path = path.concat('.js');
+
+  console.log(path);
+  return path;
+}
 const component = async (interaction) => {
   if (interaction.customId.split(' ')[0] === 'ignore') return;
   const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
