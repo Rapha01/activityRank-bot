@@ -58,8 +58,8 @@ module.exports = {
       if (interaction.isCommand()) await command.execute(interaction);
       else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
     } catch (e) {
-      console.error(e);
       await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+      throw e;
     }
   },
 };
