@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
-const { oneLine } = require('common-tags');
+const { oneLine, stripIndent } = require('common-tags');
 const guildModel = require('../../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
@@ -69,13 +69,19 @@ module.exports.execute = async (i) => {
       'If this is enabled, members will be permitted to gain XP in VCs, even when they are alone. Bots do not count.')
     .addField('TAAROLD (Take Away Assigned Roles On Level Down)',
       'If this is enabled, the bot will remove roles when the member falls below their assignLevel.')
+
     .addField('Notify Via DM',
-      'If this is enabled, the bot will allow members to recieve levelup notifications via DM.')
+      stripIndent`If this is enabled, the bot will allow members to recieve levelup notifications via DM.
+        You cannot select this if either of the below two options are enabled, because they will take priority.`)
     .addField('Notify in Last Active Channel',
-      'If this is enabled, the bot will notify members of their levelups in their last used text channel.')
+      stripIndent`If this is enabled, the bot will notify members of their levelups in their last used text channel.
+        You cannot select this if the below option is enabled, because it will take priority.`)
     .addField('Replace Levelup Message With Role Message',
       oneLine`If this is enabled, the bot will send both a levelup and roleAssign message where applicable. 
-      Otherwise, it will just send a roleAssign message.`);
+        Otherwise, it will just send a roleAssign message.`)
+    .addField('✍️, 🎙️, ✉️, ❤️',
+      stripIndent`These will enable or disable text, voice, invite, and upvoteXP respectively.
+        You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`);
 
   i.reply({
     embeds: [e],

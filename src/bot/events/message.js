@@ -34,10 +34,10 @@ module.exports = {
               
                 await guildModel.cache.load(msg.guild);
               
-                if (msg.mentions.members.first() && msg.mentions.members.first().id == msg.client.user.id) {
-                    await msg.reply({content:'Hey, thanks for mentioning me! The prefix for the bot on this server is ``'+msg.guild.appData.prefix+'``. Type ``'+msg.guild.appData.prefix+'help`` for more information. Have fun!', ephemeral: true });
-                    return resolve();
-                } 
+                const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
+                if (mentionRegex.test(msg.content))
+                  await msg.reply('This test is successful. The bot is up and running.');
+
                 
               if (msg.content.startsWith(msg.guild.appData.prefix)) {
                   await checkBotPermissions(msg);
