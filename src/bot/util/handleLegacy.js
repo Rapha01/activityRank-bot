@@ -18,101 +18,107 @@ if (process.env.NODE_ENV == 'production') {
 }
 
 module.exports.handleLegacy = async (msg) => {
-  try {
-    await userModel.cache.load(msg.member.user);
-    if (cooldownUtil.getCachedCooldown(msg.guild.appData, 'lastHandleLegacyDate', handleLegacyCdGuild) > 0)
-      return;
-    if (cooldownUtil.getCachedCooldown(msg.member.user.appData, 'lastHandleLegacyDate', handleLegacyCdUser) > 0)
-      return;
+  return new Promise(async function (resolve, reject) {
+    try {
+      await userModel.cache.load(msg.member.user);
+      if (cooldownUtil.getCachedCooldown(msg.guild.appData, 'lastHandleLegacyDate', handleLegacyCdGuild) > 0)
+        return;
+      if (cooldownUtil.getCachedCooldown(msg.member.user.appData, 'lastHandleLegacyDate', handleLegacyCdUser) > 0)
+        return;
 
-    msg.guild.appData.lastHandleLegacyDate = Date.now() / 1000;
-    msg.member.user.appData.lastHandleLegacyDate = Date.now() / 1000;
+      msg.guild.appData.lastHandleLegacyDate = Date.now() / 1000;
+      msg.member.user.appData.lastHandleLegacyDate = Date.now() / 1000;
 
-    await fct.sleep(1000);
-    const e = new MessageEmbed()
-      .setAuthor({ name: 'WARNING', iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png' })
-      .setDescription(stripIndent`On <t:1651734000>, <t:1651734000:R>, we will be ending support for commands written with a prefix.
-              This is not our decision; Discord has mandated this action.
-              If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
-              [Join our support server](${supportServerInviteLink}) if you have any questions.`)
-      .setColor('#ffcc00');
-    await msg.channel.send({ embeds: [e] });
+      await fct.sleep(1000);
+      const e = new MessageEmbed()
+        .setAuthor({ name: 'WARNING', iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png' })
+        .setDescription(stripIndent`On <t:1651734000>, <t:1651734000:R>, we will be ending support for commands written with a prefix.
+                This is not our decision; Discord has mandated this action.
+                If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
+                [Join our support server](${supportServerInviteLink}) if you have any questions.`)
+        .setColor('#ffcc00');
+      await msg.channel.send({ embeds: [e] });
 
-    console.log(`Sent Legacy Command Warning in ${msg.guild.name}.`);
-  } catch (e) { reject(e); }
+      console.log(`Sent Legacy Command Warning in ${msg.guild.name}.`);
+    } catch (e) { reject(e); }
+  });
 };
 
 
 module.exports.handleDeprecation = async function(msg, chance) {
-  try {
-    await msg.channel.send({
-      embeds: [{
-        title: '<:Slash:965409654148583494> Please Use Slash Commands',
-        description: stripIndent`
-          Legacy, or prefixed, commands are now **deprecated**. They may become unusable __without warning__.
+  return new Promise(async function (resolve, reject) {
+    try {
+      await msg.channel.send({
+        embeds: [{
+          title: '<:Slash:965409654148583494> Please Use Slash Commands',
+          description: stripIndent`
+            Legacy, or prefixed, commands are now **deprecated**. They may become unusable __without warning__.
 
-          If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
+            If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
 
-          [Join our support server](${supportServerInviteLink}) if you have any questions.`,
-        author: {
-          name: 'WARNING',
-          icon_url: 'attachment://danger.png',
-        },
-        color: 16738560,
-        thumbnail: { url: 'attachment://danger.png' },
-        footer: { text: `This message currently has a ${(chance * 100).toFixed(1)}% chance of appearing and cancelling your command.` },
-      }],
-      files: ['./bot/temp/const/img/danger.png'],
-      content: msg.author.toString(),
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton().setStyle('LINK').setLabel('Reinvite the bot')
-            .setURL(botInviteLink),
-          new MessageButton().setStyle('LINK').setLabel('Support Server')
-            .setURL(supportServerInviteLink),
-        ),
-        new MessageActionRow().addComponents(
-          new MessageButton().setStyle('LINK').setLabel('[Optional] Reinvite the bot with admin privileges')
-            .setURL(botInviteLinkAdmin),
-        ),
-      ],
-    });
-    console.log(`Sent Deprecation Command Warning in ${msg.guild.name}.`);
-  } catch (e) { reject(e); }
+            [Join our support server](${supportServerInviteLink}) if you have any questions.`,
+          author: {
+            name: 'WARNING',
+            icon_url: 'attachment://danger.png',
+          },
+          color: 16738560,
+          thumbnail: { url: 'attachment://danger.png' },
+          footer: { text: `This message currently has a ${(chance * 100).toFixed(1)}% chance of appearing and cancelling your command.` },
+        }],
+        files: ['./bot/temp/const/img/danger.png'],
+        content: msg.author.toString(),
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton().setStyle('LINK').setLabel('Reinvite the bot')
+              .setURL(botInviteLink),
+            new MessageButton().setStyle('LINK').setLabel('Support Server')
+              .setURL(supportServerInviteLink),
+          ),
+          new MessageActionRow().addComponents(
+            new MessageButton().setStyle('LINK').setLabel('[Optional] Reinvite the bot with admin privileges')
+              .setURL(botInviteLinkAdmin),
+          ),
+        ],
+      });
+      console.log(`Sent Deprecation Command Warning in ${msg.guild.name}.`);
+    } catch (e) { reject(e); }
+  });
 };
 
 module.exports.legacySupportExpired = async function(msg) {
-  try {
-    await msg.channel.send({
-      embeds: [{
-        title: '<:Slash:965409654148583494> Use Slash Commands.',
-        description: stripIndent`
-          Legacy, or prefixed, commands are now **removed**. Whenever you try to use them, you will encounter this message.
+  return new Promise(async function (resolve, reject) {
+    try {
+      await msg.channel.send({
+        embeds: [{
+          title: '<:Slash:965409654148583494> Use Slash Commands.',
+          description: stripIndent`
+            Legacy, or prefixed, commands are now **removed**. Whenever you try to use them, you will encounter this message.
 
-          If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
+            If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
 
-          [Join our support server](${supportServerInviteLink}) if you have any questions.`,
-        author: {
-          name: 'WARNING',
-          icon_url: 'attachment://cancel.png',
-        },
-        color: 16711680,
-        thumbnail: { url: 'attachment://cancel.png' },
-      }],
-      files: ['./bot/temp/const/img/cancel.png'],
-      content: msg.author.toString(),
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton().setStyle('LINK').setLabel('Reinvite the bot')
-            .setURL(botInviteLink),
-          new MessageButton().setStyle('LINK').setLabel('Support Server')
-            .setURL(supportServerInviteLink),
-        ),
-        new MessageActionRow().addComponents(
-          new MessageButton().setStyle('LINK').setLabel('[Optional] Reinvite the bot with admin privileges')
-            .setURL(botInviteLinkAdmin),
-        ),
-      ],
-    });
-  } catch (e) { reject(e); }
+            [Join our support server](${supportServerInviteLink}) if you have any questions.`,
+          author: {
+            name: 'WARNING',
+            icon_url: 'attachment://cancel.png',
+          },
+          color: 16711680,
+          thumbnail: { url: 'attachment://cancel.png' },
+        }],
+        files: ['./bot/temp/const/img/cancel.png'],
+        content: msg.author.toString(),
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton().setStyle('LINK').setLabel('Reinvite the bot')
+              .setURL(botInviteLink),
+            new MessageButton().setStyle('LINK').setLabel('Support Server')
+              .setURL(supportServerInviteLink),
+          ),
+          new MessageActionRow().addComponents(
+            new MessageButton().setStyle('LINK').setLabel('[Optional] Reinvite the bot with admin privileges')
+              .setURL(botInviteLinkAdmin),
+          ),
+        ],
+      });
+    } catch (e) { reject(e); }
+  });
 };
