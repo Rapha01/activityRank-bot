@@ -62,8 +62,8 @@ module.exports = {
         await command.autocomplete(interaction);
       }
     } catch (e) {
-      console.error(e);
       await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+      throw e;
     }
   },
 };
@@ -74,20 +74,11 @@ const component = async (interaction) => {
 
   if (!command) return;
 
-  try {
-    await command.component(interaction);
-  } catch (e) {
-    console.error(e);
-    await interaction.reply({ content: 'There was an error while executing this component!', ephemeral: true });
-  }
+  await command.component(interaction);
 };
 
 const userCtx = async (interaction) => {
   const command = interaction.client.commands.get(`contextMenus/${interaction.commandName}.js`);
-  try {
-    await command.execute(interaction);
-  } catch (e) {
-    console.error(e);
-    await interaction.reply({ content: 'There was an error while executing this interaction!', ephemeral: true });
-  }
+
+  await command.execute(interaction);
 };
