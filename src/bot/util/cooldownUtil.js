@@ -20,10 +20,16 @@ exports.checkStatCommandsCooldown = (msg, interaction = false) => {
       const toWait = exports.getCachedCooldown(msg.member.appData,'lastStatCmdDate',cd);
       if (toWait > 0) {
         if (interaction) {
-          await interaction.reply({
-            content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
-            ephemeral: true,
-          });
+          if (interaction.deferred)
+            await interaction.editReply({
+              content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+              ephemeral: true,
+            });
+          else
+            await interaction.reply({
+              content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+              ephemeral: true,
+            });
         } else {
           await msg.channel.send(errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString);
         }
