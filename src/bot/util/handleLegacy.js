@@ -28,27 +28,24 @@ module.exports.handleLegacy = async (msg) => {
     msg.guild.appData.lastHandleLegacyDate = Date.now() / 1000;
     msg.member.user.appData.lastHandleLegacyDate = Date.now() / 1000;
 
-    await fct.sleep(2000);
-    sendLegacyWarningEmbed(msg);
+    await fct.sleep(1000);
+    const e = new MessageEmbed()
+      .setAuthor({ name: 'WARNING', iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png' })
+      .setDescription(stripIndent`On <t:1651734000>, <t:1651734000:R>, we will be ending support for commands written with a prefix.
+              This is not our decision; Discord has mandated this action.
+              If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
+              [Join our support server](${supportServerInviteLink}) if you have any questions.`)
+      .setColor('#ffcc00');
+    await msg.channel.send({ embeds: [e] });
 
     console.log(`Sent Legacy Command Warning in ${msg.guild.name}.`);
   } catch (e) { reject(e); }
 };
 
-const sendLegacyWarningEmbed = function(msg) {
-  const e = new MessageEmbed()
-    .setAuthor({ name: 'WARNING', iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png' })
-    .setDescription(stripIndent`On <t:1651734000>, <t:1651734000:R>, we will be ending support for commands written with a prefix.
-            This is not our decision; Discord has mandated this action.
-            If you do not already see slash commands when typing \`/\`, please ask an administrator to [click here to **reinvite the bot.**](${botInviteLink}) ***All of your statistics will be saved.***
-            [Join our support server](${supportServerInviteLink}) if you have any questions.`)
-    .setColor('#ffcc00');
-  msg.channel.send({ embeds: [e] });
-};
 
 module.exports.handleDeprecation = async function(msg, chance) {
   try {
-    msg.channel.send({
+    await msg.channel.send({
       embeds: [{
         title: '<:Slash:965409654148583494> Please Use Slash Commands',
         description: stripIndent`
@@ -86,7 +83,7 @@ module.exports.handleDeprecation = async function(msg, chance) {
 
 module.exports.legacySupportExpired = async function(msg) {
   try {
-    msg.channel.send({
+    await msg.channel.send({
       embeds: [{
         title: '<:Slash:965409654148583494> Use Slash Commands.',
         description: stripIndent`
