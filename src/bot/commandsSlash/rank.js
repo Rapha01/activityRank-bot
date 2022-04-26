@@ -88,7 +88,7 @@ module.exports.execute = async (i) => {
   embed.addField('Stats', scoreStrings.join('\n'));
 
 
-  await i.reply({
+  await i.editReply({
     embeds: [embed],
   });
 

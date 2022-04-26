@@ -26,7 +26,7 @@ module.exports.execute = async (i) => {
 
   const channelRanks = await rankModel.getChannelRanks(i.guild, type, time, page.from, page.to);
   if (!channelRanks || channelRanks.length == 0) {
-    return i.reply({
+    return i.editReply({
       content: 'No entries found for this page.',
       ephemeral: true,
     });
@@ -51,7 +51,7 @@ module.exports.execute = async (i) => {
     e.addField(`#${page.from + iter}  ${nameUtil.getChannelName(i.guild.channels.cache, channelRanks[iter].channelId)}`, str);
   }
 
-  await i.reply({
+  await i.editReply({
     embeds: [e],
     ephemeral: true,
   });
