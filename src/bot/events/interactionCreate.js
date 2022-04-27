@@ -7,6 +7,8 @@ module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
     try {
+      if (!interaction.guild || !interaction.channel) return;
+
       await guildModel.cache.load(interaction.guild);
       await guildChannelModel.cache.load(interaction.channel);
 
