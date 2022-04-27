@@ -62,6 +62,13 @@ const _close = (i) => new MessageActionRow()
 
 module.exports.execute = async (i) => {
   const resolvedChannel = await parseChannel(i);
+
+  if (!resolvedChannel)
+    return await i.reply({
+      content: 'You need to specify either a channel or a channel\'s ID!',
+      ephemeral: true,
+    });
+
   /* const cid = i.options.get('channel')?.value || i.options.get('id')?.value;
   if (!cid) {
     return await i.reply({
@@ -76,12 +83,12 @@ module.exports.execute = async (i) => {
     });
   }
   const channel = i.guild.channels.cache.get(cid); */
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
-    return i.reply({
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD'))
+    return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
-  }
+
 
   const myChannel = await guildChannelModel.storage.get(i.guild, resolvedChannel.id);
 
@@ -93,13 +100,13 @@ module.exports.execute = async (i) => {
   if (!resolvedChannel.channel || resolvedChannel.channel.type === 'GUILD_TEXT') {
     e.addField('No Commands', 'If this is enabled, commands will not work in this channel.');
     e.addField('Command Only',
-      oneLine`If this is enabled, this will be the **only channel commands will work in**, 
+      oneLine`If this is enabled, this will be the **only channel commands will work in**,
       unless you have the \`manage server\` permission.`);
     e.addField('Server Join Channel', 'If this is enabled, server join messages will be sent to this channel.');
     e.addField('Levelup Channel', 'If this is enabled, levelup messages will be sent to this channel.');
   }
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     components: [
       new MessageActionRow().addComponents(
@@ -117,7 +124,7 @@ module.exports.component = async (i) => {
   const [, memberId, channelId, channelType, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
-    return i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
   if (type === 'closeMenu')
     return await i.message.delete();

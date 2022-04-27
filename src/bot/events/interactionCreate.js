@@ -38,7 +38,7 @@ module.exports = {
         const command = interaction.client.commands.get(path);
         if (!command)
           return console.log('No command found: ', path)
-        if (['settings', 'config',].includes(interaction.commandName) && !checkUserPerms(interaction))
+        if (['settings', 'config',].includes(interaction.commandName) && !(await checkUserPerms(interaction)))
           return console.log('Perms failed: ', path);
 
         if (interaction.isCommand()) await command.execute(interaction);

@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 
 module.exports.execute = async (i) => {
-  i.reply({
+  await i.reply({
     embeds: [
       new MessageEmbed()
         .setTitle('Upvote the bot on external platforms to gain a few tokens.')
