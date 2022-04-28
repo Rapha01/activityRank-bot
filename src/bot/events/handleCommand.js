@@ -25,7 +25,7 @@ module.exports = (msg) => {
 			const chance = ((Math.floor(Date.now() / 1000) - start) / duration) * 0.65;
 			// frequency increases over time, up to 65% just before legacySupportExpired
 			if (Math.random() < chance)
-				return handleDeprecation(msg, chance);
+				return await handleDeprecation(msg, chance);
 
       const withoutPrefix = msg.content.slice(msg.guild.appData.prefix.length);
     	const split = withoutPrefix.split(/ +/);
