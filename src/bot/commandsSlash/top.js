@@ -85,6 +85,7 @@ const _prettifyTime = {
 };
 
 exports.sendMembersEmbed = async (i, type) => {
+  await i.deferReply();
   await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);
 
