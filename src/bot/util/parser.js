@@ -8,62 +8,45 @@
 const { Constants } = require('discord.js');
 
 module.exports.parseChannel = async (i) => {
-  const cid = i.options.get('channel')?.value || i.options.getString('id');
-  if (!cid) {
-    return i.reply({
-      content: 'You need to specify either a channel or a channel\'s ID!',
-      ephemeral: true,
-    });
-  }
-  try {
-    return {
-      id: cid,
-      channel: await i.guild.channels.fetch(cid),
-    };
-  } catch (e) {
-    if (e.code === Constants.APIErrors.MISSING_ACCESS)
-      return { id: cid, channel: null };
-    else throw e;
-  }
+  let id = null;
+  if (i.options.get('channel')) id = i.options.get('channel').value;
+  if (i.options.getString('id')) id = i.options.getString('id');
+
+  if (!id)
+    return null;
+
+  const channel = i.guild.channels.cache.get(id);
+
+  return {id, channel};
 };
 
 module.exports.parseRole = async (i) => {
-  const rid = i.options.get('role')?.value || i.options.getString('id');
-  if (!rid) {
-    return i.reply({
-      content: 'You need to specify either a role or a role\'s ID!',
-      ephemeral: true,
-    });
-  }
-  try {
-    return {
-      id: rid,
-      role: await i.guild.roles.fetch(rid),
-    };
-  } catch (e) {
-    if (e.code === Constants.APIErrors.MISSING_ACCESS)
-      return { id: rid, role: null };
-    else throw e;
-  }
+  let id = null;
+  if (i.options.get('role')) id = i.options.get('role').value;
+  if (i.options.getString('id')) id = i.options.getString('id');
+
+  if (!id)
+    return null;
+
+  const role = i.guild.roles.cache.get(id);
+
+  return {id, role};
 };
 
 
 module.exports.parseMember = async (i) => {
-  const mid = i.options.get('member')?.value || i.options.getString('id');
-  if (!mid) {
-    return i.reply({
-      content: 'You need to specify either a member or a member\'s ID!',
-      ephemeral: true,
-    });
-  }
+  let id = null;
+  if (i.options.get('member')) id = i.options.get('member').value;
+  if (i.options.getString('id')) id = i.options.getString('id');
+
+  if (!id)
+    return null;
+
+  let member = null;
   try {
-    return {
-      id: mid,
-      member: await i.guild.members.fetch(mid),
-    };
-  } catch (e) {
-    if (e.code === Constants.APIErrors.MISSING_ACCESS)
-      return { id: mid, role: null };
-    else throw e;
-  }
+    let member = await i.guild.members.fetch(id);
+  } catch (e) { }
+
+
+  return {id, member};
 };

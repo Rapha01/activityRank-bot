@@ -14,30 +14,24 @@ if (process.env.NODE_ENV == 'production') {
 }
 
 
-module.exports = (msg) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (cooldownUtil.getCachedCooldown(msg.guild.appData, 'lastCheckPermissionsDate', checkPermissionsCd) > 0)
-        return resolve();
-      
-      const now = Date.now() / 1000;
-      msg.guild.appData.lastCheckPermissionsDate = now;
+module.exports = async (msg) => {
+    if (cooldownUtil.getCachedCooldown(msg.guild.appData, 'lastCheckPermissionsDate', checkPermissionsCd) > 0)
+      return;
 
-      await fct.sleep(2000);
-      await sendPermissionsEmbed(msg);
+    const now = Date.now() / 1000;
+    msg.guild.appData.lastCheckPermissionsDate = now;
 
-    } catch (e) { reject(e); }
-    resolve();
-  });
+    await fct.sleep(2000);
+    await sendPermissionsEmbed(msg);
 }
 
 const sendPermissionsEmbed = async (msg) => {
   if (!msg.guild.me.permissions.missing('294172224721').length)
     return;
-  
+
   const embed = new MessageEmbed()
     .setAuthor({ name: 'WARNING', iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png' })
-    .setDescription(stripIndent`Your bot is missing permissions it needs to function properly! 
+    .setDescription(stripIndent`Your bot is missing permissions it needs to function properly!
                     Please ask an administrator or your server owner to [click here to **reinvite it.**](${botInviteLink})
                     Alternatively, run \`ar!i perms\` to find the permissions your bot is missing!`)
     .setColor('#ffcc00');

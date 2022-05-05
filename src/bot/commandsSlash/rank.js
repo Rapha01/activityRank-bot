@@ -36,7 +36,6 @@ module.exports.execute = async (i) => {
   const targetMember = i.options.getMember('member') ?? i.member;
   const time = i.options.getString('period') || 'Alltime';
 
-
   const rank = await rankModel.getGuildMemberRank(i.guild, targetMember.id);
   // const max = await rankModel.countGuildRanks(i.guild);
 

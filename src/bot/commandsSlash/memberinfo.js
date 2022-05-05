@@ -70,5 +70,5 @@ module.exports.execute = async function(i) {
       Reaction Vote: ${myGuild.reactionVote ? 'Yes' : 'No'}`)
     .addField('Recent Activity', lastActivityStr);
 
-  i.reply({ embeds: [embed] });
+  await i.reply({ embeds: [embed] });
 };

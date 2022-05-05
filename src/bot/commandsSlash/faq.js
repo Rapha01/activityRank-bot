@@ -28,7 +28,7 @@ module.exports = {
     else
       embed.addField(`**${item.title}**`, item.desc);
 
-    i.reply({ embeds:[embed] });
+    await i.reply({ embeds:[embed] });
   },
 };
 

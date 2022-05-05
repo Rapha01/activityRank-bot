@@ -21,51 +21,42 @@ const acceptedMessageTypes = [
 
 module.exports = {
 	name: 'messageCreate',
-	execute(msg) {
-        return new Promise(async function (resolve,reject) {
-            try {
-                if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || !acceptedMessageTypes.includes(msg.type))
-                    return resolve();
-              
-                if (!msg.guild) {
-                    await msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'), ephemeral: true });
-                    return resolve();
-                } 
-              
-                await guildModel.cache.load(msg.guild);
-              
-                const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
-                if (mentionRegex.test(msg.content))
-                  await msg.reply('This test is successful. The bot is up and running.');
+	async execute(msg) {
+      if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || !acceptedMessageTypes.includes(msg.type))
+          return;
 
-                
-              if (msg.content.startsWith(msg.guild.appData.prefix)) {
-                  await checkBotPermissions(msg);
-                  await handleCommand(msg);
-                  return resolve();
-              }
-              
-              if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) { await rankMessage(msg); }
+      if (!msg.guild) {
+          await msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'), ephemeral: true });
+          return;
+      }
 
-              return resolve();
+      await guildModel.cache.load(msg.guild);
 
-            } catch (e) { reject(e); }
-        });
+      const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
+      if (mentionRegex.test(msg.content))
+        await msg.reply('This test is successful. The bot is up and running.');
+
+
+    if (msg.content.startsWith(msg.guild.appData.prefix)) {
+        await checkBotPermissions(msg);
+        await handleCommand(msg);
+        return;
+    }
+
+    if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) { await rankMessage(msg); }
 	},
 };
 
 
-function rankMessage(msg) {
-  return new Promise(async function(resolve, reject) {
-    try {
+async function rankMessage(msg) {
       let channel = msg.channel;
       if (msg.channel.type ==  'GUILD_PUBLIC_THREAD')
         channel = msg.channel.parent;
-    
+
       await msg.guild.members.fetch(msg.author.id);
 
       if (!msg.member)
-        return resolve();
+        return;
 
       await guildMemberModel.cache.load(msg.member);
       msg.member.appData.lastMessageChannelId = msg.channel.id;
@@ -74,7 +65,7 @@ function rankMessage(msg) {
       await guildChannelModel.cache.load(channel);
 
       if (channel.appData.noXp)
-        return resolve();
+        return;
 
       // Check noxp role
       for (let role of msg.member.roles.cache) {
@@ -82,7 +73,7 @@ function rankMessage(msg) {
         await guildRoleModel.cache.load(role);
 
         if (role.appData.noXp)
-          return resolve();
+          return;
       }
 
       // Check textmessage cooldown
@@ -90,25 +81,13 @@ function rankMessage(msg) {
 
       if (typeof msg.guild.appData.textMessageCooldownSeconds !== 'undefined') {
         if (nowSec - msg.member.appData.lastTextMessageDate < msg.guild.appData.textMessageCooldownSeconds)
-          return resolve();
-
+          return;
         msg.member.appData.lastTextMessageDate = nowSec;
       }
 
       // Add Score
       await statFlushCache.addTextMessage(msg.member,channel,1);
 
-      return resolve();
-    } catch (e) { reject(e); }
-  });
-}
+      return;
 
-function hasCommandPrefix(str) {
-  const prefixes = ['+','-','!','`','$','/',';','>','.'];
-  for (prefix of prefixes) {
-    if (str.indexOf(prefix) != -1)
-      return true;
-  }
-
-  return false;
 }

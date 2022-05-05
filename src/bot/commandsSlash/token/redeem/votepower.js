@@ -7,7 +7,7 @@ module.exports.execute = async (i) => {
   const nowDate = new Date() / 1000;
 
   if (myUser.voteMultiplierUntil > nowDate) {
-    return i.reply({
+    return await i.reply({
       content: `You already have an active votepower increase (${myUser.voteMultiplier}x). You may redeem a new one <t:${
         myUser.voteMultiplierUntil}:R>.`,
       ephemeral: true,
@@ -15,7 +15,7 @@ module.exports.execute = async (i) => {
   }
 
   if (myUser.tokens < 10) {
-    return i.reply({
+    return await i.reply({
       content: `Not enough tokens! It costs 10 tokens for 72 hours, and you only have ${
         myUser.tokens}. Use \`/token get\` to get more!`,
       ephemeral: true,

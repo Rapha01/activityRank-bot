@@ -127,7 +127,7 @@ const info = async (i, myGuild) => {
   e.addField('NoCommand channels','Please check ``' + myGuild.prefix + 's info noCommandChannels``.',true);
   e.addField('Messages','Please check ``' + myGuild.prefix + 's info messages``.',true);
   */
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -153,7 +153,7 @@ const levels = async (i, myGuild, from, to) => {
   for (const level of recordingLevels)
     e.addField(':military_medal:' + level.nr, level.localXp + ' (' + level.totalXp + ')', true);
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -176,7 +176,7 @@ const roles = async (i, from, to) => {
   if (roleAssignments.length == 0)
     e.setDescription('No roles to show here.');
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -218,7 +218,7 @@ const noCommandChannels = async (i, from, to) => {
 
   e.setDescription(description);
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -242,7 +242,7 @@ const noXpChannels = async (i, from, to) => {
   if (noXpChannelIds.length == 0)
     e.setDescription('No channels to show here.');
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -264,7 +264,7 @@ const noXpRoles = async (i, from, to) => {
   if (noXpRoleIds.length == 0)
     e.setDescription('No roles to show here.');
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -298,7 +298,7 @@ const messages = async (i, myGuild, from, to) => {
   for (const entry of entries)
     e.addField(entry.title, entry.desc != '' ? entry.desc : 'Not set.');
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     ephemeral: true,
   });
@@ -326,7 +326,7 @@ const permissions = async (i) => {
       embed.addField('Solutions', `Please add the above permissions to any role that your bot has. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
   }
 
-  i.reply({
+  await i.reply({
     embeds: [embed],
     ephemeral: true,
   });

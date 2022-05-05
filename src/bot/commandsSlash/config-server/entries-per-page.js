@@ -3,7 +3,7 @@ const guildModel = require('../../models/guild/guildModel.js');
 
 module.exports.execute = async function(i) {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
-    return i.reply({
+    return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
