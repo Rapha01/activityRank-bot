@@ -33,7 +33,6 @@ module.exports.execute = async function(i) {
 
 
 module.exports.autocomplete = async function(i) {
-  console.log('replying..');
   let cmds = commands.map(o => o.old.trim());
   const focused = i.options.getFocused().trim().replace('ar!', '');
   cmds = cmds.filter(o => o.includes(focused));
