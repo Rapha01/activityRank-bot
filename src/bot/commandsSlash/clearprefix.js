@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const guildModel = require('../../models/guild/guildModel.js');
+const guildModel = require('../models/guild/guildModel.js');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('clearprefix')
