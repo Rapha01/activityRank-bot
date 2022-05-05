@@ -42,20 +42,21 @@ const _modal = (roleId, assignState) => new Modal()
   ]);
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD'))
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
-
+  }
 
   const resolvedRole = await parseRole(i);
 
-  if (!resolvedRole)
+  if (!resolvedRole) {
     return await i.reply({
       content: 'You need to specify either a role or a role\'s ID!',
       ephemeral: true,
     });
+  }
 
   const myRole = await guildRoleModel.storage.get(i.guild, resolvedRole.id);
 

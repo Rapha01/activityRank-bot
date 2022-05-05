@@ -13,11 +13,12 @@ module.exports.execute = async (i) => {
   }
   const resolvedChannel = await parseChannel(i);
 
-  if (!resolvedChannel)
+  if (!resolvedChannel) {
     return await i.reply({
       content: 'You need to specify either a channel or a channel\'s ID!',
       ephemeral: true,
     });
+  }
 
   const confirmRow = new MessageActionRow().addComponents(
     new MessageButton()

@@ -15,6 +15,7 @@ const _prettifyTime = {
 };
 
 module.exports.execute = async (i) => {
+  await i.deferReply();
   await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);
 
