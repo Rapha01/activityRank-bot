@@ -26,7 +26,6 @@ module.exports.data = new SlashCommandBuilder()
     ]));
 
 module.exports.execute = async (i) => {
-  await i.deferReply();
   await guildMemberModel.cache.load(i.member);
 
   if (!await cooldownUtil.checkStatCommandsCooldown(i, i)) return;
