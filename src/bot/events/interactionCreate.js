@@ -41,10 +41,12 @@ module.exports = {
         if (['settings', 'config',].includes(interaction.commandName) && !(await checkUserPerms(interaction)))
           return console.log('Perms failed: ', path);
 
-        if (interaction.isCommand()) await command.execute(interaction);
-        else if (interaction.isAutocomplete()) await command.autocomplete(interaction);
+        if (interaction.isCommand()) {
+          if (['rank', 'top'].includes(interaction.commandName)) await interaction.deferReply();
+          await command.execute(interaction);
+        } else if (interaction.isAutocomplete())
+          await command.autocomplete(interaction);
       }
-
     } catch (e) {
       if (!interaction.replied) {
         if (interaction.deferred)

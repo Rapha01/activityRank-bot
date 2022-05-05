@@ -20,16 +20,10 @@ module.exports.execute = async (i) => {
 
   if (!await cooldownUtil.checkStatCommandsCooldown(i, i)) return;
   const channel = await i.options.getChannel('channel');
-  // todo: filter slash command channel options by type, if possible (exclude categories)
+
   let type;
-  // see immediate below comment
   if (channel.type == 'GUILD_VOICE') type = 'voiceMinute';
   else if (channel.type == 'GUILD_TEXT' || channel.type == 'GUILD_NEWS') type = 'textMessage';
-  // legacy. include if above todo is impossible.
-  /* else {
-    await i.channel.send('Channel is not of type voice or text.');
-    return;
-  } */
 
   const page = fct.extractPageSimple(i.options.getInteger('page') || 1, guild.entriesPerPage);
   const time = i.options.getString('period') || 'Alltime';
@@ -38,7 +32,7 @@ module.exports.execute = async (i) => {
 
   const channelMemberRanks = await rankModel.getChannelMemberRanks(i.guild, channel.id, type, time, page.from, page.to);
   if (!channelMemberRanks || channelMemberRanks.length == 0) {
-    return await i.reply({
+    return await i.editReply({
       content: 'No entries found for this page.',
       ephemeral: true,
     });
@@ -67,7 +61,7 @@ module.exports.execute = async (i) => {
     e.addField('#' + (page.from + iter) + '  ' + guildMemberName, str, true);
   }
 
-  await i.reply({
+  await i.editReply({
     embeds: [e],
     ephemeral: true,
   });

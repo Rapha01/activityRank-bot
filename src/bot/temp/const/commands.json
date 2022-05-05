@@ -1,0 +1,357 @@
+[
+ {
+   "old": "ar!top",
+   "desc": "Short for ar!server top members",
+   "replace": "/top user"
+ },
+ {
+   "old": "ar!server top members ",
+   "desc": "Shows the Server toplist for the specified type",
+   "replace": "/top user"
+ },
+ {
+   "old": "ar!member stats",
+   "desc": "Shows your own stats",
+   "replace": "/rank"
+ },
+ {
+   "old": "ar!member stats",
+   "desc": "Shows the stats of the specified user",
+   "replace": "/rank"
+ },
+ {
+   "old": "ar!member {@user | user#tag | userID} top channels",
+   "desc": "Shows top channels for a specific user in a certain timearea",
+   "replace": "/top channels member"
+ },
+ {
+   "old": "ar!server top channels {text | voice} ",
+   "desc": "Shows the most active channels",
+   "replace": "/top channels server"
+ },
+ {
+   "old": "ar!server top channels {text | voice}",
+   "desc": "Shows the most active channels for a period of time",
+   "replace": "/top channels server"
+ },
+ {
+   "old": "ar!channel top members",
+   "desc": "Shows the alltime most active users of the current channel",
+   "replace": "/top members channel"
+ },
+ {
+   "old": "ar!channel [#channel | channel | channelID] top members",
+   "desc": "Shows the most active users in the specified channel of the specified time ",
+   "replace": "/top members channel"
+ },
+ {
+   "old": "ar!member {@user | userName#tag | userId} up",
+   "desc": "\"Likes\" an User - Gives XP - also see Server Settings -> \"VoteTag\", \"VoteEmote\" and \"ReactionVote\"",
+   "replace": "context menus, plus /upvote for mobile"
+ },
+ {
+   "old": "ar!member {@user | userName#tag | userId} set inviter",
+   "desc": "Set the mentioned User as Inviter of you",
+   "replace": "/member inviter"
+ },
+ {
+   "old": "ar!server info",
+   "desc": "Shows the main settings of your Server",
+   "replace": "/serverinfo"
+ },
+ {
+   "old": "ar!server info levels [page]",
+   "desc": "Shows the Levels and their needed XP for your Server",
+   "replace": "/serverinfo"
+ },
+ {
+   "old": "ar!server info roles [page]",
+   "desc": "Shows the Roles you have set up for Levels on your Server",
+   "replace": "/serverinfo"
+ },
+ {
+   "old": "ar!server info noXpChannels [page]",
+   "desc": "Shows which Channels are set to \"no XP\"",
+   "replace": "/serverinfo"
+ },
+ {
+   "old": "ar!server info noXpRoles [page]",
+   "desc": "Shows which Roles are set to \"no XP\"",
+   "replace": "/serverinfo"
+ },
+ {
+   "old": "ar!server info messages [page]",
+   "desc": "Shows your set Messages",
+   "replace": "/serverinfo"
+ },
+ {
+   "old": "ar!member {@user | userName#tag | userId} info",
+   "desc": "Shows Information about the user",
+   "replace": "/memberinfo"
+ },
+ {
+   "old": "ar!token get externUpvote",
+   "desc": "See how to earn Token by upvoting the Bot on external Server listings",
+   "replace": "/token get"
+ },
+ {
+   "old": "ar!token get buy",
+   "desc": "Get the website URL to buy tokens",
+   "replace": "/token get"
+ },
+ {
+   "old": "ar!token redeem votePower",
+   "desc": "Redeem Tokens to double your voting/like power (10 Token for 3 days)",
+   "replace": "/token redeem votePower"
+ },
+ {
+   "old": "ar!token redeem premiumServer {amount}",
+   "desc": "Fuel Token into the Server to get some perks (for more info use ar!help token or ar!token get buy)",
+   "replace": "/token redeem premium"
+ },
+ {
+   "old": "ar!member set notifyLevelupDm",
+   "desc": "Toggle your own settings if you want to receive DMs from the Bot or not (in case ar!server set notifyLevelupDm is set to on)",
+   "replace": "/config-member"
+ },
+ {
+   "old": "ar!member set reactionvote",
+   "desc": "enables or disables if your reactions count as uservotes",
+   "replace": "/config-member"
+ },
+ {
+   "old": "ar!faq [page]",
+   "desc": "Shows the FAQ",
+   "replace": "/faq [page]"
+ },
+ {
+   "old": "ar!patchnotes [page]",
+   "desc": "Shows all Patchnotes",
+   "replace": "/patchnote"
+ },
+ {
+   "old": "ar!patchnote {version}",
+   "desc": "Shows details about a certain patchnote version",
+   "replace": "/patchnote [autocomplete]"
+ },
+ {
+   "old": "ar!server set prefix {text}",
+   "desc": "Changes the prefix from 'ar!' to a custom one. 1 to 32 letters possible",
+   "replace": "removed"
+ },
+ {
+   "old": "ar!server set {textXP | voiceXP | inviteXP | voteXP}",
+   "desc": "(Toggle) Either activates or deactives the specific XP type completely",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set voteTag {text}",
+   "desc": "Changes the VoteTag from 'likes' to a custom word",
+   "replace": "/config-server vote"
+ },
+ {
+   "old": "ar!server set voteEmote {emote}",
+   "desc": "Changes the VoteEmote from a red heart to a custom Emoji",
+   "replace": "/config-server vote"
+ },
+ {
+   "old": "ar!server set bonusTag {text}",
+   "desc": "Changes the BonusTag from 'bonus' to a custom word",
+   "replace": "/config-server bonus"
+ },
+ {
+   "old": "ar!server set bonusEmote {emote}",
+   "desc": "Changes the BonusEmote from a trophy to a custom Emoji",
+   "replace": "/config-server bonus"
+ },
+ {
+   "old": "ar!server set entriesPerPage {digit}",
+   "desc": "Entries shown per page in almost every Embed",
+   "replace": "/config-server entries-per-page"
+ },
+ {
+   "old": "ar!server set showNicknames",
+   "desc": "Enable this to show user Nicknames instead of usernames in the stats",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!channel {#channel | channel | channelID} set commandOnly",
+   "desc": "Define one channel where commands are allowed (all other channels get ignored)",
+   "replace": "/config-channel"
+ },
+ {
+   "old": "ar!channel {#channel | channel | channelID} set noCommand",
+   "desc": "Define specific channels where commands can't be used (but still can be read)",
+   "replace": "/config-channel"
+ },
+ {
+   "old": "ar!server set notifyLevelupDm",
+   "desc": "(Toggle) Levelup message via DM (priority: current channel > autopost channel > direct message)",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set notifyLevelupCurrentChannel",
+   "desc": "(Toggle) Levelup message appears in the current channel the user was writing in or not (priority: current channel > autopost channel > direct message)",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set notifyLevelupWithRole",
+   "desc": "(Toggle) Only send the Roleassign message without Levelup message",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set levelupmessage {text}",
+   "desc": "Message to appear when someone got a Levelup - <mention>, <name>, <level>, <servername>",
+   "replace": "Duplicate, see line 90"
+ },
+ {
+   "old": "ar!server set reactionvote",
+   "desc": "enables or disables the voting via reaction",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set levelFactor {digit}",
+   "desc": "XP needed per Level (Base 100 XP + levelFactor*level). Needs to be within 20 and 400",
+   "replace": "/config-xp levelfactor"
+ },
+ {
+   "old": "ar!server set {xpPerTextMessage | xpPerVoiceMinute | xpPerVote | xpPerInvite} {digit}",
+   "desc": "Maximum is 10 XP per textmessage, 5 XP per voiceminute, 100 XP per upvote, 1000 XP per Invite",
+   "replace": "/config-xp xp-per"
+ },
+ {
+   "old": "ar!server set voteCooldown {seconds}",
+   "desc": "Can range from 180 (3 minutes) to 86400 seconds (24 hours)",
+   "replace": "/config-server cooldown"
+ },
+ {
+   "old": "ar!server set textMessageCooldown {seconds}",
+   "desc": "Can range from 0 to 120 seconds",
+   "replace": "/config-server cooldown"
+ },
+ {
+   "old": "ar!server set allowMutedXp",
+   "desc": "(Toggle) Allow or disallow users to gain XP while being muted in a voicechannel",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set allowDeafenedXp",
+   "desc": "(Toggle) Allow or disallow users to gain XP while being deafened in a voicechannel",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set allowSoloXp",
+   "desc": "(Toggle) Allow or disallow users to gain XP in a voicechannel while being alone (Bots don't count as user)",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!server set allowInvisibleXp",
+   "desc": "(Toggle) Allow or disallow users to gain XP while being Invisible (marked as offline)",
+   "replace": "removed due to excessive resource use"
+ },
+ {
+   "old": "ar!server set {bonusPerTextMessage | bonusPerVoiceMinute | bonusPerVote} {amount}",
+   "desc": "Maximum of 100 for upvotes, 20 for textmessages and 10 for voiceminutes",
+   "replace": "/config-xp bonus-xp-per"
+ },
+ {
+   "old": "ar!server set bonusUntil {minutes}",
+   "desc": "Mininum of 0 to maximum 4320 minutes (= 72 hours)",
+   "replace": "/config-xp bonustime"
+ },
+ {
+   "old": "ar!channel {#channel | channelName | channelId} set noXp",
+   "desc": "(Toggle) Sets specific channel (text or voice) to gain or not gain XP",
+   "replace": "/config-channel"
+ },
+ {
+   "old": "ar!role {@role | roleName | roleId} set noXp",
+   "desc": "(Toggle) Sets specific roles to gain or not gain XP",
+   "replace": "/config-role menu"
+ },
+ {
+   "old": "ar!member {@user | userName#tag | userID} {give | take} {amount}",
+   "desc": "Give bonus XP to a user. Maximum 1.000.000 at once.",
+   "replace": "/member give|take"
+ },
+ {
+   "old": "ar!role {@role | roleName | roleId} set assignlevel {level}",
+   "desc": "Sets a role to be assigned at level x (has to be lower than deassign!)",
+   "replace": "/config-role levels"
+ },
+ {
+   "old": "ar!role {@role | roleName | roleId} set deassignlevel {level}",
+   "desc": "Sets a role to be deassigned at level x (has to be higher than assign!)",
+   "replace": "/config-role levels"
+ },
+ {
+   "old": "ar!role {@role | roleName | roleId} set assignmessage {text}",
+   "desc": "Custom message to appear when Role gets assigned - <mention>, <name>, <level>,<servername>, <rolename>",
+   "replace": "/config-role menu"
+ },
+ {
+   "old": "ar!role {@role | roleName | roleId} set deassignmessage {text}",
+   "desc": "Custom message to appear when Role gets deassigned - <mention>, <name>, <level>, <servername>, <rolename>",
+   "replace": "/config-role menu"
+ },
+ {
+   "old": "ar!server set roleAssignMessage {text}",
+   "desc": "Standard message to appear when a Role gets assigned - <mention>, <name>, <level>, <servername>, <rolename>",
+   "replace": "/config-messages"
+ },
+ {
+   "old": "ar!server set roleDeassignMessage {text}",
+   "desc": "Standard message to appear when a Role gets deassigned - <mention>, <name>, <level>, <servername>, <rolename>",
+   "replace": "/config-messages"
+ },
+ {
+   "old": "ar!server set takeAwayAssignedRolesOnLevelDown",
+   "desc": "(Toggle) This will have roles be removed if the user is at a lower level than the set assignlevel",
+   "replace": "/config-server set"
+ },
+ {
+   "old": "ar!channel {#channel | channelName | channelID} autoPost serverJoin",
+   "desc": "Sets a Channel to post Join messages",
+   "replace": "/config-channel"
+ },
+ {
+   "old": "ar!channel {#channel | channelName | channelID} autoPost levelup",
+   "desc": "Sets a channel to post Levelup Messages - (priority: current channel > autopost channel > direct message)",
+   "replace": "/config-channel"
+ },
+ {
+   "old": "ar!server set serverJoinMessage {text}",
+   "desc": "Message to appear when someone joins the Server - <mention>, <name>, <servername>",
+   "replace": "/config-messages"
+ },
+ {
+   "old": "ar!server set levelupMessage {text}",
+   "desc": "Message to appear when someone got a Levelup - <mention>, <name>, <level>, <servername>",
+   "replace": "/config-messages"
+ },
+ {
+   "old": "ar!server reset {stats | settings | all}",
+   "desc": "Reset all Stats, Settings or everything",
+   "replace": "/reset server [type]"
+ },
+ {
+   "old": "ar!server reset {textStats | voiceStats | inviteStats | voteStats | bonusStats}",
+   "desc": "Reset the specific kind of Stats for everyone",
+   "replace": "/reset server [type]"
+ },
+ {
+   "old": "ar!server reset {deletedMembers | deletedChannels}",
+   "desc": "Reset left/deleted User or deleted Channel",
+   "replace": "/reset server [type]"
+ },
+ {
+   "old": "ar!channel {#channel | channelName | channelID} reset stats",
+   "desc": "Reset Stats of a specific Channel",
+   "replace": "/reset channel <channel>"
+ },
+ {
+   "old": "ar!member {@user | userName#tag | userID} reset stats",
+   "desc": "Reset Stats of a specific User",
+   "replace": "/reset member <member>"
+ }
+]

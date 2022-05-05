@@ -25,8 +25,8 @@ module.exports.data = new SlashCommandBuilder()
     .addIntegerOption(o => o
       .setName('assign-level')
       .setDescription('The level a member must be at to gain this role')
-      .setMinValue(1).setMaxValue(2000))
+      .setMinValue(0).setMaxValue(2000))
     .addIntegerOption(o => o
       .setName('deassign-level')
       .setDescription('The level a member must be at to lose this role')
-      .setMinValue(1).setMaxValue(2000)));
+      .setMinValue(0).setMaxValue(2000)));

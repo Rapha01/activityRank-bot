@@ -6,7 +6,7 @@ module.exports = {
     .setName('ping')
     .setDescription('Checks the bot\'s latency'),
   async execute(i) {
-    const sent = await i.deferReply({ fetchReply: true });
+    const sent = await i.deferReply({ fetchReply: true, ephemeral: true });
     const pingEmbed = new MessageEmbed()
       .setColor(0x00AE86)
       .setTitle('🏓 Pong! 🏓')

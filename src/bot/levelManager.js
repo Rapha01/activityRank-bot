@@ -167,7 +167,8 @@ const addRoleAssignMessage = (roleMessages,member,role,level) => {
 }
 
 const replaceTagsRole = (text,member,role,level) => {
-  return text.replace(/<rolename>/g,role.name).replace(/<role>/g,role.name);
+  return text.replace(/<rolename>/g,role.name).replace(/<role>/g,role.name)
+    .replace(/<rolemention>/g, role.toString());
 }
 
 const replaceTagsLevelup = (text,member,level) => {

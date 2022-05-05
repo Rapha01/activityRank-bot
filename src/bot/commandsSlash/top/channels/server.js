@@ -1,9 +1,9 @@
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const guildModel = require('../../models/guild/guildModel.js');
-const rankModel = require('../../models/rankModel.js');
-const fct = require('../../../util/fct.js');
-const cooldownUtil = require('../../util/cooldownUtil.js');
-const nameUtil = require('../../util/nameUtil.js');
+const guildMemberModel = require('../../../models/guild/guildMemberModel.js');
+const guildModel = require('../../../models/guild/guildModel.js');
+const rankModel = require('../../../models/rankModel.js');
+const fct = require('../../../../util/fct.js');
+const cooldownUtil = require('../../../util/cooldownUtil.js');
+const nameUtil = require('../../../util/nameUtil.js');
 const { MessageEmbed } = require('discord.js');
 
 const _prettifyTime = {
@@ -26,7 +26,7 @@ module.exports.execute = async (i) => {
 
   const channelRanks = await rankModel.getChannelRanks(i.guild, type, time, page.from, page.to);
   if (!channelRanks || channelRanks.length == 0) {
-    return await i.reply({
+    return await i.editReply({
       content: 'No entries found for this page.',
       ephemeral: true,
     });
@@ -51,7 +51,7 @@ module.exports.execute = async (i) => {
     e.addField(`#${page.from + iter}  ${nameUtil.getChannelName(i.guild.channels.cache, channelRanks[iter].channelId)}`, str);
   }
 
-  await i.reply({
+  await i.editReply({
     embeds: [e],
     ephemeral: true,
   });
