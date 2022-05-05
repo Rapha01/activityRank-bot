@@ -32,7 +32,7 @@ module.exports.execute = async (i) => {
 
   const channelMemberRanks = await rankModel.getChannelMemberRanks(i.guild, channel.id, type, time, page.from, page.to);
   if (!channelMemberRanks || channelMemberRanks.length == 0) {
-    return i.editReply({
+    return await i.editReply({
       content: 'No entries found for this page.',
       ephemeral: true,
     });

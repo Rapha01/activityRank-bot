@@ -42,28 +42,35 @@ const _modal = (roleId, assignState) => new Modal()
   ]);
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
-    return i.reply({
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD'))
+    return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
-  }
 
-  const { id } = await parseRole(i);
-  const myRole = await guildRoleModel.storage.get(i.guild, id);
+
+  const resolvedRole = await parseRole(i);
+
+  if (!resolvedRole)
+    return await i.reply({
+      content: 'You need to specify either a role or a role\'s ID!',
+      ephemeral: true,
+    });
+
+  const myRole = await guildRoleModel.storage.get(i.guild, resolvedRole.id);
 
   const e = new MessageEmbed()
     .setAuthor({ name: 'Role Settings' })
-    .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, id)).setColor(0x00AE86)
+    .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id)).setColor(0x00AE86)
     .addField('No XP', 'If this is enabled, no xp will be given to members that have this role.')
     .addField('Assign Message',
       'This is the message sent when this role is given to a member. Defaults to the global assignMessage.')
     .addField('Deassign Message',
       'This is the message sent when this role is removed from a member. Defaults to the global deassignMessage.');
 
-  i.reply({
+  await i.reply({
     embeds: [e],
-    components: [new MessageActionRow().addComponents(generateRow(i, id, myRole)), _close(i)],
+    components: [new MessageActionRow().addComponents(generateRow(i, resolvedRole.id, myRole)), _close(i)],
   });
 
 };
@@ -72,7 +79,7 @@ module.exports.component = async (i) => {
   const [, memberId, roleId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
-    return i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
   if (type === 'closeMenu')
     return await i.message.delete();
@@ -102,7 +109,7 @@ module.exports.modal = async (i) => {
   await guildRoleModel.storage.set(i.guild, roleId, type, value);
 
   await i.deferReply({ ephemeral: true });
-  i.followUp({
+  await i.followUp({
     content: `Set ${type === 'assignMessage' ? 'Assignment' : 'Deassignment'} Message for <@&${roleId}>`,
     embeds: [{ description: value, color: '#4fd6c8' }],
     ephemeral: true,

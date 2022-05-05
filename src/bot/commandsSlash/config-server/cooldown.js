@@ -7,7 +7,7 @@ const prettyTime = require('pretty-ms');
 
 module.exports.execute = async function(i) {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
-    return i.reply({
+    return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
@@ -18,14 +18,14 @@ module.exports.execute = async function(i) {
     voteCooldownSeconds: i.options.getInteger('vote'),
   };
   if (Object.values(items).every(x => x === null)) {
-    return i.reply({
+    return await i.reply({
       content: 'You must specify at least one option for this command to do anything!',
       ephemeral: true,
     });
   }
 
   for (const k in items) if (items[k] != null) await guildModel.storage.set(i.guild, k, items[k]);
-  i.reply({
+  await i.reply({
     embeds: [new MessageEmbed().setAuthor({ name: 'Cooldown Values' }).setColor(0x00AE86)
       .setDescription(stripIndent`
       Modified Cooldown Values! New values:
@@ -41,7 +41,7 @@ module.exports.autocomplete = async (i) => {
   const { name } = i.options.getFocused(true);
   console.log(name);
   if (name === 'message') {
-    i.respond([
+    await i.respond([
       { name: 'No time', value: 0 },
       { name: '5 seconds', value: 5 },
       { name: '15 seconds', value: 15 },
@@ -50,7 +50,7 @@ module.exports.autocomplete = async (i) => {
       { name: '2 minutes', value: 120 },
     ]);
   } else {
-    i.respond([
+    await i.respond([
       { name: '3 mins', value: 180 },
       { name: '5 mins', value: 300 },
       { name: '10 mins', value: 600 },

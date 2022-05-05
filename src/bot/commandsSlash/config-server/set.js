@@ -49,7 +49,7 @@ const _close = (i) => new MessageActionRow()
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
-    return i.reply({
+    return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
@@ -77,13 +77,13 @@ module.exports.execute = async (i) => {
       stripIndent`If this is enabled, the bot will notify members of their levelups in their last used text channel.
         You cannot select this if the below option is enabled, because it will take priority.`)
     .addField('Replace Levelup Message With Role Message',
-      oneLine`If this is enabled, the bot will send both a levelup and roleAssign message where applicable. 
+      oneLine`If this is enabled, the bot will send both a levelup and roleAssign message where applicable.
         Otherwise, it will just send a roleAssign message.`)
     .addField('✍️, 🎙️, ✉️, ❤️',
       stripIndent`These will enable or disable text, voice, invite, and upvoteXP respectively.
         You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`);
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     components: await generateRows(i),
   });
@@ -94,7 +94,7 @@ module.exports.component = async (i) => {
   const [, memberId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
-    return i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
   if (type === 'closeMenu')
     return await i.message.delete();
@@ -106,4 +106,3 @@ module.exports.component = async (i) => {
 
   await i.update({ components: await generateRows(i) });
 };
-

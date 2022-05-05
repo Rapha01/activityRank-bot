@@ -41,7 +41,7 @@ module.exports.data = new SlashCommandBuilder()
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
-    return i.reply({
+    return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
@@ -58,7 +58,7 @@ module.exports.execute = async (i) => {
     .addField('Role Deassign Message',
       'The message to send when a member loses a role, unless overridden');
 
-  i.reply({
+  await i.reply({
     embeds: [e],
     components: await generateRows(i),
     ephemeral: true,
@@ -70,7 +70,7 @@ module.exports.component = async (i) => {
   const [, memberId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
-    return i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
   if (type === 'closeMenu')
     return await i.message.delete();
@@ -84,7 +84,7 @@ module.exports.modal = async function(i) {
   await guildModel.storage.set(i.guild, type, value);
 
   await i.deferReply({ ephemeral: true });
-  i.followUp({
+  await i.followUp({
     content: `Set ${_prettifyId[type]}`,
     embeds: [{ description: value, color: '#4fd6c8' }],
     ephemeral: true,

@@ -32,12 +32,12 @@ module.exports.execute = async (i) => {
   await guildMemberModel.cache.load(i.member);
   const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
-  i.reply({
+  await i.reply({
     embeds: [new MessageEmbed()
       .setAuthor({ name: 'Personal Settings' })
       .addField('Notify Levelup via DM', 'If this is enabled, the bot will send you a DM when you level up.')
       .addField('Reaction Voting',
-        oneLine`If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote}, 
+        oneLine`If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
         will give an upvote to the member that sent the message.`)],
 
     components: [new MessageActionRow().addComponents(generateRow(i, myGuildMember)), _close(i)],
@@ -49,7 +49,7 @@ module.exports.component = async (i) => {
   const [, memberId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
-    return i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
   if (type === 'closeMenu')
     return await i.message.delete();
@@ -66,4 +66,3 @@ module.exports.component = async (i) => {
   }
   await i.update({ components: [new MessageActionRow().addComponents(generateRow(i, myGuildMember)), _close(i)] });
 };
-

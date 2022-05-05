@@ -84,7 +84,7 @@ module.exports.execute = async (i) => {
     }
   } catch (e) {
     if (e.name === 'Error [INTERACTION_COLLECTOR_ERROR]') {
-      i.followUp({
+      await i.followUp({
         content: 'Action timed out.',
         ephemeral: true,
       });

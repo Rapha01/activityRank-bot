@@ -10,7 +10,7 @@ module.exports.execute = async (i) => {
   const value = i.options.getInteger('tokens');
 
   if (myUser.tokens < value) {
-    return i.reply({
+    return await i.reply({
       content: `You have less tokens than you want to add to this server. You have and can only add ${
         myUser.tokens} currently. Use \`/token get\` to get more!`,
       ephemeral: true,
@@ -23,7 +23,7 @@ module.exports.execute = async (i) => {
   await guildModel.storage.increment(i.guild, 'tokens', value);
 
   await i.reply({
-    content: oneLine`Successfully powered tokens into this servers bot. 
+    content: oneLine`Successfully powered tokens into this servers bot.
     Thank you for supporting this server and the development of ActivityRank!`,
     ephemeral: true,
   });
