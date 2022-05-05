@@ -14,24 +14,19 @@ module.exports.execute = async function(i) {
 
   const resolvedRole = await parseRole(i);
 
-  if (!resolvedRole)
+  if (!resolvedRole) {
     return await i.reply({
       content: 'You need to specify either a role or a role\'s ID!',
       ephemeral: true,
     });
+  }
 
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD'))
-    return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
-      ephemeral: true,
-    });
-
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_ROLES'))
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_ROLES')) {
     return await i.reply({
       content: 'Please ensure the bot has the permission to manage roles for the duration of this setup.',
       ephemeral: true,
     });
-
+  }
 
   const items = {
     assignLevel: i.options.getInteger('assign-level'),

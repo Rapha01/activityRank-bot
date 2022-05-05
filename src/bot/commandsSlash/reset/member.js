@@ -5,19 +5,21 @@ const { parseMember } = require('../../util/parser');
 
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD'))
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
+  }
 
   const resolvedMember = await parseMember(i);
 
-  if (!resolvedMember)
+  if (!resolvedMember) {
     return await i.reply({
       content: 'You need to specify either a member or a member\'s ID!',
       ephemeral: true,
     });
+  }
 
   const confirmRow = new MessageActionRow().addComponents(
     new MessageButton()

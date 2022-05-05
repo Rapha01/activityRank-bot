@@ -1,4 +1,3 @@
-const checkUserPerms = require('../util/checkMemberPermissions');
 const guildModel = require('../models/guild/guildModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 
@@ -37,9 +36,7 @@ module.exports = {
         const path = await getPath(interaction);
         const command = interaction.client.commands.get(path);
         if (!command)
-          return console.log('No command found: ', path)
-        if (['settings', 'config',].includes(interaction.commandName) && !(await checkUserPerms(interaction)))
-          return console.log('Perms failed: ', path);
+          return console.log('No command found: ', path);
 
         if (interaction.isCommand())
           await command.execute(interaction);
@@ -71,7 +68,8 @@ const getPath = async (interaction) => {
 
   console.log(path);
   return path;
-}
+};
+
 const component = async (interaction) => {
   if (interaction.customId.split(' ')[0] === 'ignore') return;
   const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
