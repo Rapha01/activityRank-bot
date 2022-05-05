@@ -6,7 +6,7 @@ const cooldownUtil = require('../util/cooldownUtil.js');
 const nameUtil = require('../util/nameUtil.js');
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { ChannelType: { GuildText } } = require('discord-api-types/v9');
+const { ChannelType: { GuildText, GuildVoice, GuildNews } } = require('discord-api-types/v9');
 
 const _timedef = (_ => _
   .setName('period')
@@ -28,34 +28,14 @@ const _page = (_ => _
 module.exports.data = new SlashCommandBuilder()
   .setName('top')
   .setDescription('Toplists for the server')
-  .addSubcommand(sc => sc
-    .setName('user')
-    .setDescription('The top users in the server!')
-    .addStringOption(_timedef)
-    .addIntegerOption(_page)
-    .addStringOption(o => o
-      .setName('type')
-      .setDescription('Order by a type of XP')
-      .addChoices([
-        ['Text', 'textMessage'],
-        ['Voice', 'voiceMinute'],
-        ['Like', 'vote'],
-        ['Invite', 'invite'],
-      ])))
-  .addSubcommand(sc => sc
-    .setName('channel')
-    .setDescription('The top channels in the server!')
-    .addStringOption(o => o
-      .setName('type')
-      .setDescription('The type of channel')
-      .addChoice('Text', 'textMessage')
-      .addChoice('Voice', 'voiceMinute')
-      .setRequired(true))
-    .addStringOption(_timedef)
-    .addIntegerOption(_page))
   .addSubcommandGroup(scg => scg
-    .setName('in')
-    .setDescription('The top members in the category')
+    .setName('members')
+    .setDescription('The top members in...')
+    .addSubcommand(sc => sc
+      .setName('server')
+      .setDescription('The top members in the server')
+      .addStringOption(_timedef)
+      .addIntegerOption(_page))
     .addSubcommand(sc => sc
       .setName('channel')
       .setDescription('The top members in the specified channel')
@@ -63,18 +43,38 @@ module.exports.data = new SlashCommandBuilder()
         .setName('channel')
         .setDescription('The channel to check')
         .setRequired(true)
-        .addChannelTypes([
-          GuildText,
-        ]))
+        .addChannelTypes([ GuildText, GuildVoice, GuildNews ]))
+      .addStringOption(_timedef)
+      .addIntegerOption(_page)))
+  .addSubcommandGroup(scg => scg
+    .setName('channels')
+    .setDescription('The top channels in...')
+    .addSubcommand(sc => sc
+      .setName('server')
+      .setDescription('The top channels in the server')
+      .addStringOption(o => o
+        .setName('type')
+        .setDescription('The type of channel')
+        .addChoice('Text', 'textMessage')
+        .addChoice('Voice', 'voiceMinute')
+        .setRequired(true))
+      .addStringOption(_timedef)
+      .addIntegerOption(_page))
+    .addSubcommand(sc => sc
+      .setName('member')
+      .setDescription('The top channels used by the specified member')
+      .addUserOption(o => o
+        .setName('member')
+        .setDescription('The member to find the top channels of')
+        .setRequired(true))
+      .addStringOption(o => o
+        .setName('type')
+        .setDescription('The type of channel')
+        .addChoice('Text', 'textMessage')
+        .addChoice('Voice', 'voiceMinute')
+        .setRequired(true))
       .addStringOption(_timedef)
       .addIntegerOption(_page)));
-/*
-  .addSubcommand(sc => sc
-    .setName('role')
-    .setDescription('The top roles in the server!')
-    .addStringOption(_timedef))
-*/
-
 
 const _prettifyTime = {
   Day: 'Today',
@@ -116,11 +116,9 @@ exports.sendMembersEmbed = async (i, type) => {
     .setTitle(header)
     .setColor('#4fd6c8');
 
-  if (guild.bonusUntilDate > Date.now() / 1000) {
-    e.setDescription(`**!! Bonus XP Active !!** (${
-      (Math.round(((guild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10)
-    }h left) \n`);
-  }
+  if (guild.bonusUntilDate > Date.now() / 1000)
+    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R> \n`);
+
   if (i.client.appData.settings.footer) e.setFooter(i.client.appData.settings.footer);
 
   let iter = 0;

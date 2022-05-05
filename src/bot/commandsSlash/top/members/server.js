@@ -1,4 +1,4 @@
-const { sendMembersEmbed } = require('../top');
+const { sendMembersEmbed } = require('../../top');
 
 module.exports.execute = async (i) => {
   if (i.options.getString('type'))

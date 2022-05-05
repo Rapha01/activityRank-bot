@@ -1,9 +1,9 @@
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const guildModel = require('../../models/guild/guildModel.js');
-const rankModel = require('../../models/rankModel.js');
-const fct = require('../../../util/fct.js');
-const cooldownUtil = require('../../util/cooldownUtil.js');
-const nameUtil = require('../../util/nameUtil.js');
+const guildMemberModel = require('../../../models/guild/guildMemberModel.js');
+const guildModel = require('../../../models/guild/guildModel.js');
+const rankModel = require('../../../models/rankModel.js');
+const fct = require('../../../../util/fct.js');
+const cooldownUtil = require('../../../util/cooldownUtil.js');
+const nameUtil = require('../../../util/nameUtil.js');
 const { MessageEmbed } = require('discord.js');
 
 const _prettifyTime = {
