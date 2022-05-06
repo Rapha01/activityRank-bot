@@ -1,58 +1,55 @@
 const userModel = require('../models/userModel.js');
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('./cooldownUtil.js');
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
+const { oneLine } = require('common-tags');
 
-let askForPremiumCd;
+let askForPremiumCdGuild, askForPremiumCdUser;
 if (process.env.NODE_ENV == 'production') {
   askForPremiumCdGuild = 3600 * 0.4;
   askForPremiumCdUser = 3600 * 6;
 } else {
-  askForPremiumCdGuild = 3600 * 0.4; //20
+  askForPremiumCdGuild = 3600 * 0.4; // 20
   askForPremiumCdUser = 3600 * 6; // 60
 }
 
-module.exports = (msg) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (cooldownUtil.getCachedCooldown(msg.guild.appData,'lastAskForPremiumDate',askForPremiumCdGuild) > 0)
-        return resolve();
+module.exports = async function(interaction) {
+  console.log(cooldownUtil.getCachedCooldown(interaction.guild.appData, 'lastAskForPremiumDate', askForPremiumCdGuild));
 
-      if (fct.isPremiumGuild(msg.guild))
-        return resolve();
+  if (cooldownUtil.getCachedCooldown(interaction.guild.appData, 'lastAskForPremiumDate', askForPremiumCdGuild) > 0)
+    return;
 
-      await userModel.cache.load(msg.member.user);
-      const myUser = await userModel.storage.get(msg.member.user);
+  if (fct.isPremiumGuild(interaction.guild))
+    return;
 
-      const now = Date.now() / 1000;
-      if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser)
-        return resolve();
+  await userModel.cache.load(interaction.user);
+  const myUser = await userModel.storage.get(interaction.user);
 
-      await userModel.storage.set(msg.member.user,'lastAskForPremiumDate', now);
-      msg.guild.appData.lastAskForPremiumDate = now;
+  const now = Date.now() / 1000;
+  if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser)
+    return;
 
-      await fct.sleep(2000);
-      await sendAskForPremiumEmbed(msg);
+  await userModel.storage.set(interaction.user, 'lastAskForPremiumDate', now);
+  interaction.guild.appData.lastAskForPremiumDate = now;
 
-      console.log('Sent askForPremium in ' + msg.guild.name + '.');
-    } catch (e) { reject(e); }
-    resolve();
-  });
-}
+  await sendAskForPremiumEmbed(interaction);
+  console.log(`Sent askForPremium in ${interaction.guild.name}.`);
+};
 
-const sendAskForPremiumEmbed = (msg) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const embed = new Discord.MessageEmbed()
-          .setTitle(`Thank you for using ActivityRank!`)
-          .setColor('#4fd6c8')
-          .setThumbnail(msg.client.user.displayAvatarURL());
+async function sendAskForPremiumEmbed(interaction) {
+  const e = new MessageEmbed()
+    .setTitle('Thank you for using ActivityRank!')
+    .setColor(0x00AE86)
+    .setThumbnail(interaction.client.user.displayAvatarURL());
 
-      embed.addField(`The maintenance and development of this bot depend on your support!`, `<@${msg.member.id}> Please consider helping this server to go Premium. All features of the bot are free, but Premium servers receive additional (current and upcoming) quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). Simply go to https://activityrank.me/premium to buy a few tokens for your user account or get some **TOKENS FOR FREE** by regularly upvoting the bot on https://top.gg/bot/534589798267224065. These tokens can then be redeemed for premium time on any server. **Thank you!**`);
+  e.addField('The maintenance and development of this bot depend on your support!',
+    oneLine`${interaction.user}, please consider helping this server to go Premium. 
+      All features of the bot are free, but Premium servers receive additional (current and upcoming) 
+      quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). 
+      Simply go to https://activityrank.me/premium to buy a few tokens for your user account or get some 
+      **TOKENS FOR FREE** by regularly upvoting the bot on https://top.gg/bot/534589798267224065. 
+      These tokens can then be redeemed for premium time on any server. **Thank you!**`,
+  );
 
-      await msg.channel.send({embeds:[embed]});
-
-    } catch (e) { reject(e); }
-    resolve();
-  });
+  await interaction.followUp({ embeds: [e], ephemeral: true });
 }
