@@ -20,7 +20,7 @@ module.exports = (msg) => {
 			const duration = 1036800; // 12 days
 
 			if (Date.now() / 1000 > end)
-				return legacySupportExpired(msg);
+				return await legacySupportExpired(msg);
 
 			const chance = ((Math.floor(Date.now() / 1000) - start) / duration) * 0.65;
 			// frequency increases over time, up to 65% just before legacySupportExpired
