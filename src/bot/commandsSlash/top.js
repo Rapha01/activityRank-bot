@@ -35,7 +35,16 @@ module.exports.data = new SlashCommandBuilder()
       .setName('server')
       .setDescription('The top members in the server')
       .addStringOption(_timedef)
-      .addIntegerOption(_page))
+      .addIntegerOption(_page)
+      .addStringOption(o => o
+        .setName('type')
+        .setDescription('Order by a type of XP')
+        .addChoices([
+          ['Text', 'textMessage'],
+          ['Voice', 'voiceMinute'],
+          ['Like', 'vote'],
+          ['Invite', 'invite'],
+        ])))
     .addSubcommand(sc => sc
       .setName('channel')
       .setDescription('The top members in the specified channel')
