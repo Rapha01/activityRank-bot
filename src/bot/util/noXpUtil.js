@@ -6,11 +6,13 @@ exports.noVoiceXp = (member,channel) => {
       if (member.user.bot)
         return resolve(true);
 
-      if (!member.guild.appData.allowMutedXp && (member.voice.selfMute || member.voice.serverMute))
+      if (!member.guild.appData.allowMutedXp && member.voice.mute)
         return resolve(true);
 
-      if (!member.guild.appData.allowDeafenedXp && (member.voice.selfDeaf || member.voice.serverDeaf))
+      if (!member.guild.appData.allowDeafenedXp && member.voice.deaf)
         return resolve(true);
+
+      console.log(member.voice.mute, member.voice.deaf);
 
       if (!member.guild.appData.allowSoloXp && channel.members.size < 2)
         return resolve(true);
