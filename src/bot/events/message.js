@@ -1,5 +1,4 @@
 const guildModel = require('../models/guild/guildModel.js');
-const handleCommand = require('./handleCommand.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildRoleModel = require('../models/guild/guildRoleModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
@@ -7,7 +6,7 @@ const statFlushCache = require('../statFlushCache.js');
 const fct = require('../../util/fct.js');
 const skip = require('../skip.js');
 const { MessageEmbed } = require('discord.js')
-const checkBotPermissions = require('../util/checkBotPermissions.js');
+const { legacySupportExpired } = require('../util/handleLegacy');
 
 const acceptedChannelTypes = [
     'GUILD_TEXT',
@@ -37,11 +36,8 @@ module.exports = {
         await msg.reply('This test is successful. The bot is up and running.');
 
 
-    if (msg.content.startsWith(msg.guild.appData.prefix)) {
-        await checkBotPermissions(msg);
-        await handleCommand(msg);
-        return;
-    }
+    if (msg.content.startsWith(msg.guild.appData.prefix))
+      return await legacySupportExpired(msg);
 
     if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) { await rankMessage(msg); }
 	},
