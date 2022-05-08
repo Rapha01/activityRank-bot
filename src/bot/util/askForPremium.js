@@ -14,8 +14,6 @@ if (process.env.NODE_ENV == 'production') {
 }
 
 module.exports = async function(interaction) {
-  console.log(cooldownUtil.getCachedCooldown(interaction.guild.appData, 'lastAskForPremiumDate', askForPremiumCdGuild));
-
   if (cooldownUtil.getCachedCooldown(interaction.guild.appData, 'lastAskForPremiumDate', askForPremiumCdGuild) > 0)
     return;
 
