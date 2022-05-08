@@ -47,7 +47,7 @@ module.exports.execute = async function(i) {
         ephemeral: true,
       });
     }
-    if (items[k]) await guildRoleModel.storage.set(i.guild, resolvedRole.id, k, items[k]);
+    if (items[k] !== null) await guildRoleModel.storage.set(i.guild, resolvedRole.id, k, items[k]);
   }
   const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, resolvedRole.id);
   const e = new MessageEmbed().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
