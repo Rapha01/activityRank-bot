@@ -114,19 +114,10 @@ const info = async (i, myGuild) => {
     Muted voice XP allowed: ${myGuild.allowMutedXp ? 'Yes' : 'No'}
     Solo voice XP allowed: ${myGuild.allowSoloXp ? 'Yes' : 'No'}
     Deafened voice XP allowed: ${myGuild.allowDeafenedXp ? 'Yes' : 'No'}
-    Invisible XP allowed: ${myGuild.allowInvisibleXp ? 'Yes' : 'No'}
     Levelfactor: ${myGuild.levelFactor} XP
     ${xpPerString} ${bonusTimeString}`,
   );
 
-  /*
-  e.addField('Roles','Please check ``' + myGuild.prefix + 's info roles``.',true);
-  e.addField('Levels','Please check ``' + myGuild.prefix + 's info levels``.',true);
-  e.addField('NoXP channels','Please check ``' + myGuild.prefix + 's info noXpchannels``.');
-  e.addField('NoXP roles','Please check ``' + myGuild.prefix + 's info noXpRoles``.',true);
-  e.addField('NoCommand channels','Please check ``' + myGuild.prefix + 's info noCommandChannels``.',true);
-  e.addField('Messages','Please check ``' + myGuild.prefix + 's info messages``.',true);
-  */
   await i.reply({
     embeds: [e],
     ephemeral: true,
