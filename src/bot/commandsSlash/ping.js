@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { botInviteLink } = require('../../const/config');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -15,6 +16,8 @@ module.exports = {
         { name: '💗 API Heartbeat 💗', value: `\`\`\`${Math.round(i.client.ws.ping)}ms\`\`\`` },
       )
       .setTimestamp();
-    await i.editReply({ embeds: [pingEmbed], ephemeral: true });
+    const row = new MessageActionRow()
+      .addComponents(new MessageButton().setLabel('Invite the bot').setURL(botInviteLink).setStyle('LINK'));
+    await i.editReply({ embeds: [pingEmbed], ephemeral: true, components: [row] });
   },
 };
