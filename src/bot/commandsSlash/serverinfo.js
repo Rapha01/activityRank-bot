@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 const { stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
@@ -11,51 +11,109 @@ const { botInviteLink } = require('../../const/config.js');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('serverinfo')
-  .setDescription('Information about your server!')
-  .addStringOption(o => o
-    .setName('type')
-    .setDescription('The type of server information to request')
-    .addChoices([
-      ['General', 'general'],
-      ['Levels', 'levels'],
-      ['Roles', 'roles'],
-      ['No-Command Channels', 'nocommandchannels'],
-      ['No XP Channels', 'noxpchannels'],
-      ['No XP Roles', 'noxproles'],
-      ['Autosend Messages', 'messages'],
-      ['Bot Permissions', 'permissions'],
-    ])
-    .setRequired(true))
-  .addIntegerOption(o => o
-    .setName('page')
-    .setDescription('The page to list')
-    .setMinValue(1)
-    .setMaxValue(100));
+  .setDescription('Information about your server!');
+
+const embeds = {
+  'general': info,
+  'levels': levels,
+  'roles': roles,
+  'nocommandchannels': noCommandChannels,
+  'noxpchannels': noXpChannels,
+  'noxproles': noXpRoles,
+  'messages': messages,
+  'permissions': permissions,
+};
+
+const rows = (type, page, memberId) => {
+  const paginationDisabled = ['general', 'permissions'].includes(type);
+  page = Number(page);
+  return [
+    new MessageActionRow().addComponents(new MessageSelectMenu()
+      .setCustomId(`commandsSlash/serverinfo.js ${type} ${page}`)
+      .addOptions([
+        { label: 'General', value: 'general' },
+        { label: 'Levels', value: 'levels' },
+        { label: 'Roles', value: 'roles' },
+        { label: 'No Command Channels', value: 'nocommandchannels' },
+        { label: 'Noxp Channels', value: 'noxpchannels' },
+        { label: 'Noxp Roles', value: 'noxproles' },
+        { label: 'Autosend Messages', value: 'messages' },
+        { label: 'Permissions', value: 'permissions' },
+      ])),
+    new MessageActionRow().addComponents(
+      new MessageButton()
+        .setEmoji('⬅')
+        .setCustomId('commandsSlash/serverinfo.js -1')
+        .setStyle('PRIMARY')
+        .setDisabled(paginationDisabled || page < 2),
+      new MessageButton()
+        .setLabel(paginationDisabled ? '-' : page.toString())
+        .setCustomId('commandsSlash/serverinfo.js')
+        .setStyle('SECONDARY')
+        .setDisabled(true),
+      new MessageButton()
+        .setEmoji('➡️')
+        .setCustomId('commandsSlash/serverinfo.js 1')
+        .setStyle('PRIMARY')
+        .setDisabled(paginationDisabled || page > 100),
+    ),
+    new MessageActionRow().addComponents(
+      new MessageButton()
+        .setLabel('Close')
+        .setStyle('DANGER')
+        .setCustomId(`commandsSlash/serverinfo.js ${memberId} closeMenu`),
+    ),
+  ];
+};
 
 module.exports.execute = async (i) => {
   const myGuild = await guildModel.storage.get(i.guild);
   const page = fct.extractPageSimple(i.options.getInteger('page') ?? 1, myGuild.entriesPerPage);
-  const subcommand = i.options.getString('type');
-  if (subcommand === 'general')
-    await info(i, myGuild);
-  else if (subcommand == 'levels')
-    await levels(i, myGuild, page.from, page.to);
-  else if (subcommand == 'roles')
-    await roles(i, page.from, page.to);
-  else if (subcommand == 'nocommandchannels')
-    await noCommandChannels(i, page.from, page.to);
-  else if (subcommand == 'noxpchannels')
-    await noXpChannels(i, page.from, page.to);
-  else if (subcommand == 'noxproles')
-    await noXpRoles(i, page.from, page.to);
-  else if (subcommand == 'messages')
-    await messages(i, myGuild, page.from, page.to);
-  else if (subcommand == 'permissions')
-    await permissions(i, myGuild);
+
+  const embed = await embeds['general'](i, myGuild, page.from, page.to);
+
+  await i.reply({
+    embeds: [embed],
+    components: rows('general', '1', i.member.id),
+  });
+};
+
+module.exports.component = async function(i) {
+  const [, memberId] = i.message.components[2].components[0].customId.split(' ');
+  if (memberId !== i.member.id)
+    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+
+  if (i.isSelectMenu()) {
+    const [, , p] = i.customId.split(' ');
+
+    const myGuild = await guildModel.storage.get(i.guild);
+    const page = fct.extractPageSimple(Number(p), myGuild.entriesPerPage);
+
+    const embed = await embeds[i.values[0]](i, myGuild, page.from, page.to);
+
+    return await i.update({
+      embeds: [embed],
+      components: rows(i.values[0], p, memberId),
+    });
+  }
+  let [, inc, close] = i.customId.split(' ');
+  if (close === 'closeMenu') return await i.message.delete();
+  inc = Number(inc);
+
+  const [, type, p] = i.message.components[0].components[0].customId.split(' ');
+
+  const myGuild = await guildModel.storage.get(i.guild);
+  const page = fct.extractPageSimple(Number(p) + inc, myGuild.entriesPerPage);
+
+  const embed = await embeds[type](i, myGuild, page.from, page.to);
+  return await i.update({
+    embeds: [embed],
+    components: rows(type, Number(p) + inc, memberId),
+  });
 };
 
 
-const info = async (i, myGuild) => {
+async function info(i, myGuild) {
   const e = new MessageEmbed()
     .setAuthor({ name: `Info for server ${i.guild.name}` })
     .setColor('#4fd6c8')
@@ -118,13 +176,10 @@ const info = async (i, myGuild) => {
     ${xpPerString} ${bonusTimeString}`,
   );
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
-const levels = async (i, myGuild, from, to) => {
+async function levels(i, myGuild, from, to) {
   const e = new MessageEmbed()
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
@@ -136,7 +191,7 @@ const levels = async (i, myGuild, from, to) => {
   for (let iter = 2; iter < to + 2; iter++) {
     localXp = 100 + (iter - 1) * myGuild.levelFactor;
     totalXp += localXp;
-    recordingLevels.push({ nr:iter, totalXp:totalXp, localXp:localXp });
+    recordingLevels.push({ nr: iter, totalXp: totalXp, localXp: localXp });
   }
 
   recordingLevels = recordingLevels.slice(from - 1, to);
@@ -144,13 +199,10 @@ const levels = async (i, myGuild, from, to) => {
   for (const level of recordingLevels)
     e.addField(':military_medal:' + level.nr, level.localXp + ' (' + level.totalXp + ')', true);
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
-const roles = async (i, from, to) => {
+async function roles(i, myGuild, from, to) {
   const e = new MessageEmbed()
     .setAuthor({ name: 'Roles info' })
     .setDescription('This server\'s activity roles and their respective levels.')
@@ -167,11 +219,8 @@ const roles = async (i, from, to) => {
   if (roleAssignments.length == 0)
     e.setDescription('No roles to show here.');
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
 function getlevelString(myRole) {
   if (myRole.assignLevel != 0 && myRole.deassignLevel != 0)
@@ -182,11 +231,11 @@ function getlevelString(myRole) {
     return 'Until ' + myRole.deassignLevel;
 }
 
-const noCommandChannels = async (i, from, to) => {
+async function noCommandChannels(i, myGuild, from, to) {
   let description = '';
   if (i.guild.appData.commandOnlyChannel != 0) {
     description += ':warning: The commandOnly channel is set. The bot will respond only in channel '
-    + nameUtil.getChannelName(i.guild.channels.cache, i.guild.appData.commandOnlyChannel) + '. \n \n';
+      + nameUtil.getChannelName(i.guild.channels.cache, i.guild.appData.commandOnlyChannel) + '. \n \n';
   }
 
   description += 'NoCommand channels (does not affect users with manage server permission): \n';
@@ -209,13 +258,10 @@ const noCommandChannels = async (i, from, to) => {
 
   e.setDescription(description);
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
-const noXpChannels = async (i, from, to) => {
+async function noXpChannels(i, myGuild, from, to) {
   const e = new MessageEmbed()
     .setAuthor({ name: 'NoXP channels info' })
     .setColor('#4fd6c8')
@@ -233,13 +279,10 @@ const noXpChannels = async (i, from, to) => {
   if (noXpChannelIds.length == 0)
     e.setDescription('No channels to show here.');
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
-const noXpRoles = async (i, from, to) => {
+async function noXpRoles(i, myGuild, from, to) {
   const e = new MessageEmbed()
     .setAuthor({ name: 'NoXP roles info' })
     .setColor('#4fd6c8')
@@ -255,28 +298,25 @@ const noXpRoles = async (i, from, to) => {
   if (noXpRoleIds.length == 0)
     e.setDescription('No roles to show here.');
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
-const messages = async (i, myGuild, from, to) => {
+async function messages(i, myGuild, from, to) {
   let entries = [];
 
-  entries.push({ title:'levelupMessage', desc:myGuild.levelupMessage });
-  entries.push({ title:'serverJoinMessage', desc:myGuild.serverJoinMessage });
-  entries.push({ title:'roleAssignMessage', desc:myGuild.roleAssignMessage });
-  entries.push({ title:'roleDeassignMessage', desc:myGuild.roleDeassignMessage });
+  entries.push({ title: 'levelupMessage', desc: myGuild.levelupMessage });
+  entries.push({ title: 'serverJoinMessage', desc: myGuild.serverJoinMessage });
+  entries.push({ title: 'roleAssignMessage', desc: myGuild.roleAssignMessage });
+  entries.push({ title: 'roleDeassignMessage', desc: myGuild.roleDeassignMessage });
 
   for (let role of i.guild.roles.cache) {
     role = role[1];
     await guildRoleModel.cache.load(role);
 
     if (role.appData.assignMessage.trim() != '')
-      entries.push({ title:'Assignment of ' + role.name, desc:role.appData.assignMessage });
+      entries.push({ title: 'Assignment of ' + role.name, desc: role.appData.assignMessage });
     if (role.appData.deassignMessage.trim() != '')
-      entries.push({ title:'Deassignment of ' + role.name, desc:role.appData.deassignMessage });
+      entries.push({ title: 'Deassignment of ' + role.name, desc: role.appData.deassignMessage });
   }
 
   const e = new MessageEmbed()
@@ -289,13 +329,10 @@ const messages = async (i, myGuild, from, to) => {
   for (const entry of entries)
     e.addField(entry.title, entry.desc != '' ? entry.desc : 'Not set.');
 
-  await i.reply({
-    embeds: [e],
-    ephemeral: true,
-  });
-};
+  return e;
+}
 
-const permissions = async (i) => {
+async function permissions(i) {
   const embed = new MessageEmbed()
     .setAuthor({ name: 'Permission Info' })
     .setColor('#4fd6c8')
@@ -313,12 +350,10 @@ const permissions = async (i) => {
     );
     if (botRole)
       embed.addField('Solutions', `You may add the above permissions to ${botRole} or another role added to your bot. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
+
     else
       embed.addField('Solutions', `Please add the above permissions to any role that your bot has. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
   }
 
-  await i.reply({
-    embeds: [embed],
-    ephemeral: true,
-  });
-};
+  return embed;
+}
