@@ -24,9 +24,9 @@ module.exports.execute = async function(i) {
   }
   await i.reply({
     embeds: [new MessageEmbed()
-      .setAuthor({ name: cmd.old })
+      .setAuthor({ name: 'ar!' + cmd.old })
       .addField('Description', cmd.desc)
-      .addField('Replacement', cmd.replace)
+      .addField('Replacement', cmd.new)
       .setColor(0x00AE86)],
   });
 };
@@ -36,6 +36,6 @@ module.exports.autocomplete = async function(i) {
   let cmds = commands.map(o => o.old.trim());
   const focused = i.options.getFocused().trim().replace('ar!', '');
   cmds = cmds.filter(o => o.includes(focused));
-  cmds = cmds.map(o => ({ name: o, value: o }));
+  cmds = cmds.map(o => ({ name: 'ar!' + o, value: o }));
   i.respond(cmds.slice(0, 25));
 };

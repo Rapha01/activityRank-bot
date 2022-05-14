@@ -1,5 +1,7 @@
 const guildModel = require('../models/guild/guildModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
+const tokenBurn = require('../util/tokenBurn.js');
+const askForPremium = require('../util/askForPremium.js');
 
 
 module.exports = {
@@ -28,20 +30,24 @@ module.exports = {
         });
       }
 
-      if (interaction.isButton() || interaction.isSelectMenu())
+      await tokenBurn(interaction.guild);
+
+      if (interaction.isButton() || interaction.isSelectMenu()) {
         await component(interaction);
-      else if (interaction.isUserContextMenu())
+      } else if (interaction.isUserContextMenu()) {
         await userCtx(interaction);
-      else if (interaction.isCommand() || interaction.isAutocomplete()) {
+      } else if (interaction.isCommand() || interaction.isAutocomplete()) {
         const path = await getPath(interaction);
         const command = interaction.client.commands.get(path);
         if (!command)
           return console.log('No command found: ', path);
 
-        if (interaction.isCommand())
+        if (interaction.isCommand()) {
           await command.execute(interaction);
-        else if (interaction.isAutocomplete())
+          await askForPremium(interaction);
+        } else if (interaction.isAutocomplete()) {
           await command.autocomplete(interaction);
+        }
       }
     } catch (e) {
       if (!interaction.replied) {

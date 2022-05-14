@@ -1,6 +1,15 @@
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const statFlushCache = require('../../statFlushCache.js');
-const fct = require('../../../util/fct.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const guildMemberModel = require('../models/guild/guildMemberModel.js');
+const statFlushCache = require('../statFlushCache.js');
+const fct = require('../../util/fct.js');
+
+module.exports.data = new SlashCommandBuilder()
+  .setName('inviter')
+  .setDescription('Set a member as your inviter')
+  .addUserOption(o => o
+    .setName('member')
+    .setDescription('The user that invited you to the server')
+    .setRequired(true));
 
 module.exports.execute = async (i) => {
   const member = i.options.getMember('member');
