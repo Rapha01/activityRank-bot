@@ -29,7 +29,7 @@ module.exports = {
 
 const autoPostServerJoin = (member,roleAssignmentString) => {
     return new Promise(async function (resolve, reject) {
-        console.log('sjn')
+        //console.log('sjn')
         try {
             const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
             if (!channel)

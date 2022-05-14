@@ -55,30 +55,30 @@ const loadCache = (bot,host,server_guilds) => {
 
 const addStats = function(guild,myGuild,textmessages, voiceminutes, votes, bonuses) {
   let member,memberCache;
-  console.log(myGuild);
+  //console.log(myGuild);
   for (textmessage of textmessages) {
     member = guild.members.cache.get(textmessage.userId);
     memberCache = guildMemberModel.cache.get(member);
     memberCache.totalScore += textmessage.textMessageAlltime * myGuild.pointsPerTextMessage;
-    console.log(memberCache);
+    //console.log(memberCache);
   }
   for (voiceminute of voiceminutes) {
     member = guild.members.cache.get(voiceminute.userId);
     memberCache = guildMemberModel.cache.get(member);
     memberCache.totalScore += voiceminute.voiceMinuteAlltime * myGuild.pointsPerVoiceMinute;
-    console.log(memberCache);
+    //console.log(memberCache);
   }
   for (vote of votes) {
     member = guild.members.cache.get(vote.userId);
     memberCache = guildMemberModel.cache.get(member);
     memberCache.totalScore += vote.voteAlltime * myGuild.pointsPerTextMessage;
-    console.log(memberCache);
+    //console.log(memberCache);
   }
   for (bonus of bonuses) {
     member = guild.members.cache.get(bonus.userId);
     memberCache = guildMemberModel.cache.get(member);
     memberCache.totalScore += bonus.bonusAlltime * myGuild.pointsPerTextMessage;
-    console.log(memberCache);
+    //console.log(memberCache);
   }
 };
 
