@@ -19,6 +19,7 @@ module.exports.data = new SlashCommandBuilder()
 
 
 const generateRow = (i, id, type, myChannel) => {
+  console.log(myChannel);
   const r = [
     new MessageButton().setLabel('No XP'),
     new MessageButton().setLabel('No Commands'),
@@ -129,16 +130,15 @@ module.exports.component = async (i) => {
   if (type === 'closeMenu')
     return await i.message.delete();
 
-  const myChannel = await guildChannelModel.storage.get(i.guild, channelId);
+  let myChannel = await guildChannelModel.storage.get(i.guild, channelId);
 
   if (['noXp', 'noCommand'].includes(type)) {
-    if (myChannel[type]) {
+    if (myChannel[type])
       await guildChannelModel.storage.set(i.guild, channelId, type, 0);
-      myChannel[type] = 0;
-    } else {
+    else
       await guildChannelModel.storage.set(i.guild, channelId, type, 1);
-      myChannel[type] = 1;
-    }
+
+    myChannel = await guildChannelModel.storage.get(i.guild, channelId);
   } else {
     // eslint-disable-next-line no-lonely-if
     if (i.guild.appData[type] == channelId) await guildModel.storage.set(i.guild, type, 0);
