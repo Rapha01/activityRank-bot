@@ -41,7 +41,7 @@ module.exports.execute = async function(i) {
 
   for (const k in items) {
     const roleAssignmentsByLevel = await guildRoleModel.storage.getRoleAssignmentsByLevel(i.guild, k, items[k]);
-    if (roleAssignmentsByLevel.length >= 3) {
+    if (items[k] !== 0 && roleAssignmentsByLevel.length >= 3) {
       return await i.reply({
         content: 'There is a maximum of 3 roles that can be assigned or deassigned from each level. Please remove some first.',
         ephemeral: true,
@@ -52,6 +52,7 @@ module.exports.execute = async function(i) {
   const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, resolvedRole.id);
   const e = new MessageEmbed().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
     .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id));
+
   const roleAssignLevels = x.map(o => o.assignLevel != 0 ? `\`${o.assignLevel}\`` : null);
   const roleDeassignLevels = x.map(o => o.deassignLevel != 0 ? `\`${o.deassignLevel}\`` : null);
   if (!roleAssignLevels.every(o => o === null)) e.addField('Assignment Levels', commaListsAnd(roleAssignLevels));
