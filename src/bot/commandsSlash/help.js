@@ -41,7 +41,8 @@ module.exports = {
   async component(i) {
     const type = i.customId.split(' ')[1];
     if (type === 'closeMenu') {
-      i.message.delete();
+      await i.deferUpdate();
+      return await i.deleteReply();
     } else if (type === 'select') {
       let e = i.message.embeds[0];
       e = helpFeatureEmbed(i.guild, i.client.appData.texts.commands[i.values[0]]);

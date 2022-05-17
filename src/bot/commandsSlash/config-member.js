@@ -51,8 +51,10 @@ module.exports.component = async (i) => {
   if (memberId !== i.member.id)
     return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
-  if (type === 'closeMenu')
-    return await i.message.delete();
+  if (type === 'closeMenu') {
+    await i.deferUpdate();
+    return await i.deleteReply();
+  }
 
   await guildMemberModel.cache.load(i.member);
   let myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
