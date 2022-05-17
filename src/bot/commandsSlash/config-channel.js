@@ -19,7 +19,6 @@ module.exports.data = new SlashCommandBuilder()
 
 
 const generateRow = (i, id, type, myChannel) => {
-  console.log(myChannel);
   const r = [
     new MessageButton().setLabel('No XP'),
     new MessageButton().setLabel('No Commands'),
