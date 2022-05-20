@@ -452,7 +452,7 @@
   {
     "old": "m give|take",
     "desc": "Give bonus XP to a user. Maximum 1.000.000 at once.",
-    "new": "/member give|take"
+    "new": "/bonus member"
   },
   {
     "old": "r set assignlevel",
