@@ -38,19 +38,19 @@ module.exports.data = new SlashCommandBuilder()
     .addIntegerOption(o => o
       .setName('message')
       .setDescription('The amount of XP gained per message sent during bonustime')
-      .setMinValue(1).setMaxValue(20))
+      .setMinValue(0).setMaxValue(20))
     .addIntegerOption(o => o
       .setName('voiceminute')
       .setDescription('The amount of XP gained per minute spent in VC during bonustime')
-      .setMinValue(1).setMaxValue(10))
+      .setMinValue(0).setMaxValue(10))
     .addIntegerOption(o => o
       .setName('vote')
       .setDescription('The amount of XP gained per upvote during bonustime')
-      .setMinValue(1).setMaxValue(100))
+      .setMinValue(0).setMaxValue(100))
     .addIntegerOption(o => o
       .setName('invite')
       .setDescription('The amount of XP gained per invitation during bonustime')
-      .setMinValue(1).setMaxValue(2000)))
+      .setMinValue(0).setMaxValue(2000)))
   .addSubcommand(sc => sc
     .setName('bonustime')
     .setDescription('Starts bonustime for the specified duration')
