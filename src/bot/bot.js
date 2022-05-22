@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Collection, Intents: { FLAGS } } = require('discord.js');
 const { botAuth } = require('../const/keys.js')
 const fct = require('../util/fct.js');
 const cronScheduler = require('./cron/scheduler.js');
@@ -8,22 +8,21 @@ const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 const loadCommands = require('./util/cmdLoader');
 
-const flags = Intents.FLAGS
 const intents = [
-    flags.GUILDS,
-    flags.GUILD_MEMBERS, // !!! PRIVILEGED !!!
-    flags.GUILD_BANS,
-    flags.GUILD_EMOJIS_AND_STICKERS,
-    flags.GUILD_INTEGRATIONS,
-    flags.GUILD_WEBHOOKS,
-    flags.GUILD_VOICE_STATES,
-    flags.GUILD_MESSAGES,
-    flags.GUILD_MESSAGE_REACTIONS,
-    flags.GUILD_MESSAGE_TYPING,
-    flags.DIRECT_MESSAGES,
-    flags.DIRECT_MESSAGE_REACTIONS,
-    flags.DIRECT_MESSAGE_TYPING
-]
+  FLAGS.GUILDS,
+  FLAGS.GUILD_MEMBERS,
+  // FLAGS.GUILD_BANS,
+  // FLAGS.GUILD_EMOJIS_AND_STICKERS,
+  FLAGS.GUILD_INTEGRATIONS,
+  // FLAGS.GUILD_WEBHOOKS,
+  FLAGS.GUILD_VOICE_STATES,
+  FLAGS.GUILD_MESSAGES,
+  FLAGS.GUILD_MESSAGE_REACTIONS,
+  // FLAGS.GUILD_MESSAGE_TYPING,
+  // FLAGS.DIRECT_MESSAGES,
+  // FLAGS.DIRECT_MESSAGE_REACTIONS,
+  // FLAGS.DIRECT_MESSAGE_TYPING,
+];
 
 const client = new Client({ intents: intents });
 require('discord-modals')(client);
