@@ -24,7 +24,16 @@ const intents = [
   // FLAGS.DIRECT_MESSAGE_TYPING,
 ];
 
-const client = new Client({ intents: intents });
+const sweepers = {
+  messages: {
+    interval: 43200,
+    lifetime: 21600,
+  },
+};
+
+const client = new Client({
+  intents, sweepers,
+});
 require('discord-modals')(client);
 
 
