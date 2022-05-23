@@ -7,12 +7,12 @@ const { botId, botAuth, adminGuild } = require('../const/keys').get();
 const commands = [];
 const adminCommands = [];
 
-const commandFiles = fs.readdirSync(path.resolve(__dirname, '../commandsSlash'))
+const commandFiles = fs.readdirSync(path.resolve(__dirname, '../bot/commandsSlash'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
-const contextFiles = fs.readdirSync(path.resolve(__dirname, '../contextMenus'))
+const contextFiles = fs.readdirSync(path.resolve(__dirname, '../bot/contextMenus'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
 
-const adminFiles = fs.readdirSync(path.resolve(__dirname, '../commandsAdmin'))
+const adminFiles = fs.readdirSync(path.resolve(__dirname, '../bot/commandsAdmin'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
 
 module.exports = () => {
@@ -25,7 +25,7 @@ module.exports = () => {
     commands.push(command.data.toJSON());
   }
   for (const file of adminFiles) {
-    const command = require(`../commandsAdmin/${file}`);
+    const command = require(`../bot/commandsAdmin/${file}`);
     adminCommands.push(command.data.toJSON());
   }
 
