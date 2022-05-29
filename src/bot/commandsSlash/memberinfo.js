@@ -36,7 +36,7 @@ module.exports.execute = async function(i) {
   }
   const inviterInfo = await nameUtil.getGuildMemberInfo(i.guild, myTargetMember.inviter);
   if (inviterInfo.name == 'User left [0]')
-    inviterInfo.name = 'No inviter set. Use `/member inviter` to set one!';
+    inviterInfo.name = 'No inviter set. Use `/inviter` to set one!';
 
   let lastActivityStr = '';
   if (i.guild.appData.textXp)

@@ -97,7 +97,12 @@ module.exports.component = async function(i) {
     });
   }
   let [, inc, close] = i.customId.split(' ');
-  if (close === 'closeMenu') return await i.message.delete();
+
+  if (type === 'closeMenu') {
+    await i.deferUpdate();
+    return await i.deleteReply();
+  }
+
   inc = Number(inc);
 
   const [, type, p] = i.message.components[0].components[0].customId.split(' ');

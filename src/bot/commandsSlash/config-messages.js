@@ -37,12 +37,31 @@ const _modal = (type) => new Modal()
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-messages')
-  .setDescription('Configures the guild\'s autopost messages');
+  .setDescription('Configures the guild\'s autopost messages')
+  .addStringOption(o => o
+    .setName('clear')
+    .setDescription('Clears a message')
+    .addChoices([
+      ['Server Join Message', 'serverJoinMessage'],
+      ['Levelup Message', 'levelupMessage'],
+      ['Default Role Assign Message', 'roleAssignMessage'],
+      ['Default Role Deassign Message', 'roleDeasssignMessage'],
+    ]));
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
+      ephemeral: true,
+    });
+  }
+
+  const clear = i.options.getString('clear');
+  if (clear) {
+    await guildModel.storage.set(i.guild, clear, '');
+
+    return await i.reply({
+      content: `Cleared \`${_prettifyId[clear]}\``,
       ephemeral: true,
     });
   }
@@ -72,8 +91,10 @@ module.exports.component = async (i) => {
   if (memberId !== i.member.id)
     return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
-  if (type === 'closeMenu')
-    return await i.message.delete();
+  if (type === 'closeMenu') {
+    await i.deferUpdate();
+    return await i.deleteReply();
+  }
 
   showModal(_modal(type), { client: i.client, interaction: i });
 };

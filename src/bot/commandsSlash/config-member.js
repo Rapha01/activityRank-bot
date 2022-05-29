@@ -51,18 +51,19 @@ module.exports.component = async (i) => {
   if (memberId !== i.member.id)
     return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
-  if (type === 'closeMenu')
-    return await i.message.delete();
+  if (type === 'closeMenu') {
+    await i.deferUpdate();
+    return await i.deleteReply();
+  }
 
   await guildMemberModel.cache.load(i.member);
-  const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
+  let myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
-  if (myGuildMember[type]) {
+  if (myGuildMember[type])
     await guildMemberModel.storage.set(i.guild, memberId, type, 0);
-    myGuildMember[type] = 0;
-  } else {
+  else
     await guildMemberModel.storage.set(i.guild, memberId, type, 1);
-    myGuildMember[type] = 1;
-  }
+
+  myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
   await i.update({ components: [new MessageActionRow().addComponents(generateRow(i, myGuildMember)), _close(i)] });
 };

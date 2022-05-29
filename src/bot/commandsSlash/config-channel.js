@@ -63,32 +63,19 @@ const _close = (i) => new MessageActionRow()
 module.exports.execute = async (i) => {
   const resolvedChannel = await parseChannel(i);
 
-  if (!resolvedChannel)
+  if (!resolvedChannel) {
     return await i.reply({
       content: 'You need to specify either a channel or a channel\'s ID!',
       ephemeral: true,
     });
+  }
 
-  /* const cid = i.options.get('channel')?.value || i.options.get('id')?.value;
-  if (!cid) {
-    return await i.reply({
-      content: 'You need to specify either a channel or a channel\'s ID!',
-      ephemeral: true,
-    });
-  }
-  if (!sf().test(cid)) {
-    return await i.reply({
-      content: 'The `id` field must be a valid snowflake!',
-      ephemeral: true,
-    });
-  }
-  const channel = i.guild.channels.cache.get(cid); */
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD'))
+  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
-
+  }
 
   const myChannel = await guildChannelModel.storage.get(i.guild, resolvedChannel.id);
 
@@ -126,19 +113,20 @@ module.exports.component = async (i) => {
   if (memberId !== i.member.id)
     return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
-  if (type === 'closeMenu')
-    return await i.message.delete();
+  if (type === 'closeMenu') {
+    await i.deferUpdate();
+    return await i.deleteReply();
+  }
 
-  const myChannel = await guildChannelModel.storage.get(i.guild, channelId);
+  let myChannel = await guildChannelModel.storage.get(i.guild, channelId);
 
   if (['noXp', 'noCommand'].includes(type)) {
-    if (myChannel[type]) {
+    if (myChannel[type])
       await guildChannelModel.storage.set(i.guild, channelId, type, 0);
-      myChannel[type] = 0;
-    } else {
+    else
       await guildChannelModel.storage.set(i.guild, channelId, type, 1);
-      myChannel[type] = 1;
-    }
+
+    myChannel = await guildChannelModel.storage.get(i.guild, channelId);
   } else {
     // eslint-disable-next-line no-lonely-if
     if (i.guild.appData[type] == channelId) await guildModel.storage.set(i.guild, type, 0);
