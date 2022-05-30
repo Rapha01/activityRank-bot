@@ -2,7 +2,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 const path = require('path');
-const { botAuth, adminGuild } = require('../../const/keys.js').get();
+const { adminGuild, botAuth } = require('../../const/keys.js').get();
 
 const commands = [];
 const adminCommands = [];
@@ -10,7 +10,6 @@ const commandFiles = fs.readdirSync(path.resolve(__dirname, '../commandsSlash'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
 const contextFiles = fs.readdirSync(path.resolve(__dirname, '../contextMenus'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
-
 const adminFiles = fs.readdirSync(path.resolve(__dirname, '../commandsAdmin'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
 
@@ -33,7 +32,7 @@ module.exports = async (client) => {
 
   try {
     for (const guild of client.guilds.cache.keys()) {
-      if (guild.id === adminGuild) {
+      if (guild === adminGuild) {
         await rest.put(
           Routes.applicationGuildCommands(client.user.id, guild),
           { body: [...commands, ...adminCommands] },
@@ -47,7 +46,7 @@ module.exports = async (client) => {
         console.log(`Loaded local application (/) commands in guild ${guild}`);
       }
     }
-    console.log('Successfully reloaded local application (/) commands.');
+
   } catch (error) {
     console.error(error);
   }
