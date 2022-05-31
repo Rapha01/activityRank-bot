@@ -43,7 +43,11 @@ module.exports = {
         if (!command)
           return console.log('No command found: ', path);
 
-        if (command.isAdmin && userPrivileges[interaction.user.id] < command.requiredPrivileges) {
+        if (
+          command.isAdmin
+          && userPrivileges[interaction.user.id]
+          && userPrivileges[interaction.user.id] < command.requiredPrivileges
+        ) {
           console.log(`!!! Unauthorized command attempt: ${interaction.user.id} ${interaction.commandName}`);
           return await interaction.reply({ content: 'This is an admin command you have no access to.', ephemeral: true });
         }

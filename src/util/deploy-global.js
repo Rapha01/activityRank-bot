@@ -15,7 +15,7 @@ const contextFiles = fs.readdirSync(path.resolve(__dirname, '../bot/contextMenus
 const adminFiles = fs.readdirSync(path.resolve(__dirname, '../bot/commandsAdmin'))
   .filter(file => file.endsWith('.js') && !file.startsWith('-'));
 
-module.exports = () => {
+module.exports = async function() {
   for (const file of commandFiles) {
     const command = require(`../bot/commandsSlash/${file}`);
     commands.push(command.data.toJSON());
@@ -33,12 +33,12 @@ module.exports = () => {
 
   try {
     console.log('Refreshing GLOBAL application (/) commands...');
-    rest.put(
+    await rest.put(
       Routes.applicationCommands(botId),
       { body: commands },
     );
     console.log('Successfully reloaded GLOBAL application (/) commands.\nRefreshing admin commands...');
-    rest.put(
+    await rest.put(
       Routes.applicationGuildCommands(botId, adminGuild),
       { body: adminCommands },
     );

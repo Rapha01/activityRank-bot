@@ -81,11 +81,11 @@ function initClientCaches(client) {
       client.appData = {};
       client.appData.statFlushCache = {};
       client.appData.botShardStat = { commands1h: 0, botInvites1h: 0, botKicks1h: 0, voiceMinutes1h: 0, textMessages1h: 0, roleAssignments1h: 0, rolesDeassignments1h: 0 };
-      textModel.cache.load(client);
-      settingModel.cache.load(client);
+      await textModel.cache.load(client);
+      await settingModel.cache.load(client);
 
       resolve();
-    } catch (e) { console.log(e); }
+    } catch (e) { return reject(e); }
   });
 }
 
