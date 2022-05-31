@@ -148,6 +148,7 @@ async function info(i, myGuild) {
   e.addField('**Tokens**',
     stripIndent`
     Available: ${i.guild.appData.tokens} (burning ${Math.floor(fct.getTokensToBurn24h(i.guild.memberCount))} / 24h)
+    Expected end date: <t:${Math.floor(i.guild.appData.tokens / fct.getTokensToBurn24h(i.guild.memberCount) + Date.now() / 1000)}>
     Burned: ${myGuild.tokensBurned}`);
 
   let bonusTimeString = '';

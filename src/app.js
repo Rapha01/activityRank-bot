@@ -28,7 +28,7 @@ async function start() {
     try {
       await manager.spawn({delay: 10000, timeout: 120000});
       if (process.env.NODE_ENV == 'production')
-        deployGlobal();
+        await deployGlobal();
 
       await scheduler.start(manager);
       resolve();

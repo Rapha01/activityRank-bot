@@ -2,6 +2,7 @@ const guildModel = require('../models/guild/guildModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
+const userPrivileges = require('../../const/privilegedUsers').get();
 
 
 module.exports = {
@@ -38,13 +39,22 @@ module.exports = {
         await userCtx(interaction);
       } else if (interaction.isCommand() || interaction.isAutocomplete()) {
         const path = await getPath(interaction);
-        const command = interaction.client.commands.get(path);
+        const command = interaction.client.commands.get(path) ?? interaction.client.adminCommands.get(interaction.commandName);
         if (!command)
           return console.log('No command found: ', path);
 
+        if (
+          command.isAdmin
+          && userPrivileges[interaction.user.id]
+          && userPrivileges[interaction.user.id] < command.requiredPrivileges
+        ) {
+          console.log(`!!! Unauthorized command attempt: ${interaction.user.id} ${interaction.commandName}`);
+          return await interaction.reply({ content: 'This is an admin command you have no access to.', ephemeral: true });
+        }
+
         if (interaction.isCommand()) {
           await command.execute(interaction);
-          await askForPremium(interaction);
+          if (!command.isAdmin) await askForPremium(interaction);
         } else if (interaction.isAutocomplete()) {
           await command.autocomplete(interaction);
         }
