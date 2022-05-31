@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { Client, Intents: { FLAGS } } = require('discord.js');
+const { Client, Options, Intents: { FLAGS } } = require('discord.js');
 const fct = require('../util/fct.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
@@ -23,17 +23,14 @@ const intents = [
 ];
 
 const sweepers = {
+  ...Options.defaultSweeperSettings,
   messages: {
-    interval: 43200, // 12h
-    lifetime: 21600, // 6h
-  },
-  threads: {
-    interval: 43200, // 12h
-    lifetime: 21600, // 6h
+    interval: 300, // 5m
+    lifetime: 600, // 10m
   },
   invites: {
-    interval: 43200, // 12h
-    lifetime: 21600, // 6h
+    interval: 300, // 5m
+    lifetime: 600, // 10m
   },
 };
 
