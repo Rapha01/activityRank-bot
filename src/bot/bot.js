@@ -34,7 +34,7 @@ const sweepers = {
   },
 };
 
-const client = new Client({ intents, sweepers });
+const client = new Client({ intents });
 require('discord-modals')(client);
 
 
