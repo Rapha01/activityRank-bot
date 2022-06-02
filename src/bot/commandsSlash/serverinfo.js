@@ -25,7 +25,7 @@ const embeds = {
 };
 
 const rows = (type, page, memberId) => {
-  const paginationDisabled = ['general', 'permissions'].includes(type);
+  const paginationDisabled = ['general', 'permissions', 'messages'].includes(type);
   page = Number(page);
   return [
     new MessageActionRow().addComponents(new MessageSelectMenu()
@@ -97,15 +97,15 @@ module.exports.component = async function(i) {
     });
   }
   let [, inc, close] = i.customId.split(' ');
+  const [, type, p] = i.message.components[0].components[0].customId.split(' ');
 
-  if (type === 'closeMenu') {
+  if (close === 'closeMenu') {
     await i.deferUpdate();
     return await i.deleteReply();
   }
 
   inc = Number(inc);
 
-  const [, type, p] = i.message.components[0].components[0].customId.split(' ');
 
   const myGuild = await guildModel.storage.get(i.guild);
   const page = fct.extractPageSimple(Number(p) + inc, myGuild.entriesPerPage);
