@@ -13,7 +13,7 @@ module.exports = {
     await i.reply({ embeds:[helpEmbed], components: [
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
-          .setCustomId('commandsSlash/help.js select')
+          .setCustomId(`commandsSlash/help.js select ${i.user.id}`)
           .setPlaceholder('Nothing selected')
           .addOptions([
             { label: 'Server Statistics', value: 'stats', emoji: '' },
@@ -32,14 +32,16 @@ module.exports = {
       ),
       new MessageActionRow().addComponents(
         new MessageButton()
-          .setCustomId('commandsSlash/help.js closeMenu')
+          .setCustomId(`commandsSlash/help.js closeMenu ${i.user.id}`)
           .setLabel('Close')
           .setStyle('DANGER'),
       ),
     ] });
   },
   async component(i) {
-    const type = i.customId.split(' ')[1];
+    const [, type, memberId] = i.customId.split(' ');
+    if (memberId !== i.member.id)
+      return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
     if (type === 'closeMenu') {
       await i.deferUpdate();
       return await i.deleteReply();
