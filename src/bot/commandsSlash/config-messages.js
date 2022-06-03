@@ -1,18 +1,24 @@
 /* eslint-disable max-len */
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const { Modal, TextInputComponent, showModal } = require('discord-modals');
 const guildModel = require('../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
-  const r1 = [
-    new MessageButton().setLabel('Server Join Message').setCustomId(`commandsSlash/config-messages.js ${i.member.id} serverJoinMessage`),
-    new MessageButton().setLabel('Levelup Message').setCustomId(`commandsSlash/config-messages.js ${i.member.id} levelupMessage`),
-    new MessageButton().setLabel('Role Assign Message').setCustomId(`commandsSlash/config-messages.js ${i.member.id} roleAssignMessage`),
-    new MessageButton().setLabel('Role Deassign Message').setCustomId(`commandsSlash/config-messages.js ${i.member.id} roleDeassignMessage`),
+  return [
+    new MessageActionRow().addComponents(
+      new MessageSelectMenu().setCustomId(`commandsSlash/config-messages.js ${i.member.id} select`).setPlaceholder('The message to set')
+        .setOptions([
+          { label: 'Server Join Message', value: 'serverJoinMessage' },
+          { label: 'Levelup Message', value: 'levelupMessage' },
+          { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
+          { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
+        ]),
+    ),
+    new MessageActionRow().addComponents(
+      new MessageButton().setLabel('Clear a message').setStyle('DANGER').setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear`),
+    ),
   ];
-  r1.forEach(o => o.setStyle('SECONDARY'));
-  return [new MessageActionRow().addComponents(r1)];
 };
 
 const _prettifyId = {
@@ -37,31 +43,12 @@ const _modal = (type) => new Modal()
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-messages')
-  .setDescription('Configures the guild\'s autopost messages')
-  .addStringOption(o => o
-    .setName('clear')
-    .setDescription('Clears a message')
-    .addChoices([
-      ['Server Join Message', 'serverJoinMessage'],
-      ['Levelup Message', 'levelupMessage'],
-      ['Default Role Assign Message', 'roleAssignMessage'],
-      ['Default Role Deassign Message', 'roleDeasssignMessage'],
-    ]));
+  .setDescription('Configures the guild\'s autopost messages');
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
-      ephemeral: true,
-    });
-  }
-
-  const clear = i.options.getString('clear');
-  if (clear) {
-    await guildModel.storage.set(i.guild, clear, '');
-
-    return await i.reply({
-      content: `Cleared \`${_prettifyId[clear]}\``,
       ephemeral: true,
     });
   }
@@ -91,12 +78,34 @@ module.exports.component = async (i) => {
   if (memberId !== i.member.id)
     return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
 
-  if (type === 'closeMenu') {
-    await i.deferUpdate();
-    return await i.deleteReply();
+  if (type === 'clear') {
+    return await i.reply({
+      content: 'Which message do you want to clear?',
+      components: [new MessageActionRow().addComponents(
+        new MessageSelectMenu().setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear-select`).setPlaceholder('The message to clear')
+          .setOptions([
+            { label: 'Server Join Message', value: 'serverJoinMessage' },
+            { label: 'Levelup Message', value: 'levelupMessage' },
+            { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
+            { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
+          ]),
+      )],
+      ephemeral: true,
+    });
   }
 
-  showModal(_modal(type), { client: i.client, interaction: i });
+  if (type === 'clear-select') {
+    const clearItem = i.values[0];
+    await guildModel.storage.set(i.guild, clearItem, '');
+
+    return await i.reply({
+      content: `Cleared \`${_prettifyId[clearItem]}\``,
+      ephemeral: true,
+    });
+  }
+
+  if (type === 'select')
+    return await showModal(_modal(i.values[0]), { client: i.client, interaction: i });
 };
 
 module.exports.modal = async function(i) {
