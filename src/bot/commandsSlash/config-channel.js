@@ -1,7 +1,7 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { ChannelType: { GuildText, GuildVoice } } = require('discord-api-types/v9');
-const { oneLine } = require('common-tags');
+const { oneLine, stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const nameUtil = require('../util/nameUtil.js');
@@ -85,7 +85,8 @@ module.exports.execute = async (i) => {
     .addField('No XP', 'If this is enabled, no xp will be given in this channel.');
 
   if (!resolvedChannel.channel || resolvedChannel.channel.type === 'GUILD_TEXT') {
-    e.addField('No Commands', 'If this is enabled, commands will not work in this channel.');
+    e.addField('No Commands', stripIndent`If this is enabled, commands will not work in this channel.
+    **Note:** It is recommended to use the Discord native system in \`Server Settings -> Integrations -> ActivityRank\`.`);
     e.addField('Command Only',
       oneLine`If this is enabled, this will be the **only channel commands will work in**,
       unless you have the \`manage server\` permission.`);
