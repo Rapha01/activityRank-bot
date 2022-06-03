@@ -5,6 +5,14 @@
 1: Help Staff
 */
 
+// Prevent magic numbers
+module.exports.PRIVILEGE_LEVELS = {
+  'Owner': 4,
+  'Developer': 3,
+  'Moderator': 2,
+  'HelpStaff': 1,
+};
+
 const users = {
   production: {
     'uid': 4,
