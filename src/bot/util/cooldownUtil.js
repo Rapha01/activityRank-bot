@@ -10,37 +10,34 @@ exports.getCachedCooldown = (cache,field,cd) => {
     return remaining;
 }
 
-exports.checkStatCommandsCooldown = (msg, interaction = false) => {
+exports.checkStatCommandsCooldown = (interaction) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const isPremiumGuild = fct.isPremiumGuild(msg.guild);
+      const isPremiumGuild = fct.isPremiumGuild(interaction.guild);
       const cd = isPremiumGuild ? 5 : 30;
       const premiumLowersCooldownString = isPremiumGuild ? '' : errorMsgs.premiumLowersCooldown;
 
-      const toWait = exports.getCachedCooldown(msg.member.appData,'lastStatCmdDate',cd);
+      const toWait = exports.getCachedCooldown(interaction.member.appData, 'lastStatCmdDate', cd);
       if (toWait > 0) {
-        if (interaction) {
-          if (interaction.deferred)
-            await interaction.editReply({
-              content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
-              ephemeral: true,
-            });
-          else
-            await interaction.reply({
-              content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
-              ephemeral: true,
-            });
+        if (interaction.deferred) {
+          await interaction.editReply({
+            content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+            ephemeral: true,
+          });
         } else {
-          await msg.channel.send(errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString);
+          await interaction.reply({
+            content: errorMsgs.activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+            ephemeral: true,
+          });
         }
         return resolve(false);
       }
 
-      msg.member.appData.lastStatCmdDate = Date.now() / 1000;
+      interaction.member.appData.lastStatCmdDate = Date.now() / 1000;
       resolve(true);
     } catch (e) { reject(e); }
   });
-}
+};
 
 exports.checkResetServerCommandCooldown = (msg) => {
   return new Promise(async function (resolve, reject) {
