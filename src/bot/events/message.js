@@ -45,6 +45,9 @@ module.exports = {
 
 
 async function rankMessage(msg) {
+      if (!msg.channel)
+        return;
+        
       let channel = msg.channel;
       if (msg.channel.type ==  'GUILD_PUBLIC_THREAD')
         channel = msg.channel.parent;
