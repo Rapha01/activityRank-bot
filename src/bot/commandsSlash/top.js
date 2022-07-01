@@ -98,7 +98,7 @@ exports.sendMembersEmbed = async (i, type) => {
   await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);
 
-  if (!await cooldownUtil.checkStatCommandsCooldown(i, i)) return;
+  if (!await cooldownUtil.checkStatCommandsCooldown(i)) return;
 
   const page = fct.extractPageSimple(i.options.getInteger('page') || 1, guild.entriesPerPage);
   const time = i.options.getString('period') || 'Alltime';

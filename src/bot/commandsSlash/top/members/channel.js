@@ -19,7 +19,7 @@ module.exports.execute = async (i) => {
   await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);
 
-  if (!await cooldownUtil.checkStatCommandsCooldown(i, i)) return;
+  if (!await cooldownUtil.checkStatCommandsCooldown(i)) return;
   const channel = await i.options.getChannel('channel');
 
   let type;

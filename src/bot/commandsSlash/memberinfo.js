@@ -21,7 +21,7 @@ module.exports.execute = async function(i) {
   await guildMemberModel.cache.load(i.member);
   const myGuild = await guildModel.storage.get(i.guild);
 
-  if (!await cooldownUtil.checkStatCommandsCooldown(i, i)) return;
+  if (!await cooldownUtil.checkStatCommandsCooldown(i)) return;
 
   await userModel.cache.load(member.user);
   const myTargetUser = await userModel.storage.get(member.user);

@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
+const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
 
-module.exports.requiredPrivileges = 1;
+module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
 
 module.exports.data = new SlashCommandBuilder()
   .setName('atest')
@@ -18,5 +19,4 @@ module.exports.execute = async function(i) {
     )
     .setTimestamp();
   await i.editReply({ embeds: [pingEmbed], ephemeral: true });
-
 };
