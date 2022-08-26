@@ -1,6 +1,5 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const { Modal, TextInputComponent, showModal } = require('discord-modals');
 const nameUtil = require('../../util/nameUtil.js');
 const { parseRole } = require('../../util/parser');
 
@@ -29,14 +28,14 @@ const _close = (i) => new ActionRowBuilder()
     .setStyle(ButtonStyle.Danger)
     .setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} - closeMenu`));
 
-const _modal = (roleId, assignState) => new Modal()
+const _modal = (roleId, assignState) => new ModalBuilder()
   .setCustomId(`commandsSlash/config-role/menu.js ${roleId} ${assignState ? 'assignMessage' : 'deassignMessage'}`)
   .setTitle(`${assignState ? 'Assignment' : 'Deassignment'} Message`)
   .addComponents([
-    new TextInputComponent()
+    new TextInputBuilder()
       .setCustomId('msg-component-1')
       .setLabel(`The message to send upon ${assignState ? 'assignment' : 'deassignment'}`)
-      .setStyle('LONG')
+      .setStyle(TextInputStyle.Paragraph)
       .setMaxLength(1000)
       .setRequired(true),
   ]);
@@ -100,7 +99,7 @@ module.exports.component = async (i) => {
     await i.update({ components: [
       new ActionRowBuilder().addComponents(generateRow(i, roleId, myRole)), _close(i)] });
   } else {
-    showModal(_modal(roleId, type === 'assignMessage'), { client: i.client, interaction: i });
+    return await i.showModal(_modal(roleId, type === 'assignMessage'));
   }
 
 };

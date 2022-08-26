@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
-const { Modal, TextInputComponent, showModal } = require('discord-modals');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
@@ -27,14 +26,14 @@ const _prettifyId = {
   roleDeasssignMessage: 'Role Deassign Message',
 };
 
-const _modal = (type) => new Modal()
+const _modal = (type) => new ModalBuilder()
   .setCustomId(`commandsSlash/config-messages.js ${type}`)
   .setTitle('Message Selection')
   .addComponents([
-    new TextInputComponent()
+    new TextInputBuilder()
       .setCustomId('msg-component-1')
       .setLabel(`The ${_prettifyId[type]}`)
-      .setStyle('LONG')
+      .setStyle(TextInputStyle.Paragraph)
       .setMaxLength(type === 'levelupMessage' ? 1000 : 500)
       .setRequired(true),
   ]);
@@ -104,7 +103,7 @@ module.exports.component = async (i) => {
   }
 
   if (type === 'select')
-    return await showModal(_modal(i.values[0]), { client: i.client, interaction: i });
+    return await i.showModal(_modal(i.values[0]));
 };
 
 module.exports.modal = async function(i) {
