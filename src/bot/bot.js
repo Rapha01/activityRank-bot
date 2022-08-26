@@ -36,7 +36,6 @@ const sweepers = {
 };
 
 const client = new Client({ intents });
-require('discord-modals')(client);
 
 
 process.env.UV_THREADPOOL_SIZE = 50;
