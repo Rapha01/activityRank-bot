@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const { Modal, TextInputComponent, showModal } = require('discord-modals');
 const nameUtil = require('../../util/nameUtil.js');
@@ -7,26 +7,26 @@ const { parseRole } = require('../../util/parser');
 
 const generateRow = (i, id, myRole) => {
   const r = [
-    new MessageButton().setLabel('No XP'),
-    new MessageButton().setLabel('Assignment Message'),
-    new MessageButton().setLabel('Deassignment Message'),
+    new ButtonBuilder().setLabel('No XP'),
+    new ButtonBuilder().setLabel('Assignment Message'),
+    new ButtonBuilder().setLabel('Deassignment Message'),
   ];
   r[0].setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} ${id} noXp`);
-  r[0].setStyle(myRole.noXp ? 'SUCCESS' : 'DANGER');
+  r[0].setStyle(myRole.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
   r[1].setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} ${id} assignMessage`);
-  r[1].setStyle('SECONDARY');
+  r[1].setStyle(ButtonStyle.Secondary);
 
   r[2].setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} ${id} deassignMessage`);
-  r[2].setStyle('SECONDARY');
+  r[2].setStyle(ButtonStyle.Secondary);
 
   return r;
 };
 
-const _close = (i) => new MessageActionRow()
-  .addComponents(new MessageButton()
+const _close = (i) => new ActionRowBuilder()
+  .addComponents(new ButtonBuilder()
     .setLabel('Close')
-    .setStyle('DANGER')
+    .setStyle(ButtonStyle.Danger)
     .setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} - closeMenu`));
 
 const _modal = (roleId, assignState) => new Modal()
@@ -60,7 +60,7 @@ module.exports.execute = async (i) => {
 
   const myRole = await guildRoleModel.storage.get(i.guild, resolvedRole.id);
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'Role Settings' })
     .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id)).setColor(0x00AE86)
     .addField('No XP', 'If this is enabled, no xp will be given to members that have this role.')
@@ -71,7 +71,7 @@ module.exports.execute = async (i) => {
 
   await i.reply({
     embeds: [e],
-    components: [new MessageActionRow().addComponents(generateRow(i, resolvedRole.id, myRole)), _close(i)],
+    components: [new ActionRowBuilder().addComponents(generateRow(i, resolvedRole.id, myRole)), _close(i)],
   });
 
 };
@@ -98,7 +98,7 @@ module.exports.component = async (i) => {
       myRole.noXp = 1;
     }
     await i.update({ components: [
-      new MessageActionRow().addComponents(generateRow(i, roleId, myRole)), _close(i)] });
+      new ActionRowBuilder().addComponents(generateRow(i, roleId, myRole)), _close(i)] });
   } else {
     showModal(_modal(roleId, type === 'assignMessage'), { client: i.client, interaction: i });
   }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { oneLine } = require('common-tags');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const fct = require('../../util/fct.js');

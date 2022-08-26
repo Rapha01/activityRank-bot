@@ -7,7 +7,7 @@ const Discord = require('discord.js');
 module.exports = {
   name: '_guildMemberJoin',
   execute(member) {
-    return new Promise(async function (resolve, reject) {
+    return new Promise(async function(resolve, reject) {
       try {
         // if (member.user.bot) return;
         await guildModel.cache.load(member.guild);
@@ -27,7 +27,7 @@ module.exports = {
 };
 
 const autoPostServerJoin = (member, roleAssignmentString) => {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
       if (!channel)
@@ -45,7 +45,7 @@ const autoPostServerJoin = (member, roleAssignmentString) => {
         .replace(/<name>/g, member.user.username)
         .replace(/<servername>/g, member.guild.name);
 
-      const welcomeEmbed = new Discord.MessageEmbed()
+      const welcomeEmbed = new Discord.EmbedBuilder()
         .setTitle(member.user.username)
         .setColor('#4fd6c8')
         .setDescription(welcomeMessage)

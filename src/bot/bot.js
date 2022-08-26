@@ -1,21 +1,22 @@
 const fs = require('fs');
 const path = require('path');
-const { Client, Options, Intents: { FLAGS } } = require('discord.js');
+const { Client, Options, GatewayIntentBits } = require('discord.js');
 const fct = require('../util/fct.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 const loadCommands = require('./util/cmdLoader');
 
 const intents = [
-  FLAGS.GUILDS,
-  FLAGS.GUILD_MEMBERS,
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMembers,
   // FLAGS.GUILD_BANS,
   // FLAGS.GUILD_EMOJIS_AND_STICKERS,
-  FLAGS.GUILD_INTEGRATIONS,
+  GatewayIntentBits.GuildIntegrations,
   // FLAGS.GUILD_WEBHOOKS,
-  FLAGS.GUILD_VOICE_STATES,
-  FLAGS.GUILD_MESSAGES,
-  FLAGS.GUILD_MESSAGE_REACTIONS,
+  GatewayIntentBits.GuildVoiceStates,
+  GatewayIntentBits.GuildMessages,
+  // todo: rm? ^^
+  GatewayIntentBits.GuildMessageReactions,
   // FLAGS.GUILD_MESSAGE_TYPING,
   // FLAGS.DIRECT_MESSAGES,
   // FLAGS.DIRECT_MESSAGE_REACTIONS,
@@ -76,7 +77,7 @@ for (const file of eventFiles) {
 }
 
 function initClientCaches(client) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       client.appData = {};
       client.appData.statFlushCache = {};

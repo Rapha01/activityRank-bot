@@ -4,7 +4,7 @@ const rankModel = require('../../../models/rankModel.js');
 const fct = require('../../../../util/fct.js');
 const cooldownUtil = require('../../../util/cooldownUtil.js');
 const nameUtil = require('../../../util/nameUtil.js');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 const _prettifyTime = {
   Day: 'Today',
@@ -40,7 +40,7 @@ module.exports.execute = async (i) => {
   }
   await nameUtil.addGuildMemberNamesToRanks(i.guild, channelMemberRanks);
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setTitle(header)
     .setColor('#4fd6c8');
 
@@ -59,7 +59,7 @@ module.exports.execute = async (i) => {
       str = ':writing_hand: ' + channelMemberRanks[iter][time];
 
     guildMemberName = (await nameUtil.getGuildMemberInfo(i.guild, channelMemberRanks[iter].userId)).name;
-    e.addField('#' + (page.from + iter) + '  ' + guildMemberName, str, true);
+    e.addFields({ name: `#${page.from + iter}  ${guildMemberName}`, value: str, inline: true });
   }
 
   await i.editReply({

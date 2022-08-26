@@ -5,7 +5,7 @@ const fct = require('../../util/fct.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const nameUtil = require('../util/nameUtil.js');
 const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { ChannelType: { GuildText, GuildVoice, GuildNews } } = require('discord-api-types/v9');
 
 const _timedef = (_ => _
@@ -122,7 +122,7 @@ exports.sendMembersEmbed = async (i, type) => {
   }
   await nameUtil.addGuildMemberNamesToRanks(i.guild, memberRanks);
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setTitle(header)
     .setColor('#4fd6c8');
 
@@ -148,10 +148,10 @@ exports.sendMembersEmbed = async (i, type) => {
       scoreStrings.push(guild.voteEmote + ' ' + memberRank['vote' + time]);
     if (i.guild.appData.bonusXp)
       scoreStrings.push(guild.bonusEmote + ' ' + memberRank['bonus' + time]);
-    e.addField(
-      `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
-      `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(':black_small_square:')}`,
-    );
+    e.addFields({
+      name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
+      value: `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(':black_small_square:')}`,
+    });
     iter++;
   }
 

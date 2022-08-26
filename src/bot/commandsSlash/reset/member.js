@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const resetModel = require('../../models/resetModel.js');
 const nameUtil = require('../../util/nameUtil');
 const { parseMember } = require('../../util/parser');
@@ -21,17 +21,17 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const confirmRow = new MessageActionRow().addComponents(
-    new MessageButton()
+  const confirmRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
       .setCustomId('ignore confirm')
       .setLabel('Reset')
       .setEmoji('✅')
-      .setStyle('DANGER'),
-    new MessageButton()
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
       .setCustomId('ignore cancel')
       .setLabel('Cancel')
       .setEmoji('❎')
-      .setStyle('SECONDARY'),
+      .setStyle(ButtonStyle.Secondary),
   );
   const msg = await i.reply({
     content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(i.guild.members.cache, resolvedMember.id)}?`,

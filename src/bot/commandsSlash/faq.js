@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { MessageEmbed } = require('discord.js');
 
 
@@ -18,7 +18,7 @@ module.exports = {
       return await i.reply({ content: 'The FAQ must be within 1 and 100.', ephemeral: true });
 
     const item = faqs.find(o => o.id == faq);
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`**ActivityRank FAQ #${faq}**`)
       .setColor(0x00AE86)
     ;
@@ -45,12 +45,12 @@ module.exports = {
 
     faqs = faqs.map(o => ({ name: `#${o.id}: ${o.title}`, value: o.id }));
     i.respond(faqs.slice(0, 20));
-  }
+  },
 };
 
 
 function faqReducedEmbed(faqs) {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setTitle('**ActivityRank FAQ**')
     .setColor(0x00AE86)
     .setDescription('Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.')

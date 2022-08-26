@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton } = require('discord.js');
+const { SelectMenuBuilder, ButtonStyle, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 const { stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
@@ -28,7 +27,7 @@ const rows = (type, page, memberId) => {
   const paginationDisabled = ['general', 'permissions', 'messages'].includes(type);
   page = Number(page);
   return [
-    new MessageActionRow().addComponents(new MessageSelectMenu()
+    new ActionRowBuilder().addComponents(new SelectMenuBuilder()
       .setCustomId(`commandsSlash/serverinfo.js ${type} ${page}`)
       .addOptions([
         { label: 'General', value: 'general' },
@@ -40,27 +39,27 @@ const rows = (type, page, memberId) => {
         { label: 'Autosend Messages', value: 'messages' },
         { label: 'Permissions', value: 'permissions' },
       ])),
-    new MessageActionRow().addComponents(
-      new MessageButton()
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
         .setEmoji('⬅')
         .setCustomId('commandsSlash/serverinfo.js -1')
-        .setStyle('PRIMARY')
+        .setStyle(ButtonStyle.Primary)
         .setDisabled(paginationDisabled || page < 2),
-      new MessageButton()
+      new ButtonBuilder()
         .setLabel(paginationDisabled ? '-' : page.toString())
         .setCustomId('commandsSlash/serverinfo.js')
-        .setStyle('SECONDARY')
+        .setStyle(ButtonStyle.Secondary)
         .setDisabled(true),
-      new MessageButton()
+      new ButtonBuilder()
         .setEmoji('➡️')
         .setCustomId('commandsSlash/serverinfo.js 1')
-        .setStyle('PRIMARY')
+        .setStyle(ButtonStyle.Primary)
         .setDisabled(paginationDisabled || page > 100),
     ),
-    new MessageActionRow().addComponents(
-      new MessageButton()
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
         .setLabel('Close')
-        .setStyle('DANGER')
+        .setStyle(ButtonStyle.Danger)
         .setCustomId(`commandsSlash/serverinfo.js ${memberId} closeMenu`),
     ),
   ];
@@ -119,37 +118,35 @@ module.exports.component = async function(i) {
 
 
 async function info(i, myGuild) {
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: `Info for server ${i.guild.name}` })
     .setColor('#4fd6c8')
     .setThumbnail(i.guild.iconURL)
     .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
 
-  e.addField('**General**',
-    stripIndent`
-    Tracking since: <t:${myGuild.addDate}>
-    Tracking stats: ${
+  e.addFields({ name: '**General**', value: stripIndent`
+  Tracking since: <t:${myGuild.addDate}>
+  Tracking stats: ${
   (myGuild.textXp ? ':writing_hand: ' : '') +
-      (myGuild.voiceXp ? ':microphone2: ' : '') +
-      (myGuild.inviteXp ? ':envelope: ' : '') +
-      (myGuild.voteXp ? myGuild.voteEmote + ' ' : '') +
-      (myGuild.bonusXp ? myGuild.bonusEmote + ' ' : '')
+    (myGuild.voiceXp ? ':microphone2: ' : '') +
+    (myGuild.inviteXp ? ':envelope: ' : '') +
+    (myGuild.voteXp ? myGuild.voteEmote + ' ' : '') +
+    (myGuild.bonusXp ? myGuild.bonusEmote + ' ' : '')
 }
-    Notify levelup via direct message: ${myGuild.notifyLevelupDm ? 'Yes' : 'No'}
-    Notify levelup in the current channel: ${myGuild.notifyLevelupCurrentChannel ? 'Yes' : 'No'}
-    Notify levelup in a specific channel: ${
+  Notify levelup via direct message: ${myGuild.notifyLevelupDm ? 'Yes' : 'No'}
+  Notify levelup in the current channel: ${myGuild.notifyLevelupCurrentChannel ? 'Yes' : 'No'}
+  Notify levelup in a specific channel: ${
   myGuild.autopost_levelup ? '#' + nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup) : 'No'
 }
-    Notify levelup (dm and channel) with new roles: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
-    Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
-    List entries per page ${myGuild.entriesPerPage}
-    Status: ${fct.isPremiumGuild(i.guild) ? 'Premium' : 'Not Premium'}`,
-  );
-  e.addField('**Tokens**',
-    stripIndent`
+  Notify levelup (dm and channel) with new roles: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
+  Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
+  List entries per page ${myGuild.entriesPerPage}
+  Status: ${fct.isPremiumGuild(i.guild) ? 'Premium' : 'Not Premium'}` });
+
+  e.addFields({ name: '**Tokens**', value: stripIndent`
     Available: ${i.guild.appData.tokens} (burning ${Math.floor(fct.getTokensToBurn24h(i.guild.memberCount))} / 24h)
     Expected end date: <t:${Math.floor(i.guild.appData.tokens / fct.getTokensToBurn24h(i.guild.memberCount) + Date.now() / 1000)}>
-    Burned: ${myGuild.tokensBurned}`);
+    Burned: ${myGuild.tokensBurned}` });
 
   let bonusTimeString = '';
   if (myGuild.bonusUntilDate > Date.now() / 1000) {
@@ -171,8 +168,7 @@ async function info(i, myGuild) {
 
   // eslint-disable-next-line max-len
   const textmessageCooldownString = myGuild.textMessageCooldownSeconds ? `max every ${myGuild.textMessageCooldownSeconds} seconds` : ' without any cooldown';
-  e.addField('**Points**',
-    stripIndent`
+  e.addFields({ name: '**Points**', value: stripIndent`
     Vote Cooldown: A user has to wait ${Math.round(myGuild.voteCooldownSeconds / 60)} minutes between each vote
     Text Message Cooldown: Messages give XP ${textmessageCooldownString}
     Muted voice XP allowed: ${myGuild.allowMutedXp ? 'Yes' : 'No'}
@@ -180,13 +176,13 @@ async function info(i, myGuild) {
     Deafened voice XP allowed: ${myGuild.allowDeafenedXp ? 'Yes' : 'No'}
     Levelfactor: ${myGuild.levelFactor} XP
     ${xpPerString} ${bonusTimeString}`,
-  );
+  });
 
   return e;
 }
 
 async function levels(i, myGuild, from, to) {
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
     .setDescription(`XP needed to reach next level (total XP).\nLevelfactor: ${myGuild.levelFactor}.`)
@@ -203,13 +199,13 @@ async function levels(i, myGuild, from, to) {
   recordingLevels = recordingLevels.slice(from - 1, to);
 
   for (const level of recordingLevels)
-    e.addField(':military_medal:' + level.nr, level.localXp + ' (' + level.totalXp + ')', true);
+    e.addFields({ name: `🎖${level.nr}`, value: `${level.localXp}(${level.totalXp})`, inline: true });
 
   return e;
 }
 
 async function roles(i, myGuild, from, to) {
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'Roles info' })
     .setDescription('This server\'s activity roles and their respective levels.')
     .setColor('#4fd6c8')
@@ -220,7 +216,7 @@ async function roles(i, myGuild, from, to) {
 
 
   for (const myRole of roleAssignments)
-    e.addField(nameUtil.getRoleName(i.guild.roles.cache, myRole.roleId), getlevelString(myRole), true);
+    e.addFields({ name: nameUtil.getRoleName(i.guild.roles.cache, myRole.roleId), value: getlevelString(myRole), inline: true });
 
   if (roleAssignments.length == 0)
     e.setDescription('No roles to show here.');
@@ -245,7 +241,7 @@ async function noCommandChannels(i, myGuild, from, to) {
   }
 
   description += 'NoCommand channels (does not affect users with manage server permission): \n';
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'NoCommand channels info' })
     .setColor('#4fd6c8')
     .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
@@ -254,9 +250,8 @@ async function noCommandChannels(i, myGuild, from, to) {
   noCommandChannelIds = noCommandChannelIds.slice(from - 1, to);
 
   for (const channelId of noCommandChannelIds) {
-    e.addField(nameUtil.getChannelTypeIcon(i.guild.channels.cache, channelId),
-      nameUtil.getChannelName(i.guild.channels.cache, channelId), true,
-    );
+    e.addFields({ name: nameUtil.getChannelTypeIcon(i.guild.channels.cache, channelId),
+      value: nameUtil.getChannelName(i.guild.channels.cache, channelId), inline: true });
   }
 
   if (noCommandChannelIds.length == 0)
@@ -268,7 +263,7 @@ async function noCommandChannels(i, myGuild, from, to) {
 }
 
 async function noXpChannels(i, myGuild, from, to) {
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP channels info' })
     .setColor('#4fd6c8')
     .setDescription('Activity in these channels will not give xp.')
@@ -278,8 +273,9 @@ async function noXpChannels(i, myGuild, from, to) {
   noXpChannelIds = noXpChannelIds.slice(from - 1, to);
 
   for (const channelId of noXpChannelIds) {
-    e.addField(nameUtil.getChannelTypeIcon(i.guild.channels.cache, channelId),
-      nameUtil.getChannelName(i.guild.channels.cache, channelId), true);
+    e.addFields({ name: nameUtil.getChannelTypeIcon(i.guild.channels.cache, channelId),
+      value: nameUtil.getChannelName(i.guild.channels.cache, channelId), inline: true,
+    });
   }
 
   if (noXpChannelIds.length == 0)
@@ -289,7 +285,7 @@ async function noXpChannels(i, myGuild, from, to) {
 }
 
 async function noXpRoles(i, myGuild, from, to) {
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP roles info' })
     .setColor('#4fd6c8')
     .setDescription('Activity from users with these roles will not give xp.')
@@ -299,7 +295,7 @@ async function noXpRoles(i, myGuild, from, to) {
   noXpRoleIds = noXpRoleIds.slice(from - 1, to);
 
   for (const roleId of noXpRoleIds)
-    e.addField(':no_entry_sign:', nameUtil.getRoleName(i.guild.roles.cache, roleId), true);
+    e.addFields({ name: '⛔️', value: nameUtil.getRoleName(i.guild.roles.cache, roleId), inline: true });
 
   if (noXpRoleIds.length == 0)
     e.setDescription('No roles to show here.');
@@ -325,7 +321,7 @@ async function messages(i, myGuild, from, to) {
       entries.push({ title: 'Deassignment of ' + role.name, desc: role.appData.deassignMessage });
   }
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'Messages info' })
     .setColor('#4fd6c8')
     .setDescription('Review the set messages and texts for the bot.')
@@ -333,13 +329,13 @@ async function messages(i, myGuild, from, to) {
 
   entries = entries.slice(from - 1, to);
   for (const entry of entries)
-    e.addField(entry.title, entry.desc != '' ? entry.desc : 'Not set.');
+    e.addFields({ name: entry.title, value: entry.desc != '' ? entry.desc : 'Not set.' });
 
   return e;
 }
 
 async function permissions(i) {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setAuthor({ name: 'Permission Info' })
     .setColor('#4fd6c8')
     .setThumbnail(i.guild.iconURL)

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { MessageEmbed } = require('discord.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
@@ -51,7 +51,7 @@ module.exports.execute = async function(i) {
     lastActivityStr += `Last bonus: ${lastActivities.bonus}\n`;
 
   targetMemberInfo.joinedAt = Math.ceil(targetMemberInfo.joinedAt / 1000);
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setAuthor({ name: `Info for ${targetMemberInfo.name} in server ${i.guild.name}` })
     .setColor('#4fd6c8')
     .setThumbnail(targetMemberInfo.avatarUrl)

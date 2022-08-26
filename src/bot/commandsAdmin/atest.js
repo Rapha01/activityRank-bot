@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
 
 module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
@@ -10,7 +9,7 @@ module.exports.data = new SlashCommandBuilder()
 
 module.exports.execute = async function(i) {
   const sent = await i.deferReply({ fetchReply: true, ephemeral: true });
-  const pingEmbed = new MessageEmbed()
+  const pingEmbed = new EmbedBuilder()
     .setColor(0x00AE86)
     .setTitle('🏓 Pong! 🏓')
     .addFields(

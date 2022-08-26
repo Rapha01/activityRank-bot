@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { MessageEmbed } = require('discord.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
@@ -58,7 +58,7 @@ module.exports.execute = async (i) => {
 
   await userModel.cache.load(targetMember.user);
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setAuthor({ name: `${time} stats on server ${i.guild.name}` })
     .setColor('#4fd6c8')
     .setDescription(description)

@@ -1,13 +1,12 @@
 /* eslint-disable max-len */
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
 const { Modal, TextInputComponent, showModal } = require('discord-modals');
 const guildModel = require('../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
   return [
-    new MessageActionRow().addComponents(
-      new MessageSelectMenu().setCustomId(`commandsSlash/config-messages.js ${i.member.id} select`).setPlaceholder('The message to set')
+    new ActionRowBuilder().addComponents(
+      new SelectMenuBuilder().setCustomId(`commandsSlash/config-messages.js ${i.member.id} select`).setPlaceholder('The message to set')
         .setOptions([
           { label: 'Server Join Message', value: 'serverJoinMessage' },
           { label: 'Levelup Message', value: 'levelupMessage' },
@@ -15,8 +14,8 @@ const generateRows = async (i) => {
           { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
         ]),
     ),
-    new MessageActionRow().addComponents(
-      new MessageButton().setLabel('Clear a message').setStyle('DANGER').setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear`),
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('Clear a message').setStyle(ButtonStyle.Danger).setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear`),
     ),
   ];
 };
@@ -53,7 +52,7 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'Server Messages' }).setColor(0x00AE86)
     .addField('Server Join Message',
       'The message to send when a member joins the server')
@@ -81,8 +80,8 @@ module.exports.component = async (i) => {
   if (type === 'clear') {
     return await i.reply({
       content: 'Which message do you want to clear?',
-      components: [new MessageActionRow().addComponents(
-        new MessageSelectMenu().setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear-select`).setPlaceholder('The message to clear')
+      components: [new ActionRowBuilder().addComponents(
+        new SelectMenuBuilder().setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear-select`).setPlaceholder('The message to clear')
           .setOptions([
             { label: 'Server Join Message', value: 'serverJoinMessage' },
             { label: 'Levelup Message', value: 'levelupMessage' },

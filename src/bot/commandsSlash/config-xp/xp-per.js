@@ -24,7 +24,7 @@ module.exports.execute = async function(i) {
 
   for (const k in items) if (items[k] !== null) await guildModel.storage.set(i.guild, k, items[k]);
   await i.reply({
-    embeds: [new MessageEmbed().setAuthor({ name: 'XP Values' }).setColor(0x00AE86)
+    embeds: [new EmbedBuilder().setAuthor({ name: 'XP Values' }).setColor(0x00AE86)
       .setDescription(stripIndent`
       Modified XP Values! New values:
 

@@ -76,7 +76,7 @@ exports.fetch = (body,route,method) => {
       if (body != null)
         requestObject.body = JSON.stringify(body);
 
-      res = await fetch('http://' + keys.managerHost + route, requestObject);
+      res = await fetch('http://' + keys.managerHost + ':3005' + route, requestObject);
 
       res = await res.json();
       if (res.error != null)
