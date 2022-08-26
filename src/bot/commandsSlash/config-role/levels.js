@@ -1,11 +1,11 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const { commaListsAnd } = require('common-tags');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const nameUtil = require('../../util/nameUtil.js');
 const { parseRole } = require('../../util/parser');
 
 module.exports.execute = async function(i) {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
@@ -21,7 +21,7 @@ module.exports.execute = async function(i) {
     });
   }
 
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_ROLES')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageRoles)) {
     return await i.reply({
       content: 'Please ensure the bot has the permission to manage roles for the duration of this setup.',
       ephemeral: true,

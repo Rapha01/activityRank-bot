@@ -1,7 +1,6 @@
-const userModel = require('../models/userModel.js');
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('./cooldownUtil.js');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { stripIndent } = require('common-tags');
 const { botInviteLink } = require('../../const/config.js');
 
@@ -25,7 +24,7 @@ module.exports = async (msg) => {
 };
 
 const sendPermissionsEmbed = async (msg) => {
-  if (!msg.guild.me.permissions.missing('294172224721').length)
+  if (!msg.guild.members.me.permissions.missing('294172224721').length)
     return;
 
   const embed = new EmbedBuilder()

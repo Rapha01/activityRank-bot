@@ -341,11 +341,11 @@ async function permissions(i) {
     .setThumbnail(i.guild.iconURL)
     .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
 
-  const missingPerms = i.guild.me.permissions.missing('294172224721');
+  const missingPerms = i.guild.members.me.permissions.missing(294172224721);
   if (!missingPerms.length) {
     embed.addField('✅ All Permissions are Correct ✅', 'Your bot has all the permissions it needs.');
   } else {
-    const botRole = i.guild.me.roles.botRole;
+    const botRole = i.guild.members.me.roles.botRole;
     embed.addField(
       `❌ Missing ${missingPerms.length} Permissions ❌`,
       `Your bot is missing the following permissions: \n${missingPerms.join(', \n')}`,

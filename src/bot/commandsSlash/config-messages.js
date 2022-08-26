@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
@@ -44,7 +44,7 @@ module.exports.data = new SlashCommandBuilder()
   .setDescription('Configures the guild\'s autopost messages');
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,

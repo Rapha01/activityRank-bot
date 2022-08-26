@@ -2,6 +2,7 @@ const guildModel = require('../models/guild/guildModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
+const { PermissionFlagsBits } = require('discord.js');
 const userPrivileges = require('../../const/privilegedUsers').get();
 
 
@@ -14,7 +15,8 @@ module.exports = {
       await guildModel.cache.load(interaction.guild);
       await guildChannelModel.cache.load(interaction.channel);
 
-      if (interaction.channel.appData.noCommand && !interaction.member.permissionsIn(interaction.channel).has('MANAGE_GUILD')) {
+      if (interaction.channel.appData.noCommand
+        && !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)) {
         return await interaction.reply({
           content: 'This is a noCommand channel, and you are not an admin.',
           ephemeral: true,
@@ -23,7 +25,7 @@ module.exports = {
 
       if (interaction.guild.appData.commandOnlyChannel != 0
         && interaction.guild.appData.commandOnlyChannel != interaction.channel.id
-        && !interaction.member.permissionsIn(interaction.channel).has('MANAGE_GUILD')
+        && !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
       ) {
         return await interaction.reply({
           content: `Commands can only be used in <#${interaction.guild.appData.commandOnlyChannel}> unless you are an admin.`,
@@ -35,7 +37,7 @@ module.exports = {
 
       if (interaction.isButton() || interaction.isSelectMenu()) {
         await component(interaction);
-      } else if (interaction.isUserContextMenu()) {
+      } else if (interaction.isUserContextMenuCommand()) {
         await userCtx(interaction);
       } else if (interaction.isCommand() || interaction.isAutocomplete()) {
         const path = await getPath(interaction);

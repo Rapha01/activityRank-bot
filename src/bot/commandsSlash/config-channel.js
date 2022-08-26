@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice } } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice }, PermissionFlagsBits } = require('discord.js');
 const { oneLine, stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
@@ -68,7 +68,7 @@ module.exports.execute = async (i) => {
     });
   }
 
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
@@ -80,7 +80,7 @@ module.exports.execute = async (i) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Channel Settings' })
     .setDescription(nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id)).setColor(0x00AE86)
-    .addFields({ title: 'No XP', value: 'If this is enabled, no xp will be given in this channel.' });
+    .addFields({ name: 'No XP', value: 'If this is enabled, no xp will be given in this channel.' });
 
   if (!resolvedChannel.channel || resolvedChannel.channel.type === 'GUILD_TEXT') {
     e.addFields({ name: 'No Commands', value: stripIndent`If this is enabled, commands will not work in this channel.

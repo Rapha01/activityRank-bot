@@ -1,8 +1,9 @@
+const { PermissionFlagsBits } = require('discord.js');
 const guildModel = require('../../models/guild/guildModel.js');
 const resetModel = require('../../models/resetModel.js');
 
 module.exports.execute = async function(i) {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
