@@ -51,7 +51,7 @@ module.exports.data = new SlashCommandBuilder()
         .setName('channel')
         .setDescription('The channel to check')
         .setRequired(true)
-        .addChannelTypes([ GuildText, GuildVoice, GuildNews ]))
+        .addChannelTypes(GuildText, GuildVoice, GuildNews))
       .addStringOption(_timedef)
       .addIntegerOption(_page)))
   .addSubcommandGroup(scg => scg

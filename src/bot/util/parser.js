@@ -5,7 +5,6 @@
 .addStringOption(o => o
   .setName('id').setDescription('The ID of the channel to modify'));
 */
-const { Constants } = require('discord.js');
 
 module.exports.parseChannel = async (i) => {
   let id = null;
@@ -17,7 +16,7 @@ module.exports.parseChannel = async (i) => {
 
   const channel = i.guild.channels.cache.get(id);
 
-  return {id, channel};
+  return { id, channel };
 };
 
 module.exports.parseRole = async (i) => {
@@ -30,7 +29,7 @@ module.exports.parseRole = async (i) => {
 
   const role = i.guild.roles.cache.get(id);
 
-  return {id, role};
+  return { id, role };
 };
 
 
@@ -42,11 +41,11 @@ module.exports.parseMember = async (i) => {
   if (!id)
     return null;
 
-  let member = null;
+  const member = null;
   try {
-    let member = await i.guild.members.fetch(id);
+    const member = await i.guild.members.fetch(id);
   } catch (e) { }
 
 
-  return {id, member};
+  return { id, member };
 };

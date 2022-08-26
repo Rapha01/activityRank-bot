@@ -1,4 +1,4 @@
-const { EmbedBuilder, Constants } = require('discord.js');
+const { EmbedBuilder, RESTJSONErrorCodes } = require('discord.js');
 const guildMemberModel = require('../models/guild/guildMemberModel');
 const statFlushCache = require('../statFlushCache');
 const { stripIndent } = require('common-tags');
@@ -41,7 +41,7 @@ module.exports.changeXp = async (interaction, roleId, change) => {
             ).setColor(0x00AE86)] });
           }
         } catch (e) {
-          if (e.code === Constants.APIErrors.INVALID_WEBHOOK_TOKEN)
+          if (e.code === RESTJSONErrorCodes.InvalidWebhookToken)
             // interaction hit 15-min timeout
             statusDeferrals.set(interaction.guild.id, { timeout: Date.now() + 3e+5, type: 'msg' });
           else
