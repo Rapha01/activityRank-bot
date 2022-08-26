@@ -63,8 +63,10 @@ module.exports.data = new SlashCommandBuilder()
       .addStringOption(o => o
         .setName('type')
         .setDescription('The type of channel')
-        .addChoice('Text', 'textMessage')
-        .addChoice('Voice', 'voiceMinute')
+        .addChoices(
+          { name: 'Text', value: 'textMessage' },
+          { name: 'Voice', value: 'voiceMinute' },
+        )
         .setRequired(true))
       .addStringOption(_timedef)
       .addIntegerOption(_page))
@@ -78,8 +80,10 @@ module.exports.data = new SlashCommandBuilder()
       .addStringOption(o => o
         .setName('type')
         .setDescription('The type of channel')
-        .addChoice('Text', 'textMessage')
-        .addChoice('Voice', 'voiceMinute')
+        .addChoices(
+          { name: 'Text', value: 'textMessage' },
+          { name: 'Voice', value: 'voiceMinute' },
+        )
         .setRequired(true))
       .addStringOption(_timedef)
       .addIntegerOption(_page)));
