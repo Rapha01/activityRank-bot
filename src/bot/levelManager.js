@@ -2,6 +2,7 @@ const fct = require('../util/fct.js');
 const nameUtil = require('./util/nameUtil.js');
 const guildRoleModel = require('./models/guild/guildRoleModel.js');
 const Discord = require('discord.js');
+const { PermissionFlagsBits } = require('discord.js');
 
 exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
   return new Promise(async function(resolve, reject) {
@@ -31,7 +32,7 @@ exports.checkRoleAssignment = (member, level) => {
       let roleMessages = [], memberHasRole;
       const roles = member.guild.roles.cache;
 
-      if (roles.size == 0 || !member.guild.me.permissions.has('MANAGE_ROLES'))
+      if (roles.size == 0 || !member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles))
         return resolve(roleMessages);
 
       for (let role of roles) {
@@ -40,7 +41,7 @@ exports.checkRoleAssignment = (member, level) => {
 
         if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0)
           continue;
-        if (role.comparePositionTo(member.guild.me.roles.highest) > 0)
+        if (role.comparePositionTo(member.guild.members.me.roles.highest) > 0)
           continue;
 
         memberHasRole = member.roles.cache.get(role.id);

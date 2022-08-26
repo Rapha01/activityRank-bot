@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
-const { oneLine, stripIndent } = require('common-tags');
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { stripIndent } = require('common-tags');
 const guildModel = require('../../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
@@ -48,7 +48,7 @@ const _close = (i) => new ActionRowBuilder()
     .setCustomId(`commandsSlash/config-server/set.js ${i.member.id} closeMenu`));
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
@@ -57,31 +57,32 @@ module.exports.execute = async (i) => {
 
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Server Settings' }).setColor(0x00AE86)
-    .addField('Use Nicknames',
-      'If this is enabled, nicknames will be used to represent members instead of their Discord usernames')
-    .addField('Reaction Voting',
-      `If this is enabled, members will be permitted to vote using the server's voteEmote, ${i.guild.appData.voteEmote}`)
-    .addField('Allow Muted XP',
-      'If this is enabled, members will be permitted to gain XP in VCs, even when they are muted.')
-    .addField('Allow Deafened XP',
-      'If this is enabled, members will be permitted to gain XP in VCs, even when they are deafened.')
-    .addField('Allow Solo XP',
-      'If this is enabled, members will be permitted to gain XP in VCs, even when they are alone. Bots do not count.')
-    .addField('TAAROLD (Take Away Assigned Roles On Level Down)',
-      'If this is enabled, the bot will remove roles when the member falls below their assignLevel.')
-
-    .addField('Notify Via DM',
-      stripIndent`If this is enabled, the bot will allow members to recieve levelup notifications via DM.
-        You cannot select this if either of the below two options are enabled, because they will take priority.`)
-    .addField('Notify in Last Active Channel',
-      stripIndent`If this is enabled, the bot will notify members of their levelups in their last used text channel.
-        You cannot select this if the below option is enabled, because it will take priority.`)
-    .addField('Replace Levelup Message With Role Message',
-      oneLine`If this is enabled, the bot will send both a levelup and roleAssign message where applicable.
-        Otherwise, it will just send a roleAssign message.`)
-    .addField('✍️, 🎙️, ✉️, ❤️',
-      stripIndent`These will enable or disable text, voice, invite, and upvoteXP respectively.
-        You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`);
+    .addFields(
+      { name: 'Use Nicknames', value:
+        'If this is enabled, nicknames will be used to represent members instead of their Discord usernames' },
+      { name: 'Reaction Voting', value:
+        `If this is enabled, members will be permitted to vote using the server's voteEmote, ${i.guild.appData.voteEmote}` },
+      { name: 'Allow Muted XP', value:
+        'If this is enabled, members will be permitted to gain XP in VCs, even when they are muted.' },
+      { name: 'Allow Deafened XP', value:
+        'If this is enabled, members will be permitted to gain XP in VCs, even when they are deafened.' },
+      { name: 'Allow Solo XP', value:
+        'If this is enabled, members will be permitted to gain XP in VCs, even when they are alone. Bots do not count.' },
+      { name: 'TAAROLD (Take Away Assigned Roles On Level Down)', value:
+        'If this is enabled, the bot will remove roles when the member falls below their assignLevel.' },
+      { name: 'Notify Via DM', value: stripIndent`
+        If this is enabled, the bot will allow members to recieve levelup notifications via DM.
+        You cannot select this if either of the below two options are enabled, because they will take priority.` },
+      { name: 'Notify in Last Active Channel', value: stripIndent`
+        If this is enabled, the bot will notify members of their levelups in their last used text channel.
+        You cannot select this if the below option is enabled, because it will take priority.` },
+      { name: 'Replace Levelup Message With Role Message', value: stripIndent`
+        If this is enabled, the bot will send both a levelup and roleAssign message where applicable.
+        Otherwise, it will just send a roleAssign message.` },
+      { name: '✍️, 🎙️, ✉️, ❤️', value: stripIndent`
+        These will enable or disable text, voice, invite, and upvoteXP respectively.
+        You may want to reset these categories, as disabling them will only hide them and prevent more from being added.` },
+    );
 
   await i.reply({
     embeds: [e],

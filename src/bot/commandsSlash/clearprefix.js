@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 
 module.exports.data = new SlashCommandBuilder()
@@ -9,7 +9,7 @@ module.exports.data = new SlashCommandBuilder()
     .setDescription('Sets a prefix that will continue to warn members if used.'));
 
 module.exports.execute = async function(i) {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server, in order to use this command.',
       ephemeral: true,
