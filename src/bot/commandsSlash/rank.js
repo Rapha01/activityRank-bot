@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
@@ -18,12 +17,12 @@ module.exports.data = new SlashCommandBuilder()
   .addStringOption(o => o
     .setName('period')
     .setDescription('The time period to check')
-    .addChoices([
-      ['Day', 'Day'],
-      ['Week', 'Week'],
-      ['Month', 'Month'],
-      ['Year', 'Year'],
-    ]));
+    .addChoices(
+      { name: 'Day', value: 'Day' },
+      { name: 'Week', value: 'Week' },
+      { name: 'Month', value: 'Month' },
+      { name: 'Year', value: 'Year' },
+    ));
 
 module.exports.execute = async (i) => {
   await i.deferReply();

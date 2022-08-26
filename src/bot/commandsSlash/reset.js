@@ -9,19 +9,19 @@ module.exports.data = new SlashCommandBuilder()
     .addStringOption(o => o
       .setName('type')
       .setDescription('The type of reset to execute')
-      .addChoices([
-        ['Stats & Settings', 'all'],
-        ['All Statistics', 'stats'],
-        ['All Server Settings', 'settings'],
-        ['Text XP', 'textstats'],
-        ['Voice XP', 'voicestats'],
-        ['Invite XP', 'invitestats'],
-        ['Upvote XP', 'votestats'],
-        ['Bonus XP', 'bonusstats'],
-        ['Members no longer in the server', 'deletedmembers'],
-        ['Deleted channels', 'deletedchannels'],
-        ['Cancel Active Resets', 'stop'],
-      ])
+      .addChoices(
+        { name: 'Stats & Settings', value: 'all' },
+        { name: 'All Statistics', value: 'stats' },
+        { name: 'All Server Settings', value: 'settings' },
+        { name: 'Text XP', value: 'textstats' },
+        { name: 'Voice XP', value: 'voicestats' },
+        { name: 'Invite XP', value: 'invitestats' },
+        { name: 'Upvote XP', value: 'votestats' },
+        { name: 'Bonus XP', value: 'bonusstats' },
+        { name: 'Members no longer in the server', value: 'deletedMembers' },
+        { name: 'Deleted channels', value: 'deletedchannels' },
+        { name: 'Cancel Active Resets', value: 'stop' },
+      )
       .setRequired(true)))
   .addSubcommand(sc => sc
     .setName('member')

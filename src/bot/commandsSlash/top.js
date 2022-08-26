@@ -4,19 +4,18 @@ const rankModel = require('../models/rankModel.js');
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const nameUtil = require('../util/nameUtil.js');
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { ChannelType: { GuildText, GuildVoice, GuildNews } } = require('discord-api-types/v9');
 
 const _timedef = (_ => _
   .setName('period')
   .setDescription('The time period to check')
-  .addChoices([
-    ['Day', 'Day'],
-    ['Week', 'Week'],
-    ['Month', 'Month'],
-    ['Year', 'Year'],
-  ])
+  .addChoices(
+    { name: 'Day', value: 'Day' },
+    { name: 'Week', value: 'Week' },
+    { name: 'Month', value: 'Month' },
+    { name: 'Year', value: 'Year' },
+  )
 );
 const _page = (_ => _
   .setName('page')
@@ -39,12 +38,12 @@ module.exports.data = new SlashCommandBuilder()
       .addStringOption(o => o
         .setName('type')
         .setDescription('Order by a type of XP')
-        .addChoices([
-          ['Text', 'textMessage'],
-          ['Voice', 'voiceMinute'],
-          ['Like', 'vote'],
-          ['Invite', 'invite'],
-        ])))
+        .addChoices(
+          { name: 'Text', value: 'textMessage' },
+          { name: 'Voice', value: 'voiceMinute' },
+          { name: 'Like', value: 'vote' },
+          { name: 'Invite', value: 'invite' },
+        )))
     .addSubcommand(sc => sc
       .setName('channel')
       .setDescription('The top members in the specified channel')

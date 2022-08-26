@@ -11,7 +11,7 @@ module.exports.data = new SlashCommandBuilder()
   .setDescription('Change a channel\'s settings!')
   .addChannelOption(o => o
     .setName('channel').setDescription('The channel to modify')
-    .addChannelTypes([GuildText, GuildVoice]))
+    .addChannelTypes(GuildText, GuildVoice))
   .addStringOption(o => o
     .setName('id').setDescription('The ID of the channel to modify'));
 
