@@ -33,7 +33,7 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setTitle(`Toplist for server ${i.guild.name} ${
       type === 'textMessage' ? 'text channels' : 'voice channels'
     } from ${page.from} to ${page.to} | ${_prettifyTime[time]}`)
@@ -49,7 +49,10 @@ module.exports.execute = async (i) => {
     else if (type == 'textMessage')
       str = ':writing_hand: ' + channelRanks[iter][time];
 
-    e.addField(`#${page.from + iter}  ${nameUtil.getChannelName(i.guild.channels.cache, channelRanks[iter].channelId)}`, str);
+    e.addFields({
+      name: `#${page.from + iter}  ${nameUtil.getChannelName(i.guild.channels.cache, channelRanks[iter].channelId)}`,
+      value: str,
+    });
   }
 
   await i.editReply({

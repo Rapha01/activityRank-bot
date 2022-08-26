@@ -1,6 +1,6 @@
 const cooldownUtil = require('../../util/cooldownUtil.js');
 const resetModel = require('../../models/resetModel.js');
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
@@ -21,17 +21,17 @@ module.exports.execute = async (i) => {
   }
 
   if (!await cooldownUtil.checkResetServerCommandCooldown(i)) return;
-  const confirmRow = new MessageActionRow().addComponents(
-    new MessageButton()
+  const confirmRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
       .setCustomId('ignore confirm')
       .setLabel('Reset')
       .setEmoji('✅')
-      .setStyle('DANGER'),
-    new MessageButton()
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
       .setCustomId('ignore cancel')
       .setLabel('Cancel')
       .setEmoji('❎')
-      .setStyle('SECONDARY'),
+      .setStyle(ButtonStyle.Secondary),
   );
   const msg = await i.reply({
     content: 'Are you sure you want to reset these statistics?',

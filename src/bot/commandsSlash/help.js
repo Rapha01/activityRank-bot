@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, SelectMenuBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { stripIndent } = require('common-tags');
 const { supportServerInviteLink } = require('../../const/config');
 
@@ -11,8 +10,8 @@ module.exports = {
   async execute(i) {
     const helpEmbed = helpMainEmbed(i.guild, i.client.appData.texts.commands);
     await i.reply({ embeds:[helpEmbed], components: [
-      new MessageActionRow().addComponents(
-        new MessageSelectMenu()
+      new ActionRowBuilder().addComponents(
+        new SelectMenuBuilder()
           .setCustomId(`commandsSlash/help.js select ${i.user.id}`)
           .setPlaceholder('Nothing selected')
           .addOptions([
@@ -30,11 +29,11 @@ module.exports = {
             { label: 'Resets', value: 'reset', emoji: '' },
           ]),
       ),
-      new MessageActionRow().addComponents(
-        new MessageButton()
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
           .setCustomId(`commandsSlash/help.js closeMenu ${i.user.id}`)
           .setLabel('Close')
-          .setStyle('DANGER'),
+          .setStyle(ButtonStyle.Danger),
       ),
     ] });
   },
@@ -55,7 +54,7 @@ module.exports = {
 
 
 function helpMainEmbed(guild, sections) {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setAuthor({ name: 'ActivityRank Manual' })
     .setColor(0x00AE86)
     .setDescription(stripIndent`
@@ -70,7 +69,7 @@ function helpMainEmbed(guild, sections) {
 }
 
 function helpFeatureEmbed(guild, section) {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setColor(0x00AE86)
     .setTitle(`**Manual - ${section.title}**`)
     .setDescription(section.subdesc);

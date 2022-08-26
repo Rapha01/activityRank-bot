@@ -1,4 +1,4 @@
-const { MessageEmbed, Constants } = require('discord.js');
+const { EmbedBuilder, Constants } = require('discord.js');
 const guildMemberModel = require('../models/guild/guildMemberModel');
 const statFlushCache = require('../statFlushCache');
 const { stripIndent } = require('common-tags');
@@ -9,7 +9,7 @@ const statusDeferrals = new Map();
 module.exports.changeXp = async (interaction, roleId, change) => {
   statusDeferrals.set(interaction.guild.id, { timeout: Date.now(), type: 'hook' });
   exports.currentlyProcessing.add(interaction.guild.id);
-  await interaction.editReply({ embeds: [new MessageEmbed().setDescription(
+  await interaction.editReply({ embeds: [new EmbedBuilder().setDescription(
     'Fetching members...',
   ).setColor(0x00AE86)] });
   const members = await interaction.guild.members.fetch();
@@ -28,13 +28,13 @@ module.exports.changeXp = async (interaction, roleId, change) => {
       if (statusDeferrals.get(interaction.guild.id).timeout < Date.now()) {
         try {
           if (statusDeferrals.get(interaction.guild.id).type === 'hook') {
-            await interaction.editReply({ embeds: [new MessageEmbed().setDescription(
+            await interaction.editReply({ embeds: [new EmbedBuilder().setDescription(
               stripIndent`
                 \`${modifiedMembers}\` members updated.
                 \`${checkedMembers}\`/\`${members.size}\` (\`${(checkedMembers / members.size) * 20}%\`) members processed.`,
             ).setColor(0x00AE86)] });
           } else {
-            await interaction.channel.send({ embeds: [new MessageEmbed().setDescription(
+            await interaction.channel.send({ embeds: [new EmbedBuilder().setDescription(
               stripIndent`
                 \`${modifiedMembers}\` members updated.
                 \`${checkedMembers}\`/\`${members.size}\` (\`${(checkedMembers / members.size) * 20}%\`) members processed.`,
@@ -68,11 +68,11 @@ module.exports.changeXp = async (interaction, roleId, change) => {
     }
   }
   if (statusDeferrals.get(interaction.guild.id).type === 'hook') {
-    await interaction.editReply({ embeds: [new MessageEmbed().setDescription(
+    await interaction.editReply({ embeds: [new EmbedBuilder().setDescription(
       'Operation complete.',
     ).setColor(0x00AE86)] });
   } else {
-    await interaction.channel.send({ embeds: [new MessageEmbed().setDescription(
+    await interaction.channel.send({ embeds: [new EmbedBuilder().setDescription(
       'Operation complete.',
     ).setColor(0x00AE86)] });
   }

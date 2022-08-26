@@ -22,7 +22,7 @@ module.exports.execute = async function(i) {
 
   for (const k in items) if (items[k]) await guildModel.storage.set(i.guild, k, items[k]);
   await i.reply({
-    embeds: [new MessageEmbed().setAuthor({ name: 'Vote Tag/Emote' }).setColor(0x00AE86)
+    embeds: [new EmbedBuilder().setAuthor({ name: 'Vote Tag/Emote' }).setColor(0x00AE86)
       .setDescription(stripIndent`
       Modified the server's settings!
 

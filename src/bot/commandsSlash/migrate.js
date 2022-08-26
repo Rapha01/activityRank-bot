@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { MessageEmbed } = require('discord.js');
 const commands = require('../temp/const/commands');
 
@@ -23,7 +23,7 @@ module.exports.execute = async function(i) {
     });
   }
   await i.reply({
-    embeds: [new MessageEmbed()
+    embeds: [new EmbedBuilder()
       .setAuthor({ name: 'ar!' + cmd.old })
       .addField('Description', cmd.desc)
       .addField('Replacement', cmd.new)

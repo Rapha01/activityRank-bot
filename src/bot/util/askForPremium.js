@@ -1,7 +1,7 @@
 const userModel = require('../models/userModel.js');
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('./cooldownUtil.js');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { oneLine } = require('common-tags');
 
 let askForPremiumCdGuild, askForPremiumCdUser;
@@ -35,19 +35,20 @@ module.exports = async function(interaction) {
 };
 
 async function sendAskForPremiumEmbed(interaction) {
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setTitle('Thank you for using ActivityRank!')
     .setColor(0x00AE86)
     .setThumbnail(interaction.client.user.displayAvatarURL());
 
-  e.addField('The maintenance and development of this bot depend on your support!',
-    oneLine`${interaction.user}, please consider helping this server to go Premium. 
+  e.addFields({
+    name: 'The maintenance and development of this bot depend on your support!',
+    value: oneLine`${interaction.user}, please consider helping this server to go Premium. 
       All features of the bot are free, but Premium servers receive additional (current and upcoming) 
       quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). 
       Simply go to https://activityrank.me/premium to buy a few tokens for your user account or get some 
       **TOKENS FOR FREE** by regularly upvoting the bot on https://top.gg/bot/534589798267224065. 
       These tokens can then be redeemed for premium time on any server. **Thank you!**`,
-  );
+  });
 
   await interaction.followUp({ embeds: [e], ephemeral: true });
 }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { MessageEmbed } = require('discord.js');
 
 module.exports.data = new SlashCommandBuilder()
@@ -41,7 +41,7 @@ module.exports.autocomplete = async (i) => {
 };
 
 function patchnotesMainEmbed(patchnotes) {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setTitle('**ActivityRank Patchnotes**')
     .setColor(0x00AE86)
     .setDescription('Check what\'s going on with ActivityRank bot. Use the patchnote command to see the version details. Like so: ``ar!patchnote 3.0``');
@@ -53,7 +53,7 @@ function patchnotesMainEmbed(patchnotes) {
 }
 
 function patchnotesVersionEmbed(patchnote) {
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setColor(0x00AE86)
     .setTitle(`**Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date})**`);
 

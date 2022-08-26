@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { commaListsAnd } = require('common-tags');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const nameUtil = require('../../util/nameUtil.js');
@@ -50,13 +50,15 @@ module.exports.execute = async function(i) {
     if (items[k] !== null) await guildRoleModel.storage.set(i.guild, resolvedRole.id, k, items[k]);
   }
   const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, resolvedRole.id);
-  const e = new MessageEmbed().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
+  const e = new EmbedBuilder().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
     .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id));
 
   const roleAssignLevels = x.map(o => o.assignLevel != 0 ? `\`${o.assignLevel}\`` : null);
   const roleDeassignLevels = x.map(o => o.deassignLevel != 0 ? `\`${o.deassignLevel}\`` : null);
-  if (!roleAssignLevels.every(o => o === null)) e.addField('Assignment Levels', commaListsAnd(roleAssignLevels));
-  if (!roleDeassignLevels.every(o => o === null)) e.addField('Deassignment Levels', commaListsAnd(roleDeassignLevels));
+  if (!roleAssignLevels.every(o => o === null))
+    e.addFields({ name: 'Assignment Levels', value: commaListsAnd(roleAssignLevels) });
+  if (!roleDeassignLevels.every(o => o === null))
+    e.addFields({ name: 'Deassignment Levels', value: commaListsAnd(roleDeassignLevels) });
 
   await i.reply({
     embeds: [e],

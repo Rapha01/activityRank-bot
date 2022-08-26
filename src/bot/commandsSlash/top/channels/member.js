@@ -44,7 +44,7 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setTitle(header)
     .setColor('#4fd6c8')
     .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');

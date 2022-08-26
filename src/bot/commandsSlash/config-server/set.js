@@ -1,50 +1,50 @@
 /* eslint-disable max-len */
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 const { oneLine, stripIndent } = require('common-tags');
 const guildModel = require('../../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
   const myGuild = await guildModel.storage.get(i.guild);
   const r1 = [
-    new MessageButton().setLabel('Use Nicknames').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} showNicknames`),
-    new MessageButton().setLabel('Reaction Voting').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} reactionVote`),
-    new MessageButton().setLabel('Allow Muted XP').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} allowMutedXp`),
-    new MessageButton().setLabel('Allow Deafened XP').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} allowDeafenedXp`),
-    new MessageButton().setLabel('Allow Solo XP').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} allowSoloXp`),
+    new ButtonBuilder().setLabel('Use Nicknames').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} showNicknames`),
+    new ButtonBuilder().setLabel('Reaction Voting').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} reactionVote`),
+    new ButtonBuilder().setLabel('Allow Muted XP').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} allowMutedXp`),
+    new ButtonBuilder().setLabel('Allow Deafened XP').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} allowDeafenedXp`),
+    new ButtonBuilder().setLabel('Allow Solo XP').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} allowSoloXp`),
   ];
   const r2 = [
-    new MessageButton().setLabel('TAAROLD').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} takeAwayAssignedRolesOnLevelDown`),
-    new MessageButton().setLabel('Notify Via DM').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupDm`),
-    new MessageButton().setLabel('Notify in Last Active Channel').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupCurrentChannel`),
-    new MessageButton().setLabel('Replace Levelup Message With Role Message').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupWithRole`),
+    new ButtonBuilder().setLabel('TAAROLD').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} takeAwayAssignedRolesOnLevelDown`),
+    new ButtonBuilder().setLabel('Notify Via DM').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupDm`),
+    new ButtonBuilder().setLabel('Notify in Last Active Channel').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupCurrentChannel`),
+    new ButtonBuilder().setLabel('Replace Levelup Message With Role Message').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupWithRole`),
   ];
   const r3 = [
-    new MessageButton().setEmoji('✍️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} textXp`),
-    new MessageButton().setEmoji('🎙️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voiceXp`),
-    new MessageButton().setEmoji('✉️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} inviteXp`),
-    new MessageButton().setEmoji('❤️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voteXp`),
+    new ButtonBuilder().setEmoji('✍️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} textXp`),
+    new ButtonBuilder().setEmoji('🎙️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voiceXp`),
+    new ButtonBuilder().setEmoji('✉️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} inviteXp`),
+    new ButtonBuilder().setEmoji('❤️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voteXp`),
   ];
-  r1.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? 'SUCCESS' : 'DANGER'));
-  r2.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? 'SUCCESS' : 'DANGER'));
-  r3.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? 'SUCCESS' : 'DANGER'));
-  if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle('DANGER');
+  r1.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
+  r2.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
+  r3.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
+  if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
   if (parseInt(myGuild.autopost_levelup)) {
-    r2[1].setDisabled(true).setStyle('DANGER');
-    r2[2].setDisabled(true).setStyle('DANGER');
+    r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
+    r2[2].setDisabled(true).setStyle(ButtonStyle.Danger);
   }
   return [
-    new MessageActionRow().addComponents(r1),
-    new MessageActionRow().addComponents(r2),
-    new MessageActionRow().addComponents(r3),
+    new ActionRowBuilder().addComponents(r1),
+    new ActionRowBuilder().addComponents(r2),
+    new ActionRowBuilder().addComponents(r3),
     _close(i),
   ];
 };
 
 
-const _close = (i) => new MessageActionRow()
-  .addComponents(new MessageButton()
+const _close = (i) => new ActionRowBuilder()
+  .addComponents(new ButtonBuilder()
     .setLabel('Close')
-    .setStyle('DANGER')
+    .setStyle(ButtonStyle.Danger)
     .setCustomId(`commandsSlash/config-server/set.js ${i.member.id} closeMenu`));
 
 module.exports.execute = async (i) => {
@@ -55,7 +55,7 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'Server Settings' }).setColor(0x00AE86)
     .addField('Use Nicknames',
       'If this is enabled, nicknames will be used to represent members instead of their Discord usernames')

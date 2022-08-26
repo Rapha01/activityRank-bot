@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { stripIndent } = require('common-tags');
 const { supportServerInviteLink, botInviteLink, botInviteLinkAdmin } = require('../../const/config.js');
 
 module.exports.legacySupportExpired = async function(msg) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     try {
       await msg.channel.send({
         embeds: [{
@@ -25,14 +25,14 @@ module.exports.legacySupportExpired = async function(msg) {
         files: ['./bot/temp/const/img/cancel.png'],
         content: msg.author.toString(),
         components: [
-          new MessageActionRow().addComponents(
-            new MessageButton().setStyle('LINK').setLabel('Reinvite the bot')
+          new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Reinvite the bot')
               .setURL(botInviteLink),
-            new MessageButton().setStyle('LINK').setLabel('Support Server')
+            new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Support Server')
               .setURL(supportServerInviteLink),
           ),
-          new MessageActionRow().addComponents(
-            new MessageButton().setStyle('LINK').setLabel('[Optional] Reinvite the bot with admin privileges')
+          new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('[Optional] Reinvite the bot with admin privileges')
               .setURL(botInviteLinkAdmin),
           ),
         ],
