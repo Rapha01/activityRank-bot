@@ -14,20 +14,19 @@ module.exports = {
         new SelectMenuBuilder()
           .setCustomId(`commandsSlash/help.js select ${i.user.id}`)
           .setPlaceholder('Nothing selected')
-          .addOptions([
-            { label: 'Server Statistics', value: 'stats', emoji: '' },
-            { label: 'Voting and Inviting', value: 'voting', emoji: '' },
-            { label: 'Configuration Info', value: 'info', emoji: '' },
-            { label: 'Tokens', value: 'token', emoji: '' },
-            { label: 'Personal Settings', value: 'mysettings', emoji: '' },
-            { label: 'FAQ and Patchnotes', value: 'other', emoji: '' },
-            { label: 'Server Settings', value: 'serverSettings', emoji: '' },
-            { label: 'XP Settings', value: 'xpSettings', emoji: '' },
-            { label: 'Bonus XP', value: 'bonusxp', emoji: '' },
-            { label: 'Role autoassignments', value: 'roleAssignments', emoji: '' },
-            { label: 'Autopost messages', value: 'autopost', emoji: '' },
-            { label: 'Resets', value: 'reset', emoji: '' },
-          ]),
+          .addOptions(
+            { label: 'Server Statistics', value: 'stats' },
+            { label: 'Voting and Inviting', value: 'voting' },
+            { label: 'Configuration Info', value: 'info' },
+            { label: 'Tokens', value: 'token' },
+            { label: 'Personal Settings', value: 'mysettings' },
+            { label: 'FAQ and Patchnotes', value: 'other' },
+            { label: 'Server Settings', value: 'serverSettings' },
+            { label: 'XP Settings', value: 'xpSettings' },
+            { label: 'Bonus XP', value: 'bonusxp' },
+            { label: 'Role autoassignments', value: 'roleAssignments' },
+            { label: 'Resets', value: 'reset' },
+          ),
       ),
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
@@ -63,7 +62,7 @@ function helpMainEmbed(guild, sections) {
       By using this bot you accept the **[terms and conditions](https://activityrank.me/termsandconditions)**.`);
 
   for (const command in sections)
-    embed.addField(`***${sections[command].title}***`, sections[command].desc);
+    embed.addFields({ name: `***${sections[command].title}***`, value: sections[command].desc });
 
   return embed;
 }
@@ -75,10 +74,10 @@ function helpFeatureEmbed(guild, section) {
     .setDescription(section.subdesc);
 
   for (const command of section.subcommands) {
-    embed.addField(
-      `${command.title}\n${command.command.replace(/<prefix>/g, guild.appData.prefix)}`,
-      `${command.desc}\nex.: \`\`${command.example.replace(/<prefix>/g, guild.appData.prefix)}\`\``,
-    );
+    embed.addFields({
+      name: `${command.title}\n${command.command}`,
+      value: `${command.desc}\nex.: \`\`${command.example}\`\``,
+    });
   }
   return embed;
 }
