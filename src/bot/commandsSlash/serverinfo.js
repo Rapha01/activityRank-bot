@@ -29,7 +29,7 @@ const rows = (type, page, memberId) => {
   return [
     new ActionRowBuilder().addComponents(new SelectMenuBuilder()
       .setCustomId(`commandsSlash/serverinfo.js ${type} ${page}`)
-      .addOptions([
+      .addOptions(
         { label: 'General', value: 'general' },
         { label: 'Levels', value: 'levels' },
         { label: 'Roles', value: 'roles' },
@@ -38,7 +38,7 @@ const rows = (type, page, memberId) => {
         { label: 'Noxp Roles', value: 'noxproles' },
         { label: 'Autosend Messages', value: 'messages' },
         { label: 'Permissions', value: 'permissions' },
-      ])),
+      )),
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setEmoji('⬅')
@@ -121,8 +121,7 @@ async function info(i, myGuild) {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Info for server ${i.guild.name}` })
     .setColor('#4fd6c8')
-    .setThumbnail(i.guild.iconURL)
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setThumbnail(i.guild.iconURL);
 
   e.addFields({ name: '**General**', value: stripIndent`
   Tracking since: <t:${myGuild.addDate}>
@@ -185,8 +184,7 @@ async function levels(i, myGuild, from, to) {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
-    .setDescription(`XP needed to reach next level (total XP).\nLevelfactor: ${myGuild.levelFactor}.`)
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setDescription(`XP needed to reach next level (total XP).\nLevelfactor: ${myGuild.levelFactor}.`);
 
 
   let recordingLevels = [], localXp = 100, totalXp = 0;
@@ -208,8 +206,7 @@ async function roles(i, myGuild, from, to) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Roles info' })
     .setDescription('This server\'s activity roles and their respective levels.')
-    .setColor('#4fd6c8')
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setColor('#4fd6c8');
 
   let roleAssignments = await guildRoleModel.storage.getRoleAssignments(i.guild);
   roleAssignments = roleAssignments.slice(from - 1, to);
@@ -243,8 +240,7 @@ async function noCommandChannels(i, myGuild, from, to) {
   description += 'NoCommand channels (does not affect users with manage server permission): \n';
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoCommand channels info' })
-    .setColor('#4fd6c8')
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setColor('#4fd6c8');
 
   let noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(i.guild);
   noCommandChannelIds = noCommandChannelIds.slice(from - 1, to);
@@ -266,8 +262,7 @@ async function noXpChannels(i, myGuild, from, to) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP channels info' })
     .setColor('#4fd6c8')
-    .setDescription('Activity in these channels will not give xp.')
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setDescription('Activity in these channels will not give xp.');
 
   let noXpChannelIds = await guildChannelModel.getNoXpChannelIds(i.guild);
   noXpChannelIds = noXpChannelIds.slice(from - 1, to);
@@ -288,8 +283,7 @@ async function noXpRoles(i, myGuild, from, to) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP roles info' })
     .setColor('#4fd6c8')
-    .setDescription('Activity from users with these roles will not give xp.')
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setDescription('Activity from users with these roles will not give xp.');
 
   let noXpRoleIds = await guildRoleModel.getNoXpRoleIds(i.guild);
   noXpRoleIds = noXpRoleIds.slice(from - 1, to);
@@ -324,8 +318,7 @@ async function messages(i, myGuild, from, to) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Messages info' })
     .setColor('#4fd6c8')
-    .setDescription('Review the set messages and texts for the bot.')
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setDescription('Review the set messages and texts for the bot.');
 
   entries = entries.slice(from - 1, to);
   for (const entry of entries)
@@ -338,23 +331,22 @@ async function permissions(i) {
   const embed = new EmbedBuilder()
     .setAuthor({ name: 'Permission Info' })
     .setColor('#4fd6c8')
-    .setThumbnail(i.guild.iconURL)
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setThumbnail(i.guild.iconURL);
 
   const missingPerms = i.guild.members.me.permissions.missing(294172224721);
   if (!missingPerms.length) {
-    embed.addField('✅ All Permissions are Correct ✅', 'Your bot has all the permissions it needs.');
+    embed.addFields({ name: '✅ All Permissions are Correct ✅', value: 'Your bot has all the permissions it needs.' });
   } else {
     const botRole = i.guild.members.me.roles.botRole;
-    embed.addField(
-      `❌ Missing ${missingPerms.length} Permissions ❌`,
-      `Your bot is missing the following permissions: \n${missingPerms.join(', \n')}`,
-    );
+    embed.addFields({
+      name: `❌ Missing ${missingPerms.length} Permissions ❌`,
+      value: `Your bot is missing the following permissions: \n${missingPerms.join(', \n')}`,
+    });
     if (botRole)
-      embed.addField('Solutions', `You may add the above permissions to ${botRole} or another role added to your bot. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
+      embed.addFields({ name: 'Solutions', value: `You may add the above permissions to ${botRole} or another role added to your bot. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.` });
 
     else
-      embed.addField('Solutions', `Please add the above permissions to any role that your bot has. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`);
+      embed.addFields({ name: 'Solutions', value: `Please add the above permissions to any role that your bot has. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.` });
   }
 
   return embed;

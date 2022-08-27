@@ -4,7 +4,7 @@ const rankModel = require('../../../models/rankModel.js');
 const fct = require('../../../../util/fct.js');
 const cooldownUtil = require('../../../util/cooldownUtil.js');
 const nameUtil = require('../../../util/nameUtil.js');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 const _prettifyTime = {
   Day: 'Today',
@@ -40,7 +40,7 @@ module.exports.execute = async (i) => {
 
     .setColor('#4fd6c8');
 
-  if (i.client.appData.settings.footer) e.setFooter(i.client.appData.settings.footer);
+  if (i.client.appData.settings.footer) e.setFooter({ text: i.client.appData.settings.footer });
 
   let str = '';
   for (let iter = 0; iter < channelRanks.length; iter++) {

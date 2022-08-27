@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { stripIndent } = require('common-tags');
 const guildModel = require('../../models/guild/guildModel.js');
 

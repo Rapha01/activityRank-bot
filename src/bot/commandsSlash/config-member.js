@@ -34,11 +34,12 @@ module.exports.execute = async (i) => {
   await i.reply({
     embeds: [new EmbedBuilder()
       .setAuthor({ name: 'Personal Settings' })
-      .addField('Notify Levelup via DM', 'If this is enabled, the bot will send you a DM when you level up.')
-      .addField('Reaction Voting',
-        oneLine`If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
-        will give an upvote to the member that sent the message.`)],
-
+      .addFields(
+        { name: 'Notify Levelup via DM', value: 'If this is enabled, the bot will send you a DM when you level up.' },
+        { name: 'Reaction Voting', value: oneLine`
+        If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
+        will give an upvote to the member that sent the message.` },
+      )],
     components: [new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)), _close(i)],
   });
 
