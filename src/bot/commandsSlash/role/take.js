@@ -1,7 +1,5 @@
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const statFlushCache = require('../../statFlushCache.js');
-const { oneLine } = require('common-tags');
+const { changeXp, currentlyProcessing } = require('../../util/roleXpUtil.js');
 
 module.exports.execute = async (i) => {
   const role = i.options.getRole('role');
@@ -12,25 +10,25 @@ module.exports.execute = async (i) => {
     });
   }
 
+  if (currentlyProcessing.has(i.guild.id)) {
+    return await i.reply({
+      content: 'A mass role operation is already in effect in this server!',
+      ephemeral: true,
+    });
+  }
+
   await guildRoleModel.cache.load(role);
 
-  const members = await i.guild.members.fetch({ cache: false, withPresences: false, force: true });
-  console.log('Role take members ', members.size);
+  await i.deferReply();
 
-  let affected = 0;
-  for (let member of members) {
-    member = member[1];
-    if (member.roles.cache.has(role.id)) {
-      await guildMemberModel.cache.load(member);
-      await statFlushCache.addBonus(member, -i.options.getInteger('amount'));
-      affected++;
-    }
+  let amount = i.options.getInteger('amount');
+  if (amount === 0) {
+    return await i.reply({
+      content: 'You cannot give `0` XP.',
+      ephemeral: true,
+    });
   }
-  console.log('Role take affected members', affected);
+  amount = -amount;
 
-  await i.reply({
-    content: oneLine`Successfully removed ${i.options.getInteger('amount')} bonus XP 
-      from ${affected} member${affected == 1 ? '' : 's'} with role ${role}`,
-    allowedMentions: { 'parse': [] },
-  });
+  await changeXp(i, role.id, amount);
 };
