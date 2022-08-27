@@ -39,6 +39,8 @@ module.exports = {
         await component(interaction);
       } else if (interaction.isUserContextMenuCommand()) {
         await userCtx(interaction);
+      } else if (interaction.isModalSubmit()) {
+        await modalSubmit(interaction);
       } else if (interaction.isCommand() || interaction.isAutocomplete()) {
         const path = await getPath(interaction);
         const command = interaction.client.commands.get(path) ?? interaction.client.adminCommands.get(interaction.commandName);
@@ -102,3 +104,9 @@ const userCtx = async (interaction) => {
 
   await command.execute(interaction);
 };
+
+async function modalSubmit(interaction) {
+  const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
+  if (!command) return;
+  await command.modal(interaction);
+}
