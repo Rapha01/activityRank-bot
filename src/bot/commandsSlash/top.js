@@ -132,7 +132,7 @@ exports.sendMembersEmbed = async (i, type) => {
   if (guild.bonusUntilDate > Date.now() / 1000)
     e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R> \n`);
 
-  if (i.client.appData.settings.footer) e.setFooter(i.client.appData.settings.footer);
+  if (i.client.appData.settings.footer) e.setFooter({ text: i.client.appData.settings.footer });
 
   let iter = 0;
   let scoreStrings;

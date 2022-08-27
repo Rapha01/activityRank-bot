@@ -3,7 +3,7 @@ const guildModel = require('../../../models/guild/guildModel.js');
 const fct = require('../../../../util/fct.js');
 const rankModel = require('../../../models/rankModel.js');
 const nameUtil = require('../../../util/nameUtil.js');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 const _prettifyTime = {
   Day: 'Today',
@@ -46,8 +46,7 @@ module.exports.execute = async (i) => {
 
   const embed = new EmbedBuilder()
     .setTitle(header)
-    .setColor('#4fd6c8')
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setColor('#4fd6c8');
 
   let str = '';
   for (let iter = 0; iter < guildMemberTopChannels.length; iter++) {
@@ -56,11 +55,11 @@ module.exports.execute = async (i) => {
     else if (type == 'textMessage')
       str = ':writing_hand: ' + guildMemberTopChannels[iter][time];
 
-    embed.addField(
-      `#${page.from + iter} ${
+    embed.addFields({
+      name: `#${page.from + iter} ${
         nameUtil.getChannelName(i.guild.channels.cache, guildMemberTopChannels[iter].channelId)}`,
-      str,
-    );
+      value: str,
+    });
   }
 
   await i.followUp({ embeds:[embed] });

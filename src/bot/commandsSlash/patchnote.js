@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('patchnote')
@@ -16,7 +15,7 @@ module.exports.execute = async (i) => {
   const applicableVersions = patchnotes.map(o => o.version);
   applicableVersions.push('latest');
   let e;
-  console.log(applicableVersions);
+
   if (!applicableVersions.includes(version) || !version) e = patchnotesMainEmbed(patchnotes);
   else if (version == 'latest') e = patchnotesVersionEmbed(patchnotes[0]);
   else e = patchnotesVersionEmbed(patchnotes.find(o => o.version == version.toLowerCase()));
@@ -35,8 +34,6 @@ module.exports.autocomplete = async (i) => {
   patchnoteVersions.push('latest');
   patchnoteVersions = patchnoteVersions.map(o => ({ name: o, value: o }));
 
-  // console.log(patchnoteVersions);
-
   i.respond(patchnoteVersions);
 };
 
@@ -44,10 +41,10 @@ function patchnotesMainEmbed(patchnotes) {
   const embed = new EmbedBuilder()
     .setTitle('**ActivityRank Patchnotes**')
     .setColor(0x00AE86)
-    .setDescription('Check what\'s going on with ActivityRank bot. Use the patchnote command to see the version details. Like so: ``ar!patchnote 3.0``');
+    .setDescription('Check what\'s going on with ActivityRank.');
 
   for (const patchnote of patchnotes)
-    embed.addField(`Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date}) `, patchnote.desc);
+    embed.addFields({ name: `Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date})`, value: patchnote.desc });
 
   return embed;
 }
@@ -58,10 +55,10 @@ function patchnotesVersionEmbed(patchnote) {
     .setTitle(`**Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date})**`);
 
   for (const feature of patchnote.features)
-    embed.addField(feature.title, feature.desc);
+    embed.addFields({ name: feature.title, value: feature.desc });
 
   for (const fix of patchnote.fixes)
-    embed.addField(fix.title, fix.desc);
+    embed.addFields({ name: fix.title, value: fix.desc });
 
   return embed;
 }

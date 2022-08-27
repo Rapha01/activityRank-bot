@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 
 module.exports = {
@@ -25,15 +24,15 @@ module.exports = {
     if (!item) {
       embed.setDescription(`Could not find an FAQ with ID ${faq}!`);
     } else {
-      embed.addField(`**${item.title}**`,
-        item.desc
-          .replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '[$2]($1)')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/<\/?code>/g, '`')
-          .replace(/<br>/g, '\n')
-          .replace(/<(?:strong|b)>/g, '**')
-          .replace(/<(?:em|i)>/g, '*'));
+      embed.addFields({ name: `**${item.title}**`, value: item.desc
+        .replace(/<a.*?href="(.*?)".*?>(.*?)<\/a>/g, '[$2]($1)')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/<\/?code>/g, '`')
+        .replace(/<br>/g, '\n')
+        .replace(/<(?:strong|b)>/g, '**')
+        .replace(/<(?:em|i)>/g, '*'),
+      });
     }
 
     await i.reply({ embeds:[embed] });
@@ -52,15 +51,16 @@ module.exports = {
 function faqReducedEmbed(faqs) {
   const embed = new EmbedBuilder()
     .setTitle('**ActivityRank FAQ**')
-    .setColor(0x00AE86)
-    .setDescription('Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.')
-  ;
+    .setColor(0x00AE86);
 
   if (faqs.length == 0)
     embed.setDescription('No FAQs to show!');
 
   const titles = faqs.map(faq => `**${faq.id}.** ${faq.title} \n`);
-  embed.setDescription(embed.description + '\n\n' + titles.join(''));
+  embed.setDescription(
+    'Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.'
+    + '\n\n' + titles.join(''),
+  );
 
   return embed;
 }
