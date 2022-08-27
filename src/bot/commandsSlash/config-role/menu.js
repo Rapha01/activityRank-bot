@@ -31,14 +31,14 @@ const _close = (i) => new ActionRowBuilder()
 const _modal = (roleId, assignState) => new ModalBuilder()
   .setCustomId(`commandsSlash/config-role/menu.js ${roleId} ${assignState ? 'assignMessage' : 'deassignMessage'}`)
   .setTitle(`${assignState ? 'Assignment' : 'Deassignment'} Message`)
-  .addComponents([
+  .addComponents(new ActionRowBuilder().addComponents(
     new TextInputBuilder()
       .setCustomId('msg-component-1')
       .setLabel(`The message to send upon ${assignState ? 'assignment' : 'deassignment'}`)
       .setStyle(TextInputStyle.Paragraph)
       .setMaxLength(1000)
       .setRequired(true),
-  ]);
+  ));
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
@@ -62,11 +62,13 @@ module.exports.execute = async (i) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Role Settings' })
     .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id)).setColor(0x00AE86)
-    .addField('No XP', 'If this is enabled, no xp will be given to members that have this role.')
-    .addField('Assign Message',
-      'This is the message sent when this role is given to a member. Defaults to the global assignMessage.')
-    .addField('Deassign Message',
-      'This is the message sent when this role is removed from a member. Defaults to the global deassignMessage.');
+    .addFields(
+      { name: 'No XP', value: 'If this is enabled, no xp will be given to members that have this role.' },
+      { name: 'Assign Message',
+        value: 'This is the message sent when this role is given to a member. Defaults to the global assignMessage.' },
+      { name: 'Deassign Message',
+        value: 'This is the message sent when this role is removed from a member. Defaults to the global deassignMessage.' },
+    );
 
   await i.reply({
     embeds: [e],
@@ -105,15 +107,14 @@ module.exports.component = async (i) => {
 };
 
 module.exports.modal = async (i) => {
-  console.log(i.customId.split(' '));
   const [, roleId, type] = i.customId.split(' ');
-  const value = await i.getTextInputValue('msg-component-1');
+  const value = await i.fields.getTextInputValue('msg-component-1');
   await guildRoleModel.storage.set(i.guild, roleId, type, value);
 
   await i.deferReply({ ephemeral: true });
   await i.followUp({
     content: `Set ${type === 'assignMessage' ? 'Assignment' : 'Deassignment'} Message for <@&${roleId}>`,
-    embeds: [{ description: value, color: '#4fd6c8' }],
+    embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
     ephemeral: true,
   });
 };

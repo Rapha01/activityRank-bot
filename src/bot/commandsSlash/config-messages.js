@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits, Embed } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
@@ -10,7 +10,7 @@ const generateRows = async (i) => {
           { label: 'Server Join Message', value: 'serverJoinMessage' },
           { label: 'Levelup Message', value: 'levelupMessage' },
           { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
-          { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
+          { label: 'Default Role Deassign Message', value: 'roleDeassignMessage' },
         ]),
     ),
     new ActionRowBuilder().addComponents(
@@ -29,14 +29,14 @@ const _prettifyId = {
 const _modal = (type) => new ModalBuilder()
   .setCustomId(`commandsSlash/config-messages.js ${type}`)
   .setTitle('Message Selection')
-  .addComponents([
+  .addComponents(new ActionRowBuilder().addComponents(
     new TextInputBuilder()
       .setCustomId('msg-component-1')
       .setLabel(`The ${_prettifyId[type]}`)
       .setStyle(TextInputStyle.Paragraph)
       .setMaxLength(type === 'levelupMessage' ? 1000 : 500)
       .setRequired(true),
-  ]);
+  ));
 
 
 module.exports.data = new SlashCommandBuilder()
@@ -53,14 +53,12 @@ module.exports.execute = async (i) => {
 
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Server Messages' }).setColor(0x00AE86)
-    .addField('Server Join Message',
-      'The message to send when a member joins the server')
-    .addField('Levelup Message',
-      'The message to send when a member gains a level')
-    .addField('Role Assign Message',
-      'The message to send when a member gains a role, unless overridden')
-    .addField('Role Deassign Message',
-      'The message to send when a member loses a role, unless overridden');
+    .addFields(
+      { name: 'Server Join Message', value: 'The message to send when a member joins the server' },
+      { name: 'Levelup Message', value: 'The message to send when a member gains a level' },
+      { name: 'Role Assign Message', value: 'The message to send when a member gains a role, unless overridden' },
+      { name: 'Role Deassign Message', value: 'The message to send when a member loses a role, unless overridden' },
+    );
 
   await i.reply({
     embeds: [e],
@@ -85,7 +83,7 @@ module.exports.component = async (i) => {
             { label: 'Server Join Message', value: 'serverJoinMessage' },
             { label: 'Levelup Message', value: 'levelupMessage' },
             { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
-            { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
+            { label: 'Default Role Deassign Message', value: 'roleDeassignMessage' },
           ]),
       )],
       ephemeral: true,
@@ -108,13 +106,13 @@ module.exports.component = async (i) => {
 
 module.exports.modal = async function(i) {
   const [, type] = i.customId.split(' ');
-  const value = await i.getTextInputValue('msg-component-1');
+  const value = i.fields.getTextInputValue('msg-component-1');
   await guildModel.storage.set(i.guild, type, value);
 
   await i.deferReply({ ephemeral: true });
   await i.followUp({
     content: `Set ${_prettifyId[type]}`,
-    embeds: [{ description: value, color: '#4fd6c8' }],
+    embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
     ephemeral: true,
   });
 };
