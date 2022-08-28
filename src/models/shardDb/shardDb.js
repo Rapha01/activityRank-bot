@@ -29,8 +29,8 @@ const createPool = (dbHost) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (!pools[dbHost]) {
-        // if (!net.isIP(dbHost))
-        //   return reject('Query triggered without defined dbHost. dbHost: ' + dbHost + '.');
+        if (!net.isIP(dbHost))
+          return reject('Query triggered without defined dbHost. dbHost: ' + dbHost + '.');
 
         pools[dbHost] = await mysql.createPool({
           host                : dbHost,
