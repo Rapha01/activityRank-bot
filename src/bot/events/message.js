@@ -4,7 +4,6 @@ const guildRoleModel = require('../models/guild/guildRoleModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const statFlushCache = require('../statFlushCache.js');
 const skip = require('../skip.js');
-const { legacySupportExpired } = require('../util/handleLegacy');
 
 const acceptedChannelTypes = [
   'GUILD_TEXT',
@@ -19,23 +18,20 @@ const acceptedMessageTypes = [
 module.exports = {
   name: 'messageCreate',
   async execute(msg) {
-    if (msg.author.bot == true || msg.system == true || skip(msg.guildId) || !acceptedMessageTypes.includes(msg.type))
-      return;
-
-    if (!msg.guild) {
-      await msg.reply({ content:('Hi. Please use your commands inside the channel of a server i am in.\n Thanks!'), ephemeral: true });
-      return;
-    }
+    if (
+      msg.author.bot == true
+      || msg.system == true
+      || skip(msg.guildId)
+      || !acceptedMessageTypes.includes(msg.type)
+      || !msg.guild
+    ) return;
 
     await guildModel.cache.load(msg.guild);
 
     const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
-    if (mentionRegex.test(msg.content))
+    if (msg.content && mentionRegex.test(msg.content))
       await msg.reply('This test is successful. The bot is up and running.');
 
-
-    if (msg.content.startsWith(msg.guild.appData.prefix))
-      return await legacySupportExpired(msg);
 
     if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) await rankMessage(msg);
   },
@@ -86,5 +82,4 @@ async function rankMessage(msg) {
   await statFlushCache.addTextMessage(msg.member, channel, 1);
 
   return;
-
 }
