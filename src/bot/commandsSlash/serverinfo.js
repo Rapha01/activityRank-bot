@@ -146,7 +146,7 @@ async function info(i, myGuild) {
     Available: ${i.guild.appData.tokens} (burning ${Math.floor(fct.getTokensToBurn24h(i.guild.memberCount))} / 24h)
     Expected end date: <t:${
   Math.floor(i.guild.appData.tokens / fct.getTokensToBurn24h(i.guild.memberCount) * 86400 + Date.now() / 1000)}>
-    Burned: ${myGuild.tokensBurned}`);
+    Burned: ${myGuild.tokensBurned}` });
 
   let bonusTimeString = '';
   if (myGuild.bonusUntilDate > Date.now() / 1000) {

@@ -15,7 +15,6 @@ const intents = [
   // FLAGS.GUILD_WEBHOOKS,
   GatewayIntentBits.GuildVoiceStates,
   GatewayIntentBits.GuildMessages,
-  // todo: rm? ^^
   GatewayIntentBits.GuildMessageReactions,
   // FLAGS.GUILD_MESSAGE_TYPING,
   // FLAGS.DIRECT_MESSAGES,
