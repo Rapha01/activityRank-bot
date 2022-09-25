@@ -9,7 +9,7 @@ exports.storage = {};
 
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
-  'prefix', 'tokens', 'showNicknames',
+  'tokens', 'showNicknames',
   'textXp', 'voiceXp', 'inviteXp', 'voteXp', 'bonusXp',
   'textMessageCooldownSeconds', 'voteCooldownSeconds', 'xpPerTextMessage', 'xpPerVoiceMinute',
   'voteTag', 'voteEmote', 'bonusTag', 'bonusEmote', 'entriesPerPage',
