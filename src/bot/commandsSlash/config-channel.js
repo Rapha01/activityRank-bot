@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice }, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice, GuildCategory }, PermissionFlagsBits } = require('discord.js');
 const { oneLine, stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
@@ -11,7 +11,7 @@ module.exports.data = new SlashCommandBuilder()
   .setDescription('Change a channel\'s settings!')
   .addChannelOption(o => o
     .setName('channel').setDescription('The channel to modify')
-    .addChannelTypes(GuildText, GuildVoice))
+    .addChannelTypes(GuildText, GuildVoice, GuildCategory))
   .addStringOption(o => o
     .setName('id').setDescription('The ID of the channel to modify'));
 
@@ -30,22 +30,22 @@ const generateRow = (i, id, type, myChannel) => {
   r[1].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noCommand`);
   r[1].setDisabled(Boolean(parseInt(i.guild.appData.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
-  r[1].setDisabled(type === '2');
+  r[1].setDisabled(!(type === '0'));
   if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
   r[2].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnlyChannel`);
   r[2].setStyle(i.guild.appData.commandOnlyChannel == id ? ButtonStyle.Success : ButtonStyle.Danger);
-  r[2].setDisabled(type === '2');
+  r[2].setDisabled(!(type === '0'));
   if (r[2].disabled) r[2].setStyle(ButtonStyle.Secondary);
 
   r[3].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_serverJoin`);
-  r[3].setDisabled(type === '2');
+  r[3].setDisabled(!(type === '0'));
   r[3].setStyle(i.guild.appData.autopost_serverJoin == id ? ButtonStyle.Success : ButtonStyle.Danger);
   if (r[3].disabled) r[3].setStyle(ButtonStyle.Secondary);
 
 
   r[4].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_levelup`);
-  r[4].setDisabled(type === '2');
+  r[4].setDisabled(!(type === '0'));
   r[4].setStyle(i.guild.appData.autopost_levelup == id ? ButtonStyle.Success : ButtonStyle.Danger);
   if (r[4].disabled) r[4].setStyle(ButtonStyle.Secondary);
 
