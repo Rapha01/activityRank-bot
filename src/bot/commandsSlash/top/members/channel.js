@@ -4,7 +4,7 @@ const rankModel = require('../../../models/rankModel.js');
 const fct = require('../../../../util/fct.js');
 const cooldownUtil = require('../../../util/cooldownUtil.js');
 const nameUtil = require('../../../util/nameUtil.js');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ChannelType } = require('discord.js');
 
 const _prettifyTime = {
   Day: 'Today',
@@ -23,8 +23,8 @@ module.exports.execute = async (i) => {
   const channel = await i.options.getChannel('channel');
 
   let type;
-  if (channel.type == 'GUILD_VOICE') type = 'voiceMinute';
-  else if (channel.type == 'GUILD_TEXT' || channel.type == 'GUILD_NEWS') type = 'textMessage';
+  if (channel.type === ChannelType.GuildVoice) type = 'voiceMinute';
+  else if (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement) type = 'textMessage';
 
   const page = fct.extractPageSimple(i.options.getInteger('page') || 1, guild.entriesPerPage);
   const time = i.options.getString('period') || 'Alltime';

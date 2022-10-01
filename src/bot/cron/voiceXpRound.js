@@ -6,7 +6,8 @@ const guildModel = require('../models/guild/guildModel.js');
 const skip = require('../skip.js');
 const statFlushCache = require('../statFlushCache.js');
 const noXpUtil = require('../util/noXpUtil.js');
-let minutesToAdd = 0,leftover= 0,round = 0;
+const { ChannelType } = require('discord.js');
+let minutesToAdd = 0, leftover = 0, round = 0;
 
 module.exports = async (client) => {
   return new Promise(async function(resolve, reject) {
@@ -31,27 +32,24 @@ module.exports = async (client) => {
       const secondsToAdd = (roundEnd - roundStart) + leftover;
       minutesToAdd = Math.floor(secondsToAdd / 60);
       leftover = Math.round(secondsToAdd % 60);
-      //console.log(client.options.shards);
-      console.log('RankVoice for shard ' + client.options.shards[0] + ' round '+ round +' finished. ' + 'minutesToAdd ' + minutesToAdd + ', leftover ' + leftover );
+      // console.log(client.options.shards);
+      console.log('RankVoice for shard ' + client.options.shards[0] + ' round ' + round + ' finished. ' + 'minutesToAdd ' + minutesToAdd + ', leftover ' + leftover);
       round++;
       resolve();
     } catch (e) { reject(e); }
   });
-}
+};
 
-//existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1
+// existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1
 const rankVoiceGuild = (guild) => {
   return new Promise(async function(resolve, reject) {
     try {
-      let oldTotalScore,newTotalScore,noXp;
-      let active = false;
-
       await guildModel.cache.load(guild);
 
       if (!guild.appData.voiceXp)
         return resolve();
 
-      const voiceChannels = guild.channels.cache.filter(channel => channel.type == 'GUILD_VOICE');
+      const voiceChannels = guild.channels.cache.filter(channel => channel.type == ChannelType.GuildVoice);
 
       for (let channel of voiceChannels) {
         channel = channel[1];
@@ -59,15 +57,12 @@ const rankVoiceGuild = (guild) => {
 
         if (!channel.appData.noXp && (guild.appData.allowSoloXp || existMultipleMembers(channel.members)))
           await rankVoiceChannel(channel);
-
-        // if (!channel.appData.noXp && existMultipleMembers(channel.members))
-        //   await rankVoiceChannel(channel);
       }
 
       resolve();
     } catch (e) { reject(e); }
   });
-}
+};
 
 const rankVoiceChannel = (channel) => {
   return new Promise(async function(resolve, reject) {
@@ -77,11 +72,11 @@ const rankVoiceChannel = (channel) => {
 
         await guildMemberModel.cache.load(member);
 
-        if (await noXpUtil.noVoiceXp(member,channel))
+        if (await noXpUtil.noVoiceXp(member, channel))
           continue;
 
         if (minutesToAdd > 0) {
-          await statFlushCache.addVoiceMinute(member,channel,minutesToAdd);
+          await statFlushCache.addVoiceMinute(member, channel, minutesToAdd);
           await fct.sleep(200);
         }
       }
@@ -89,7 +84,7 @@ const rankVoiceChannel = (channel) => {
       return resolve();
     } catch (e) { reject(e); }
   });
-}
+};
 
 function existMultipleMembers(members) {
   if (members.size < 2) return false;
