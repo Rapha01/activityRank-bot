@@ -1,5 +1,5 @@
 const mysql = require('promise-mysql');
-const net = require('net');
+const net = require('node:net');
 let keys = require('../const/keys').get();
 let dbuser,dbpassword,dbname,pools = {};
 
