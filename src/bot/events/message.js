@@ -4,15 +4,16 @@ const guildRoleModel = require('../models/guild/guildRoleModel.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const statFlushCache = require('../statFlushCache.js');
 const skip = require('../skip.js');
+const { MessageType, ChannelType } = require('discord.js');
 
 const acceptedChannelTypes = [
-  'GUILD_TEXT',
-  'GUILD_NEWS',
-  'GUILD_PUBLIC_THREAD',
+  ChannelType.GuildText,
+  ChannelType.GuildAnnouncement,
+  ChannelType.PublicThread,
 ];
 const acceptedMessageTypes = [
-  'DEFAULT',
-  'REPLY',
+  MessageType.Default,
+  MessageType.Reply,
 ];
 
 module.exports = {

@@ -1,10 +1,9 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice, GuildCategory }, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice, GuildCategory }, PermissionFlagsBits, ChannelType } = require('discord.js');
 const { oneLine, stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const nameUtil = require('../util/nameUtil.js');
 const { parseChannel } = require('../util/parser');
-const { channelTypes } = require('../util/constants');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-channel')
@@ -82,7 +81,7 @@ module.exports.execute = async (i) => {
     .setDescription(nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id)).setColor(0x00AE86)
     .addFields({ name: 'No XP', value: 'If this is enabled, no xp will be given in this channel.' });
 
-  if (!resolvedChannel.channel || resolvedChannel.channel.type === 'GUILD_TEXT') {
+  if (!resolvedChannel.channel || resolvedChannel.channel.type === ChannelType.GuildText) {
     e.addFields({ name: 'No Commands', value: stripIndent`If this is enabled, commands will not work in this channel.
     **Note:** It is recommended to use the Discord native system in \`Server Settings -> Integrations -> ActivityRank\`.` });
     e.addFields({ name: 'Command Only',
@@ -98,7 +97,7 @@ module.exports.execute = async (i) => {
       new ActionRowBuilder().addComponents(
         generateRow(i,
           resolvedChannel.id,
-          resolvedChannel.channel ? channelTypes.indexOf(resolvedChannel.channel.type).toString() : '0',
+          resolvedChannel.channel ? ChannelType.indexOf(resolvedChannel.channel.type).toString() : '0',
           myChannel)),
       _close(i),
     ],
