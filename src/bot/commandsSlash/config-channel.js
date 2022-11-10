@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice, GuildCategory }, PermissionFlagsBits, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ChannelType: { GuildText, GuildVoice, GuildCategory, GuildForum }, PermissionFlagsBits, ChannelType } = require('discord.js');
 const { oneLine, stripIndent } = require('common-tags');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const guildModel = require('../models/guild/guildModel.js');
@@ -10,7 +10,7 @@ module.exports.data = new SlashCommandBuilder()
   .setDescription('Change a channel\'s settings!')
   .addChannelOption(o => o
     .setName('channel').setDescription('The channel to modify')
-    .addChannelTypes(GuildText, GuildVoice, GuildCategory))
+    .addChannelTypes(GuildText, GuildVoice, GuildForum))
   .addStringOption(o => o
     .setName('id').setDescription('The ID of the channel to modify'));
 
@@ -29,22 +29,22 @@ const generateRow = (i, id, type, myChannel) => {
   r[1].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noCommand`);
   r[1].setDisabled(Boolean(parseInt(i.guild.appData.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
-  r[1].setDisabled(!(type === '0'));
+  r[1].setDisabled(parseInt(type) !== ChannelType.GuildText);
   if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
   r[2].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnlyChannel`);
+  r[2].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[2].setStyle(i.guild.appData.commandOnlyChannel == id ? ButtonStyle.Success : ButtonStyle.Danger);
-  r[2].setDisabled(!(type === '0'));
   if (r[2].disabled) r[2].setStyle(ButtonStyle.Secondary);
 
   r[3].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_serverJoin`);
-  r[3].setDisabled(!(type === '0'));
+  r[3].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[3].setStyle(i.guild.appData.autopost_serverJoin == id ? ButtonStyle.Success : ButtonStyle.Danger);
   if (r[3].disabled) r[3].setStyle(ButtonStyle.Secondary);
 
 
   r[4].setCustomId(`commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_levelup`);
-  r[4].setDisabled(!(type === '0'));
+  r[4].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[4].setStyle(i.guild.appData.autopost_levelup == id ? ButtonStyle.Success : ButtonStyle.Danger);
   if (r[4].disabled) r[4].setStyle(ButtonStyle.Secondary);
 
@@ -81,7 +81,7 @@ module.exports.execute = async (i) => {
     .setDescription(nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id)).setColor(0x00AE86)
     .addFields({ name: 'No XP', value: 'If this is enabled, no xp will be given in this channel.' });
 
-  if (!resolvedChannel.channel || resolvedChannel.channel.type === ChannelType.GuildText) {
+  if (!resolvedChannel.channel || [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.channel.type)) {
     e.addFields({ name: 'No Commands', value: stripIndent`If this is enabled, commands will not work in this channel.
     **Note:** It is recommended to use the Discord native system in \`Server Settings -> Integrations -> ActivityRank\`.` });
     e.addFields({ name: 'Command Only',
@@ -97,7 +97,7 @@ module.exports.execute = async (i) => {
       new ActionRowBuilder().addComponents(
         generateRow(i,
           resolvedChannel.id,
-          resolvedChannel.channel ? ChannelType.indexOf(resolvedChannel.channel.type).toString() : '0',
+          resolvedChannel.channel ? resolvedChannel.channel.type.toString() : '0',
           myChannel)),
       _close(i),
     ],
