@@ -43,9 +43,9 @@ async function rankMessage(msg) {
   if (!msg.channel)
     return;
 
-  let channel = msg.channel;
-  if (msg.channel.type == 'GUILD_PUBLIC_THREAD')
-    channel = msg.channel.parent;
+  const channel = msg.channel.type === ChannelType.PublicThread
+    ? msg.channel.parent
+    : msg.channel;
 
   await msg.guild.members.fetch(msg.author.id);
 
