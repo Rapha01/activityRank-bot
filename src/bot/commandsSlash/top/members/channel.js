@@ -24,7 +24,7 @@ module.exports.execute = async (i) => {
 
   let type;
   if (channel.type === ChannelType.GuildVoice) type = 'voiceMinute';
-  else if (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement) type = 'textMessage';
+  else type = 'textMessage';
 
   const page = fct.extractPageSimple(i.options.getInteger('page') || 1, guild.entriesPerPage);
   const time = i.options.getString('period') || 'Alltime';
