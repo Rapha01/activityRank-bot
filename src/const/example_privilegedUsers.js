@@ -21,9 +21,11 @@ const users = {
   },
 };
 
-module.exports.get = () => {
-  if (process.env.NODE_ENV == 'production')
-    return users.production;
-  else
-    return users.development;
-};
+module.exports.userLevels = process.env.NODE_ENV === 'production'
+  ? users.production
+  : users.development;
+
+module.exports.users = process.env.NODE_ENV === 'production'
+  ? Object.keys(users.production)
+  : Object.keys(users.development);
+

@@ -3,7 +3,7 @@ const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
 const { PermissionFlagsBits } = require('discord.js');
-const userPrivileges = require('../../const/privilegedUsers').get();
+const userPrivileges = require('../../const/privilegedUsers').userLevels;
 
 
 module.exports = {

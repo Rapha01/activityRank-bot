@@ -1,11 +1,12 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
 
 module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
 
 module.exports.data = new SlashCommandBuilder()
   .setName('atest')
-  .setDescription('A test admin command.');
+  .setDescription('A test admin command.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers);
 
 module.exports.execute = async function(i) {
   const sent = await i.deferReply({ fetchReply: true, ephemeral: true });
