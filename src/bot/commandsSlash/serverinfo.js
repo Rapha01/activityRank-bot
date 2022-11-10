@@ -121,7 +121,7 @@ async function info(i, myGuild) {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Info for server ${i.guild.name}` })
     .setColor('#4fd6c8')
-    .setThumbnail(i.guild.iconURL);
+    .setThumbnail(i.guild.iconURL());
 
   e.addFields({ name: '**General**', value: stripIndent`
   Tracking since: <t:${myGuild.addDate}>
@@ -332,7 +332,7 @@ async function permissions(i) {
   const embed = new EmbedBuilder()
     .setAuthor({ name: 'Permission Info' })
     .setColor('#4fd6c8')
-    .setThumbnail(i.guild.iconURL);
+    .setThumbnail(i.guild.iconURL());
 
   const missingPerms = i.guild.members.me.permissions.missing(294172224721);
   if (!missingPerms.length) {
