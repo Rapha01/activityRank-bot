@@ -4,8 +4,7 @@ const rankModel = require('../models/rankModel.js');
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const nameUtil = require('../util/nameUtil.js');
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { ChannelType: { GuildText, GuildVoice, GuildNews } } = require('discord-api-types/v9');
+const { SlashCommandBuilder, EmbedBuilder, ChannelType } = require('discord.js');
 
 const _timedef = (_ => _
   .setName('period')
@@ -51,7 +50,7 @@ module.exports.data = new SlashCommandBuilder()
         .setName('channel')
         .setDescription('The channel to check')
         .setRequired(true)
-        .addChannelTypes(GuildText, GuildVoice, GuildNews))
+        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildAnnouncement, ChannelType.GuildForum))
       .addStringOption(_timedef)
       .addIntegerOption(_page)))
   .addSubcommandGroup(scg => scg
