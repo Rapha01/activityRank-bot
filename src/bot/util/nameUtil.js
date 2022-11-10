@@ -1,3 +1,5 @@
+const { ChannelType } = require('discord.js');
+
 exports.getChannelName = (channels, channelId) => {
   const channel = channels.get(channelId);
 
@@ -46,13 +48,19 @@ exports.getRoleMention = (roles, roleId) => {
 exports.getChannelTypeIcon = (channels, channelId) => {
   const channel = channels.get(channelId);
 
-  if (!channel)
-    return ':grey_question:';
+  if (!channel) return ':grey_question:';
 
-  if (channel.type == 'voice')
+  switch (channel.type) {
+  case ChannelType.GuildVoice:
     return ':microphone2:';
-  else
+  case ChannelType.GuildText:
+  case ChannelType.GuildAnnouncement:
     return ':writing_hand:';
+  case ChannelType.GuildForum:
+    return '<:Forum:1026009067350659145>';
+  default:
+    return ':grey_question:';
+  }
 };
 
 exports.getGuildMemberInfos = (guild, userIds) => {
