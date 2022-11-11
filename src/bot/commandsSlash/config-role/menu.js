@@ -72,7 +72,13 @@ module.exports.execute = async (i) => {
 
   await i.reply({
     embeds: [e],
-    components: [new ActionRowBuilder().addComponents(generateRow(i, resolvedRole.id, myRole)), _close(i)],
+    components: [
+      new ActionRowBuilder().addComponents(generateRow(i, resolvedRole.id, myRole)), _close(i),
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setLabel('Clear a message')
+          .setStyle(ButtonStyle.Danger).setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} ${resolvedRole.id} clear`),
+      ),
+    ],
   });
 
 };
@@ -82,6 +88,32 @@ module.exports.component = async (i) => {
 
   if (memberId !== i.member.id)
     return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+
+  if (type === 'clear') {
+    return await i.reply({
+      content: 'Which message do you want to clear?',
+      components: [new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setLabel('Assignment Message')
+          .setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} ${roleId} clear-assign`)
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setLabel('Deassignment Message')
+          .setCustomId(`commandsSlash/config-role/menu.js ${i.member.id} ${roleId} clear-deassign`)
+          .setStyle(ButtonStyle.Secondary),
+      )],
+      ephemeral: true,
+    });
+  }
+
+  if (['clear-assign', 'clear-deassign'].includes(type)) {
+    await guildRoleModel.storage.set(i.guild, roleId,
+      type === 'clear-assign' ? 'assignMessage' : 'deassignMessage', '');
+
+    await i.deferReply({ ephemeral: true });
+    return await i.followUp({
+      content: `Unset ${type === 'assignMessage' ? 'Assignment' : 'Deassignment'} Message for <@&${roleId}>`,
+      ephemeral: true,
+    });
+  }
 
   if (type === 'closeMenu') {
     await i.deferUpdate();
