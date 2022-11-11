@@ -139,7 +139,7 @@ async function info(i, myGuild) {
 }
   Replace levelup message with roleassign message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
   Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
-  List entries per page ${myGuild.entriesPerPage}
+  List entries per page: ${myGuild.entriesPerPage}
   Status: ${fct.isPremiumGuild(i.guild) ? 'Premium' : 'Not Premium'}` });
 
   e.addFields({ name: '**Tokens**', value: stripIndent`
