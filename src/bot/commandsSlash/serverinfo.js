@@ -123,6 +123,14 @@ async function info(i, myGuild) {
     .setColor('#4fd6c8')
     .setThumbnail(i.guild.iconURL());
 
+  const notifyLevelupType = myGuild.notifyLevelupDm
+    ? 'DM'
+    : myGuild.notifyLevelupCurrentChannel
+      ? 'Current Channel'
+      : myGuild.autopost_levelup
+        ? '#' + nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup)
+        : 'None';
+
   e.addFields({ name: '**General**', value: stripIndent`
   Tracking since: <t:${myGuild.addDate}>
   Tracking stats: ${
@@ -132,11 +140,7 @@ async function info(i, myGuild) {
     (myGuild.voteXp ? myGuild.voteEmote + ' ' : '') +
     (myGuild.bonusXp ? myGuild.bonusEmote + ' ' : '')
 }
-  Notify levelup via direct message: ${myGuild.notifyLevelupDm ? 'Yes' : 'No'}
-  Notify levelup in the current channel: ${myGuild.notifyLevelupCurrentChannel ? 'Yes' : 'No'}
-  Notify levelup in a specific channel: ${
-  myGuild.autopost_levelup ? '#' + nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup) : 'No'
-}
+  Notify levelup: ${notifyLevelupType}
   Include levelup message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
   Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
   List entries per page: ${myGuild.entriesPerPage}
