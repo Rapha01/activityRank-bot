@@ -16,7 +16,7 @@ const generateRows = async (i) => {
     new ButtonBuilder().setLabel('TAAROLD').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} takeAwayAssignedRolesOnLevelDown`),
     new ButtonBuilder().setLabel('Notify Via DM').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupDm`),
     new ButtonBuilder().setLabel('Notify in Last Active Channel').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupCurrentChannel`),
-    new ButtonBuilder().setLabel('Replace Levelup Message With Role Message').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupWithRole`),
+    new ButtonBuilder().setLabel('Include Levelup Message').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} notifyLevelupWithRole`),
   ];
   const r3 = [
     new ButtonBuilder().setEmoji('✍️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} textXp`),
@@ -24,9 +24,9 @@ const generateRows = async (i) => {
     new ButtonBuilder().setEmoji('✉️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} inviteXp`),
     new ButtonBuilder().setEmoji('❤️').setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voteXp`),
   ];
-  r1.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
-  r2.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
-  r3.forEach(o => o.setStyle(myGuild[o.customId.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
+  r1.forEach(o => o.setStyle(myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
+  r2.forEach(o => o.setStyle(myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
+  r3.forEach(o => o.setStyle(myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger));
   if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
   if (parseInt(myGuild.autopost_levelup)) {
     r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
@@ -76,9 +76,9 @@ module.exports.execute = async (i) => {
       { name: 'Notify in Last Active Channel', value: stripIndent`
         If this is enabled, the bot will notify members of their levelups in their last used text channel.
         You cannot select this if the below option is enabled, because it will take priority.` },
-      { name: 'Replace Levelup Message With Role Message', value: stripIndent`
-        If this is enabled, the bot will send both a levelup and roleAssign message where applicable.
-        Otherwise, it will just send a roleAssign message.` },
+      { name: 'Include Levelup Message', value: stripIndent`
+        If this is enabled, when a role has a custom roleAssign message, the bot will also send the default levelup message.
+        Otherwise, it will only send the roleAssign message.` },
       { name: '✍️, 🎙️, ✉️, ❤️', value: stripIndent`
         These will enable or disable text, voice, invite, and upvoteXP respectively.
         You may want to reset these categories, as disabling them will only hide them and prevent more from being added.` },

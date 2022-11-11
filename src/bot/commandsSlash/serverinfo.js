@@ -137,7 +137,7 @@ async function info(i, myGuild) {
   Notify levelup in a specific channel: ${
   myGuild.autopost_levelup ? '#' + nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup) : 'No'
 }
-  Replace levelup message with roleassign message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
+  Include levelup message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
   Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
   List entries per page: ${myGuild.entriesPerPage}
   Status: ${fct.isPremiumGuild(i.guild) ? 'Premium' : 'Not Premium'}` });
