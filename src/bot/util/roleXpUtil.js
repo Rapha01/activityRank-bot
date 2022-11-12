@@ -13,7 +13,7 @@ module.exports.changeXp = async (interaction, roleId, change) => {
     'Fetching members...',
   ).setColor(0x00AE86)] });
   const members = await interaction.guild.members.fetch();
-  console.debug(`fetched ${members.size} members for guild ${interaction.guild.id} in roleXpUtil`);
+  console.log(`fetched ${members.size} members for guild ${interaction.guild.id} in roleXpUtil`);
 
   let modifiedMembers = 0;
   let checkedMembers = 0;
@@ -57,14 +57,14 @@ module.exports.changeXp = async (interaction, roleId, change) => {
     checkedMembers++;
     if (members.size > 100) {
       if (!(checkedMembers % 1000)) {
-        console.debug(
+        console.log(
           members.size, checkedMembers, modifiedMembers,
           statusDeferrals.get(interaction.guild.id), Date.now(),
           statusDeferrals.get(interaction.guild.id) < Date.now(),
         );
       }
     } else {
-      console.debug(members.size, checkedMembers, modifiedMembers);
+      console.log(members.size, checkedMembers, modifiedMembers);
     }
   }
   if (statusDeferrals.get(interaction.guild.id).type === 'hook') {
