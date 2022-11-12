@@ -1,9 +1,9 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const { stripIndent } = require('common-tags');
 const guildModel = require('../../models/guild/guildModel.js');
 
 module.exports.execute = async function(i) {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
@@ -24,7 +24,7 @@ module.exports.execute = async function(i) {
 
   for (const k in items) if (items[k] !== null) await guildModel.storage.set(i.guild, k, items[k]);
   await i.reply({
-    embeds: [new MessageEmbed().setAuthor({ name: 'XP Values' }).setColor(0x00AE86)
+    embeds: [new EmbedBuilder().setAuthor({ name: 'XP Values' }).setColor(0x00AE86)
       .setDescription(stripIndent`
       Modified XP Values! New values:
 

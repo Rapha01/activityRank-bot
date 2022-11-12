@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
@@ -18,12 +17,12 @@ module.exports.data = new SlashCommandBuilder()
   .addStringOption(o => o
     .setName('period')
     .setDescription('The time period to check')
-    .addChoices([
-      ['Day', 'Day'],
-      ['Week', 'Week'],
-      ['Month', 'Month'],
-      ['Year', 'Year'],
-    ]));
+    .addChoices(
+      { name: 'Day', value: 'Day' },
+      { name: 'Week', value: 'Week' },
+      { name: 'Month', value: 'Month' },
+      { name: 'Year', value: 'Year' },
+    ));
 
 module.exports.execute = async (i) => {
   await i.deferReply();
@@ -49,21 +48,18 @@ module.exports.execute = async (i) => {
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(i.guild, targetMember.id);
   const levelProgression = fct.getLevelProgression(rank.totalScoreAlltime, i.guild.appData.levelFactor);
 
-  let description = '';
-  if (myGuild.bonusUntilDate > Date.now() / 1000) {
-    description = `**!! Bonus XP Active !!** (${
-      Math.round((((myGuild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10)
-    }h left) \n`;
-  }
-
   await userModel.cache.load(targetMember.user);
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setAuthor({ name: `${time} stats on server ${i.guild.name}` })
     .setColor('#4fd6c8')
-    .setDescription(description)
-    .setThumbnail(targetMember.user.avatarURL({ dynamic:true }))
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '');
+    .setThumbnail(targetMember.user.avatarURL({ dynamic:true }));
+
+  if (myGuild.bonusUntilDate > Date.now() / 1000) {
+    embed.setDescription(`**!! Bonus XP Active !!** (${
+      Math.round((((myGuild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10)
+    }h left) \n`);
+  }
 
   const scoreStrings = [];
   const infoStrings = [];
@@ -81,11 +77,11 @@ module.exports.execute = async (i) => {
   infoStrings.push('Total XP: ' + Math.round(rank['totalScore' + time]) + ' (#' + totalScorePosition + ')');
   infoStrings.push('Next Level: ' + (Math.floor(levelProgression % 1 * 100)) + '%\n');
 
-  embed.addField(
-    '#' + totalScorePosition + ' **' + guildMemberInfo.name + '** 🎖 ' + Math.floor(levelProgression),
-    infoStrings.join('\n'),
+  embed.addFields(
+    { name: `#${totalScorePosition} **${guildMemberInfo.name}** 🎖 ${Math.floor(levelProgression)}`,
+      value: infoStrings.join('\n') },
+    { name: 'Stats', value: scoreStrings.join('\n') },
   );
-  embed.addField('Stats', scoreStrings.join('\n'));
 
   await i.editReply({
     embeds: [embed],

@@ -1,11 +1,11 @@
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 const resetModel = require('../../models/resetModel.js');
 const nameUtil = require('../../util/nameUtil');
 const { parseMember } = require('../../util/parser');
 
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
@@ -21,17 +21,17 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const confirmRow = new MessageActionRow().addComponents(
-    new MessageButton()
+  const confirmRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
       .setCustomId('ignore confirm')
       .setLabel('Reset')
       .setEmoji('✅')
-      .setStyle('DANGER'),
-    new MessageButton()
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
       .setCustomId('ignore cancel')
       .setLabel('Cancel')
       .setEmoji('❎')
-      .setStyle('SECONDARY'),
+      .setStyle(ButtonStyle.Secondary),
   );
   const msg = await i.reply({
     content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(i.guild.members.cache, resolvedMember.id)}?`,

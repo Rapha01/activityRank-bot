@@ -1,9 +1,10 @@
+const { PermissionFlagsBits } = require('discord.js');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const { changeXp, currentlyProcessing } = require('../../util/roleXpUtil.js');
 
 module.exports.execute = async (i) => {
   const role = i.options.getRole('role');
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,

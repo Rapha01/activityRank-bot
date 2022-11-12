@@ -4,19 +4,17 @@ const rankModel = require('../models/rankModel.js');
 const fct = require('../../util/fct.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const nameUtil = require('../util/nameUtil.js');
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { ChannelType: { GuildText, GuildVoice, GuildNews } } = require('discord-api-types/v9');
+const { SlashCommandBuilder, EmbedBuilder, ChannelType } = require('discord.js');
 
 const _timedef = (_ => _
   .setName('period')
   .setDescription('The time period to check')
-  .addChoices([
-    ['Day', 'Day'],
-    ['Week', 'Week'],
-    ['Month', 'Month'],
-    ['Year', 'Year'],
-  ])
+  .addChoices(
+    { name: 'Day', value: 'Day' },
+    { name: 'Week', value: 'Week' },
+    { name: 'Month', value: 'Month' },
+    { name: 'Year', value: 'Year' },
+  )
 );
 const _page = (_ => _
   .setName('page')
@@ -39,12 +37,12 @@ module.exports.data = new SlashCommandBuilder()
       .addStringOption(o => o
         .setName('type')
         .setDescription('Order by a type of XP')
-        .addChoices([
-          ['Text', 'textMessage'],
-          ['Voice', 'voiceMinute'],
-          ['Like', 'vote'],
-          ['Invite', 'invite'],
-        ])))
+        .addChoices(
+          { name: 'Text', value: 'textMessage' },
+          { name: 'Voice', value: 'voiceMinute' },
+          { name: 'Like', value: 'vote' },
+          { name: 'Invite', value: 'invite' },
+        )))
     .addSubcommand(sc => sc
       .setName('channel')
       .setDescription('The top members in the specified channel')
@@ -52,7 +50,7 @@ module.exports.data = new SlashCommandBuilder()
         .setName('channel')
         .setDescription('The channel to check')
         .setRequired(true)
-        .addChannelTypes([ GuildText, GuildVoice, GuildNews ]))
+        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildAnnouncement, ChannelType.GuildForum))
       .addStringOption(_timedef)
       .addIntegerOption(_page)))
   .addSubcommandGroup(scg => scg
@@ -64,8 +62,10 @@ module.exports.data = new SlashCommandBuilder()
       .addStringOption(o => o
         .setName('type')
         .setDescription('The type of channel')
-        .addChoice('Text', 'textMessage')
-        .addChoice('Voice', 'voiceMinute')
+        .addChoices(
+          { name: 'Text', value: 'textMessage' },
+          { name: 'Voice', value: 'voiceMinute' },
+        )
         .setRequired(true))
       .addStringOption(_timedef)
       .addIntegerOption(_page))
@@ -79,8 +79,10 @@ module.exports.data = new SlashCommandBuilder()
       .addStringOption(o => o
         .setName('type')
         .setDescription('The type of channel')
-        .addChoice('Text', 'textMessage')
-        .addChoice('Voice', 'voiceMinute')
+        .addChoices(
+          { name: 'Text', value: 'textMessage' },
+          { name: 'Voice', value: 'voiceMinute' },
+        )
         .setRequired(true))
       .addStringOption(_timedef)
       .addIntegerOption(_page)));
@@ -122,14 +124,14 @@ exports.sendMembersEmbed = async (i, type) => {
   }
   await nameUtil.addGuildMemberNamesToRanks(i.guild, memberRanks);
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setTitle(header)
     .setColor('#4fd6c8');
 
   if (guild.bonusUntilDate > Date.now() / 1000)
     e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R> \n`);
 
-  if (i.client.appData.settings.footer) e.setFooter(i.client.appData.settings.footer);
+  if (i.client.appData.settings.footer) e.setFooter({ text: i.client.appData.settings.footer });
 
   let iter = 0;
   let scoreStrings;
@@ -148,10 +150,10 @@ exports.sendMembersEmbed = async (i, type) => {
       scoreStrings.push(guild.voteEmote + ' ' + memberRank['vote' + time]);
     if (i.guild.appData.bonusXp)
       scoreStrings.push(guild.bonusEmote + ' ' + memberRank['bonus' + time]);
-    e.addField(
-      `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
-      `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(':black_small_square:')}`,
-    );
+    e.addFields({
+      name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
+      value: `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(':black_small_square:')}`,
+    });
     iter++;
   }
 

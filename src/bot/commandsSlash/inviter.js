@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const statFlushCache = require('../statFlushCache.js');
 const fct = require('../../util/fct.js');

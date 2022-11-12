@@ -1,11 +1,11 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const { commaListsAnd } = require('common-tags');
 const guildRoleModel = require('../../models/guild/guildRoleModel.js');
 const nameUtil = require('../../util/nameUtil.js');
 const { parseRole } = require('../../util/parser');
 
 module.exports.execute = async function(i) {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
@@ -21,7 +21,7 @@ module.exports.execute = async function(i) {
     });
   }
 
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_ROLES')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageRoles)) {
     return await i.reply({
       content: 'Please ensure the bot has the permission to manage roles for the duration of this setup.',
       ephemeral: true,
@@ -50,13 +50,15 @@ module.exports.execute = async function(i) {
     if (items[k] !== null) await guildRoleModel.storage.set(i.guild, resolvedRole.id, k, items[k]);
   }
   const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, resolvedRole.id);
-  const e = new MessageEmbed().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
+  const e = new EmbedBuilder().setAuthor({ name: 'Assign/Deassignments for this role' }).setColor(0x00AE86)
     .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id));
 
   const roleAssignLevels = x.map(o => o.assignLevel != 0 ? `\`${o.assignLevel}\`` : null);
   const roleDeassignLevels = x.map(o => o.deassignLevel != 0 ? `\`${o.deassignLevel}\`` : null);
-  if (!roleAssignLevels.every(o => o === null)) e.addField('Assignment Levels', commaListsAnd(roleAssignLevels));
-  if (!roleDeassignLevels.every(o => o === null)) e.addField('Deassignment Levels', commaListsAnd(roleDeassignLevels));
+  if (!roleAssignLevels.every(o => o === null))
+    e.addFields({ name: 'Assignment Levels', value: commaListsAnd(roleAssignLevels) });
+  if (!roleDeassignLevels.every(o => o === null))
+    e.addFields({ name: 'Deassignment Levels', value: commaListsAnd(roleDeassignLevels) });
 
   await i.reply({
     embeds: [e],

@@ -2,16 +2,17 @@ const fct = require('../util/fct.js');
 const nameUtil = require('./util/nameUtil.js');
 const guildRoleModel = require('./models/guild/guildRoleModel.js');
 const Discord = require('discord.js');
+const { PermissionFlagsBits } = require('discord.js');
 
-exports.checkLevelUp = (member,oldTotalScore,newTotalScore) => {
-  return new Promise(async function (resolve, reject) {
-    let oldLevel,newLevel,roleMessages;
+exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
+  return new Promise(async function(resolve, reject) {
+    let oldLevel, newLevel, roleMessages;
     try {
-      oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore,member.guild.appData.levelFactor));
-      newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore,member.guild.appData.levelFactor));
+      oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor));
+      newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor));
 
       if (oldLevel != newLevel)
-        roleMessages = await exports.checkRoleAssignment(member,newLevel);
+        roleMessages = await exports.checkRoleAssignment(member, newLevel);
 
     } catch (e) { return reject(e); }
 
@@ -19,19 +20,19 @@ exports.checkLevelUp = (member,oldTotalScore,newTotalScore) => {
     if (oldLevel >= newLevel)
       return resolve();
 
-    await sendGratulationMessage(member,roleMessages,newLevel).catch(e => console.log('SendError autoPostLevelup: ' + e));
+    await sendGratulationMessage(member, roleMessages, newLevel).catch(e => console.log('SendError autoPostLevelup: ' + e));
 
     resolve();
   });
-}
+};
 
-exports.checkRoleAssignment = (member,level) => {
-  return new Promise(async function (resolve, reject) {
+exports.checkRoleAssignment = (member, level) => {
+  return new Promise(async function(resolve, reject) {
     try {
-      let roleMessages = [],memberHasRole;
+      let roleMessages = [], memberHasRole;
       const roles = member.guild.roles.cache;
 
-      if (roles.size == 0 || !member.guild.me.permissions.has("MANAGE_ROLES"))
+      if (roles.size == 0 || !member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles))
         return resolve(roleMessages);
 
       for (let role of roles) {
@@ -40,7 +41,7 @@ exports.checkRoleAssignment = (member,level) => {
 
         if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0)
           continue;
-        if (role.comparePositionTo(member.guild.me.roles.highest) > 0)
+        if (role.comparePositionTo(member.guild.members.me.roles.highest) > 0)
           continue;
 
         memberHasRole = member.roles.cache.get(role.id);
@@ -49,19 +50,19 @@ exports.checkRoleAssignment = (member,level) => {
           // User is above role. Deassign or do nothing.
           if (memberHasRole) {
             await member.roles.remove(role).catch(e => console.log(e));
-            addRoleDeassignMessage(roleMessages,member,role,level);
+            addRoleDeassignMessage(roleMessages, member, role, level);
           }
         } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
           // User is within role. Assign or do nothing.
           if (!memberHasRole) {
             await member.roles.add(role).catch(e => console.log(e));
-            addRoleAssignMessage(roleMessages,member,role,level);
+            addRoleAssignMessage(roleMessages, member, role, level);
           }
         } else if (member.guild.appData.takeAwayAssignedRolesOnLevelDown && role.appData.assignLevel != 0 && level < role.appData.assignLevel) {
           // User is below role. Deassign or do nothing.
           if (memberHasRole) {
             await member.roles.remove(role).catch(e => console.log(e));
-            addRoleDeassignMessage(roleMessages,member,role,level);
+            addRoleDeassignMessage(roleMessages, member, role, level);
           }
         }
       }
@@ -69,10 +70,10 @@ exports.checkRoleAssignment = (member,level) => {
       return resolve(roleMessages);
     } catch (e) { return reject(e); }
   });
-}
+};
 
-const sendGratulationMessage = (member,roleMessages,level) => {
-  return new Promise(async function (resolve, reject) {
+const sendGratulationMessage = (member, roleMessages, level) => {
+  return new Promise(async function(resolve, reject) {
     let gratulationMessage = '';
 
     if (member.guild.appData.levelupMessage != '' && (member.guild.appData.notifyLevelupWithRole || roleMessages.length == 0))
@@ -84,15 +85,15 @@ const sendGratulationMessage = (member,roleMessages,level) => {
     if (gratulationMessage == '')
       return resolve();
 
-    const ping = gratulationMessage.indexOf('<mention>') > -1 ?  '<@' + member.id + '>' : '';
+    const ping = gratulationMessage.indexOf('<mention>') > -1 ? '<@' + member.id + '>' : '';
 
-    gratulationMessage = replaceTagsLevelup(gratulationMessage,member,level);
+    gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 
-    const levelupEmbed = new Discord.MessageEmbed()
-        .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
-        .setColor('#4fd6c8')
-        .setDescription(gratulationMessage)
-        .setThumbnail(member.user.avatarURL())
+    const levelupEmbed = new Discord.EmbedBuilder()
+      .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
+      .setColor('#4fd6c8')
+      .setDescription(gratulationMessage)
+      .setThumbnail(member.user.avatarURL());
 
     // Active Channel
     let notified = false;
@@ -100,7 +101,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
       if (member.appData.lastMessageChannelId) {
         const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
         if (channel) {
-          let msg = { embeds: [ levelupEmbed ] };
+          const msg = { embeds: [ levelupEmbed ] };
           if (ping)
             msg['content'] = ping;
 
@@ -114,7 +115,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
       const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
 
       if (channel && channel.send) {
-        let msg = { embeds: [ levelupEmbed ] };
+        const msg = { embeds: [ levelupEmbed ] };
         if (ping)
           msg['content'] = ping;
 
@@ -127,7 +128,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
       levelupEmbed.setFooter({
         text: 'To disable direct messages from me, type `/config-member` in the server.',
       });
-      let msg = { embeds: [ levelupEmbed ] };
+      const msg = { embeds: [ levelupEmbed ] };
       if (ping)
         msg['content'] = ping;
 
@@ -138,7 +139,7 @@ const sendGratulationMessage = (member,roleMessages,level) => {
   });
 };
 
-const addRoleDeassignMessage = (roleMessages,member,role,level) => {
+const addRoleDeassignMessage = (roleMessages, member, role, level) => {
   let message = '';
 
   if (role.appData.deassignMessage != '')
@@ -147,12 +148,12 @@ const addRoleDeassignMessage = (roleMessages,member,role,level) => {
     message = member.guild.appData.roleDeassignMessage;
 
   if (message != '')
-    roleMessages.push(replaceTagsRole(message,member,role,level));
+    roleMessages.push(replaceTagsRole(message, member, role, level));
 
   return roleMessages;
-}
+};
 
-const addRoleAssignMessage = (roleMessages,member,role,level) => {
+const addRoleAssignMessage = (roleMessages, member, role, level) => {
   let message = '';
 
   if (role.appData.assignMessage != '')
@@ -161,19 +162,19 @@ const addRoleAssignMessage = (roleMessages,member,role,level) => {
     message = member.guild.appData.roleAssignMessage;
 
   if (message != '')
-    roleMessages.push(replaceTagsRole(message,member,role,level));
+    roleMessages.push(replaceTagsRole(message, member, role, level));
 
   return roleMessages;
-}
+};
 
-const replaceTagsRole = (text,member,role,level) => {
-  return text.replace(/<rolename>/g,role.name).replace(/<role>/g,role.name)
+const replaceTagsRole = (text, member, role, level) => {
+  return text.replace(/<rolename>/g, role.name).replace(/<role>/g, role.name)
     .replace(/<rolemention>/g, role.toString());
-}
+};
 
-const replaceTagsLevelup = (text,member,level) => {
-  return text.replace(/<mention>/g,'<@' + member.id + '>')
-      .replace(/<name>/g,member.user.username)
-      .replace(/<level>/g,level)
-      .replace(/<servername>/g,member.guild.name) + '\n';
-}
+const replaceTagsLevelup = (text, member, level) => {
+  return text.replace(/<mention>/g, '<@' + member.id + '>')
+    .replace(/<name>/g, member.user.username)
+    .replace(/<level>/g, level)
+    .replace(/<servername>/g, member.guild.name) + '\n';
+};

@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const userModel = require('../models/userModel.js');
@@ -51,24 +50,23 @@ module.exports.execute = async function(i) {
     lastActivityStr += `Last bonus: ${lastActivities.bonus}\n`;
 
   targetMemberInfo.joinedAt = Math.ceil(targetMemberInfo.joinedAt / 1000);
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setAuthor({ name: `Info for ${targetMemberInfo.name} in server ${i.guild.name}` })
     .setColor('#4fd6c8')
     .setThumbnail(targetMemberInfo.avatarUrl)
-    .setFooter(i.client.appData.settings.footer ? i.client.appData.settings.footer : '')
-    .addField('General',
-      stripIndent`Joined: <t:${targetMemberInfo.joinedAt}:D>, <t:${targetMemberInfo.joinedAt}:R>
-    Inviter: ${inviterInfo.name}`)
-    .addField('Tokens',
-      stripIndent`
-      Available: \`${myTargetUser.tokens}\`
-      Burned (this server): \`${myTargetMember.tokensBurned}\`
-      Bought (total): \`${myTargetUser.tokensBought}\``)
-    .addField('Settings',
-      stripIndent`
-      Notify levelup via Direct Message: ${myGuild.notifyLevelupDm ? 'Yes' : 'No'}
-      Reaction Vote: ${myGuild.reactionVote ? 'Yes' : 'No'}`)
-    .addField('Recent Activity', lastActivityStr);
+    .addFields(
+      { name: 'General', value: stripIndent`
+        Joined: <t:${targetMemberInfo.joinedAt}:D>, <t:${targetMemberInfo.joinedAt}:R>
+        Inviter: ${inviterInfo.name}` },
+      { name: 'Tokens', value: stripIndent`
+        Available: \`${myTargetUser.tokens}\`
+        Burned (this server): \`${myTargetMember.tokensBurned}\`
+        Bought (total): \`${myTargetUser.tokensBought}\`` },
+      { name: 'Settings', value: stripIndent`
+        Notify levelup via Direct Message: ${myGuild.notifyLevelupDm ? 'Yes' : 'No'}
+        Reaction Vote: ${myGuild.reactionVote ? 'Yes' : 'No'}` },
+      { name: 'Recent Activity', value: lastActivityStr },
+    );
 
   await i.reply({ embeds: [embed] });
 };

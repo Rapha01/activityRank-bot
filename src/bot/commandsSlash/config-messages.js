@@ -1,22 +1,20 @@
 /* eslint-disable max-len */
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
-const { Modal, TextInputComponent, showModal } = require('discord-modals');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, SelectMenuBuilder, EmbedBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, PermissionFlagsBits, Embed } = require('discord.js');
 const guildModel = require('../models/guild/guildModel.js');
 
 const generateRows = async (i) => {
   return [
-    new MessageActionRow().addComponents(
-      new MessageSelectMenu().setCustomId(`commandsSlash/config-messages.js ${i.member.id} select`).setPlaceholder('The message to set')
+    new ActionRowBuilder().addComponents(
+      new SelectMenuBuilder().setCustomId(`commandsSlash/config-messages.js ${i.member.id} select`).setPlaceholder('The message to set')
         .setOptions([
           { label: 'Server Join Message', value: 'serverJoinMessage' },
           { label: 'Levelup Message', value: 'levelupMessage' },
           { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
-          { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
+          { label: 'Default Role Deassign Message', value: 'roleDeassignMessage' },
         ]),
     ),
-    new MessageActionRow().addComponents(
-      new MessageButton().setLabel('Clear a message').setStyle('DANGER').setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear`),
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('Clear a message').setStyle(ButtonStyle.Danger).setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear`),
     ),
   ];
 };
@@ -28,17 +26,17 @@ const _prettifyId = {
   roleDeasssignMessage: 'Role Deassign Message',
 };
 
-const _modal = (type) => new Modal()
+const _modal = (type) => new ModalBuilder()
   .setCustomId(`commandsSlash/config-messages.js ${type}`)
   .setTitle('Message Selection')
-  .addComponents([
-    new TextInputComponent()
+  .addComponents(new ActionRowBuilder().addComponents(
+    new TextInputBuilder()
       .setCustomId('msg-component-1')
       .setLabel(`The ${_prettifyId[type]}`)
-      .setStyle('LONG')
+      .setStyle(TextInputStyle.Paragraph)
       .setMaxLength(type === 'levelupMessage' ? 1000 : 500)
       .setRequired(true),
-  ]);
+  ));
 
 
 module.exports.data = new SlashCommandBuilder()
@@ -46,23 +44,21 @@ module.exports.data = new SlashCommandBuilder()
   .setDescription('Configures the guild\'s autopost messages');
 
 module.exports.execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
+  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
 
-  const e = new MessageEmbed()
+  const e = new EmbedBuilder()
     .setAuthor({ name: 'Server Messages' }).setColor(0x00AE86)
-    .addField('Server Join Message',
-      'The message to send when a member joins the server')
-    .addField('Levelup Message',
-      'The message to send when a member gains a level')
-    .addField('Role Assign Message',
-      'The message to send when a member gains a role, unless overridden')
-    .addField('Role Deassign Message',
-      'The message to send when a member loses a role, unless overridden');
+    .addFields(
+      { name: 'Server Join Message', value: 'The message to send when a member joins the server' },
+      { name: 'Levelup Message', value: 'The message to send when a member gains a level' },
+      { name: 'Role Assign Message', value: 'The message to send when a member gains a role, unless overridden' },
+      { name: 'Role Deassign Message', value: 'The message to send when a member loses a role, unless overridden' },
+    );
 
   await i.reply({
     embeds: [e],
@@ -81,13 +77,13 @@ module.exports.component = async (i) => {
   if (type === 'clear') {
     return await i.reply({
       content: 'Which message do you want to clear?',
-      components: [new MessageActionRow().addComponents(
-        new MessageSelectMenu().setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear-select`).setPlaceholder('The message to clear')
+      components: [new ActionRowBuilder().addComponents(
+        new SelectMenuBuilder().setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear-select`).setPlaceholder('The message to clear')
           .setOptions([
             { label: 'Server Join Message', value: 'serverJoinMessage' },
             { label: 'Levelup Message', value: 'levelupMessage' },
             { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
-            { label: 'Default Role Deassign Message', value: 'roleDeasssignMessage' },
+            { label: 'Default Role Deassign Message', value: 'roleDeassignMessage' },
           ]),
       )],
       ephemeral: true,
@@ -105,18 +101,18 @@ module.exports.component = async (i) => {
   }
 
   if (type === 'select')
-    return await showModal(_modal(i.values[0]), { client: i.client, interaction: i });
+    return await i.showModal(_modal(i.values[0]));
 };
 
 module.exports.modal = async function(i) {
   const [, type] = i.customId.split(' ');
-  const value = await i.getTextInputValue('msg-component-1');
+  const value = i.fields.getTextInputValue('msg-component-1');
   await guildModel.storage.set(i.guild, type, value);
 
   await i.deferReply({ ephemeral: true });
   await i.followUp({
     content: `Set ${_prettifyId[type]}`,
-    embeds: [{ description: value, color: '#4fd6c8' }],
+    embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
     ephemeral: true,
   });
 };

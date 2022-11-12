@@ -1,6 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions: { FLAGS } } = require('discord.js');
-
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
 const userModel = require('../models/userModel');
 
@@ -16,7 +14,7 @@ module.exports.requiredPrivileges = PRIVILEGE_LEVELS.Moderator;
 module.exports.data = new SlashCommandBuilder()
   .setName('edit-tokens')
   .setDescription('Edit a user\'s tokens.')
-  .setDefaultMemberPermissions(FLAGS.BAN_MEMBERS)
+  .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
   .setDMPermission(false)
   /* .addSubcommand(sc => sc
     .setName('set')
