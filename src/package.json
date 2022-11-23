@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "@discordjs/rest": "^0.2.0-canary.0",
+    "@sapphire/snowflake": "^3.2.2",
     "common-tags": "^1.8.2",
     "discord.js": "^14.6.0",
     "ip-to-int": "^0.3.1",
