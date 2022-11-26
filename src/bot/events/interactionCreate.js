@@ -65,10 +65,17 @@ module.exports = {
       }
     } catch (e) {
       if (!interaction.replied) {
-        if (interaction.deferred)
-          await interaction.editReply({ content: 'There was an error while executing this command!', ephemeral: true });
-        else
-          await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        try {
+          if (interaction.deferred)
+            await interaction.editReply({ content: 'There was an error while executing this command!', ephemeral: true });
+          else
+            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        } catch (e2) {
+          if (e2.code !== 10062) // Unknown Interaction
+            throw e2;
+          else
+            console.log('Unknown interaction after error');
+        }
       }
       throw e;
     }
