@@ -20,7 +20,10 @@ module.exports.data = new SlashCommandBuilder()
       .setName('take')
       .setDescription('The amount of XP to take from all members with the role')
       .setMinValue(1)
-      .setMaxValue(1_000_000)))
+      .setMaxValue(1_000_000))
+    .addBooleanOption(o => o
+      .setName('use-beta')
+      .setDescription('Enables the beta method of giving bonus to roles. Warning: will not send levelUpMessages')))
   .addSubcommand(sc => sc
     .setName('nrole')
     .setDescription('[BETA ONLY] Change the bonus XP of all members with a role')
