@@ -35,7 +35,7 @@ module.exports = {
 
       await tokenBurn(interaction.guild);
 
-      if (interaction.isButton() || interaction.isSelectMenu()) {
+      if (interaction.isButton() || interaction.isStringSelectMenu() || interaction.isChannelSelectMenu()) {
         await component(interaction);
       } else if (interaction.isUserContextMenuCommand()) {
         await userCtx(interaction);
