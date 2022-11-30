@@ -45,7 +45,7 @@ module.exports.execute = async (i) => {
     time: 'Alltime',
     owner: i.member.id,
     page: 1,
-    orderType: 'totalScore',
+    orderType: 'allScores',
     interaction: i,
   };
 
@@ -97,10 +97,6 @@ module.exports.component = async (i) => {
   await state.interaction.editReply(
     await generate(state, i.guild, myGuild),
   );
-
-  /* await i.update(
-    await generate(exports.activeCache.get(i.message.id), i.guild, myGuild),
-  ); */
 };
 
 
@@ -227,7 +223,7 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
   else if (state.orderType === 'invite') header += ' | By invites';
   else if (state.orderType === 'vote') header += ' | By ' + myGuild.voteTag;
   else if (state.orderType === 'bonus') header += ' | By ' + myGuild.bonusTag;
-  else if (state.orderType === 'totalScore') header += ' | By total XP';
+  else if (state.orderType === 'totalScore' || state.orderType === 'allScores') header += ' | By total XP';
 
   const memberRanks = await rankModel.getGuildMemberRanks(
     guild,
@@ -385,13 +381,13 @@ function getMembersComponents(state, disabled) {
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()
-            .setLabel('Total')
-            .setValue('totalScore')
-            .setDefault(state.orderType === 'totalScore'),
-          new StringSelectMenuOptionBuilder()
             .setLabel('All')
             .setValue('allScores')
             .setDefault(state.orderType === 'allScores'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Total')
+            .setValue('totalScore')
+            .setDefault(state.orderType === 'totalScore'),
           new StringSelectMenuOptionBuilder()
             .setLabel('Messages')
             .setValue('textMessage')
