@@ -49,19 +49,25 @@ exports.checkRoleAssignment = (member, level) => {
         if (role.appData.deassignLevel != 0 && level >= role.appData.deassignLevel) {
           // User is above role. Deassign or do nothing.
           if (memberHasRole) {
-            await member.roles.remove(role).catch(e => console.log(e));
+            await member.roles.remove(role).catch(e => {
+              if (e.code !== 50013) throw e; // Missing Permissions
+            });
             addRoleDeassignMessage(roleMessages, member, role, level);
           }
         } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
           // User is within role. Assign or do nothing.
           if (!memberHasRole) {
-            await member.roles.add(role).catch(e => console.log(e));
+            await member.roles.add(role).catch(e => {
+              if (e.code !== 50013) throw e; // Missing Permissions
+            });
             addRoleAssignMessage(roleMessages, member, role, level);
           }
         } else if (member.guild.appData.takeAwayAssignedRolesOnLevelDown && role.appData.assignLevel != 0 && level < role.appData.assignLevel) {
           // User is below role. Deassign or do nothing.
           if (memberHasRole) {
-            await member.roles.remove(role).catch(e => console.log(e));
+            await member.roles.remove(role).catch(e => {
+              if (e.code !== 50013) throw e; // Missing Permissions
+            });
             addRoleDeassignMessage(roleMessages, member, role, level);
           }
         }

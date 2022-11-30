@@ -33,6 +33,9 @@ const autoPostServerJoin = (member, roleAssignmentString) => {
       if (!channel)
         return resolve();
 
+      if (!channel.viewable)
+        return resolve();
+
       let welcomeMessage;
       if (member.guild.appData.serverJoinMessage != '')
         welcomeMessage = member.guild.appData.serverJoinMessage;
