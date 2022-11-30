@@ -81,7 +81,7 @@ exports.getGuildMemberTopChannels = function(guild,userId,type,time,from,to) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(guild.appData.dbHost,`SELECT channelId,${time} FROM ${type}
-          WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
+          WHERE guildId = ${guild.id} AND userId = ${userId} AND ${time} != 0
           ORDER BY ${time} DESC
           LIMIT ` + (from-1) + `,` + (to-(from-1)));
 
