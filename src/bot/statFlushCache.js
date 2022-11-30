@@ -130,6 +130,15 @@ const addTotalXp = (member,xp) => {
   });
 };
 
+// beta function
+exports.directlyAddBonus = async (userId, guild, client, count) => {
+  const bonusCache = directlyBuildStatFlushCache(client, guild, 'bonus');
+
+  count *= 1; // ?
+  let entry = bonusCache[userId];
+  if (!entry) entry = bonusCache[userId] = { guildId: guild.id, userId, count };
+  else entry.count += count;
+};
 
 const buildStatFlushCache = (member,type) => {
   const statFlushCache = member.client.appData.statFlushCache;
@@ -142,4 +151,15 @@ const buildStatFlushCache = (member,type) => {
     statFlushCache[dbHost][type] = {};
 
   return statFlushCache[dbHost][type];
-}
+};
+
+const directlyBuildStatFlushCache = (client, guild, type) => {
+  const statFlushCache = client.appData.statFlushCache;
+  const dbHost = guild.appData.dbHost;
+
+  if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
+
+  if (!statFlushCache[dbHost][type]) statFlushCache[dbHost][type] = {};
+
+  return statFlushCache[dbHost][type];
+};

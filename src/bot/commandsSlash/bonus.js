@@ -12,15 +12,13 @@ module.exports.data = new SlashCommandBuilder()
       .setDescription('The role to modify')
       .setRequired(true))
     .addIntegerOption(o => o
-      .setName('give')
-      .setDescription('The amount of XP to give to all members with the role')
-      .setMinValue(1)
+      .setName('change')
+      .setDescription('The amount of XP to change all users with the role by')
+      .setMinValue(-1_000_000)
       .setMaxValue(1_000_000))
-    .addIntegerOption(o => o
-      .setName('take')
-      .setDescription('The amount of XP to take from all members with the role')
-      .setMinValue(1)
-      .setMaxValue(1_000_000)))
+    .addBooleanOption(o => o
+      .setName('use-beta')
+      .setDescription('Enables the beta method of giving bonus to roles. Warning: will not send levelUpMessages')))
   .addSubcommand(sc => sc
     .setName('member')
     .setDescription('Change a member\'s bonus XP')
@@ -29,12 +27,7 @@ module.exports.data = new SlashCommandBuilder()
       .setDescription('The member to modify')
       .setRequired(true))
     .addIntegerOption(o => o
-      .setName('give')
-      .setDescription('The amount of XP to give to the member')
-      .setMinValue(1)
-      .setMaxValue(1_000_000))
-    .addIntegerOption(o => o
-      .setName('take')
-      .setDescription('The amount of XP to take from the member')
-      .setMinValue(1)
+      .setName('change')
+      .setDescription('The amount of XP to change all users with the role by')
+      .setMinValue(-1_000_000)
       .setMaxValue(1_000_000)));
