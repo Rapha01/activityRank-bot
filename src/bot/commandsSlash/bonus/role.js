@@ -18,18 +18,10 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const give = i.options.getInteger('give') || 0;
-  const take = i.options.getInteger('take') || 0;
-  const val = give - take;
-  if (val === 0) {
-    return await i.reply({
-      content: 'You cannot give/take 0 XP!',
-      ephemeral: true,
-    });
-  }
+  const change = i.options.getInteger('change', true);
 
-  if (i.options.getBoolean('use-beta')) return await betaSystem(i, role, val);
-  else return await oldSystem(i, role, val);
+  if (i.options.getBoolean('use-beta')) return await betaSystem(i, role, change);
+  else return await oldSystem(i, role, change);
 };
 
 async function oldSystem(interaction, role, changeAmount) {

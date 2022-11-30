@@ -12,19 +12,11 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const give = i.options.getInteger('give') || 0;
-  const take = i.options.getInteger('take') || 0;
-  const val = give - take;
-  if (val === 0) {
-    return await i.reply({
-      content: 'You cannot give/take 0 XP!',
-      ephemeral: true,
-    });
-  }
+  const change = i.options.getInteger('change', true);
 
-  await statFlushCache.addBonus(member, val);
+  await statFlushCache.addBonus(member, change);
   await i.reply({
-    content: `Successfully gave \`${val}\` bonus XP to ${member}!`,
+    content: `Successfully gave \`${change}\` bonus XP to ${member}!`,
     allowedMentions: { parse: [] },
   });
 };
