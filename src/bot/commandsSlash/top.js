@@ -283,8 +283,8 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
 
     const getFieldScoreString = (type, time) => {
       if (type === 'totalScore') return '';
-      else if (type === 'allScores') return `<:dot:1047431705004355628> ${scoreStrings.join(' | ')}`;
-      else return `<:dot:1047431705004355628> ${getScoreString(type, time)}`;
+      else if (type === 'allScores') return `🔸 ${scoreStrings.join(' | ')}`;
+      else return `🔸 ${getScoreString(type, time)}`;
     };
 
     e.addFields({
