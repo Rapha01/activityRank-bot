@@ -129,7 +129,7 @@ async function getTopChannels(guild, type, time, page) {
     return 'No entries found for this page.';
 
 
-  const channelMention = (index) => nameUtil.getChannelName(guild.channels.cache, channelRanks[index].channelId);
+  const channelMention = (index) => nameUtil.getChannelMention(guild.channels.cache, channelRanks[index].channelId);
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
   const channelValue = (index) => type === 'voiceMinute'
     ? (Math.round(channelRanks[index][time] / 60 * 10) / 10)
@@ -137,7 +137,7 @@ async function getTopChannels(guild, type, time, page) {
 
   const s = [];
   for (let i = 0; i < channelRanks.length; i++)
-    s.push(`#${page.from + i} | ${channelMention(i)}: ${emoji} ${channelValue(i)}`);
+    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`);
 
   return s.join('\n');
 }
@@ -215,7 +215,13 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
   else if (state.orderType === 'bonus') header += ' | By ' + myGuild.bonusTag;
   else if (state.orderType === 'totalScore') header += ' | By total XP';
 
-  const memberRanks = await rankModel.getGuildMemberRanks(guild, state.orderType, state.time, page.from, page.to);
+  const memberRanks = await rankModel.getGuildMemberRanks(
+    guild,
+    state.orderType === 'allScores' ? 'totalScore' : state.orderType,
+    state.time,
+    page.from,
+    page.to,
+  );
 
   if (!memberRanks || memberRanks.length === 0) {
     return {
@@ -239,25 +245,41 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
     e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R>)`);
 
   let i = 0;
-  let scoreStrings;
-  let memberRank;
   while (memberRanks.length > 0) {
-    scoreStrings = [];
-    memberRank = memberRanks.shift();
+    const memberRank = memberRanks.shift();
 
-    if (guild.appData.textXp)
-      scoreStrings.push(`:writing_hand: ${memberRank['textMessage' + state.time]}`);
-    if (guild.appData.voiceXp)
-      scoreStrings.push(`:microphone2: ${(Math.round(memberRank['voiceMinute' + state.time] / 60 * 10) / 10)}`);
-    if (guild.appData.inviteXp)
-      scoreStrings.push(`:envelope: ${memberRank['invite' + state.time]}`);
-    if (guild.appData.voteXp)
-      scoreStrings.push(myGuild.voteEmote + ' ' + memberRank['vote' + state.time]);
-    if (guild.appData.bonusXp)
-      scoreStrings.push(myGuild.bonusEmote + ' ' + memberRank['bonus' + state.time]);
+    const getScoreString = (type, time) => {
+      if (type === 'textMessage' && guild.appData.textXp)
+        return `:writing_hand: ${memberRank['textMessage' + time]}`;
+      if (type === 'voiceMinute' && guild.appData.voiceXp)
+        return `:microphone2: ${(Math.round(memberRank['voiceMinute' + time] / 60 * 10) / 10)}`;
+      if (type === 'invite' && guild.appData.inviteXp)
+        return `:envelope: ${memberRank['invite' + time]}`;
+      if (type === 'vote' && guild.appData.voteXp)
+        return `${myGuild.voteEmote} ${memberRank['vote' + time]}`;
+      if (type === 'bonus' && guild.appData.bonusXp)
+        return `${myGuild.bonusEmote} ${memberRank['bonus' + time]}`;
+      return null;
+    };
+
+    const scoreStrings = [
+      getScoreString('textMessage', state.time),
+      getScoreString('voiceMinute', state.time),
+      getScoreString('invite', state.time),
+      getScoreString('vote', state.time),
+      getScoreString('bonus', state.time),
+    ].filter(s => s);
+
+
+    const getFieldScoreString = (type, time) => {
+      if (type === 'totalScore') return '';
+      else if (type === 'allScores') return `<:dot:1047431705004355628> ${scoreStrings.join(' | ')}`;
+      else return `<:dot:1047431705004355628> ${getScoreString(type, time)}`;
+    };
+
     e.addFields({
       name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
-      value: `${memberRank['totalScore' + state.time]} XP \\⬄ ${scoreStrings.join(':black_small_square:')}`,
+      value: `Total: ${memberRank['totalScore' + state.time]} XP ${getFieldScoreString(state.orderType, state.time)}`,
     });
     i++;
   }
