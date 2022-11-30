@@ -42,6 +42,7 @@ module.exports.execute = async (i) => {
     owner: i.member.id,
     targetMember,
     page: 1,
+    interaction: i,
   };
 
   const { id } = await i.editReply(
@@ -80,9 +81,17 @@ module.exports.component = async (i) => {
     { ...cachedMessage, [action]: payload },
   );
 
+  await i.deferUpdate();
+
+  const state = exports.activeCache.get(i.message.id);
+  await state.interaction.editReply(
+    await generateCard(state, i.guild, myGuild),
+  );
+  /*
+  // too slow
   await i.update(
     await generateCard(exports.activeCache.get(i.message.id), i.guild, myGuild),
-  );
+  ); */
 };
 
 async function generateCard(cache, guild, myGuild, disabled = false) {

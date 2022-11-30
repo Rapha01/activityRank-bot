@@ -46,6 +46,7 @@ module.exports.execute = async (i) => {
     owner: i.member.id,
     page: 1,
     orderType: 'totalScore',
+    interaction: i,
   };
 
   const { id } = await i.editReply(
@@ -84,9 +85,16 @@ module.exports.component = async (i) => {
     { ...cachedMessage, [action]: payload },
   );
 
-  await i.update(
-    await generate(exports.activeCache.get(i.message.id), i.guild, myGuild),
+  await i.deferUpdate();
+
+  const state = exports.activeCache.get(i.message.id);
+  await state.interaction.editReply(
+    await generate(state, i.guild, myGuild),
   );
+
+  /* await i.update(
+    await generate(exports.activeCache.get(i.message.id), i.guild, myGuild),
+  ); */
 };
 
 
