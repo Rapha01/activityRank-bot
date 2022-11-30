@@ -291,13 +291,32 @@ function getGlobalComponents(window, time, page, disabled) {
         .setLabel('Top Channels'),
     ),
     new ActionRowBuilder().setComponents(
-      ParsedButton(time === 'Alltime', disabled).setCustomId('commandsSlash/top.js time Alltime').setLabel('All time'),
-      ParsedButton(time === 'Year', disabled).setCustomId('commandsSlash/top.js time Year').setLabel('This year'),
-      ParsedButton(time === 'Month', disabled).setCustomId('commandsSlash/top.js time Month').setLabel('This month'),
-      ParsedButton(time === 'Week', disabled).setCustomId('commandsSlash/top.js time Week').setLabel('This week'),
-      ParsedButton(time === 'Day', disabled).setCustomId('commandsSlash/top.js time Day').setLabel('Today'),
+      new StringSelectMenuBuilder()
+        .setCustomId('commandsSlash/top.js time')
+        .setDisabled(disabled)
+        .setOptions(
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Alltime')
+            .setValue('Alltime')
+            .setDefault(time === 'Alltime'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Year')
+            .setValue('Year')
+            .setDefault(time === 'Year'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Month')
+            .setValue('Month')
+            .setDefault(time === 'Month'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Week')
+            .setValue('Week')
+            .setDefault(time === 'Week'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Day')
+            .setValue('Day')
+            .setDefault(time === 'Day'),
+        ),
     ),
-    getPaginationComponents(page, disabled),
   ];
 }
 
@@ -356,6 +375,7 @@ function getMembersComponents(state, disabled) {
             .setDefault(state.orderType === 'bonus'),
         ),
     ),
+    getPaginationComponents(state.page, disabled),
     /*
     BLOCKED(d.js 14.8): Deselection kills bot process
     new ActionRowBuilder().setComponents(
@@ -391,12 +411,14 @@ function getChannelMembersComponents(state, disabled) {
         .setMinValues(1)
         .setMaxValues(1),
     ),
+    getPaginationComponents(state.page, disabled),
   ];
 }
 
 function getChannelComponents(state, disabled) {
   return [
     ...getGlobalComponents(state.window, state.time, state.page, disabled),
+    getPaginationComponents(state.page, disabled),
   ];
 }
 

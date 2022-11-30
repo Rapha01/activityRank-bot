@@ -4,6 +4,8 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } = require('discord.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const guildMemberModel = require('../models/guild/guildMemberModel.js');
@@ -60,7 +62,7 @@ module.exports.execute = async (i) => {
 
 module.exports.component = async (i) => {
   const action = i.customId.split(' ')[1];
-  let payload = i.customId.split(' ')[2];
+  let payload = i.customId.split(' ')[2] ?? i.values[0];
 
   const cachedMessage = exports.activeCache.get(i.message.id);
   if (!cachedMessage) return console.log(`Could not find cachedMessage ${i.message.id}`);
@@ -166,7 +168,7 @@ async function getTopChannels(page, guild, memberId, time, type) {
 
   const s = [];
   for (let i = 0; i < guildMemberTopChannels.length; i++)
-    s.push(`#${page.from + i} | ${channelMention(i)}: ${emoji} ${channelValue(i)}`);
+    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`);
 
   return s.join('\n');
 }
@@ -226,12 +228,31 @@ function getGlobalComponents(window, time, disabled) {
         .setCustomId('commandsSlash/rank.js window topChannels')
         .setLabel('Top Channels'),
     ),
-    new ActionRowBuilder().setComponents(
-      ParsedButton(time === 'Alltime', disabled).setCustomId('commandsSlash/rank.js time Alltime').setLabel('All time'),
-      ParsedButton(time === 'Year', disabled).setCustomId('commandsSlash/rank.js time Year').setLabel('This year'),
-      ParsedButton(time === 'Month', disabled).setCustomId('commandsSlash/rank.js time Month').setLabel('This month'),
-      ParsedButton(time === 'Week', disabled).setCustomId('commandsSlash/rank.js time Week').setLabel('This week'),
-      ParsedButton(time === 'Day', disabled).setCustomId('commandsSlash/rank.js time Day').setLabel('Today'),
+    new ActionRowBuilder().setComponents(new StringSelectMenuBuilder()
+      .setCustomId('commandsSlash/rank.js time')
+      .setDisabled(disabled)
+      .setOptions(
+        new StringSelectMenuOptionBuilder()
+          .setLabel('Alltime')
+          .setValue('Alltime')
+          .setDefault(time === 'Alltime'),
+        new StringSelectMenuOptionBuilder()
+          .setLabel('Year')
+          .setValue('Year')
+          .setDefault(time === 'Year'),
+        new StringSelectMenuOptionBuilder()
+          .setLabel('Month')
+          .setValue('Month')
+          .setDefault(time === 'Month'),
+        new StringSelectMenuOptionBuilder()
+          .setLabel('Week')
+          .setValue('Week')
+          .setDefault(time === 'Week'),
+        new StringSelectMenuOptionBuilder()
+          .setLabel('Day')
+          .setValue('Day')
+          .setDefault(time === 'Day'),
+      ),
     ),
   ];
 }
