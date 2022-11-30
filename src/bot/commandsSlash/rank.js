@@ -42,6 +42,7 @@ module.exports.execute = async (i) => {
     owner: i.member.id,
     targetMember,
     page: 1,
+    interaction: i,
   };
 
   const { id } = await i.editReply(
@@ -51,9 +52,15 @@ module.exports.execute = async (i) => {
   const cleanCache = async () => {
     const state = exports.activeCache.get(id);
     exports.activeCache.delete(id);
-    await i.editReply(
-      await generateCard(state, i.guild, myGuild, true),
-    );
+    try {
+      await i.editReply(
+        await generateCard(state, i.guild, myGuild, true),
+      );
+    } catch (err) {
+      if (err.code === 10008) // Unknown Message
+        console.log('/rank tried to update Unknown message');
+      else throw err;
+    }
   };
   setTimeout(cleanCache, 5 * 60 * 1_000);
 
@@ -80,9 +87,17 @@ module.exports.component = async (i) => {
     { ...cachedMessage, [action]: payload },
   );
 
+  await i.deferUpdate();
+
+  const state = exports.activeCache.get(i.message.id);
+  await state.interaction.editReply(
+    await generateCard(state, i.guild, myGuild),
+  );
+  /*
+  // too slow
   await i.update(
     await generateCard(exports.activeCache.get(i.message.id), i.guild, myGuild),
-  );
+  ); */
 };
 
 async function generateCard(cache, guild, myGuild, disabled = false) {

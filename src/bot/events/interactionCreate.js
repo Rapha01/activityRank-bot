@@ -74,7 +74,7 @@ module.exports = {
           if (e2.code !== 10062) // Unknown Interaction
             throw e2;
           else
-            console.log('Unknown interaction after error');
+            return console.log('Unknown interaction after error');
         }
       }
       throw e;

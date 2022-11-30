@@ -45,7 +45,8 @@ module.exports.execute = async (i) => {
     time: 'Alltime',
     owner: i.member.id,
     page: 1,
-    orderType: 'totalScore',
+    orderType: 'allScores',
+    interaction: i,
   };
 
   const { id } = await i.editReply(
@@ -55,9 +56,15 @@ module.exports.execute = async (i) => {
   const cleanCache = async () => {
     const state = exports.activeCache.get(id);
     exports.activeCache.delete(id);
-    await i.editReply(
-      await generate(state, i.guild, myGuild, true),
-    );
+    try {
+      await i.editReply(
+        await generate(state, i.guild, myGuild, true),
+      );
+    } catch (err) {
+      if (err.code === 10008) // Unknown Message
+        console.log('/top tried to update Unknown message');
+      else throw err;
+    }
   };
   setTimeout(cleanCache, 5 * 60 * 1_000);
 
@@ -84,8 +91,11 @@ module.exports.component = async (i) => {
     { ...cachedMessage, [action]: payload },
   );
 
-  await i.update(
-    await generate(exports.activeCache.get(i.message.id), i.guild, myGuild),
+  await i.deferUpdate();
+
+  const state = exports.activeCache.get(i.message.id);
+  await state.interaction.editReply(
+    await generate(state, i.guild, myGuild),
   );
 };
 
@@ -213,7 +223,7 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
   else if (state.orderType === 'invite') header += ' | By invites';
   else if (state.orderType === 'vote') header += ' | By ' + myGuild.voteTag;
   else if (state.orderType === 'bonus') header += ' | By ' + myGuild.bonusTag;
-  else if (state.orderType === 'totalScore') header += ' | By total XP';
+  else if (state.orderType === 'totalScore' || state.orderType === 'allScores') header += ' | By total XP';
 
   const memberRanks = await rankModel.getGuildMemberRanks(
     guild,
@@ -273,8 +283,8 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
 
     const getFieldScoreString = (type, time) => {
       if (type === 'totalScore') return '';
-      else if (type === 'allScores') return `<:dot:1047431705004355628> ${scoreStrings.join(' | ')}`;
-      else return `<:dot:1047431705004355628> ${getScoreString(type, time)}`;
+      else if (type === 'allScores') return `🔸 ${scoreStrings.join(' | ')}`;
+      else return `🔸 ${getScoreString(type, time)}`;
     };
 
     e.addFields({
@@ -371,13 +381,13 @@ function getMembersComponents(state, disabled) {
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()
-            .setLabel('Total')
-            .setValue('totalScore')
-            .setDefault(state.orderType === 'totalScore'),
-          new StringSelectMenuOptionBuilder()
             .setLabel('All')
             .setValue('allScores')
             .setDefault(state.orderType === 'allScores'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Total')
+            .setValue('totalScore')
+            .setDefault(state.orderType === 'totalScore'),
           new StringSelectMenuOptionBuilder()
             .setLabel('Messages')
             .setValue('textMessage')
