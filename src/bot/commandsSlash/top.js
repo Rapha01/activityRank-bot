@@ -56,9 +56,15 @@ module.exports.execute = async (i) => {
   const cleanCache = async () => {
     const state = exports.activeCache.get(id);
     exports.activeCache.delete(id);
-    await i.editReply(
-      await generate(state, i.guild, myGuild, true),
-    );
+    try {
+      await i.editReply(
+        await generate(state, i.guild, myGuild, true),
+      );
+    } catch (err) {
+      if (err.code === 10008) // Unknown Message
+        console.log('/top tried to update Unknown message');
+      else throw err;
+    }
   };
   setTimeout(cleanCache, 5 * 60 * 1_000);
 
