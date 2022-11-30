@@ -6,8 +6,17 @@ const { oneLine, stripIndent } = require('common-tags');
 const { PermissionFlagsBits, Events, GatewayOpcodes } = require('discord.js');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 
+module.exports.currentJobs = new Set();
+
 module.exports.execute = async (i) => {
   await guildModel.cache.load(i.guild);
+
+  if (module.exports.currentJobs.has(i.guild.id)) {
+    return await i.reply({
+      content: 'This server already has a mass role operation running.',
+      ephemeral: true,
+    });
+  }
 
   const role = i.options.getRole('role', true);
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
@@ -19,6 +28,10 @@ module.exports.execute = async (i) => {
   }
 
   const change = i.options.getInteger('change', true);
+
+  module.exports.currentJobs.add(i.guild.id);
+  // backup removes after 1h
+  setTimeout(() => module.exports.currentJobs.delete(i.guild.id), 36e+5);
 
   if (i.options.getBoolean('use-beta')) return await betaSystem(i, role, change);
   else return await oldSystem(i, role, change);
@@ -34,6 +47,10 @@ async function oldSystem(interaction, role, changeAmount) {
     force: true,
   });
   console.log('Role give members ', members.size);
+  await interaction.editReply({
+    content: `Applying \`${changeAmount}\` XP...`,
+    allowedMentions: { parse: [] },
+  });
 
   let affected = 0;
   for (let member of members) {
@@ -44,6 +61,7 @@ async function oldSystem(interaction, role, changeAmount) {
       affected++;
     }
   }
+  module.exports.currentJobs.delete(interaction.guild.id);
   console.log('Role give affected members', affected);
 
   await interaction.editReply({
@@ -115,6 +133,7 @@ async function betaSystem(interaction, role, changeAmount) {
     }
   }
 
+  module.exports.currentJobs.delete(interaction.guild.id);
   console.log('Role give affected members', affected);
 
   await interaction.followUp({
