@@ -268,27 +268,26 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
   };
 }
 
-function ParsedButton(selected, disabled) {
-  return new ButtonBuilder()
-    .setStyle(selected
-      ? ButtonStyle.Primary
-      : ButtonStyle.Secondary,
-    )
-    .setDisabled(disabled ? true : selected);
-}
-
 function getGlobalComponents(window, time, page, disabled) {
   return [
     new ActionRowBuilder().setComponents(
-      ParsedButton(window === 'members', disabled)
-        .setCustomId('commandsSlash/top.js window members')
-        .setLabel('Top Members'),
-      ParsedButton(window === 'channelMembers', disabled)
-        .setCustomId('commandsSlash/top.js window channelMembers')
-        .setLabel('Top Members in Channel'),
-      ParsedButton(window === 'channels', disabled)
-        .setCustomId('commandsSlash/top.js window channels')
-        .setLabel('Top Channels'),
+      new StringSelectMenuBuilder()
+        .setCustomId('commandsSlash/top.js window')
+        .setDisabled(disabled)
+        .setOptions(
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Top Members')
+            .setValue('members')
+            .setDefault(window === 'members'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Top Members in Channel')
+            .setValue('channelMembers')
+            .setDefault(window === 'channelMembers'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('Top Channels')
+            .setValue('channels')
+            .setDefault(window === 'channels'),
+        ),
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
@@ -353,6 +352,10 @@ function getMembersComponents(state, disabled) {
             .setLabel('Total')
             .setValue('totalScore')
             .setDefault(state.orderType === 'totalScore'),
+          new StringSelectMenuOptionBuilder()
+            .setLabel('All')
+            .setValue('allScores')
+            .setDefault(state.orderType === 'allScores'),
           new StringSelectMenuOptionBuilder()
             .setLabel('Messages')
             .setValue('textMessage')
