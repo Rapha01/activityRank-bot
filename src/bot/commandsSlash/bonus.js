@@ -28,6 +28,6 @@ module.exports.data = new SlashCommandBuilder()
       .setRequired(true))
     .addIntegerOption(o => o
       .setName('change')
-      .setDescription('The amount of XP to change all users with the role by')
+      .setDescription('The amount of XP to change the member by')
       .setMinValue(-1_000_000)
       .setMaxValue(1_000_000)));
