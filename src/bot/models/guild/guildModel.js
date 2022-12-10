@@ -20,7 +20,7 @@ const cachedFields = [
   'takeAwayAssignedRolesOnLevelDown', 'roleAssignMessage', 'roleDeassignMessage',
   'commandOnlyChannel',
   'autopost_serverJoin', 'autopost_levelup', 'levelupMessage', 'serverJoinMessage',
-  'addDate'];
+  'addDate', 'isBanned'];
 
 exports.cache.load = (guild) => {
   if (!guild.appData) {
