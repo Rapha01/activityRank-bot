@@ -55,11 +55,17 @@ async function rankMessage(msg) {
   await guildMemberModel.cache.load(msg.member);
   msg.member.appData.lastMessageChannelId = msg.channel.id;
 
-  // Check noxp channel & allowInvisibleXp
+  // Check noxp channel
   await guildChannelModel.cache.load(channel);
 
   if (channel.appData.noXp)
     return;
+
+  const category = channel.parent;
+  if (category) {
+    await guildChannelModel.cache.load(category);
+    if (category.appData.noXp) return;
+  }
 
   // Check noxp role
   for (let role of msg.member.roles.cache) {
