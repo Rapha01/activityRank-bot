@@ -3,7 +3,8 @@ const userModel = require('../models/userModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
-const { PermissionFlagsBits } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { supportServerInviteLink } = require('../../const/config.js');
 const userPrivileges = require('../../const/privilegedUsers').userLevels;
 
 
@@ -17,6 +18,10 @@ module.exports = {
 
       if (interaction.guild.appData.isBanned) {
         console.log(`Banned guild ${interaction.guild.id} used interaction.`);
+        await interaction.reply({ 
+          embeds: [new EmbedBuilder().setDescription('❌ This server been blacklisted from the bot.').setColor(0xFF0000)],
+          components: [new ActionRowBuilder().setComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(supportServerInviteLink).setLabel('Appeal'))]
+        })
         return await interaction.guild.leave();
       }
 
@@ -24,7 +29,10 @@ module.exports = {
 
       if (interaction.user.appData.isBanned) {
         console.log(`Banned user ${interaction.user.id} used interaction.`);
-        return;
+        return interaction.reply({ 
+          embeds: [new EmbedBuilder().setDescription('❌ You have been blacklisted from the bot.').setColor(0xFF0000)],
+          components: [new ActionRowBuilder().setComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(supportServerInviteLink).setLabel('Appeal'))]
+        })
       }
 
       await guildChannelModel.cache.load(interaction.channel);
