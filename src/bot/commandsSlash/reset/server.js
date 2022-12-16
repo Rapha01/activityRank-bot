@@ -14,7 +14,7 @@ module.exports.execute = async (i) => {
   if (field == 'stop') {
     delete resetModel.resetJobs[i.guild.id];
 
-    await i.reply({
+    return await i.reply({
       content: 'Stopped reset.',
       ephemeral: true,
     });
