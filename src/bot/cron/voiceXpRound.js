@@ -55,8 +55,6 @@ const rankVoiceGuild = (guild) => {
         channel = channel[1];
         await guildChannelModel.cache.load(channel);
 
-        console.log(channel.name, await givesXp(channel));
-
         if (await givesXp(channel) && (guild.appData.allowSoloXp || existMultipleMembers(channel.members)))
           await rankVoiceChannel(channel);
       }
