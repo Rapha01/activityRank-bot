@@ -45,6 +45,7 @@ module.exports.execute = async function(i) {
       });
     }
 
+    await userModel.cache.load(user);
     const targetUser = await userModel.storage.get(user);
 
     if (targetUser.isBanned) {
@@ -74,6 +75,7 @@ module.exports.execute = async function(i) {
       });
     }
 
+    await guildModel.cache.load(guild);
     const targetGuild = await guildModel.storage.get(guild);
     if (targetGuild.isBanned) {
       await guildModel.storage.set(guild, 'isBanned', 0);
