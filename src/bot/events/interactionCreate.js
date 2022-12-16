@@ -1,4 +1,5 @@
 const guildModel = require('../models/guild/guildModel.js');
+const userModel = require('../models/userModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
 const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
@@ -13,6 +14,19 @@ module.exports = {
       if (!interaction.guild || !interaction.channel) return;
 
       await guildModel.cache.load(interaction.guild);
+
+      if (interaction.guild.appData.isBanned) {
+        console.log(`Banned guild ${interaction.guild.id} used interaction.`);
+        return await interaction.guild.leave();
+      }
+
+      await userModel.cache.load(interaction.user);
+
+      if (interaction.user.appData.isBanned) {
+        console.log(`Banned user ${interaction.user.id} used interaction.`);
+        return;
+      }
+
       await guildChannelModel.cache.load(interaction.channel);
 
       if (interaction.channel.appData.noCommand
