@@ -15,7 +15,8 @@ module.exports.data = new SlashCommandBuilder()
       .setName('change')
       .setDescription('The amount of XP to change all users with the role by')
       .setMinValue(-1_000_000)
-      .setMaxValue(1_000_000))
+      .setMaxValue(1_000_000)
+      .setRequired(true))
     .addBooleanOption(o => o
       .setName('use-beta')
       .setDescription('Enables the beta method of giving bonus to roles. Warning: will not send levelUpMessages')))
@@ -30,4 +31,5 @@ module.exports.data = new SlashCommandBuilder()
       .setName('change')
       .setDescription('The amount of XP to change the member by')
       .setMinValue(-1_000_000)
-      .setMaxValue(1_000_000)));
+      .setMaxValue(1_000_000)
+      .setRequired(true)));
