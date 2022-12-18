@@ -3,7 +3,7 @@ const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
 const guildModel = require('../models/guild/guildModel');
 const userModel = require('../models/userModel');
 
-module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
+module.exports.requiredPrivileges = PRIVILEGE_LEVELS.Developer;
 
 module.exports.data = new SlashCommandBuilder()
   .setName('blacklist')
@@ -32,7 +32,7 @@ module.exports.data = new SlashCommandBuilder()
           .setRequired(true),
       ),
   )
-  .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers);
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
 module.exports.execute = async function(i) {
   const sc = await i.options.getSubcommand();
