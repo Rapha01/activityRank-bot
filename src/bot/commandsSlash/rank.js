@@ -34,7 +34,6 @@ module.exports.execute = async (i) => {
 
   const myGuild = await guildModel.storage.get(i.guild);
 
-
   const initialState = {
     window: 'rank',
     time: 'Alltime',
