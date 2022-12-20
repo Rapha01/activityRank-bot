@@ -1,13 +1,18 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
-const resetModel = require('../../models/resetModel.js');
-const nameUtil = require('../../util/nameUtil');
-const { parseMember } = require('../../util/parser');
-
+const {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  PermissionFlagsBits,
+} = require("discord.js");
+const resetModel = require("../../models/resetModel.js");
+const nameUtil = require("../../util/nameUtil");
+const { parseMember } = require("../../util/parser");
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
+      content:
+        "You need the permission to manage the server in order to use this command.",
       ephemeral: true,
     });
   }
@@ -16,47 +21,58 @@ module.exports.execute = async (i) => {
 
   if (!resolvedMember) {
     return await i.reply({
-      content: 'You need to specify either a member or a member\'s ID!',
+      content: "You need to specify either a member or a member's ID!",
       ephemeral: true,
     });
   }
 
   const confirmRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId('ignore confirm')
-      .setLabel('Reset')
-      .setEmoji('✅')
+      .setCustomId("ignore confirm")
+      .setLabel("Reset")
+      .setEmoji("✅")
       .setStyle(ButtonStyle.Danger),
     new ButtonBuilder()
-      .setCustomId('ignore cancel')
-      .setLabel('Cancel')
-      .setEmoji('❎')
-      .setStyle(ButtonStyle.Secondary),
+      .setCustomId("ignore cancel")
+      .setLabel("Cancel")
+      .setEmoji("❎")
+      .setStyle(ButtonStyle.Secondary)
   );
   const msg = await i.reply({
-    content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(i.guild.members.cache, resolvedMember.id)}?`,
+    content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(
+      i.guild.members.cache,
+      resolvedMember.id
+    )}?`,
     ephemeral: true,
     fetchReply: true,
     components: [confirmRow],
   });
   const filter = (interaction) => interaction.user.id === i.user.id;
   try {
-    const interaction = await msg.awaitMessageComponent({ filter, time: 15_000 });
-    if (interaction.customId.split(' ')[1] === 'confirm') {
-      resetModel.resetJobs[i.guild.id] = { type: 'guildMembersStats', ref: i, cmdChannel: i.channel, userIds: [resolvedMember.id] };
+    const interaction = await msg.awaitMessageComponent({
+      filter,
+      time: 15_000,
+    });
+    if (interaction.customId.split(" ")[1] === "confirm") {
+      resetModel.resetJobs[i.guild.id] = {
+        type: "guildMembersStats",
+        ref: i,
+        cmdChannel: i.channel,
+        userIds: [resolvedMember.id],
+      };
       return interaction.reply({
-        content: 'Resetting, please wait...',
+        content: "Resetting, please wait...",
         ephemeral: true,
       });
     }
     await interaction.reply({
-      content: 'Reset cancelled.',
+      content: "Reset cancelled.",
       ephemeral: true,
     });
   } catch (e) {
-    if (e.name === 'Error [INTERACTION_COLLECTOR_ERROR]') {
+    if (e.name === "Error [INTERACTION_COLLECTOR_ERROR]") {
       await i.followUp({
-        content: 'Action timed out.',
+        content: "Action timed out.",
         ephemeral: true,
       });
     } else {

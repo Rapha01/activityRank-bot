@@ -1,10 +1,10 @@
-const guildModel = require('../../models/guild/guildModel.js');
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const statFlushCache = require('../../statFlushCache.js');
-const { oneLine, stripIndent } = require('common-tags');
-const { PermissionFlagsBits, Events, GatewayOpcodes } = require('discord.js');
-const { DiscordSnowflake } = require('@sapphire/snowflake');
+const guildModel = require("../../models/guild/guildModel.js");
+const guildMemberModel = require("../../models/guild/guildMemberModel.js");
+const guildRoleModel = require("../../models/guild/guildRoleModel.js");
+const statFlushCache = require("../../statFlushCache.js");
+const { oneLine, stripIndent } = require("common-tags");
+const { PermissionFlagsBits, Events, GatewayOpcodes } = require("discord.js");
+const { DiscordSnowflake } = require("@sapphire/snowflake");
 
 module.exports.currentJobs = new Set();
 
@@ -13,27 +13,28 @@ module.exports.execute = async (i) => {
 
   if (module.exports.currentJobs.has(i.guild.id)) {
     return await i.reply({
-      content: 'This server already has a mass role operation running.',
+      content: "This server already has a mass role operation running.",
       ephemeral: true,
     });
   }
 
-  const role = i.options.getRole('role', true);
+  const role = i.options.getRole("role", true);
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:
-        'You need the permission to manage the server in order to use this command.',
+        "You need the permission to manage the server in order to use this command.",
       ephemeral: true,
     });
   }
 
-  const change = i.options.getInteger('change', true);
+  const change = i.options.getInteger("change", true);
 
   module.exports.currentJobs.add(i.guild.id);
   // backup removes after 1h
-  setTimeout(() => module.exports.currentJobs.delete(i.guild.id), 36e+5);
+  setTimeout(() => module.exports.currentJobs.delete(i.guild.id), 36e5);
 
-  if (i.options.getBoolean('use-beta')) return await betaSystem(i, role, change);
+  if (i.options.getBoolean("use-beta"))
+    return await betaSystem(i, role, change);
   else return await oldSystem(i, role, change);
 };
 
@@ -46,7 +47,7 @@ async function oldSystem(interaction, role, changeAmount) {
     withPresences: false,
     force: true,
   });
-  console.log('Role give members ', members.size);
+  console.log("Role give members ", members.size);
   await interaction.editReply({
     content: `Applying \`${changeAmount}\` XP...`,
     allowedMentions: { parse: [] },
@@ -62,11 +63,11 @@ async function oldSystem(interaction, role, changeAmount) {
     }
   }
   module.exports.currentJobs.delete(interaction.guild.id);
-  console.log('Role give affected members', affected);
+  console.log("Role give affected members", affected);
 
   await interaction.editReply({
     content: oneLine`Successfully gave \`${changeAmount}\` bonus XP 
-      to \`${affected}\` member${affected == 1 ? '' : 's'} with role ${role}`,
+      to \`${affected}\` member${affected == 1 ? "" : "s"} with role ${role}`,
     allowedMentions: { parse: [] },
   });
 }
@@ -89,13 +90,13 @@ async function betaSystem(interaction, role, changeAmount) {
     d: {
       guild_id: interaction.guild.id,
       presences: false,
-      query: '', // required to be empty string in order to fetch all
+      query: "", // required to be empty string in order to fetch all
       nonce,
       limit: 0,
     },
   });
 
-  console.debug('Member count ', interaction.guild.memberCount);
+  console.debug("Member count ", interaction.guild.memberCount);
   const members = await getApplicableMembers(
     role.id,
     nonce,
@@ -106,7 +107,7 @@ async function betaSystem(interaction, role, changeAmount) {
   console.debug(`${members.size} Members found`);
 
   await interaction.followUp({
-    content: 'Applying XP...',
+    content: "Applying XP...",
     ephemeral: true,
   });
 
@@ -134,11 +135,11 @@ async function betaSystem(interaction, role, changeAmount) {
   }
 
   module.exports.currentJobs.delete(interaction.guild.id);
-  console.log('Role give affected members', affected);
+  console.log("Role give affected members", affected);
 
   await interaction.followUp({
     content: oneLine`Successfully gave \`${changeAmount}\` bonus XP
-      to \`${affected}\` member${affected == 1 ? '' : 's'} with role ${role}`,
+      to \`${affected}\` member${affected == 1 ? "" : "s"} with role ${role}`,
     allowedMentions: { parse: [] },
     ephemeral: true,
   });
@@ -179,7 +180,7 @@ async function getApplicableMembers(roleId, nonce, client, reply, memberCount) {
         client.removeListener(Events.GuildMembersChunk, handler);
         client.decrementMaxListeners();
 
-        console.debug('Final: ', applicableMembers.size);
+        console.debug("Final: ", applicableMembers.size);
         resolve(applicableMembers);
       }
     };
@@ -191,7 +192,7 @@ async function getApplicableMembers(roleId, nonce, client, reply, memberCount) {
 function progressBar(index, max, len = 40) {
   const fraction = index / max;
   const progress = Math.ceil(len * fraction);
-  return `${'■'.repeat(progress)}${'□'.repeat(len - progress)} ${
+  return `${"■".repeat(progress)}${"□".repeat(len - progress)} ${
     Math.round(fraction * 1_000) / 10
   }%`;
 }

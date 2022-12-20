@@ -1,4 +1,4 @@
-const managerDb = require('./managerDb.js');
+const managerDb = require("./managerDb.js");
 
 exports.storage = {};
 exports.cache = {};
@@ -6,12 +6,14 @@ exports.cache = {};
 exports.storage.get = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      const texts = await managerDb.fetch(null,'/api/texts/','get');
+      const texts = await managerDb.fetch(null, "/api/texts/", "get");
 
       resolve(texts);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 exports.cache.load = (client) => {
   return new Promise(async function (resolve, reject) {
@@ -19,6 +21,8 @@ exports.cache.load = (client) => {
       client.appData.texts = await exports.storage.get();
 
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};

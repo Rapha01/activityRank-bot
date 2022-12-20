@@ -1,21 +1,18 @@
-const fct = require('../util/fct.js');
+const fct = require("../util/fct.js");
 let warmup;
 
-if (process.env.NODE_ENV == 'production') {
+if (process.env.NODE_ENV == "production") {
   warmup = 60;
   decrementWarmup();
-} else
-  warmup = 0;
-
+} else warmup = 0;
 
 module.exports = (guildId) => {
   if (warmup != 0) {
-    if(Math.floor(Math.random() * warmup) != 0)
-      return true;
+    if (Math.floor(Math.random() * warmup) != 0) return true;
   }
 
   return false;
-}
+};
 
 async function decrementWarmup() {
   try {
@@ -25,10 +22,11 @@ async function decrementWarmup() {
       await fct.sleep(1000);
       warmup--;
 
-      if (warmup % 10 == 0)
-        console.log('Warmup: ' + warmup + '.');
+      if (warmup % 10 == 0) console.log("Warmup: " + warmup + ".");
     }
 
-    console.log('Warmup phase over.');
-  } catch (e) { console.log(e); }
+    console.log("Warmup phase over.");
+  } catch (e) {
+    console.log(e);
+  }
 }

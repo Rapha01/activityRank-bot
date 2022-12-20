@@ -1,4 +1,4 @@
-const fctModel = require('../models/fctModel.js');
+const fctModel = require("../models/fctModel.js");
 
 module.exports = (manager) => {
   return new Promise(async function (resolve, reject) {
@@ -21,13 +21,15 @@ module.exports = (manager) => {
 		  `);
 
       for (shard of shards) {
-        if (process.env.NODE_ENV != 'production')
+        if (process.env.NODE_ENV != "production")
           shard.shardId = shard.shardId + 1000000;
       }
 
-      await fctModel.getInsertUpdateMultiSql('botShardStat',shards);
+      await fctModel.getInsertUpdateMultiSql("botShardStat", shards);
 
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};

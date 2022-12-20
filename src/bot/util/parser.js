@@ -8,11 +8,10 @@
 
 module.exports.parseChannel = async (i) => {
   let id = null;
-  if (i.options.get('channel')) id = i.options.get('channel').value;
-  if (i.options.getString('id')) id = i.options.getString('id');
+  if (i.options.get("channel")) id = i.options.get("channel").value;
+  if (i.options.getString("id")) id = i.options.getString("id");
 
-  if (!id)
-    return null;
+  if (!id) return null;
 
   const channel = i.guild.channels.cache.get(id);
 
@@ -21,31 +20,27 @@ module.exports.parseChannel = async (i) => {
 
 module.exports.parseRole = async (i) => {
   let id = null;
-  if (i.options.get('role')) id = i.options.get('role').value;
-  if (i.options.getString('id')) id = i.options.getString('id');
+  if (i.options.get("role")) id = i.options.get("role").value;
+  if (i.options.getString("id")) id = i.options.getString("id");
 
-  if (!id)
-    return null;
+  if (!id) return null;
 
   const role = i.guild.roles.cache.get(id);
 
   return { id, role };
 };
 
-
 module.exports.parseMember = async (i) => {
   let id = null;
-  if (i.options.get('member')) id = i.options.get('member').value;
-  if (i.options.getString('id')) id = i.options.getString('id');
+  if (i.options.get("member")) id = i.options.get("member").value;
+  if (i.options.getString("id")) id = i.options.getString("id");
 
-  if (!id)
-    return null;
+  if (!id) return null;
 
   const member = null;
   try {
     const member = await i.guild.members.fetch(id);
-  } catch (e) { }
-
+  } catch (e) {}
 
   return { id, member };
 };

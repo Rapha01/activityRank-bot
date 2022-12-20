@@ -7,25 +7,23 @@
 
 // Prevent magic numbers
 module.exports.PRIVILEGE_LEVELS = {
-  'Owner': 4,
-  'Developer': 3,
-  'Moderator': 2,
-  'HelpStaff': 1,
+  Owner: 4,
+  Developer: 3,
+  Moderator: 2,
+  HelpStaff: 1,
 };
 
 const users = {
   production: {
-    'uid': 4,
+    uid: 4,
   },
-  development: {
-  },
+  development: {},
 };
 
-module.exports.userLevels = process.env.NODE_ENV === 'production'
-  ? users.production
-  : users.development;
+module.exports.userLevels =
+  process.env.NODE_ENV === "production" ? users.production : users.development;
 
-module.exports.users = process.env.NODE_ENV === 'production'
-  ? Object.keys(users.production)
-  : Object.keys(users.development);
-
+module.exports.users =
+  process.env.NODE_ENV === "production"
+    ? Object.keys(users.production)
+    : Object.keys(users.development);
