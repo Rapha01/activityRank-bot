@@ -25,9 +25,11 @@ module.exports = (manager) => {
           shard.shardId = shard.shardId + 1000000;
       }
 
-      await fctModel.getInsertUpdateMultiSql('botShardStat',shards);
+      await fctModel.getInsertUpdateMultiSql('botShardStat', shards);
 
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};

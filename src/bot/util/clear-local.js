@@ -12,10 +12,9 @@ const main = async () => {
     console.log('');
     console.log('🗑️ Clearing local application (/) commands... 🗑️');
     for (const guild of client.guilds.cache.keys()) {
-      await rest.put(
-        Routes.applicationGuildCommands(botId, guild),
-        { body: [] },
-      );
+      await rest.put(Routes.applicationGuildCommands(botId, guild), {
+        body: [],
+      });
     }
     console.log('🗑️ Successfully cleared local application (/) commands. 🗑️');
     console.log('');

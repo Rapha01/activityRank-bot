@@ -11,15 +11,19 @@ module.exports.execute = async (i) => {
 
   if (myUser.tokens < value) {
     return await i.reply({
-      content: `You have less tokens than you want to add to this server. You have and can only add ${
-        myUser.tokens} currently. Use \`/token get\` to get more!`,
+      content: `You have less tokens than you want to add to this server. You have and can only add ${myUser.tokens} currently. Use \`/token get\` to get more!`,
       ephemeral: true,
     });
   }
 
   await userModel.storage.increment(i.user, 'tokens', -value);
 
-  await guildMemberModel.storage.increment(i.guild, i.member.id, 'tokensBurned', value);
+  await guildMemberModel.storage.increment(
+    i.guild,
+    i.member.id,
+    'tokensBurned',
+    value
+  );
   await guildModel.storage.increment(i.guild, 'tokens', value);
 
   await i.reply({

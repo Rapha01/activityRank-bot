@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder } = require('discord.js');
+const {
+  SlashCommandBuilder,
+  PermissionFlagsBits,
+  AttachmentBuilder,
+} = require('discord.js');
 const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
 const resetModel = require('../models/resetModel');
 
@@ -8,21 +12,29 @@ module.exports.data = new SlashCommandBuilder()
   .setName('reset-jobs')
   .setDescription('Check the reset job status')
   .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-  .addBooleanOption(o => o.setName('full').setDescription('Send the full contents of resetJobs'))
-  .addBooleanOption(o => o.setName('eph').setDescription('Send as an ephemeral message'))
-  .addStringOption(o => o
-    .setName('search')
-    .setDescription('Get the current reset of the specified guild ID')
-    .setMinLength(17)
-    .setMaxLength(19))
+  .addBooleanOption((o) =>
+    o.setName('full').setDescription('Send the full contents of resetJobs')
+  )
+  .addBooleanOption((o) =>
+    o.setName('eph').setDescription('Send as an ephemeral message')
+  )
+  .addStringOption((o) =>
+    o
+      .setName('search')
+      .setDescription('Get the current reset of the specified guild ID')
+      .setMinLength(17)
+      .setMaxLength(19)
+  )
   .setDMPermission(false);
 
-module.exports.execute = async function(i) {
+module.exports.execute = async function (i) {
   const useFull = i.options.getBoolean('full') ?? false;
   const search = i.options.getString('search');
   let content;
   if (search) {
-    content = '**Reset information: **' + (resetModel.resetJobs[search] ?? '`No current job`');
+    content =
+      '**Reset information: **' +
+      (resetModel.resetJobs[search] ?? '`No current job`');
   } else {
     const types = [
       'guildMembersStats',
@@ -38,11 +50,16 @@ module.exports.execute = async function(i) {
     ];
 
     const typeDisplay = types.map(
-      t => `\n - ${t}: ${
-        Object.values(resetModel.resetJobs).reduce((p, c) => c.type === t ? ++p : p, 0)
-      }`);
+      (t) =>
+        `\n - ${t}: ${Object.values(resetModel.resetJobs).reduce(
+          (p, c) => (c.type === t ? ++p : p),
+          0
+        )}`
+    );
 
-    content = `Length: ${Object.keys(resetModel.resetJobs).length}\nTypes: ${typeDisplay}`;
+    content = `Length: ${
+      Object.keys(resetModel.resetJobs).length
+    }\nTypes: ${typeDisplay}`;
   }
 
   const res = {
@@ -54,7 +71,7 @@ module.exports.execute = async function(i) {
     res.files = [
       new AttachmentBuilder(
         Buffer.from(JSON.stringify(resetModel.resetJobs, null, 2), 'utf8'),
-        { name: 'logs.json' },
+        { name: 'logs.json' }
       ),
     ];
   }

@@ -36,9 +36,7 @@ const sweepers = {
 
 const client = new Client({ intents });
 
-
 process.env.UV_THREADPOOL_SIZE = 50;
-
 
 start();
 
@@ -55,7 +53,9 @@ async function start() {
   }
 }
 
-const eventFiles = fs.readdirSync(path.resolve(__dirname, './events')).filter(file => file.endsWith('.js'));
+const eventFiles = fs
+  .readdirSync(path.resolve(__dirname, './events'))
+  .filter((file) => file.endsWith('.js'));
 
 for (const file of eventFiles) {
   const event = require(`./events/${file}`);
@@ -63,28 +63,42 @@ for (const file of eventFiles) {
     client.once(event.name, async (...args) => {
       try {
         await event.execute(...args);
-      } catch (e) { console.log(e); }
+      } catch (e) {
+        console.log(e);
+      }
     });
   } else {
     client.on(event.name, async (...args) => {
       try {
         await event.execute(...args);
-      } catch (e) { console.log(e); }
+      } catch (e) {
+        console.log(e);
+      }
     });
   }
 }
 
 function initClientCaches(client) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       client.appData = {};
       client.appData.statFlushCache = {};
-      client.appData.botShardStat = { commands1h: 0, botInvites1h: 0, botKicks1h: 0, voiceMinutes1h: 0, textMessages1h: 0, roleAssignments1h: 0, rolesDeassignments1h: 0 };
+      client.appData.botShardStat = {
+        commands1h: 0,
+        botInvites1h: 0,
+        botKicks1h: 0,
+        voiceMinutes1h: 0,
+        textMessages1h: 0,
+        roleAssignments1h: 0,
+        rolesDeassignments1h: 0,
+      };
       await textModel.cache.load(client);
       await settingModel.cache.load(client);
 
       resolve();
-    } catch (e) { return reject(e); }
+    } catch (e) {
+      return reject(e);
+    }
   });
 }
 

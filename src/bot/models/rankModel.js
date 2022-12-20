@@ -3,117 +3,180 @@ const mysql = require('mysql');
 const fct = require('../../util/fct.js');
 
 // Toplist
-exports.getGuildMemberRanks = (guild,type,time,from,to) => {
+exports.getGuildMemberRanks = (guild, type, time, from, to) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const memberRanksSql = `SELECT * FROM ${getGuildMemberRanksSql(guild)} AS memberranks
-          ORDER BY ${type+time} DESC LIMIT ` + (from-1) + `,` + (to-(from-1));
+      const memberRanksSql =
+        `SELECT * FROM ${getGuildMemberRanksSql(guild)} AS memberranks
+          ORDER BY ${type + time} DESC LIMIT ` +
+        (from - 1) +
+        `,` +
+        (to - (from - 1));
 
-      const ranks = await shardDb.query(guild.appData.dbHost,`${memberRanksSql}`);
+      const ranks = await shardDb.query(
+        guild.appData.dbHost,
+        `${memberRanksSql}`
+      );
 
       for (let rank of ranks)
-        rank.levelProgression = fct.getLevelProgression(rank['totalScoreAlltime'],guild.appData.levelFactor);
+        rank.levelProgression = fct.getLevelProgression(
+          rank['totalScoreAlltime'],
+          guild.appData.levelFactor
+        );
 
       return resolve(ranks);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 // All scores for one member
-exports.getGuildMemberRank = function(guild,userId) {
+exports.getGuildMemberRank = function (guild, userId) {
   return new Promise(async function (resolve, reject) {
     try {
-      const res = await shardDb.query(guild.appData.dbHost,`SELECT * FROM
-        ${getGuildMemberRankSql(guild,userId)} AS memberrank`);
+      const res = await shardDb.query(
+        guild.appData.dbHost,
+        `SELECT * FROM
+        ${getGuildMemberRankSql(guild, userId)} AS memberrank`
+      );
 
-      if (res.length == 0)
-        return resolve(null);
+      if (res.length == 0) return resolve(null);
 
       resolve(res[0]);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 // Positions of one type of one member within a guild
-exports.getGuildMemberRankPosition = function(guild,userId,typeTime) {
+exports.getGuildMemberRankPosition = function (guild, userId, typeTime) {
   return new Promise(async function (resolve, reject) {
     try {
-      const res = await shardDb.query(guild.appData.dbHost,`SELECT (COUNT(*) + 1) AS count FROM ${getGuildMemberRanksSql(guild)}
+      const res = await shardDb.query(
+        guild.appData.dbHost,
+        `SELECT (COUNT(*) + 1) AS count FROM ${getGuildMemberRanksSql(guild)}
           AS memberranks WHERE memberranks.${typeTime} >
-          (SELECT ${typeTime} FROM ${getGuildMemberRankSql(guild,userId)} AS alias2)`);
+          (SELECT ${typeTime} FROM ${getGuildMemberRankSql(
+          guild,
+          userId
+        )} AS alias2)`
+      );
 
-      if (res.length == 0)
-        return resolve(null);
+      if (res.length == 0) return resolve(null);
 
       resolve(res[0].count);
-
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 // Most active channels within a guild
-exports.getChannelRanks = (guild,type,time,from,to) => {
+exports.getChannelRanks = (guild, type, time, from, to) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const ranks = await shardDb.query(guild.appData.dbHost,`SELECT channelId,
+      const ranks = await shardDb.query(
+        guild.appData.dbHost,
+        `SELECT channelId,
           SUM(${time}) AS ${time} FROM ${type}
           WHERE guildId = ${guild.id} AND alltime != 0 GROUP BY channelId
-          ORDER BY ${time} DESC LIMIT ` + (from-1) + `,` + (to-(from-1)));
+          ORDER BY ${time} DESC LIMIT ` +
+          (from - 1) +
+          `,` +
+          (to - (from - 1))
+      );
       resolve(ranks);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 // Most active Members of a specific channel
-exports.getChannelMemberRanks = (guild,channelId,type,time,from,to) => {
+exports.getChannelMemberRanks = (guild, channelId, type, time, from, to) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const ranks = await shardDb.query(guild.appData.dbHost,`SELECT userId,${time} FROM ${type}
+      const ranks = await shardDb.query(
+        guild.appData.dbHost,
+        `SELECT userId,${time} FROM ${type}
           WHERE guildId = ${guild.id} AND channelId = ${channelId} AND alltime != 0
-          ORDER BY ${time} DESC LIMIT ` + (from-1) + `,` + (to-(from-1)));
+          ORDER BY ${time} DESC LIMIT ` +
+          (from - 1) +
+          `,` +
+          (to - (from - 1))
+      );
       resolve(ranks);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 // Most active channels of a certain member
-exports.getGuildMemberTopChannels = function(guild,userId,type,time,from,to) {
+exports.getGuildMemberTopChannels = function (
+  guild,
+  userId,
+  type,
+  time,
+  from,
+  to
+) {
   return new Promise(async function (resolve, reject) {
     try {
-      const res = await shardDb.query(guild.appData.dbHost,`SELECT channelId,${time} FROM ${type}
+      const res = await shardDb.query(
+        guild.appData.dbHost,
+        `SELECT channelId,${time} FROM ${type}
           WHERE guildId = ${guild.id} AND userId = ${userId} AND ${time} != 0
           ORDER BY ${time} DESC
-          LIMIT ` + (from-1) + `,` + (to-(from-1)));
+          LIMIT ` +
+          (from - 1) +
+          `,` +
+          (to - (from - 1))
+      );
 
-      if (res.length == 0)
-        return resolve(null);
+      if (res.length == 0) return resolve(null);
 
       return resolve(res);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
-exports.countGuildRanks = function(guild) {
+exports.countGuildRanks = function (guild) {
   return new Promise(async function (resolve, reject) {
     try {
-      const res = await shardDb.query(guild.appData.dbHost,`SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(guild)} AS alias1`);
+      const res = await shardDb.query(
+        guild.appData.dbHost,
+        `SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(
+          guild
+        )} AS alias1`
+      );
       return resolve(res[0].count);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
-exports.getGuildMemberTotalScore = function(guild,userId) {
+exports.getGuildMemberTotalScore = function (guild, userId) {
   return new Promise(async function (resolve, reject) {
     try {
-      const res = await shardDb.query(guild.appData.dbHost,`${getGuildMemberTotalScoreSql(guild,userId)}`);
+      const res = await shardDb.query(
+        guild.appData.dbHost,
+        `${getGuildMemberTotalScoreSql(guild, userId)}`
+      );
 
-      if (res.length == 0)
-        return resolve(null);
+      if (res.length == 0) return resolve(null);
 
       return resolve(res[0].totalScoreAlltime);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 /* exports.getRankedGuildMemberIds = function(guildId) {
   return new Promise(async function (resolve, reject) {
@@ -280,7 +343,7 @@ function getGuildMemberRanksSql(guild) {
   return memberRanksSql;
 }
 
-function getGuildMemberRankSql(guild,userId) {
+function getGuildMemberRankSql(guild, userId) {
   const voicerankSql = `(SELECT userId,
         SUM(alltime) AS voiceMinuteAlltime,
         SUM(year) AS voiceMinuteYear,

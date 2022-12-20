@@ -11,46 +11,47 @@ const acceptedChannelTypes = [
   ChannelType.GuildAnnouncement,
   ChannelType.PublicThread,
 ];
-const acceptedMessageTypes = [
-  MessageType.Default,
-  MessageType.Reply,
-];
+const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
 module.exports = {
   name: 'messageCreate',
   async execute(msg) {
     if (
-      msg.author.bot == true
-      || msg.system == true
-      || skip(msg.guildId)
-      || !acceptedMessageTypes.includes(msg.type)
-      || !msg.guild
-    ) return;
+      msg.author.bot == true ||
+      msg.system == true ||
+      skip(msg.guildId) ||
+      !acceptedMessageTypes.includes(msg.type) ||
+      !msg.guild
+    )
+      return;
 
     await guildModel.cache.load(msg.guild);
 
-    const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
+    const mentionRegex = new RegExp(
+      `^(<@!?${msg.client.user.id}>)\\s*test\\s*$`
+    );
     if (msg.content && mentionRegex.test(msg.content))
       await msg.reply('This test is successful. The bot is up and running.');
 
-
-    if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type)) await rankMessage(msg);
+    if (
+      msg.guild.appData.textXp &&
+      acceptedChannelTypes.includes(msg.channel.type)
+    )
+      await rankMessage(msg);
   },
 };
 
-
 async function rankMessage(msg) {
-  if (!msg.channel)
-    return;
+  if (!msg.channel) return;
 
-  const channel = msg.channel.type === ChannelType.PublicThread
-    ? msg.channel.parent
-    : msg.channel;
+  const channel =
+    msg.channel.type === ChannelType.PublicThread
+      ? msg.channel.parent
+      : msg.channel;
 
   await msg.guild.members.fetch(msg.author.id);
 
-  if (!msg.member)
-    return;
+  if (!msg.member) return;
 
   await guildMemberModel.cache.load(msg.member);
   msg.member.appData.lastMessageChannelId = msg.channel.id;
@@ -58,8 +59,7 @@ async function rankMessage(msg) {
   // Check noxp channel
   await guildChannelModel.cache.load(channel);
 
-  if (channel.appData.noXp)
-    return;
+  if (channel.appData.noXp) return;
 
   const category = channel.parent;
   if (category) {
@@ -72,15 +72,17 @@ async function rankMessage(msg) {
     role = role[1];
     await guildRoleModel.cache.load(role);
 
-    if (role.appData.noXp)
-      return;
+    if (role.appData.noXp) return;
   }
 
   // Check textmessage cooldown
   const nowSec = Date.now() / 1000;
 
   if (typeof msg.guild.appData.textMessageCooldownSeconds !== 'undefined') {
-    if (nowSec - msg.member.appData.lastTextMessageDate < msg.guild.appData.textMessageCooldownSeconds)
+    if (
+      nowSec - msg.member.appData.lastTextMessageDate <
+      msg.guild.appData.textMessageCooldownSeconds
+    )
       return;
     msg.member.appData.lastTextMessageDate = nowSec;
   }
