@@ -4,26 +4,42 @@ module.exports = (manager) => {
   return new Promise(async function (resolve, reject) {
     try {
       const hrstart = process.hrtime();
-      const shardCaches = await manager.fetchClientValues('appData.statFlushCache');
-      const res = manager.broadcastEval(function(client) { client.appData.statFlushCache = {}});
+      const shardCaches = await manager.fetchClientValues(
+        'appData.statFlushCache'
+      );
+      const res = manager.broadcastEval(function (client) {
+        client.appData.statFlushCache = {};
+      });
 
       let statFlushCache = combineShardCaches(shardCaches);
 
-      let promises = [],counts = {},count = 0;
+      let promises = [],
+        counts = {},
+        count = 0;
       for (let dbHost in statFlushCache)
         for (let type in statFlushCache[dbHost]) {
-          promises.push(shardDb.query(dbHost,getSql(type,statFlushCache[dbHost][type])));
+          promises.push(
+            shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type]))
+          );
           count = Object.keys(statFlushCache[dbHost][type]).length;
-          counts[type] ? counts[type] +=  count : counts[type] = count;
+          counts[type] ? (counts[type] += count) : (counts[type] = count);
         }
 
       await Promise.all(promises);
 
       const hrend = process.hrtime(hrstart);
-      console.log('Stat flush finished after ' + hrend + 's. Saved rows: ' +  JSON.stringify(counts) + '');
+      console.log(
+        'Stat flush finished after ' +
+          hrend +
+          's. Saved rows: ' +
+          JSON.stringify(counts) +
+          ''
+      );
 
       return resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
@@ -37,7 +53,10 @@ const combineShardCaches = (shardCaches) => {
       for (let type in shard[dbHost]) {
         if (!statFlushCache[dbHost][type]) statFlushCache[dbHost][type] = {};
 
-        statFlushCache[dbHost][type] = {...statFlushCache[dbHost][type], ...shard[dbHost][type]};
+        statFlushCache[dbHost][type] = {
+          ...statFlushCache[dbHost][type],
+          ...shard[dbHost][type],
+        };
       }
     }
   }
@@ -46,8 +65,9 @@ const combineShardCaches = (shardCaches) => {
 };
 
 const maxValue = 100000000;
-const getSql = (type,entries) => {
-  let sqls = [],now = Math.floor(new Date().getTime() / 1000);
+const getSql = (type, entries) => {
+  let sqls = [],
+    now = Math.floor(new Date().getTime() / 1000);
 
   if (type == 'textMessage' || type == 'voiceMinute') {
     for (let entry in entries)
@@ -71,7 +91,7 @@ const getSql = (type,entries) => {
     `;
   }
 
-  if (type == 'invite'|| type == 'vote' || type == 'bonus') {
+  if (type == 'invite' || type == 'vote' || type == 'bonus') {
     for (let entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
           LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),

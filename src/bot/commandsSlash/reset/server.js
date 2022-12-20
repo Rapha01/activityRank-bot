@@ -1,11 +1,17 @@
 const cooldownUtil = require('../../util/cooldownUtil.js');
 const resetModel = require('../../models/resetModel.js');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
+const {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  PermissionFlagsBits,
+} = require('discord.js');
 
 module.exports.execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
+      content:
+        'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -20,7 +26,7 @@ module.exports.execute = async (i) => {
     });
   }
 
-  if (!await cooldownUtil.checkResetServerCommandCooldown(i)) return;
+  if (!(await cooldownUtil.checkResetServerCommandCooldown(i))) return;
   const confirmRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('ignore confirm')
@@ -31,7 +37,7 @@ module.exports.execute = async (i) => {
       .setCustomId('ignore cancel')
       .setLabel('Cancel')
       .setEmoji('❎')
-      .setStyle(ButtonStyle.Secondary),
+      .setStyle(ButtonStyle.Secondary)
   );
   const msg = await i.reply({
     content: 'Are you sure you want to reset these statistics?',
@@ -41,35 +47,53 @@ module.exports.execute = async (i) => {
   });
   const filter = (interaction) => interaction.user.id === i.user.id;
   try {
-    const interaction = await msg.awaitMessageComponent({ filter, time: 15_000 });
+    const interaction = await msg.awaitMessageComponent({
+      filter,
+      time: 15_000,
+    });
     if (interaction.customId.split(' ')[1] === 'confirm') {
       if (field == 'deletedmembers') {
         const userIds = await resetModel.storage.getDeletedUserIds(i.guild);
 
-        resetModel.resetJobs[i.guild.id] = { type: 'guildMembersStats', ref: i, cmdChannel: i.channel, userIds: userIds };
+        resetModel.resetJobs[i.guild.id] = {
+          type: 'guildMembersStats',
+          ref: i,
+          cmdChannel: i.channel,
+          userIds: userIds,
+        };
         await interaction.reply({
           content: 'Resetting, please wait...',
           ephemeral: true,
         });
       } else if (field == 'deletedchannels') {
-        const channelIds = await resetModel.storage.getDeletedChannelIds(i.guild);
+        const channelIds = await resetModel.storage.getDeletedChannelIds(
+          i.guild
+        );
 
-        resetModel.resetJobs[i.guild.id] = { type: 'guildChannelsStats', ref: i, cmdChannel: i.channel, channelIds: channelIds };
+        resetModel.resetJobs[i.guild.id] = {
+          type: 'guildChannelsStats',
+          ref: i,
+          cmdChannel: i.channel,
+          channelIds: channelIds,
+        };
         await interaction.reply({
           content: 'Resetting, please wait...',
           ephemeral: true,
         });
       } else if (
-        field == 'all'
-        || field == 'stats'
-        || field == 'settings'
-        || field == 'textstats'
-        || field == 'voicestats'
-        || field == 'invitestats'
-        || field == 'votestats'
-        || field == 'bonusstats'
+        field == 'all' ||
+        field == 'stats' ||
+        field == 'settings' ||
+        field == 'textstats' ||
+        field == 'voicestats' ||
+        field == 'invitestats' ||
+        field == 'votestats' ||
+        field == 'bonusstats'
       ) {
-        resetModel.resetJobs[i.guild.id] = { type: field, cmdChannel: i.channel };
+        resetModel.resetJobs[i.guild.id] = {
+          type: field,
+          cmdChannel: i.channel,
+        };
         await interaction.reply({
           content: 'Resetting, please wait...',
           ephemeral: true,

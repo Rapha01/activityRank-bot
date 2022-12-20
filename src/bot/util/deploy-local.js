@@ -6,13 +6,15 @@ const { adminGuild, botAuth } = require('../../const/keys.js').get();
 
 const commands = [];
 const adminCommands = [];
-const commandFiles = fs.readdirSync(path.resolve(__dirname, '../commandsSlash'))
-  .filter(file => file.endsWith('.js') && !file.startsWith('-'));
-const contextFiles = fs.readdirSync(path.resolve(__dirname, '../contextMenus'))
-  .filter(file => file.endsWith('.js') && !file.startsWith('-'));
-const adminFiles = fs.readdirSync(path.resolve(__dirname, '../commandsAdmin'))
-  .filter(file => file.endsWith('.js') && !file.startsWith('-'));
-
+const commandFiles = fs
+  .readdirSync(path.resolve(__dirname, '../commandsSlash'))
+  .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
+const contextFiles = fs
+  .readdirSync(path.resolve(__dirname, '../contextMenus'))
+  .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
+const adminFiles = fs
+  .readdirSync(path.resolve(__dirname, '../commandsAdmin'))
+  .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 module.exports = async (client) => {
   for (const file of commandFiles) {
@@ -33,20 +35,19 @@ module.exports = async (client) => {
   try {
     for (const guild of client.guilds.cache.keys()) {
       if (guild === adminGuild) {
-        await rest.put(
-          Routes.applicationGuildCommands(client.user.id, guild),
-          { body: [...commands, ...adminCommands] },
+        await rest.put(Routes.applicationGuildCommands(client.user.id, guild), {
+          body: [...commands, ...adminCommands],
+        });
+        console.log(
+          `Loaded local application and admin (/) commands in guild ${guild}`
         );
-        console.log(`Loaded local application and admin (/) commands in guild ${guild}`);
       } else {
-        await rest.put(
-          Routes.applicationGuildCommands(client.user.id, guild),
-          { body: commands },
-        );
+        await rest.put(Routes.applicationGuildCommands(client.user.id, guild), {
+          body: commands,
+        });
         console.log(`Loaded local application (/) commands in guild ${guild}`);
       }
     }
-
   } catch (error) {
     console.error(error);
   }

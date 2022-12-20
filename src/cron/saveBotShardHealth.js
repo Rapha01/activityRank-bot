@@ -7,16 +7,16 @@ function _save(client) {
     shardId: client.shard.ids[0],
     uptimeSeconds: client.uptime / 1000,
     readyDate: client.readyTimestamp,
-    serverCount: client.guilds.cache.size
-  }
-  return obj
+    serverCount: client.guilds.cache.size,
+  };
+  return obj;
 }
 
 module.exports = (manager) => {
   return new Promise(async function (resolve, reject) {
     try {
       const nowDate = new Date().getTime() / 1000;
-      const shards = await manager.broadcastEval(_save)
+      const shards = await manager.broadcastEval(_save);
       /* const shards = await manager.broadcastEval(`
         const obj = {
           shardId: this.shard.ids[0],
@@ -39,9 +39,11 @@ module.exports = (manager) => {
           shard.shardId = shard.shardId + 1000000;
       }
 
-      await fctModel.insertUpdateMulti('botShardStat',shards);
+      await fctModel.insertUpdateMulti('botShardStat', shards);
 
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};

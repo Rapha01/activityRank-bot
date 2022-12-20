@@ -4,11 +4,11 @@ const { stripIndent } = require('common-tags');
 const guildModel = require('../../models/guild/guildModel.js');
 const prettyTime = require('pretty-ms');
 
-
-module.exports.execute = async function(i) {
+module.exports.execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
+      content:
+        'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -17,22 +17,33 @@ module.exports.execute = async function(i) {
     textMessageCooldownSeconds: i.options.getInteger('message'),
     voteCooldownSeconds: i.options.getInteger('vote'),
   };
-  if (Object.values(items).every(x => x === null)) {
+  if (Object.values(items).every((x) => x === null)) {
     return await i.reply({
-      content: 'You must specify at least one option for this command to do anything!',
+      content:
+        'You must specify at least one option for this command to do anything!',
       ephemeral: true,
     });
   }
 
-  for (const k in items) if (items[k] != null) await guildModel.storage.set(i.guild, k, items[k]);
+  for (const k in items)
+    if (items[k] != null) await guildModel.storage.set(i.guild, k, items[k]);
   await i.reply({
-    embeds: [new EmbedBuilder().setAuthor({ name: 'Cooldown Values' }).setColor(0x00AE86)
-      .setDescription(stripIndent`
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({ name: 'Cooldown Values' })
+        .setColor(0x00ae86).setDescription(stripIndent`
       Modified Cooldown Values! New values:
 
-      Messages will only give XP if their author has not sent one in the last \`${prettyTime(i.guild.appData.textMessageCooldownSeconds * 1000, { verbose: true })}\`.
-      Votes will have a cooldown of \`${prettyTime(i.guild.appData.voteCooldownSeconds * 1000, { verbose: true })}\`.
-      `)],
+      Messages will only give XP if their author has not sent one in the last \`${prettyTime(
+        i.guild.appData.textMessageCooldownSeconds * 1000,
+        { verbose: true }
+      )}\`.
+      Votes will have a cooldown of \`${prettyTime(
+        i.guild.appData.voteCooldownSeconds * 1000,
+        { verbose: true }
+      )}\`.
+      `),
+    ],
     ephemeral: true,
   });
 };

@@ -6,10 +6,12 @@ const fct = require('../../util/fct.js');
 module.exports.data = new SlashCommandBuilder()
   .setName('inviter')
   .setDescription('Set a member as your inviter')
-  .addUserOption(o => o
-    .setName('member')
-    .setDescription('The user that invited you to the server')
-    .setRequired(true));
+  .addUserOption((o) =>
+    o
+      .setName('member')
+      .setDescription('The user that invited you to the server')
+      .setRequired(true)
+  );
 
 module.exports.execute = async (i) => {
   const member = i.options.getMember('member');
@@ -27,8 +29,14 @@ module.exports.execute = async (i) => {
     });
   }
 
-  const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
-  const myTargetGuildMember = await guildMemberModel.storage.get(i.guild, member.id);
+  const myGuildMember = await guildMemberModel.storage.get(
+    i.guild,
+    i.member.id
+  );
+  const myTargetGuildMember = await guildMemberModel.storage.get(
+    i.guild,
+    member.id
+  );
 
   if (myGuildMember.inviter != 0) {
     return await i.reply({
@@ -36,9 +44,13 @@ module.exports.execute = async (i) => {
       ephemeral: true,
     });
   }
-  if (myTargetGuildMember.inviter != 0 && myTargetGuildMember.inviter == i.member.id) {
+  if (
+    myTargetGuildMember.inviter != 0 &&
+    myTargetGuildMember.inviter == i.member.id
+  ) {
     return await i.reply({
-      content: 'You cannot set your inviter to a person who has been invited by you.',
+      content:
+        'You cannot set your inviter to a person who has been invited by you.',
       ephemeral: true,
     });
   }
@@ -53,17 +65,24 @@ module.exports.execute = async (i) => {
 
   if (await fct.hasNoXpRole(member)) {
     return await i.reply({
-      content: 'The member you are trying to set as your inviter cannot be selected, because of an assigned noXP role.',
+      content:
+        'The member you are trying to set as your inviter cannot be selected, because of an assigned noXP role.',
       ephemeral: true,
     });
   }
-  await guildMemberModel.storage.set(i.guild, i.member.id, 'inviter', member.id);
+  await guildMemberModel.storage.set(
+    i.guild,
+    i.member.id,
+    'inviter',
+    member.id
+  );
 
   await statFlushCache.addInvite(member, 1);
   await statFlushCache.addInvite(i.member, 1);
 
   return await i.reply({
-    content: 'Your inviter has been set successfully. You will both get 1 invite added to your stats.',
+    content:
+      'Your inviter has been set successfully. You will both get 1 invite added to your stats.',
     ephemeral: true,
   });
 };

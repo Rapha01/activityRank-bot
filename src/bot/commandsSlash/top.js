@@ -38,7 +38,7 @@ module.exports.execute = async (i) => {
   await guildModel.cache.load(i.guild);
   const myGuild = await guildModel.storage.get(i.guild);
 
-  if (!await cooldownUtil.checkStatCommandsCooldown(i)) return;
+  if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
   const initialState = {
     window: 'members',
@@ -50,18 +50,17 @@ module.exports.execute = async (i) => {
   };
 
   const { id } = await i.editReply(
-    await generate(initialState, i.guild, myGuild),
+    await generate(initialState, i.guild, myGuild)
   );
 
   const cleanCache = async () => {
     const state = exports.activeCache.get(id);
     exports.activeCache.delete(id);
     try {
-      await i.editReply(
-        await generate(state, i.guild, myGuild, true),
-      );
+      await i.editReply(await generate(state, i.guild, myGuild, true));
     } catch (err) {
-      if (err.code === 10008) // Unknown Message
+      if (err.code === 10008)
+        // Unknown Message
         console.log('/top tried to update Unknown message');
       else throw err;
     }
@@ -73,32 +72,33 @@ module.exports.execute = async (i) => {
 
 module.exports.component = async (i) => {
   const action = i.customId.split(' ')[1];
-  let payload = i.customId.split(' ')[2] ?? i?.channels?.first() ?? i.values[0] ?? null;
+  let payload =
+    i.customId.split(' ')[2] ?? i?.channels?.first() ?? i.values[0] ?? null;
 
   const cachedMessage = exports.activeCache.get(i.message.id);
-  if (!cachedMessage) return console.log(`Could not find cachedMessage ${i.message.id}`);
+  if (!cachedMessage)
+    return console.log(`Could not find cachedMessage ${i.message.id}`);
 
   if (cachedMessage.owner !== i.user.id)
-    return await i.reply({ content: 'Sorry, this menu isn\'t for you.', ephemeral: true });
+    return await i.reply({
+      content: "Sorry, this menu isn't for you.",
+      ephemeral: true,
+    });
 
   const myGuild = await guildModel.storage.get(i.guild);
 
-  if (action === 'page')
-    payload = parseInt(payload);
+  if (action === 'page') payload = parseInt(payload);
 
-  exports.activeCache.set(
-    i.message.id,
-    { ...cachedMessage, [action]: payload },
-  );
+  exports.activeCache.set(i.message.id, {
+    ...cachedMessage,
+    [action]: payload,
+  });
 
   await i.deferUpdate();
 
   const state = exports.activeCache.get(i.message.id);
-  await state.interaction.editReply(
-    await generate(state, i.guild, myGuild),
-  );
+  await state.interaction.editReply(await generate(state, i.guild, myGuild));
 };
-
 
 async function generate(state, guild, myGuild, disabled = false) {
   if (state.window === 'channelMembers')
@@ -112,20 +112,25 @@ async function generate(state, guild, myGuild, disabled = false) {
 async function generateChannels(state, guild, myGuild, disabled) {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
 
-  const header = `Toplist channels in ${guild.name} | ${_prettifyTime[state.time]}`;
+  const header = `Toplist channels in ${guild.name} | ${
+    _prettifyTime[state.time]
+  }`;
 
   const embed = new EmbedBuilder()
     .setTitle(header)
     .setColor('#4fd6c8')
-    .addFields({
-      name: 'Text',
-      value: await getTopChannels(guild, 'textMessage', state.time, page),
-      inline: true,
-    }, {
-      name: 'Voice',
-      value: await getTopChannels(guild, 'voiceMinute', state.time, page),
-      inline: true,
-    });
+    .addFields(
+      {
+        name: 'Text',
+        value: await getTopChannels(guild, 'textMessage', state.time, page),
+        inline: true,
+      },
+      {
+        name: 'Voice',
+        value: await getTopChannels(guild, 'voiceMinute', state.time, page),
+        inline: true,
+      }
+    );
 
   return {
     embeds: [embed],
@@ -134,20 +139,32 @@ async function generateChannels(state, guild, myGuild, disabled) {
 }
 
 async function getTopChannels(guild, type, time, page) {
-  const channelRanks = await rankModel.getChannelRanks(guild, type, time, page.from, page.to);
+  const channelRanks = await rankModel.getChannelRanks(
+    guild,
+    type,
+    time,
+    page.from,
+    page.to
+  );
   if (!channelRanks || channelRanks.length == 0)
     return 'No entries found for this page.';
 
-
-  const channelMention = (index) => nameUtil.getChannelMention(guild.channels.cache, channelRanks[index].channelId);
+  const channelMention = (index) =>
+    nameUtil.getChannelMention(
+      guild.channels.cache,
+      channelRanks[index].channelId
+    );
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
-  const channelValue = (index) => type === 'voiceMinute'
-    ? (Math.round(channelRanks[index][time] / 60 * 10) / 10)
-    : channelRanks[index][time];
+  const channelValue = (index) =>
+    type === 'voiceMinute'
+      ? Math.round((channelRanks[index][time] / 60) * 10) / 10
+      : channelRanks[index][time];
 
   const s = [];
   for (let i = 0; i < channelRanks.length; i++)
-    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`);
+    s.push(
+      `#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`
+    );
 
   return s.join('\n');
 }
@@ -165,13 +182,25 @@ async function generateChannelMembers(state, guild, myGuild, disabled) {
     };
   }
 
-  const type = state.channel.type === ChannelType.GuildVoice ? 'voiceMinute' : 'textMessage';
+  const type =
+    state.channel.type === ChannelType.GuildVoice
+      ? 'voiceMinute'
+      : 'textMessage';
 
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
 
-  const header = `Toplist for channel ${state.channel.name} | ${_prettifyTime[state.time]}`;
+  const header = `Toplist for channel ${state.channel.name} | ${
+    _prettifyTime[state.time]
+  }`;
 
-  const channelMemberRanks = await rankModel.getChannelMemberRanks(guild, state.channel.id, type, state.time, page.from, page.to);
+  const channelMemberRanks = await rankModel.getChannelMemberRanks(
+    guild,
+    state.channel.id,
+    type,
+    state.time,
+    page.from,
+    page.to
+  );
 
   if (!channelMemberRanks || channelMemberRanks.length == 0) {
     return {
@@ -187,24 +216,31 @@ async function generateChannelMembers(state, guild, myGuild, disabled) {
 
   await nameUtil.addGuildMemberNamesToRanks(guild, channelMemberRanks);
 
-  const e = new EmbedBuilder()
-    .setTitle(header)
-    .setColor('#4fd6c8');
+  const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
   if (guild.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R>)`);
+    e.setDescription(
+      `**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R>)`
+    );
 
-
-  let str = '', guildMemberName;
+  let str = '',
+    guildMemberName;
 
   for (let i = 0; i < channelMemberRanks.length; i++) {
     if (type == 'voiceMinute')
-      str = ':microphone2: ' + (Math.round(channelMemberRanks[i][state.time] / 60 * 10) / 10);
-    else
-      str = ':writing_hand: ' + channelMemberRanks[i][state.time];
+      str =
+        ':microphone2: ' +
+        Math.round((channelMemberRanks[i][state.time] / 60) * 10) / 10;
+    else str = ':writing_hand: ' + channelMemberRanks[i][state.time];
 
-    guildMemberName = (await nameUtil.getGuildMemberInfo(guild, channelMemberRanks[i].userId)).name;
-    e.addFields({ name: `#${page.from + i}  ${guildMemberName}`, value: str, inline: true });
+    guildMemberName = (
+      await nameUtil.getGuildMemberInfo(guild, channelMemberRanks[i].userId)
+    ).name;
+    e.addFields({
+      name: `#${page.from + i}  ${guildMemberName}`,
+      value: str,
+      inline: true,
+    });
   }
 
   return {
@@ -216,21 +252,24 @@ async function generateChannelMembers(state, guild, myGuild, disabled) {
 async function generateGuildMembers(state, guild, myGuild, disabled) {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
 
-  let header = `Toplist for server ${guild.name} | ${_prettifyTime[state.time]}`;
+  let header = `Toplist for server ${guild.name} | ${
+    _prettifyTime[state.time]
+  }`;
 
   if (state.orderType === 'voiceMinute') header += ' | By voice (hours)';
   else if (state.orderType === 'textMessage') header += ' | By text (messages)';
   else if (state.orderType === 'invite') header += ' | By invites';
   else if (state.orderType === 'vote') header += ' | By ' + myGuild.voteTag;
   else if (state.orderType === 'bonus') header += ' | By ' + myGuild.bonusTag;
-  else if (state.orderType === 'totalScore' || state.orderType === 'allScores') header += ' | By total XP';
+  else if (state.orderType === 'totalScore' || state.orderType === 'allScores')
+    header += ' | By total XP';
 
   const memberRanks = await rankModel.getGuildMemberRanks(
     guild,
     state.orderType === 'allScores' ? 'totalScore' : state.orderType,
     state.time,
     page.from,
-    page.to,
+    page.to
   );
 
   if (!memberRanks || memberRanks.length === 0) {
@@ -247,12 +286,12 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
 
   await nameUtil.addGuildMemberNamesToRanks(guild, memberRanks);
 
-  const e = new EmbedBuilder()
-    .setTitle(header)
-    .setColor('#4fd6c8');
+  const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
   if (guild.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R>)`);
+    e.setDescription(
+      `**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R>)`
+    );
 
   let i = 0;
   while (memberRanks.length > 0) {
@@ -262,7 +301,9 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
       if (type === 'textMessage' && guild.appData.textXp)
         return `:writing_hand: ${memberRank['textMessage' + time]}`;
       if (type === 'voiceMinute' && guild.appData.voiceXp)
-        return `:microphone2: ${(Math.round(memberRank['voiceMinute' + time] / 60 * 10) / 10)}`;
+        return `:microphone2: ${
+          Math.round((memberRank['voiceMinute' + time] / 60) * 10) / 10
+        }`;
       if (type === 'invite' && guild.appData.inviteXp)
         return `:envelope: ${memberRank['invite' + time]}`;
       if (type === 'vote' && guild.appData.voteXp)
@@ -278,8 +319,7 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
       getScoreString('invite', state.time),
       getScoreString('vote', state.time),
       getScoreString('bonus', state.time),
-    ].filter(s => s);
-
+    ].filter((s) => s);
 
     const getFieldScoreString = (type, time) => {
       if (type === 'totalScore') return '';
@@ -288,8 +328,12 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
     };
 
     e.addFields({
-      name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
-      value: `Total: ${memberRank['totalScore' + state.time]} XP ${getFieldScoreString(state.orderType, state.time)}`,
+      name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
+        memberRank.levelProgression
+      )}`,
+      value: `Total: ${
+        memberRank['totalScore' + state.time]
+      } XP ${getFieldScoreString(state.orderType, state.time)}`,
     });
     i++;
   }
@@ -318,8 +362,8 @@ function getGlobalComponents(window, time, page, disabled) {
           new StringSelectMenuOptionBuilder()
             .setLabel('Top Channels')
             .setValue('channels')
-            .setDefault(window === 'channels'),
-        ),
+            .setDefault(window === 'channels')
+        )
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
@@ -345,12 +389,11 @@ function getGlobalComponents(window, time, page, disabled) {
           new StringSelectMenuOptionBuilder()
             .setLabel('Day')
             .setValue('Day')
-            .setDefault(time === 'Day'),
-        ),
+            .setDefault(time === 'Day')
+        )
     ),
   ];
 }
-
 
 function getPaginationComponents(page, disabled) {
   return new ActionRowBuilder().setComponents(
@@ -368,7 +411,7 @@ function getPaginationComponents(page, disabled) {
       .setEmoji('➡️')
       .setCustomId(`commandsSlash/top.js page ${page + 1}`)
       .setStyle(ButtonStyle.Secondary)
-      .setDisabled(disabled),
+      .setDisabled(disabled)
   );
 }
 
@@ -407,8 +450,8 @@ function getMembersComponents(state, disabled) {
           new StringSelectMenuOptionBuilder()
             .setLabel('Bonus')
             .setValue('bonus')
-            .setDefault(state.orderType === 'bonus'),
-        ),
+            .setDefault(state.orderType === 'bonus')
+        )
     ),
     getPaginationComponents(state.page, disabled),
     /*
@@ -429,7 +472,6 @@ function getMembersComponents(state, disabled) {
   ];
 }
 
-
 function getChannelMembersComponents(state, disabled) {
   return [
     ...getGlobalComponents(state.window, state.time, state.page, disabled),
@@ -441,10 +483,10 @@ function getChannelMembersComponents(state, disabled) {
           ChannelType.GuildText,
           ChannelType.GuildVoice,
           ChannelType.GuildAnnouncement,
-          ChannelType.GuildForum,
+          ChannelType.GuildForum
         )
         .setMinValues(1)
-        .setMaxValues(1),
+        .setMaxValues(1)
     ),
     getPaginationComponents(state.page, disabled),
   ];
@@ -457,17 +499,18 @@ function getChannelComponents(state, disabled) {
   ];
 }
 
-
 exports.sendMembersEmbed = async (i, type) => {
   await i.deferReply();
   await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);
 
-  if (!await cooldownUtil.checkStatCommandsCooldown(i)) return;
+  if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
-  const page = fct.extractPageSimple(i.options.getInteger('page') || 1, guild.entriesPerPage);
+  const page = fct.extractPageSimple(
+    i.options.getInteger('page') || 1,
+    guild.entriesPerPage
+  );
   const time = i.options.getString('period') || 'Alltime';
-
 
   let header = `Toplist for server ${i.guild.name} from ${page.from} to ${page.to} | ${_prettifyTime[time]}`;
 
@@ -478,7 +521,13 @@ exports.sendMembersEmbed = async (i, type) => {
   else if (type === 'bonus') header += ' | By ' + guild.bonusTag;
   else header += ' | By total XP';
 
-  const memberRanks = await rankModel.getGuildMemberRanks(i.guild, type, time, page.from, page.to);
+  const memberRanks = await rankModel.getGuildMemberRanks(
+    i.guild,
+    type,
+    time,
+    page.from,
+    page.to
+  );
   if (!memberRanks || memberRanks.length == 0) {
     return await i.editReply({
       content: 'No entries found for this page.',
@@ -487,14 +536,15 @@ exports.sendMembersEmbed = async (i, type) => {
   }
   await nameUtil.addGuildMemberNamesToRanks(i.guild, memberRanks);
 
-  const e = new EmbedBuilder()
-    .setTitle(header)
-    .setColor('#4fd6c8');
+  const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
   if (guild.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R> \n`);
+    e.setDescription(
+      `**!! Bonus XP Active !!** (ends <t:${guild.bonusUntilDate}:R> \n`
+    );
 
-  if (i.client.appData.settings.footer) e.setFooter({ text: i.client.appData.settings.footer });
+  if (i.client.appData.settings.footer)
+    e.setFooter({ text: i.client.appData.settings.footer });
 
   let iter = 0;
   let scoreStrings;
@@ -506,7 +556,11 @@ exports.sendMembersEmbed = async (i, type) => {
     if (i.guild.appData.textXp)
       scoreStrings.push(`:writing_hand: ${memberRank['textMessage' + time]}`);
     if (i.guild.appData.voiceXp)
-      scoreStrings.push(`:microphone2: ${(Math.round(memberRank['voiceMinute' + time] / 60 * 10) / 10)}`);
+      scoreStrings.push(
+        `:microphone2: ${
+          Math.round((memberRank['voiceMinute' + time] / 60) * 10) / 10
+        }`
+      );
     if (i.guild.appData.inviteXp)
       scoreStrings.push(`:envelope: ${memberRank['invite' + time]}`);
     if (i.guild.appData.voteXp)
@@ -514,8 +568,12 @@ exports.sendMembersEmbed = async (i, type) => {
     if (i.guild.appData.bonusXp)
       scoreStrings.push(guild.bonusEmote + ' ' + memberRank['bonus' + time]);
     e.addFields({
-      name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(memberRank.levelProgression)}`,
-      value: `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(':black_small_square:')}`,
+      name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(
+        memberRank.levelProgression
+      )}`,
+      value: `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(
+        ':black_small_square:'
+      )}`,
     });
     iter++;
   }

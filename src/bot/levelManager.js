@@ -5,34 +5,46 @@ const Discord = require('discord.js');
 const { PermissionFlagsBits } = require('discord.js');
 
 exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     let oldLevel, newLevel, roleMessages;
     try {
-      oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor));
-      newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor));
+      oldLevel = fct.getLevel(
+        fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor)
+      );
+      newLevel = fct.getLevel(
+        fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor)
+      );
 
       if (oldLevel != newLevel)
         roleMessages = await exports.checkRoleAssignment(member, newLevel);
-
-    } catch (e) { return reject(e); }
+    } catch (e) {
+      return reject(e);
+    }
 
     // Send Message
-    if (oldLevel >= newLevel)
-      return resolve();
+    if (oldLevel >= newLevel) return resolve();
 
-    await sendGratulationMessage(member, roleMessages, newLevel).catch(e => console.log('SendError autoPostLevelup: ' + e));
+    await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
+      console.log('SendError autoPostLevelup: ' + e)
+    );
 
     resolve();
   });
 };
 
 exports.checkRoleAssignment = (member, level) => {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      let roleMessages = [], memberHasRole;
+      let roleMessages = [],
+        memberHasRole;
       const roles = member.guild.roles.cache;
 
-      if (roles.size == 0 || !member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles))
+      if (
+        roles.size == 0 ||
+        !member.guild.members.me.permissions.has(
+          PermissionFlagsBits.ManageRoles
+        )
+      )
         return resolve(roleMessages);
 
       for (let role of roles) {
@@ -46,26 +58,36 @@ exports.checkRoleAssignment = (member, level) => {
 
         memberHasRole = member.roles.cache.get(role.id);
 
-        if (role.appData.deassignLevel != 0 && level >= role.appData.deassignLevel) {
+        if (
+          role.appData.deassignLevel != 0 &&
+          level >= role.appData.deassignLevel
+        ) {
           // User is above role. Deassign or do nothing.
           if (memberHasRole) {
-            await member.roles.remove(role).catch(e => {
+            await member.roles.remove(role).catch((e) => {
               if (e.code !== 50013) throw e; // Missing Permissions
             });
             addRoleDeassignMessage(roleMessages, member, role, level);
           }
-        } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
+        } else if (
+          role.appData.assignLevel != 0 &&
+          level >= role.appData.assignLevel
+        ) {
           // User is within role. Assign or do nothing.
           if (!memberHasRole) {
-            await member.roles.add(role).catch(e => {
+            await member.roles.add(role).catch((e) => {
               if (e.code !== 50013) throw e; // Missing Permissions
             });
             addRoleAssignMessage(roleMessages, member, role, level);
           }
-        } else if (member.guild.appData.takeAwayAssignedRolesOnLevelDown && role.appData.assignLevel != 0 && level < role.appData.assignLevel) {
+        } else if (
+          member.guild.appData.takeAwayAssignedRolesOnLevelDown &&
+          role.appData.assignLevel != 0 &&
+          level < role.appData.assignLevel
+        ) {
           // User is below role. Deassign or do nothing.
           if (memberHasRole) {
-            await member.roles.remove(role).catch(e => {
+            await member.roles.remove(role).catch((e) => {
               if (e.code !== 50013) throw e; // Missing Permissions
             });
             addRoleDeassignMessage(roleMessages, member, role, level);
@@ -74,24 +96,31 @@ exports.checkRoleAssignment = (member, level) => {
       }
 
       return resolve(roleMessages);
-    } catch (e) { return reject(e); }
+    } catch (e) {
+      return reject(e);
+    }
   });
 };
 
 const sendGratulationMessage = (member, roleMessages, level) => {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     let gratulationMessage = '';
 
-    if (member.guild.appData.levelupMessage != '' && (member.guild.appData.notifyLevelupWithRole || roleMessages.length == 0))
+    if (
+      member.guild.appData.levelupMessage != '' &&
+      (member.guild.appData.notifyLevelupWithRole || roleMessages.length == 0)
+    )
       gratulationMessage = member.guild.appData.levelupMessage + '\n';
 
     if (roleMessages.length > 0)
       gratulationMessage += roleMessages.join('\n') + '\n';
 
-    if (gratulationMessage == '')
-      return resolve();
+    if (gratulationMessage == '') return resolve();
 
-    const ping = gratulationMessage.indexOf('<mention>') > -1 ? '<@' + member.id + '>' : '';
+    const ping =
+      gratulationMessage.indexOf('<mention>') > -1
+        ? '<@' + member.id + '>'
+        : '';
 
     gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 
@@ -105,40 +134,54 @@ const sendGratulationMessage = (member, roleMessages, level) => {
     let notified = false;
     if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
       if (member.appData.lastMessageChannelId) {
-        const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
+        const channel = member.guild.channels.cache.get(
+          member.appData.lastMessageChannelId
+        );
         if (channel) {
-          const msg = { embeds: [ levelupEmbed ] };
-          if (ping)
-            msg['content'] = ping;
+          const msg = { embeds: [levelupEmbed] };
+          if (ping) msg['content'] = ping;
 
-          await channel.send(msg).then(res => notified = true).catch(e => console.log);
+          await channel
+            .send(msg)
+            .then((res) => (notified = true))
+            .catch((e) => console.log);
         }
       }
     }
 
     // Post_ Channel
     if (!notified && member.guild.appData.autopost_levelup != 0) {
-      const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
+      const channel = member.guild.channels.cache.get(
+        member.guild.appData.autopost_levelup
+      );
 
       if (channel && channel.send) {
-        const msg = { embeds: [ levelupEmbed ] };
-        if (ping)
-          msg['content'] = ping;
+        const msg = { embeds: [levelupEmbed] };
+        if (ping) msg['content'] = ping;
 
-        await channel.send(msg).then(res => notified = true).catch(e => console.log);
+        await channel
+          .send(msg)
+          .then((res) => (notified = true))
+          .catch((e) => console.log);
       }
     }
 
     // Direct Message
-    if (!notified && member.appData.notifyLevelupDm == true && member.guild.appData.notifyLevelupDm == true) {
+    if (
+      !notified &&
+      member.appData.notifyLevelupDm == true &&
+      member.guild.appData.notifyLevelupDm == true
+    ) {
       levelupEmbed.setFooter({
         text: 'To disable direct messages from me, type `/config-member` in the server.',
       });
-      const msg = { embeds: [ levelupEmbed ] };
-      if (ping)
-        msg['content'] = ping;
+      const msg = { embeds: [levelupEmbed] };
+      if (ping) msg['content'] = ping;
 
-      await member.send(msg).then(res => notified = true).catch(e => console.log);
+      await member
+        .send(msg)
+        .then((res) => (notified = true))
+        .catch((e) => console.log);
     }
 
     resolve();
@@ -162,8 +205,7 @@ const addRoleDeassignMessage = (roleMessages, member, role, level) => {
 const addRoleAssignMessage = (roleMessages, member, role, level) => {
   let message = '';
 
-  if (role.appData.assignMessage != '')
-    message = role.appData.assignMessage;
+  if (role.appData.assignMessage != '') message = role.appData.assignMessage;
   else if (member.guild.appData.roleAssignMessage != '')
     message = member.guild.appData.roleAssignMessage;
 
@@ -174,13 +216,18 @@ const addRoleAssignMessage = (roleMessages, member, role, level) => {
 };
 
 const replaceTagsRole = (text, member, role, level) => {
-  return text.replace(/<rolename>/g, role.name).replace(/<role>/g, role.name)
+  return text
+    .replace(/<rolename>/g, role.name)
+    .replace(/<role>/g, role.name)
     .replace(/<rolemention>/g, role.toString());
 };
 
 const replaceTagsLevelup = (text, member, level) => {
-  return text.replace(/<mention>/g, '<@' + member.id + '>')
-    .replace(/<name>/g, member.user.username)
-    .replace(/<level>/g, level)
-    .replace(/<servername>/g, member.guild.name) + '\n';
+  return (
+    text
+      .replace(/<mention>/g, '<@' + member.id + '>')
+      .replace(/<name>/g, member.user.username)
+      .replace(/<level>/g, level)
+      .replace(/<servername>/g, member.guild.name) + '\n'
+  );
 };

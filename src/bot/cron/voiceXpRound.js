@@ -7,10 +7,12 @@ const skip = require('../skip.js');
 const statFlushCache = require('../statFlushCache.js');
 const noXpUtil = require('../util/noXpUtil.js');
 const { ChannelType } = require('discord.js');
-let minutesToAdd = 0, leftover = 0, round = 0;
+let minutesToAdd = 0,
+  leftover = 0,
+  round = 0;
 
 module.exports = async (client) => {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const roundStart = Date.now() / 1000;
 
@@ -20,47 +22,65 @@ module.exports = async (client) => {
         try {
           await fct.sleep(200);
 
-          if (!skip(guild.id))
-            await rankVoiceGuild(guild);
-
-        } catch (e) { console.log(e); }
+          if (!skip(guild.id)) await rankVoiceGuild(guild);
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       await fct.sleep(2000);
 
       const roundEnd = Date.now() / 1000;
-      const secondsToAdd = (roundEnd - roundStart) + leftover;
+      const secondsToAdd = roundEnd - roundStart + leftover;
       minutesToAdd = Math.floor(secondsToAdd / 60);
       leftover = Math.round(secondsToAdd % 60);
       // console.log(client.options.shards);
-      console.log('RankVoice for shard ' + client.options.shards[0] + ' round ' + round + ' finished. ' + 'minutesToAdd ' + minutesToAdd + ', leftover ' + leftover);
+      console.log(
+        'RankVoice for shard ' +
+          client.options.shards[0] +
+          ' round ' +
+          round +
+          ' finished. ' +
+          'minutesToAdd ' +
+          minutesToAdd +
+          ', leftover ' +
+          leftover
+      );
       round++;
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
 // existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1
 const rankVoiceGuild = (guild) => {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       await guildModel.cache.load(guild);
 
-      if (!guild.appData.voiceXp)
-        return resolve();
+      if (!guild.appData.voiceXp) return resolve();
 
-      const voiceChannels = guild.channels.cache.filter(channel => channel.type == ChannelType.GuildVoice);
+      const voiceChannels = guild.channels.cache.filter(
+        (channel) => channel.type == ChannelType.GuildVoice
+      );
 
       for (let channel of voiceChannels) {
         channel = channel[1];
         await guildChannelModel.cache.load(channel);
 
-        if (await givesXp(channel) && (guild.appData.allowSoloXp || existMultipleMembers(channel.members)))
+        if (
+          (await givesXp(channel)) &&
+          (guild.appData.allowSoloXp || existMultipleMembers(channel.members))
+        )
           await rankVoiceChannel(channel);
       }
 
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
@@ -77,15 +97,14 @@ async function givesXp(channel) {
 }
 
 const rankVoiceChannel = (channel) => {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       for (let member of channel.members) {
         member = member[1];
 
         await guildMemberModel.cache.load(member);
 
-        if (await noXpUtil.noVoiceXp(member, channel))
-          continue;
+        if (await noXpUtil.noVoiceXp(member, channel)) continue;
 
         if (minutesToAdd > 0) {
           await statFlushCache.addVoiceMinute(member, channel, minutesToAdd);
@@ -94,7 +113,9 @@ const rankVoiceChannel = (channel) => {
       }
 
       return resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 

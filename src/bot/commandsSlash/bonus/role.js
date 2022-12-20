@@ -31,9 +31,10 @@ module.exports.execute = async (i) => {
 
   module.exports.currentJobs.add(i.guild.id);
   // backup removes after 1h
-  setTimeout(() => module.exports.currentJobs.delete(i.guild.id), 36e+5);
+  setTimeout(() => module.exports.currentJobs.delete(i.guild.id), 36e5);
 
-  if (i.options.getBoolean('use-beta')) return await betaSystem(i, role, change);
+  if (i.options.getBoolean('use-beta'))
+    return await betaSystem(i, role, change);
   else return await oldSystem(i, role, change);
 };
 

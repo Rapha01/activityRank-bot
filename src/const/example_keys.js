@@ -7,13 +7,13 @@ const keys = {
     managerDb: {
       dbUser: '',
       dbPassword: '',
-      dbName: ''
+      dbName: '',
     },
     shardDb: {
       dbUser: '',
       dbPassword: '',
-      dbName: ''
-    }
+      dbName: '',
+    },
   },
   development: {
     botAuth: '',
@@ -23,23 +23,21 @@ const keys = {
     managerDb: {
       dbUser: '',
       dbPassword: '',
-      dbName: ''
+      dbName: '',
     },
     shardDb: {
       dbUser: '',
       dbPassword: '',
-      dbName: ''
+      dbName: '',
     },
     admin: {
       serverIds: [''],
-      channelIds: ['']
-    }
-  }
+      channelIds: [''],
+    },
+  },
 };
 
 module.exports.get = () => {
-  if (process.env.NODE_ENV == 'production')
-    return keys.production;
-  else
-    return keys.development;
-}
+  if (process.env.NODE_ENV == 'production') return keys.production;
+  else return keys.development;
+};

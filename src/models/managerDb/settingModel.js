@@ -10,13 +10,14 @@ exports.storage.get = () => {
 
       let settings = {};
 
-      for (setting of res)
-        settings[setting.id] = setting.value;
+      for (setting of res) settings[setting.id] = setting.value;
 
       resolve(settings);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};
 
 exports.cache.load = (client) => {
   return new Promise(async function (resolve, reject) {
@@ -24,6 +25,8 @@ exports.cache.load = (client) => {
       client.appData.settings = await exports.storage.get();
 
       resolve();
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
-}
+};

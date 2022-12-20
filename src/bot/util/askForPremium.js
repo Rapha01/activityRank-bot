@@ -13,19 +13,23 @@ if (process.env.NODE_ENV == 'production') {
   askForPremiumCdUser = 3600 * 6; // 60
 }
 
-module.exports = async function(interaction) {
-  if (cooldownUtil.getCachedCooldown(interaction.guild.appData, 'lastAskForPremiumDate', askForPremiumCdGuild) > 0)
+module.exports = async function (interaction) {
+  if (
+    cooldownUtil.getCachedCooldown(
+      interaction.guild.appData,
+      'lastAskForPremiumDate',
+      askForPremiumCdGuild
+    ) > 0
+  )
     return;
 
-  if (fct.isPremiumGuild(interaction.guild))
-    return;
+  if (fct.isPremiumGuild(interaction.guild)) return;
 
   await userModel.cache.load(interaction.user);
   const myUser = await userModel.storage.get(interaction.user);
 
   const now = Date.now() / 1000;
-  if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser)
-    return;
+  if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser) return;
 
   await userModel.storage.set(interaction.user, 'lastAskForPremiumDate', now);
   interaction.guild.appData.lastAskForPremiumDate = now;
@@ -37,7 +41,7 @@ module.exports = async function(interaction) {
 async function sendAskForPremiumEmbed(interaction) {
   const e = new EmbedBuilder()
     .setTitle('Thank you for using ActivityRank!')
-    .setColor(0x00AE86)
+    .setColor(0x00ae86)
     .setThumbnail(interaction.client.user.displayAvatarURL());
 
   e.addFields({

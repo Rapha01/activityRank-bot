@@ -16,8 +16,8 @@ module.exports.data = new SlashCommandBuilder()
         o
           .setName('user')
           .setDescription('The user to blacklist')
-          .setRequired(true),
-      ),
+          .setRequired(true)
+      )
   )
   .addSubcommand((sc) =>
     sc
@@ -29,12 +29,12 @@ module.exports.data = new SlashCommandBuilder()
           .setDescription('The ID of the server to blacklist')
           .setMinLength(17)
           .setMaxLength(19)
-          .setRequired(true),
-      ),
+          .setRequired(true)
+      )
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-module.exports.execute = async function(i) {
+module.exports.execute = async function (i) {
   const sc = await i.options.getSubcommand();
   if (sc === 'user') {
     const user = await i.client.users.fetch(i.options.getUser('user'));

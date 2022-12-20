@@ -14,7 +14,7 @@ exports.storage.resetGuildAll = async (batchsize, guild) => {
 
   affectedRows += await exports.storage.resetGuildStats(
     batchsize - affectedRows,
-    guild,
+    guild
   );
   if (affectedRows < batchsize)
     affectedRows += await exports.storage.resetGuildSettings(batchsize, guild);
@@ -44,7 +44,7 @@ exports.storage.resetGuildSettings = async (batchsize, guild) => {
           guild.appData.dbHost,
           `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${
             batchsize - affectedRows
-          }`,
+          }`
         )
       ).affectedRows;
     }
@@ -55,9 +55,9 @@ exports.storage.resetGuildSettings = async (batchsize, guild) => {
       (
         await shardDb.query(
           guild.appData.dbHost,
-          `SELECT * FROM guild WHERE guildId = ${guild.id}`,
+          `SELECT * FROM guild WHERE guildId = ${guild.id}`
         )
-      )[0],
+      )[0]
     );
     const keySqls = [];
     for (const key of keys) {
@@ -66,7 +66,7 @@ exports.storage.resetGuildSettings = async (batchsize, guild) => {
     }
     await shardDb.query(
       guild.appData.dbHost,
-      `UPDATE guild SET ${keySqls.join(',')} WHERE guildId = ${guild.id}`,
+      `UPDATE guild SET ${keySqls.join(',')} WHERE guildId = ${guild.id}`
     );
 
     exports.cache.resetGuildRolesAll(guild);
@@ -89,7 +89,7 @@ exports.storage.resetGuildStats = async (batchsize, guild) => {
           guild.appData.dbHost,
           `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${
             batchsize - affectedRows
-          }`,
+          }`
         )
       ).affectedRows;
     }
@@ -101,7 +101,7 @@ exports.storage.resetGuildStats = async (batchsize, guild) => {
         guild.appData.dbHost,
         `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
           guild.id
-        } LIMIT ${batchsize - affectedRows}`,
+        } LIMIT ${batchsize - affectedRows}`
       )
     ).affectedRows;
   }
@@ -117,7 +117,7 @@ exports.storage.resetGuildStatsByType = async (batchsize, guild, type) => {
   affectedRows += (
     await shardDb.query(
       guild.appData.dbHost,
-      `DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`,
+      `DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`
     )
   ).affectedRows;
 
@@ -127,7 +127,7 @@ exports.storage.resetGuildStatsByType = async (batchsize, guild, type) => {
         guild.appData.dbHost,
         `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
           guild.id
-        } LIMIT ${batchsize - affectedRows}`,
+        } LIMIT ${batchsize - affectedRows}`
       )
     ).affectedRows;
   }
@@ -151,7 +151,7 @@ exports.storage.resetGuildMembersStats = async (batchsize, guild, userIds) => {
             guild.id
           } AND userId in (${userIds.join(',')}) LIMIT ${
             batchsize - affectedRows
-          }`,
+          }`
         )
       ).affectedRows;
     }
@@ -165,7 +165,7 @@ exports.storage.resetGuildMembersStats = async (batchsize, guild, userIds) => {
           guild.id
         } AND userId IN (${userIds.join(',')}) LIMIT ${
           batchsize - affectedRows
-        }`,
+        }`
       )
     ).affectedRows;
   }
@@ -179,7 +179,7 @@ exports.storage.resetGuildMembersStats = async (batchsize, guild, userIds) => {
 exports.storage.resetGuildChannelsStats = async (
   batchsize,
   guild,
-  channelIds,
+  channelIds
 ) => {
   let affectedRows = 0;
 
@@ -194,7 +194,7 @@ exports.storage.resetGuildChannelsStats = async (
             guild.id
           } AND channelId IN (${channelIds.join(',')}) LIMIT ${
             batchsize - affectedRows
-          }`,
+          }`
         )
       ).affectedRows;
     }
