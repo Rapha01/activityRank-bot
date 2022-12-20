@@ -9,6 +9,7 @@ const {
 } = require('discord.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const guildModel = require('../models/guild/guildModel.js');
+const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const rankModel = require('../models/rankModel.js');
 const fct = require('../../util/fct.js');
 const nameUtil = require('../util/nameUtil.js');
@@ -26,13 +27,15 @@ module.exports.data = new SlashCommandBuilder()
 module.exports.execute = async (i) => {
   await i.deferReply();
 
-  const targetUser = i.options.getUser('member') ?? i.user;
-
-  await userModel.cache.load(targetUser);
+  await guildMemberModel.cache.load(i.member);
 
   if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
   const myGuild = await guildModel.storage.get(i.guild);
+
+  const targetUser = i.options.getUser('member') ?? i.user;
+
+  await userModel.cache.load(targetUser);
 
   const initialState = {
     window: 'rank',
