@@ -6,7 +6,7 @@ const fct = require('../../util/fct.js');
 const promises = {};
 let defaultCache = null;
 let defaultAll = null;
-const cachedFields = [ 'userId' ];
+const cachedFields = [ 'userId', 'isBanned' ];
 exports.cache = {};
 exports.storage = {};
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';

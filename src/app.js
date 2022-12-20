@@ -26,9 +26,10 @@ start().catch(async (e) => {
 async function start() {
   return new Promise(async function (resolve, reject) {
     try {
-      await manager.spawn({delay: 10000, timeout: 120000});
       if (process.env.NODE_ENV == 'production')
         await deployGlobal();
+
+      await manager.spawn({delay: 10000, timeout: 120000});
 
       await scheduler.start(manager);
       resolve();

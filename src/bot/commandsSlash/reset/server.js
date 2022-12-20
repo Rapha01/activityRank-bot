@@ -14,7 +14,7 @@ module.exports.execute = async (i) => {
   if (field == 'stop') {
     delete resetModel.resetJobs[i.guild.id];
 
-    await i.reply({
+    return await i.reply({
       content: 'Stopped reset.',
       ephemeral: true,
     });
@@ -74,6 +74,8 @@ module.exports.execute = async (i) => {
           content: 'Resetting, please wait...',
           ephemeral: true,
         });
+      } else {
+        console.warn('[/reset server] Invalid field');
       }
       i.guild.appData.lastResetServer = Date.now() / 1000;
     } else {

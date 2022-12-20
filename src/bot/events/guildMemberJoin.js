@@ -54,7 +54,14 @@ const autoPostServerJoin = (member, roleAssignmentString) => {
         .setDescription(welcomeMessage)
         .setThumbnail(member.user.avatarURL({ dynamic: true }));
 
-      await channel.send({ content: `<@${member.id}>`, embeds: [welcomeEmbed] });
+      try {
+        await channel.send({ content: `<@${member.id}>`, embeds: [welcomeEmbed] });
+      } catch (err) {
+        if (err.code === 50013) // Missing Permissions
+          console.log(`Failed to send welcome message in guild ${member.guild.id}`);
+        else throw err;
+      }
+
 
       resolve();
     } catch (e) { reject(e); }

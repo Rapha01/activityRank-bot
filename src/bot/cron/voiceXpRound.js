@@ -55,7 +55,7 @@ const rankVoiceGuild = (guild) => {
         channel = channel[1];
         await guildChannelModel.cache.load(channel);
 
-        if (checkNoXpChannel(channel) && (guild.appData.allowSoloXp || existMultipleMembers(channel.members)))
+        if (await givesXp(channel) && (guild.appData.allowSoloXp || existMultipleMembers(channel.members)))
           await rankVoiceChannel(channel);
       }
 
@@ -64,27 +64,16 @@ const rankVoiceGuild = (guild) => {
   });
 };
 
-async function checkNoXpChannel(channel) {
+async function givesXp(channel) {
   if (channel.appData.noXp) return false;
 
-  if (channel.type === ChannelType.PublicThread || channel.type === ChannelType.PrivateThread) {
-    const parentChannel = channel.parent;
-    if (!parentChannel) return true;
+  const parent = channel.parent;
+  if (!parent) return true;
 
-    await guildChannelModel.cache.load(parentChannel);
-    if (parentChannel.appData.noXp) return false;
+  await guildChannelModel.cache.load(parent);
+  if (parent.appData.noXp) return false;
 
-    const parentCategory = parentChannel.parent;
-    if (!parentCategory) return true;
-
-    await guildChannelModel.cache.load(parentCategory);
-    if (parentCategory.appData.noXp) return false;
-  } else {
-    const parent = channel.parent;
-    if (!parent) return true;
-    await guildChannelModel.cache.load(parent);
-    if (parent.appData.noXp) return false;
-  }
+  return true;
 }
 
 const rankVoiceChannel = (channel) => {

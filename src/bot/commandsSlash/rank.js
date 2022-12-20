@@ -8,7 +8,6 @@ const {
   StringSelectMenuOptionBuilder,
 } = require('discord.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
 const guildModel = require('../models/guild/guildModel.js');
 const rankModel = require('../models/rankModel.js');
 const fct = require('../../util/fct.js');
@@ -26,21 +25,20 @@ module.exports.data = new SlashCommandBuilder()
 
 module.exports.execute = async (i) => {
   await i.deferReply();
-  await guildMemberModel.cache.load(i.member);
 
   if (!await cooldownUtil.checkStatCommandsCooldown(i)) return;
 
   const myGuild = await guildModel.storage.get(i.guild);
 
-  const targetMember = i.options.getMember('member') ?? i.member;
+  const targetUser = i.options.getUser('member') ?? i.user;
 
-  await userModel.cache.load(targetMember.user);
+  await userModel.cache.load(targetUser);
 
   const initialState = {
     window: 'rank',
     time: 'Alltime',
     owner: i.member.id,
-    targetMember,
+    targetUser,
     page: 1,
     interaction: i,
   };
@@ -93,11 +91,6 @@ module.exports.component = async (i) => {
   await state.interaction.editReply(
     await generateCard(state, i.guild, myGuild),
   );
-  /*
-  // too slow
-  await i.update(
-    await generateCard(exports.activeCache.get(i.message.id), i.guild, myGuild),
-  ); */
 };
 
 async function generateCard(cache, guild, myGuild, disabled = false) {
@@ -118,7 +111,7 @@ const _prettifyTime = {
 async function generateChannelCard(state, guild, myGuild, disabled) {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
 
-  const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetMember.id);
+  const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
 
   const header = `Channel toplist for ${guildMemberInfo.name} | ${_prettifyTime[state.time]}`;
 
@@ -127,11 +120,11 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
     .setColor('#4fd6c8')
     .addFields({
       name: 'Text',
-      value: await getTopChannels(page, guild, state.targetMember.id, state.time, 'textMessage'),
+      value: await getTopChannels(page, guild, state.targetUser.id, state.time, 'textMessage'),
       inline: true,
     }, {
       name: 'Voice',
-      value: await getTopChannels(page, guild, state.targetMember.id, state.time, 'voiceMinute'),
+      value: await getTopChannels(page, guild, state.targetUser.id, state.time, 'voiceMinute'),
       inline: true,
     });
 
@@ -190,16 +183,16 @@ async function getTopChannels(page, guild, memberId, time, type) {
 
 
 async function generateRankCard(state, guild, myGuild, disabled = false) {
-  const rank = await rankModel.getGuildMemberRank(guild, state.targetMember.id);
-  const positions = await getPositions(guild, state.targetMember.id, getTypes(guild.appData), state.time);
+  const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);
+  const positions = await getPositions(guild, state.targetUser.id, getTypes(guild.appData), state.time);
 
-  const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetMember.id);
+  const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
   const levelProgression = fct.getLevelProgression(rank.totalScoreAlltime, guild.appData.levelFactor);
 
   const embed = new EmbedBuilder()
     .setAuthor({ name: `${state.time} stats on server ${guild.name}` })
     .setColor('#4fd6c8')
-    .setThumbnail(state.targetMember.user.avatarURL({ dynamic: true }));
+    .setThumbnail(state.targetUser.avatarURL({ dynamic: true }));
 
   if (myGuild.bonusUntilDate > Date.now() / 1000) {
     embed.setDescription(`**!! Bonus XP Active !!** (${

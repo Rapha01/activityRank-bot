@@ -1,240 +1,290 @@
-const fct = require('../../util/fct.js');
 const shardDb = require('../../models/shardDb/shardDb.js');
 const guildMemberModel = require('./guild/guildMemberModel.js');
 const guildChannelModel = require('./guild/guildChannelModel.js');
 
-let resetJobs = {};
+const resetJobs = {};
 exports.resetJobs = resetJobs;
 exports.storage = {};
 exports.cache = {};
 
 // Storage
 
-exports.storage.resetGuildAll = (batchsize,guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let affectedRows = 0;
+exports.storage.resetGuildAll = async (batchsize, guild) => {
+  let affectedRows = 0;
 
-      affectedRows += await exports.storage.resetGuildStats(batchsize-affectedRows,guild);
-      if (affectedRows < batchsize)
-        affectedRows += await exports.storage.resetGuildSettings(batchsize,guild);
+  affectedRows += await exports.storage.resetGuildStats(
+    batchsize - affectedRows,
+    guild,
+  );
+  if (affectedRows < batchsize)
+    affectedRows += await exports.storage.resetGuildSettings(batchsize, guild);
 
-      resolve(affectedRows);
-    } catch (e) { reject(e); }
-  });
-}
+  return affectedRows;
+};
 
-const noResetGuildFields = ['guildId','tokens','tokensBurned','lastCommandDate','lastTokenBurnDate','joinedAtDate','leftAtDate','addDate'];
-exports.storage.resetGuildSettings = (batchsize,guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let affectedRows = 0;
+const noResetGuildFields = [
+  'guildId',
+  'tokens',
+  'tokensBurned',
+  'lastCommandDate',
+  'lastTokenBurnDate',
+  'joinedAtDate',
+  'leftAtDate',
+  'addDate',
+];
 
-      affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM guildRole WHERE guildId = ${guild.id} LIMIT ${batchsize}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM guildMember WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM guildChannel WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
+exports.storage.resetGuildSettings = async (batchsize, guild) => {
+  let affectedRows = 0;
+  const tables = ['guildRole', 'guildMember', 'guildChannel'];
 
-      if (affectedRows < batchsize) {
-        const keys = Object.keys((await shardDb.query(guild.appData.dbHost,`SELECT * FROM guild WHERE guildId = ${guild.id}`))[0]);
-        const keySqls = [];
-        for (let key of keys)
-          if (noResetGuildFields.indexOf(key) == -1)
-            keySqls.push(key + '=DEFAULT(' + key + ')');
-        await shardDb.query(guild.appData.dbHost,`UPDATE guild SET ${keySqls.join(',')} WHERE guildId = ${guild.id}`);
+  for (const table of tables) {
+    if (affectedRows < batchsize) {
+      affectedRows += (
+        await shardDb.query(
+          guild.appData.dbHost,
+          `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${
+            batchsize - affectedRows
+          }`,
+        )
+      ).affectedRows;
+    }
+  }
 
-        exports.cache.resetGuildRolesAll(guild);
-        exports.cache.resetGuildChannelsAll(guild);
-        exports.cache.resetGuildMembersAll(guild);
-        exports.cache.resetGuild(guild);
-      }
+  if (affectedRows < batchsize) {
+    const keys = Object.keys(
+      (
+        await shardDb.query(
+          guild.appData.dbHost,
+          `SELECT * FROM guild WHERE guildId = ${guild.id}`,
+        )
+      )[0],
+    );
+    const keySqls = [];
+    for (const key of keys) {
+      if (noResetGuildFields.indexOf(key) == -1)
+        keySqls.push(key + '=DEFAULT(' + key + ')');
+    }
+    await shardDb.query(
+      guild.appData.dbHost,
+      `UPDATE guild SET ${keySqls.join(',')} WHERE guildId = ${guild.id}`,
+    );
 
-      resolve(affectedRows);
-    } catch (e) { reject(e); }
-  });
-}
+    exports.cache.resetGuildRolesAll(guild);
+    exports.cache.resetGuildChannelsAll(guild);
+    exports.cache.resetGuildMembersAll(guild);
+    exports.cache.resetGuild(guild);
+  }
 
-exports.storage.resetGuildStats = (batchsize,guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let affectedRows = 0;
+  return affectedRows;
+};
 
-      affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM textMessage WHERE guildId = ${guild.id} LIMIT ${batchsize}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM voiceMinute WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM vote WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM invite WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM bonus WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
+exports.storage.resetGuildStats = async (batchsize, guild) => {
+  let affectedRows = 0;
+  const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'];
 
-      if (affectedRows < batchsize)
-        exports.cache.resetGuildMembersAll(guild);
+  for (const table of tables) {
+    if (affectedRows < batchsize) {
+      affectedRows += (
+        await shardDb.query(
+          guild.appData.dbHost,
+          `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${
+            batchsize - affectedRows
+          }`,
+        )
+      ).affectedRows;
+    }
+  }
 
-      resolve(affectedRows);
-    } catch (e) { reject(e); }
-  });
-}
+  if (affectedRows < batchsize) {
+    affectedRows += (
+      await shardDb.query(
+        guild.appData.dbHost,
+        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
+          guild.id
+        } LIMIT ${batchsize - affectedRows}`,
+      )
+    ).affectedRows;
+  }
 
-exports.storage.resetGuildStatsByType = (batchsize,guild,type) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let affectedRows = 0;
+  if (affectedRows < batchsize) exports.cache.resetGuildMembersAll(guild);
 
-      affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`)).affectedRows;
-      if (type == 'invite' && affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`)).affectedRows;
+  return affectedRows;
+};
 
-      if (affectedRows < batchsize)
-        exports.cache.resetGuildMembersAll(guild);
+exports.storage.resetGuildStatsByType = async (batchsize, guild, type) => {
+  let affectedRows = 0;
 
-      resolve(affectedRows);
-    } catch (e) { reject(e); }
-  });
-}
+  affectedRows += (
+    await shardDb.query(
+      guild.appData.dbHost,
+      `DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`,
+    )
+  ).affectedRows;
 
-exports.storage.resetGuildMembersStats = (batchsize,guild,userIds) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let affectedRows = 0;
+  if (type == 'invite' && affectedRows < batchsize) {
+    affectedRows += (
+      await shardDb.query(
+        guild.appData.dbHost,
+        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
+          guild.id
+        } LIMIT ${batchsize - affectedRows}`,
+      )
+    ).affectedRows;
+  }
 
-      affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM textMessage WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM voiceMinute WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM vote WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM invite WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM bonus WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
+  if (affectedRows < batchsize) exports.cache.resetGuildMembersAll(guild);
 
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
+  return affectedRows;
+};
 
-      if (affectedRows < batchsize)
-        exports.cache.resetGuildMemberIds(guild,userIds);
+exports.storage.resetGuildMembersStats = async (batchsize, guild, userIds) => {
+  let affectedRows = 0;
 
-      resolve(affectedRows);
-    } catch (e) { reject(e); }
-  });
-}
+  const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'];
 
-exports.storage.resetGuildChannelsStats = (batchsize,guild,channelIds) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let affectedRows = 0;
+  for (const table of tables) {
+    if (affectedRows < batchsize) {
+      affectedRows += (
+        await shardDb.query(
+          guild.appData.dbHost,
+          `DELETE FROM ${table} WHERE guildId = ${
+            guild.id
+          } AND userId in (${userIds.join(',')}) LIMIT ${
+            batchsize - affectedRows
+          }`,
+        )
+      ).affectedRows;
+    }
+  }
 
-      affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM textMessage WHERE guildId = ${guild.id} AND channelId IN (${channelIds.join(',')}) LIMIT ${batchsize}`)).affectedRows;
-      if (affectedRows < batchsize)
-        affectedRows += (await shardDb.query(guild.appData.dbHost,`DELETE FROM voiceMinute WHERE guildId = ${guild.id} AND channelId IN (${channelIds.join(',')}) LIMIT ${batchsize - affectedRows}`)).affectedRows;
+  if (affectedRows < batchsize) {
+    affectedRows += (
+      await shardDb.query(
+        guild.appData.dbHost,
+        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
+          guild.id
+        } AND userId IN (${userIds.join(',')}) LIMIT ${
+          batchsize - affectedRows
+        }`,
+      )
+    ).affectedRows;
+  }
 
-      if (affectedRows < batchsize) {
-        exports.cache.resetGuildMembersAll(guild);
-        exports.cache.resetGuildChannelIds(guild,channelIds);
-      }
+  if (affectedRows < batchsize)
+    exports.cache.resetGuildMemberIds(guild, userIds);
 
+  return affectedRows;
+};
 
-      resolve(affectedRows);
-    } catch (e) { reject(e); }
-  });
-}
+exports.storage.resetGuildChannelsStats = async (
+  batchsize,
+  guild,
+  channelIds,
+) => {
+  let affectedRows = 0;
 
-exports.storage.getDeletedUserIds = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const userIds = await guildMemberModel.getRankedUserIds(guild);
-      const users = await guild.members.fetch({cache: false, withPresences: false});  // # discordapi
+  const tables = ['textMessage', 'voiceMinute'];
 
-      let deletedUserIds = [],user;
-      for (let userId of userIds) {
-        user = users.get(userId);
-        if (user)
-          continue;
+  for (const table of tables) {
+    if (affectedRows < batchsize) {
+      affectedRows += (
+        await shardDb.query(
+          guild.appData.dbHost,
+          `DELETE FROM ${table} WHERE guildId = ${
+            guild.id
+          } AND channelId IN (${channelIds.join(',')}) LIMIT ${
+            batchsize - affectedRows
+          }`,
+        )
+      ).affectedRows;
+    }
+  }
 
-        deletedUserIds.push(userId);
-      }
+  if (affectedRows < batchsize) {
+    exports.cache.resetGuildMembersAll(guild);
+    exports.cache.resetGuildChannelIds(guild, channelIds);
+  }
 
-      resolve(deletedUserIds);
-    } catch (e) { reject(e); }
-  });
-}
+  return affectedRows;
+};
 
-exports.storage.getDeletedChannelIds = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const channelIds = await guildChannelModel.getRankedChannelIds(guild);
+exports.storage.getDeletedUserIds = async (guild) => {
+  const userIds = await guildMemberModel.getRankedUserIds(guild);
+  const users = await guild.members.fetch({
+    cache: false,
+    withPresences: false,
+  }); // # discordapi
 
-      let deletedChannelIds = [],channel;
-      for (let channelId of channelIds) {
-        channel = guild.channels.cache.get(channelId);
-        if (channel)
-          continue;
+  const deletedUserIds = [];
 
-        deletedChannelIds.push(channelId);
-      }
+  for (const userId of userIds) {
+    if (users.get(userId)) continue;
 
-      resolve(deletedChannelIds);
-    } catch (e) { reject(e); }
-  });
-}
+    deletedUserIds.push(userId);
+  }
 
+  return deletedUserIds;
+};
+
+exports.storage.getDeletedChannelIds = async (guild) => {
+  const channelIds = await guildChannelModel.getRankedChannelIds(guild);
+
+  const deletedChannelIds = [];
+  for (const channelId of channelIds) {
+    if (guild.channels.cache.get(channelId)) continue;
+
+    deletedChannelIds.push(channelId);
+  }
+
+  return deletedChannelIds;
+};
 
 // Cache
 
 exports.cache.resetGuild = (guild) => {
-  if (guild.appData)
-    delete guild.appData;
+  if (guild.appData) delete guild.appData;
 
   return;
-}
+};
 
 exports.cache.resetGuildMembersAll = (guild) => {
-  for (let member of guild.members.cache) {
-    if (member[1].appData)
-      delete member[1].appData;
-  }
+  for (const member of guild.members.cache)
+    if (member[1].appData) delete member[1].appData;
+
   return;
-}
+};
 
 exports.cache.resetGuildChannelsAll = (guild) => {
-  for (let channel of guild.channels.cache) {
-    if (channel[1].appData)
-      delete channel[1].appData;
-  }
+  for (const channel of guild.channels.cache)
+    if (channel[1].appData) delete channel[1].appData;
+
   return;
-}
+};
 
 exports.cache.resetGuildRolesAll = (guild) => {
-  for (let role of guild.roles.cache) {
-    if (role[1].appData)
-      delete role[1].appData;
-  }
-  return;
-}
+  for (const role of guild.roles.cache)
+    if (role[1].appData) delete role[1].appData;
 
-exports.cache.resetGuildMemberIds = (guild,userIds) => {
+  return;
+};
+
+exports.cache.resetGuildMemberIds = (guild, userIds) => {
   let member;
-  for (let userId of userIds) {
+  for (const userId of userIds) {
     member = guild.members.cache.get(userId);
-    if (member && member.appData)
-      delete member.appData;
+    if (member && member.appData) delete member.appData;
   }
   return;
-}
+};
 
-exports.cache.resetGuildChannelIds = (guild,channelIds) => {
+exports.cache.resetGuildChannelIds = (guild, channelIds) => {
   let channel;
-  for (let channelId of channelIds) {
+  for (const channelId of channelIds) {
     channel = guild.channels.cache.get(channelId);
-    if (channel && channel.appData)
-      delete channel.appData;
+    if (channel && channel.appData) delete channel.appData;
   }
   return;
-}
+};
 
 /*
 function getSchema(tablename) {
