@@ -26,13 +26,13 @@ module.exports.data = new SlashCommandBuilder()
 module.exports.execute = async (i) => {
   await i.deferReply();
 
+  await userModel.cache.load(targetUser);
+
   if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
   const myGuild = await guildModel.storage.get(i.guild);
 
   const targetUser = i.options.getUser('member') ?? i.user;
-
-  await userModel.cache.load(targetUser);
 
   const initialState = {
     window: 'rank',
