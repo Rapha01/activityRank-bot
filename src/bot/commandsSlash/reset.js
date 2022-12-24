@@ -22,7 +22,7 @@ module.exports.data = new SlashCommandBuilder()
             { name: 'Bonus XP', value: 'bonusstats' },
             {
               name: 'Members no longer in the server',
-              value: 'deletedMembers',
+              value: 'deletedmembers',
             },
             { name: 'Deleted channels', value: 'deletedchannels' },
             { name: 'Cancel Active Resets', value: 'stop' }
