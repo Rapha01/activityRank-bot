@@ -4,7 +4,7 @@ module.exports = (opts) =>
     colorize: true,
     translateTime: 'SYS:mm/dd HH:MM:ss',
     singleLine: true,
-    ignore: 'pid,hostname,shards',
+    ignore: 'pid,hostname,shards,i,interaction',
     messageFormat: format,
   });
 

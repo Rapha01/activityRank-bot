@@ -79,9 +79,9 @@ async function initClientCaches(client) {
 }
 
 process.on('SIGINT', () => {
-  console.info('SIGINT signal received in Shard.');
+  globalLogger.warn('SIGINT signal received in Shard.');
 });
 
 process.on('SIGTERM', () => {
-  console.info('SIGTERM signal received in Shard.');
+  globalLogger.warn('SIGTERM signal received in Shard.');
 });
