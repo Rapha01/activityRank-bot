@@ -1,7 +1,7 @@
 const {
   SlashCommandBuilder,
   ActionRowBuilder,
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
@@ -19,7 +19,7 @@ module.exports = {
       embeds: [helpEmbed],
       components: [
         new ActionRowBuilder().addComponents(
-          new SelectMenuBuilder()
+          new StringSelectMenuBuilder()
             .setCustomId(`help select ${i.user.id}`)
             .setPlaceholder('Nothing selected')
             .addOptions(

@@ -3,7 +3,7 @@ const {
   SlashCommandBuilder,
   ActionRowBuilder,
   ButtonBuilder,
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
   EmbedBuilder,
   ButtonStyle,
   ModalBuilder,
@@ -17,7 +17,7 @@ const guildModel = require('../models/guild/guildModel.js');
 const generateRows = async (i) => {
   return [
     new ActionRowBuilder().addComponents(
-      new SelectMenuBuilder()
+      new StringSelectMenuBuilder()
         .setCustomId(`config-messages ${i.member.id} select`)
         .setPlaceholder('The message to set')
         .setOptions([
@@ -119,7 +119,7 @@ module.exports.component = async (i) => {
       content: 'Which message do you want to clear?',
       components: [
         new ActionRowBuilder().addComponents(
-          new SelectMenuBuilder()
+          new StringSelectMenuBuilder()
             .setCustomId(`config-messages ${i.member.id} clear-select`)
             .setPlaceholder('The message to clear')
             .setOptions([

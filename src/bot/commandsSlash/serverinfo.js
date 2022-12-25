@@ -1,5 +1,5 @@
 const {
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
   ButtonStyle,
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -33,7 +33,7 @@ const rows = (type, page, memberId) => {
   page = Number(page);
   return [
     new ActionRowBuilder().addComponents(
-      new SelectMenuBuilder()
+      new StringSelectMenuBuilder()
         .setCustomId(`serverinfo ${type} ${page}`)
         .addOptions(
           { label: 'General', value: 'general' },
@@ -95,7 +95,7 @@ module.exports.component = async function (i) {
       ephemeral: true,
     });
 
-  if (i.isSelectMenu()) {
+  if (i.isStringSelectMenu()) {
     const [, , p] = i.customId.split(' ');
 
     const myGuild = await guildModel.storage.get(i.guild);
