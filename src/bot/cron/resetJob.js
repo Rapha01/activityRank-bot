@@ -1,9 +1,7 @@
 const resetModel = require('../models/resetModel.js');
-let jobIndex = 0,
-  batchsize;
+let jobIndex = 0;
 
-if (process.env.NODE_ENV == 'production') batchsize = 10000;
-else batchsize = 10;
+const batchsize = process.env.NODE_ENV == 'production' ? 10_000 : 10;
 
 module.exports = async () => {
   try {
