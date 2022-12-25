@@ -13,16 +13,12 @@ const generateRow = (i, myGuildMember) => {
     new ButtonBuilder().setLabel('Notify levelup via DM'),
     new ButtonBuilder().setLabel('Reaction voting'),
   ];
-  r[0].setCustomId(
-    `commandsSlash/config-member.js ${i.member.id} notifyLevelupDm`
-  );
+  r[0].setCustomId(`config-member ${i.member.id} notifyLevelupDm`);
   r[0].setStyle(
     myGuildMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger
   );
 
-  r[1].setCustomId(
-    `commandsSlash/config-member.js ${i.member.id} reactionVote`
-  );
+  r[1].setCustomId(`config-member ${i.member.id} reactionVote`);
   r[1].setDisabled(!i.guild.appData.voteXp || !i.guild.appData.reactionVote);
   r[1].setStyle(
     myGuildMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger
@@ -35,7 +31,7 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`commandsSlash/config-member.js ${i.member.id} closeMenu`)
+      .setCustomId(`config-member ${i.member.id} closeMenu`)
   );
 
 module.exports.data = new SlashCommandBuilder()

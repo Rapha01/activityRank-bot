@@ -18,19 +18,13 @@ const generateRow = (i, id, myRole) => {
     new ButtonBuilder().setLabel('Assignment Message'),
     new ButtonBuilder().setLabel('Deassignment Message'),
   ];
-  r[0].setCustomId(
-    `commandsSlash/config-role/menu.js ${i.member.id} ${id} noXp`
-  );
+  r[0].setCustomId(`config-role/menu ${i.member.id} ${id} noXp`);
   r[0].setStyle(myRole.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  r[1].setCustomId(
-    `commandsSlash/config-role/menu.js ${i.member.id} ${id} assignMessage`
-  );
+  r[1].setCustomId(`config-role/menu ${i.member.id} ${id} assignMessage`);
   r[1].setStyle(ButtonStyle.Secondary);
 
-  r[2].setCustomId(
-    `commandsSlash/config-role/menu.js ${i.member.id} ${id} deassignMessage`
-  );
+  r[2].setCustomId(`config-role/menu ${i.member.id} ${id} deassignMessage`);
   r[2].setStyle(ButtonStyle.Secondary);
 
   return r;
@@ -41,15 +35,13 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(
-        `commandsSlash/config-role/menu.js ${i.member.id} - closeMenu`
-      )
+      .setCustomId(`config-role/menu ${i.member.id} - closeMenu`)
   );
 
 const _modal = (roleId, assignState) =>
   new ModalBuilder()
     .setCustomId(
-      `commandsSlash/config-role/menu.js ${roleId} ${
+      `config-role/menu ${roleId} ${
         assignState ? 'assignMessage' : 'deassignMessage'
       }`
     )
@@ -125,7 +117,7 @@ module.exports.execute = async (i) => {
           .setLabel('Clear a message')
           .setStyle(ButtonStyle.Danger)
           .setCustomId(
-            `commandsSlash/config-role/menu.js ${i.member.id} ${resolvedRole.id} clear`
+            `config-role/menu ${i.member.id} ${resolvedRole.id} clear`
           )
       ),
     ],
@@ -149,13 +141,13 @@ module.exports.component = async (i) => {
           new ButtonBuilder()
             .setLabel('Assignment Message')
             .setCustomId(
-              `commandsSlash/config-role/menu.js ${i.member.id} ${roleId} clear-assign`
+              `config-role/menu ${i.member.id} ${roleId} clear-assign`
             )
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setLabel('Deassignment Message')
             .setCustomId(
-              `commandsSlash/config-role/menu.js ${i.member.id} ${roleId} clear-deassign`
+              `config-role/menu ${i.member.id} ${roleId} clear-deassign`
             )
             .setStyle(ButtonStyle.Secondary)
         ),

@@ -170,17 +170,17 @@ function getPaginationComponents(page, disabled) {
   return new ActionRowBuilder().setComponents(
     new ButtonBuilder()
       .setEmoji('⬅')
-      .setCustomId(`commandsSlash/rank.js page ${page - 1}`)
+      .setCustomId(`rank page ${page - 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page <= 1 || disabled),
     new ButtonBuilder()
       .setLabel(page.toString())
-      .setCustomId('commandsSlash/rank.js shouldNeverCall')
+      .setCustomId('rank shouldNeverCall')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true),
     new ButtonBuilder()
       .setEmoji('➡️')
-      .setCustomId(`commandsSlash/rank.js page ${page + 1}`)
+      .setCustomId(`rank page ${page + 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(disabled)
   );
@@ -292,15 +292,15 @@ function getGlobalComponents(window, time, disabled) {
   return [
     new ActionRowBuilder().setComponents(
       ParsedButton(window === 'rank', disabled)
-        .setCustomId('commandsSlash/rank.js window rank')
+        .setCustomId('rank window rank')
         .setLabel('Stats'),
       ParsedButton(window === 'topChannels', disabled)
-        .setCustomId('commandsSlash/rank.js window topChannels')
+        .setCustomId('rank window topChannels')
         .setLabel('Top Channels')
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
-        .setCustomId('commandsSlash/rank.js time')
+        .setCustomId('rank time')
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()

@@ -34,7 +34,7 @@ const rows = (type, page, memberId) => {
   return [
     new ActionRowBuilder().addComponents(
       new SelectMenuBuilder()
-        .setCustomId(`commandsSlash/serverinfo.js ${type} ${page}`)
+        .setCustomId(`serverinfo ${type} ${page}`)
         .addOptions(
           { label: 'General', value: 'general' },
           { label: 'Levels', value: 'levels' },
@@ -48,17 +48,17 @@ const rows = (type, page, memberId) => {
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setEmoji('⬅')
-        .setCustomId('commandsSlash/serverinfo.js -1')
+        .setCustomId('serverinfo -1')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(paginationDisabled || page < 2),
       new ButtonBuilder()
         .setLabel(paginationDisabled ? '-' : page.toString())
-        .setCustomId('commandsSlash/serverinfo.js')
+        .setCustomId('serverinfo')
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(true),
       new ButtonBuilder()
         .setEmoji('➡️')
-        .setCustomId('commandsSlash/serverinfo.js 1')
+        .setCustomId('serverinfo 1')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(paginationDisabled || page > 100)
     ),
@@ -66,7 +66,7 @@ const rows = (type, page, memberId) => {
       new ButtonBuilder()
         .setLabel('Close')
         .setStyle(ButtonStyle.Danger)
-        .setCustomId(`commandsSlash/serverinfo.js ${memberId} closeMenu`)
+        .setCustomId(`serverinfo ${memberId} closeMenu`)
     ),
   ];
 };

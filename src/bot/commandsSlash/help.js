@@ -20,7 +20,7 @@ module.exports = {
       components: [
         new ActionRowBuilder().addComponents(
           new SelectMenuBuilder()
-            .setCustomId(`commandsSlash/help.js select ${i.user.id}`)
+            .setCustomId(`help select ${i.user.id}`)
             .setPlaceholder('Nothing selected')
             .addOptions(
               { label: 'Server Statistics', value: 'stats' },
@@ -38,7 +38,7 @@ module.exports = {
         ),
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
-            .setCustomId(`commandsSlash/help.js closeMenu ${i.user.id}`)
+            .setCustomId(`help closeMenu ${i.user.id}`)
             .setLabel('Close')
             .setStyle(ButtonStyle.Danger)
         ),

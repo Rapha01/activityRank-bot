@@ -18,7 +18,7 @@ const generateRows = async (i) => {
   return [
     new ActionRowBuilder().addComponents(
       new SelectMenuBuilder()
-        .setCustomId(`commandsSlash/config-messages.js ${i.member.id} select`)
+        .setCustomId(`config-messages ${i.member.id} select`)
         .setPlaceholder('The message to set')
         .setOptions([
           { label: 'Server Join Message', value: 'serverJoinMessage' },
@@ -34,7 +34,7 @@ const generateRows = async (i) => {
       new ButtonBuilder()
         .setLabel('Clear a message')
         .setStyle(ButtonStyle.Danger)
-        .setCustomId(`commandsSlash/config-messages.js ${i.member.id} clear`)
+        .setCustomId(`config-messages ${i.member.id} clear`)
     ),
   ];
 };
@@ -48,7 +48,7 @@ const _prettifyId = {
 
 const _modal = (type) =>
   new ModalBuilder()
-    .setCustomId(`commandsSlash/config-messages.js ${type}`)
+    .setCustomId(`config-messages ${type}`)
     .setTitle('Message Selection')
     .addComponents(
       new ActionRowBuilder().addComponents(
@@ -120,9 +120,7 @@ module.exports.component = async (i) => {
       components: [
         new ActionRowBuilder().addComponents(
           new SelectMenuBuilder()
-            .setCustomId(
-              `commandsSlash/config-messages.js ${i.member.id} clear-select`
-            )
+            .setCustomId(`config-messages ${i.member.id} clear-select`)
             .setPlaceholder('The message to clear')
             .setOptions([
               { label: 'Server Join Message', value: 'serverJoinMessage' },
