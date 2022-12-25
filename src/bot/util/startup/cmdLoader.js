@@ -21,16 +21,6 @@ getRecursive(commandsDir);
 
 files = files.map((fileName) => fileName.replace(commandsDir + '/', ''));
 
-console.log(files);
-/* 
-'config-channel'
-'config-role/levels'
-'Upvote'
-
-admin
-'blacklist'
- */
-
 module.exports = (client) => {
   client.commands = new Collection();
   client.adminCommands = new Collection();
