@@ -1,10 +1,7 @@
-const fs = require('fs');
-const path = require('path');
 const { Client, Options, GatewayIntentBits } = require('discord.js');
 const fct = require('../util/fct.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
-const loadCommands = require('./util/cmdLoader');
 const load = require('./util/startup/index.js');
 const loggerManager = require('./util/logger.js');
 const globalLogger = require('../util/logger.js');
@@ -46,8 +43,6 @@ start();
 async function start() {
   try {
     await initClientCaches(client);
-
-    await loadCommands(client);
 
     await client.login();
 
