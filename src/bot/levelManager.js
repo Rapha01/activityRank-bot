@@ -146,8 +146,13 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
           await channel
             .send(msg)
-            .then((res) => (notified = true))
-            .catch((e) => console.log);
+            .then(() => (notified = true))
+            .catch((e) =>
+              member.client.logger.warn(
+                e,
+                'Error while sending gratulationMessage in activeChannel'
+              )
+            );
         }
       }
     }
@@ -164,8 +169,13 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
         await channel
           .send(msg)
-          .then((res) => (notified = true))
-          .catch((e) => console.log);
+          .then(() => (notified = true))
+          .catch((e) =>
+            member.client.logger.warn(
+              e,
+              'Error while sending gratulationMessage in autopostChannel'
+            )
+          );
       }
     }
 
@@ -183,8 +193,13 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
       await member
         .send(msg)
-        .then((res) => (notified = true))
-        .catch((e) => console.log);
+        .then(() => (notified = true))
+        .catch((e) =>
+          member.client.logger.warn(
+            e,
+            'Error while sending gratulationMessage in dm'
+          )
+        );
     }
 
     resolve();
