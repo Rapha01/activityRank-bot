@@ -1,5 +1,5 @@
 const {
-  SelectMenuBuilder,
+  StringSelectMenuBuilder,
   ButtonStyle,
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -26,18 +26,15 @@ const embeds = {
   noxpchannels: noXpChannels,
   noxproles: noXpRoles,
   messages: messages,
-  permissions: permissions,
 };
 
 const rows = (type, page, memberId) => {
-  const paginationDisabled = ['general', 'permissions', 'messages'].includes(
-    type
-  );
+  const paginationDisabled = ['general', 'messages'].includes(type);
   page = Number(page);
   return [
     new ActionRowBuilder().addComponents(
-      new SelectMenuBuilder()
-        .setCustomId(`commandsSlash/serverinfo.js ${type} ${page}`)
+      new StringSelectMenuBuilder()
+        .setCustomId(`serverinfo ${type} ${page}`)
         .addOptions(
           { label: 'General', value: 'general' },
           { label: 'Levels', value: 'levels' },
@@ -45,24 +42,23 @@ const rows = (type, page, memberId) => {
           { label: 'No Command Channels', value: 'nocommandchannels' },
           { label: 'Noxp Channels', value: 'noxpchannels' },
           { label: 'Noxp Roles', value: 'noxproles' },
-          { label: 'Autosend Messages', value: 'messages' },
-          { label: 'Permissions', value: 'permissions' }
+          { label: 'Autosend Messages', value: 'messages' }
         )
     ),
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setEmoji('⬅')
-        .setCustomId('commandsSlash/serverinfo.js -1')
+        .setCustomId('serverinfo -1')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(paginationDisabled || page < 2),
       new ButtonBuilder()
         .setLabel(paginationDisabled ? '-' : page.toString())
-        .setCustomId('commandsSlash/serverinfo.js')
+        .setCustomId('serverinfo')
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(true),
       new ButtonBuilder()
         .setEmoji('➡️')
-        .setCustomId('commandsSlash/serverinfo.js 1')
+        .setCustomId('serverinfo 1')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(paginationDisabled || page > 100)
     ),
@@ -70,7 +66,7 @@ const rows = (type, page, memberId) => {
       new ButtonBuilder()
         .setLabel('Close')
         .setStyle(ButtonStyle.Danger)
-        .setCustomId(`commandsSlash/serverinfo.js ${memberId} closeMenu`)
+        .setCustomId(`serverinfo ${memberId} closeMenu`)
     ),
   ];
 };
@@ -99,7 +95,7 @@ module.exports.component = async function (i) {
       ephemeral: true,
     });
 
-  if (i.isSelectMenu()) {
+  if (i.isStringSelectMenu()) {
     const [, , p] = i.customId.split(' ');
 
     const myGuild = await guildModel.storage.get(i.guild);
@@ -405,39 +401,4 @@ async function messages(i, myGuild, from, to) {
     });
 
   return e;
-}
-
-async function permissions(i) {
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'Permission Info' })
-    .setColor('#4fd6c8')
-    .setThumbnail(i.guild.iconURL());
-
-  const missingPerms = i.guild.members.me.permissions.missing(294172224721);
-  if (!missingPerms.length) {
-    embed.addFields({
-      name: '✅ All Permissions are Correct ✅',
-      value: 'Your bot has all the permissions it needs.',
-    });
-  } else {
-    const botRole = i.guild.members.me.roles.botRole;
-    embed.addFields({
-      name: `❌ Missing ${missingPerms.length} Permissions ❌`,
-      value: `Your bot is missing the following permissions: \n${missingPerms.join(
-        ', \n'
-      )}`,
-    });
-    if (botRole)
-      embed.addFields({
-        name: 'Solutions',
-        value: `You may add the above permissions to ${botRole} or another role added to your bot. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`,
-      });
-    else
-      embed.addFields({
-        name: 'Solutions',
-        value: `Please add the above permissions to any role that your bot has. Alternatively, go to [this link](${botInviteLink}) and follow the steps provided to reinvite the bot.`,
-      });
-  }
-
-  return embed;
 }

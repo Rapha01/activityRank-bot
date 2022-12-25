@@ -58,11 +58,15 @@ module.exports.execute = async (i) => {
     } catch (err) {
       if (err.code === 10008)
         // Unknown Message
-        console.log('/rank tried to update Unknown message');
+        i.client.logger.debug(
+          { i, id: i.message.id },
+          '/rank tried to update Unknown message'
+        );
       else throw err;
     }
   };
-  setTimeout(cleanCache, 5 * 60 * 1_000);
+  // setTimeout(cleanCache, 5 * 60 * 1_000);
+  setTimeout(cleanCache, 30 * 1_000);
 
   exports.activeCache.set(id, initialState);
 };
@@ -72,8 +76,13 @@ module.exports.component = async (i) => {
   let payload = i.customId.split(' ')[2] ?? i.values[0];
 
   const cachedMessage = exports.activeCache.get(i.message.id);
-  if (!cachedMessage)
-    return console.log(`Could not find cachedMessage ${i.message.id}`);
+  if (!cachedMessage) {
+    i.client.logger.debug(
+      { i, id: i.message.id },
+      'Could not find cachedMessage'
+    );
+    return;
+  }
 
   if (cachedMessage.owner !== i.user.id)
     return await i.reply({
@@ -170,17 +179,17 @@ function getPaginationComponents(page, disabled) {
   return new ActionRowBuilder().setComponents(
     new ButtonBuilder()
       .setEmoji('⬅')
-      .setCustomId(`commandsSlash/rank.js page ${page - 1}`)
+      .setCustomId(`rank page ${page - 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page <= 1 || disabled),
     new ButtonBuilder()
       .setLabel(page.toString())
-      .setCustomId('commandsSlash/rank.js shouldNeverCall')
+      .setCustomId('rank shouldNeverCall')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true),
     new ButtonBuilder()
       .setEmoji('➡️')
-      .setCustomId(`commandsSlash/rank.js page ${page + 1}`)
+      .setCustomId(`rank page ${page + 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(disabled)
   );
@@ -292,15 +301,15 @@ function getGlobalComponents(window, time, disabled) {
   return [
     new ActionRowBuilder().setComponents(
       ParsedButton(window === 'rank', disabled)
-        .setCustomId('commandsSlash/rank.js window rank')
+        .setCustomId('rank window rank')
         .setLabel('Stats'),
       ParsedButton(window === 'topChannels', disabled)
-        .setCustomId('commandsSlash/rank.js window topChannels')
+        .setCustomId('rank window topChannels')
         .setLabel('Top Channels')
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
-        .setCustomId('commandsSlash/rank.js time')
+        .setCustomId('rank time')
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()

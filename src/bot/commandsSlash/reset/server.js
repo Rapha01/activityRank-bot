@@ -92,6 +92,7 @@ module.exports.execute = async (i) => {
       ) {
         resetModel.resetJobs[i.guild.id] = {
           type: field,
+          ref: i,
           cmdChannel: i.channel,
         };
         await interaction.reply({
@@ -99,7 +100,7 @@ module.exports.execute = async (i) => {
           ephemeral: true,
         });
       } else {
-        console.warn('[/reset server] Invalid field');
+        console.warn(`[/reset server] Invalid field ${field}`);
       }
       i.guild.appData.lastResetServer = Date.now() / 1000;
     } else {

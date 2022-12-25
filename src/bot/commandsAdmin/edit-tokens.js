@@ -53,7 +53,7 @@ module.exports.data = new SlashCommandBuilder()
 
 module.exports.execute = async function (i) {
   if (!authorizedUsers.includes(i.user.id)) {
-    console.log(
+    i.client.logger.warn(
       `Unauthorized command attempt in editTokens command by user ${i.user.tag} [${i.user.id}]`
     );
     return;

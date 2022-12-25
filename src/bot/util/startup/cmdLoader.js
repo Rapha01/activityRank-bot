@@ -4,6 +4,11 @@ const { Collection } = require('discord.js');
 
 let files = [];
 
+const botDir = path.resolve(path.join(__dirname, '..', '..'));
+const contextDir = path.join(botDir, 'contextMenus');
+const commandsDir = path.join(botDir, 'commandsSlash');
+const adminDir = path.join(botDir, 'commandsAdmin');
+
 function getRecursive(dir) {
   fs.readdirSync(dir).forEach((file) => {
     const absolute = path.join(dir, file);
@@ -12,32 +17,28 @@ function getRecursive(dir) {
   });
 }
 
-getRecursive(path.resolve(__dirname, '../commandsSlash'));
+getRecursive(commandsDir);
 
-files = files.map((fileName) =>
-  fileName.replace(path.join(__dirname, '../'), '')
-);
+files = files.map((fileName) => fileName.replace(commandsDir + '/', ''));
 
 module.exports = (client) => {
   client.commands = new Collection();
   client.adminCommands = new Collection();
 
   files.forEach((fileName) => {
-    const command = require(`../${fileName}`);
-    client.commands.set(fileName, command);
+    const command = require(path.join(commandsDir, fileName));
+    client.commands.set(fileName.slice(0, -3), command);
   });
 
-  for (const file of fs.readdirSync(
-    path.resolve(__dirname, '../contextMenus')
-  )) {
-    const fileName = `contextMenus/${file}`;
-    client.commands.set(fileName, require(`../${fileName}`));
+  for (const file of fs.readdirSync(contextDir)) {
+    client.commands.set(
+      file.slice(0, -3),
+      require(path.join(contextDir, file))
+    );
   }
 
-  for (const file of fs.readdirSync(
-    path.resolve(__dirname, '../commandsAdmin')
-  )) {
-    const command = require(`../commandsAdmin/${file}`);
+  for (const file of fs.readdirSync(adminDir)) {
+    const command = require(path.join(adminDir, file));
     command.isAdmin = true;
     if (
       !command.requiredPrivileges ||
@@ -51,5 +52,5 @@ module.exports = (client) => {
     client.adminCommands.set(file.slice(0, -3), command);
   }
 
-  console.log('✅ Internal Commands Loaded ✅');
+  client.logger.debug('Loaded internal command registry');
 };

@@ -14,67 +14,51 @@ const generateRows = async (i) => {
   const r1 = [
     new ButtonBuilder()
       .setLabel('Use Nicknames')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} showNicknames`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} showNicknames`),
     new ButtonBuilder()
       .setLabel('Reaction Voting')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} reactionVote`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} reactionVote`),
     new ButtonBuilder()
       .setLabel('Allow Muted XP')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} allowMutedXp`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} allowMutedXp`),
     new ButtonBuilder()
       .setLabel('Allow Deafened XP')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} allowDeafenedXp`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} allowDeafenedXp`),
     new ButtonBuilder()
       .setLabel('Allow Solo XP')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} allowSoloXp`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} allowSoloXp`),
   ];
   const r2 = [
     new ButtonBuilder()
       .setLabel('TAAROLD')
       .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} takeAwayAssignedRolesOnLevelDown`
+        `config-server/set ${i.member.id} takeAwayAssignedRolesOnLevelDown`
       ),
     new ButtonBuilder()
       .setLabel('Notify Via DM')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} notifyLevelupDm`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} notifyLevelupDm`),
     new ButtonBuilder()
       .setLabel('Notify in Last Active Channel')
       .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} notifyLevelupCurrentChannel`
+        `config-server/set ${i.member.id} notifyLevelupCurrentChannel`
       ),
     new ButtonBuilder()
       .setLabel('Include Levelup Message')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} notifyLevelupWithRole`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} notifyLevelupWithRole`),
   ];
   const r3 = [
     new ButtonBuilder()
       .setEmoji('✍️')
-      .setCustomId(`commandsSlash/config-server/set.js ${i.member.id} textXp`),
+      .setCustomId(`config-server/set ${i.member.id} textXp`),
     new ButtonBuilder()
       .setEmoji('🎙️')
-      .setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voiceXp`),
+      .setCustomId(`config-server/set ${i.member.id} voiceXp`),
     new ButtonBuilder()
       .setEmoji('✉️')
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} inviteXp`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} inviteXp`),
     new ButtonBuilder()
       .setEmoji('❤️')
-      .setCustomId(`commandsSlash/config-server/set.js ${i.member.id} voteXp`),
+      .setCustomId(`config-server/set ${i.member.id} voteXp`),
   ];
   r1.forEach((o) =>
     o.setStyle(
@@ -116,9 +100,7 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(
-        `commandsSlash/config-server/set.js ${i.member.id} closeMenu`
-      )
+      .setCustomId(`config-server/set ${i.member.id} closeMenu`)
   );
 
 module.exports.execute = async (i) => {

@@ -35,21 +35,17 @@ const generateRow = (i, id, type, myChannel) => {
     new ButtonBuilder().setLabel('Server Join Channel'),
     new ButtonBuilder().setLabel('Levelup Channel'),
   ];
-  r[0].setCustomId(
-    `commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noXp`
-  );
+  r[0].setCustomId(`config-channel ${i.member.id} ${id} ${type} noXp`);
   r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  r[1].setCustomId(
-    `commandsSlash/config-channel.js ${i.member.id} ${id} ${type} noCommand`
-  );
+  r[1].setCustomId(`config-channel ${i.member.id} ${id} ${type} noCommand`);
   r[1].setDisabled(Boolean(parseInt(i.guild.appData.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
   r[1].setDisabled(parseInt(type) !== ChannelType.GuildText);
   if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
   r[2].setCustomId(
-    `commandsSlash/config-channel.js ${i.member.id} ${id} ${type} commandOnlyChannel`
+    `config-channel ${i.member.id} ${id} ${type} commandOnlyChannel`
   );
   r[2].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[2].setStyle(
@@ -60,7 +56,7 @@ const generateRow = (i, id, type, myChannel) => {
   if (r[2].disabled) r[2].setStyle(ButtonStyle.Secondary);
 
   r[3].setCustomId(
-    `commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_serverJoin`
+    `config-channel ${i.member.id} ${id} ${type} autopost_serverJoin`
   );
   r[3].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[3].setStyle(
@@ -71,7 +67,7 @@ const generateRow = (i, id, type, myChannel) => {
   if (r[3].disabled) r[3].setStyle(ButtonStyle.Secondary);
 
   r[4].setCustomId(
-    `commandsSlash/config-channel.js ${i.member.id} ${id} ${type} autopost_levelup`
+    `config-channel ${i.member.id} ${id} ${type} autopost_levelup`
   );
   r[4].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[4].setStyle(
@@ -89,9 +85,7 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(
-        `commandsSlash/config-channel.js ${i.member.id} - - closeMenu`
-      )
+      .setCustomId(`config-channel ${i.member.id} - - closeMenu`)
   );
 
 module.exports.execute = async (i) => {

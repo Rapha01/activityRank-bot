@@ -35,7 +35,10 @@ module.exports = async function (interaction) {
   interaction.guild.appData.lastAskForPremiumDate = now;
 
   await sendAskForPremiumEmbed(interaction);
-  console.log(`Sent askForPremium in ${interaction.guild.name}.`);
+  interaction.client.logger.debug(
+    { guildId: interaction.guild.id },
+    `Sent askForPremium in ${interaction.guild.name}`
+  );
 };
 
 async function sendAskForPremiumEmbed(interaction) {

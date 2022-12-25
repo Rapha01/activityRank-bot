@@ -25,7 +25,10 @@ exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
     if (oldLevel >= newLevel) return resolve();
 
     await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
-      console.log('SendError autoPostLevelup: ' + e)
+      member.client.logger.warn(
+        e,
+        'Sending error while autoposting levelup message'
+      )
     );
 
     resolve();
@@ -143,8 +146,13 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
           await channel
             .send(msg)
-            .then((res) => (notified = true))
-            .catch((e) => console.log);
+            .then(() => (notified = true))
+            .catch((e) =>
+              member.client.logger.warn(
+                e,
+                'Error while sending gratulationMessage in activeChannel'
+              )
+            );
         }
       }
     }
@@ -161,8 +169,13 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
         await channel
           .send(msg)
-          .then((res) => (notified = true))
-          .catch((e) => console.log);
+          .then(() => (notified = true))
+          .catch((e) =>
+            member.client.logger.warn(
+              e,
+              'Error while sending gratulationMessage in autopostChannel'
+            )
+          );
       }
     }
 
@@ -180,8 +193,13 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
       await member
         .send(msg)
-        .then((res) => (notified = true))
-        .catch((e) => console.log);
+        .then(() => (notified = true))
+        .catch((e) =>
+          member.client.logger.warn(
+            e,
+            'Error while sending gratulationMessage in dm'
+          )
+        );
     }
 
     resolve();

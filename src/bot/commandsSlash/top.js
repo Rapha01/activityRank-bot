@@ -61,7 +61,10 @@ module.exports.execute = async (i) => {
     } catch (err) {
       if (err.code === 10008)
         // Unknown Message
-        console.log('/top tried to update Unknown message');
+        i.client.logger.debug(
+          { i, id: i.message.id },
+          '/top tried to update Unknown message'
+        );
       else throw err;
     }
   };
@@ -76,8 +79,13 @@ module.exports.component = async (i) => {
     i.customId.split(' ')[2] ?? i?.channels?.first() ?? i.values[0] ?? null;
 
   const cachedMessage = exports.activeCache.get(i.message.id);
-  if (!cachedMessage)
-    return console.log(`Could not find cachedMessage ${i.message.id}`);
+  if (!cachedMessage) {
+    i.client.logger.debug(
+      { i, id: i.message.id },
+      'Could not find cachedMessage'
+    );
+    return;
+  }
 
   if (cachedMessage.owner !== i.user.id)
     return await i.reply({
@@ -348,7 +356,7 @@ function getGlobalComponents(window, time, page, disabled) {
   return [
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
-        .setCustomId('commandsSlash/top.js window')
+        .setCustomId('top window')
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()
@@ -367,7 +375,7 @@ function getGlobalComponents(window, time, page, disabled) {
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
-        .setCustomId('commandsSlash/top.js time')
+        .setCustomId('top time')
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()
@@ -399,17 +407,17 @@ function getPaginationComponents(page, disabled) {
   return new ActionRowBuilder().setComponents(
     new ButtonBuilder()
       .setEmoji('⬅')
-      .setCustomId(`commandsSlash/top.js page ${page - 1}`)
+      .setCustomId(`top page ${page - 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page <= 1 || disabled),
     new ButtonBuilder()
       .setLabel(page.toString())
-      .setCustomId('commandsSlash/top.js shouldNeverCall')
+      .setCustomId('top shouldNeverCall')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true),
     new ButtonBuilder()
       .setEmoji('➡️')
-      .setCustomId(`commandsSlash/top.js page ${page + 1}`)
+      .setCustomId(`top page ${page + 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(disabled)
   );
@@ -420,7 +428,7 @@ function getMembersComponents(state, disabled) {
     ...getGlobalComponents(state.window, state.time, state.page, disabled),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
-        .setCustomId('commandsSlash/top.js orderType')
+        .setCustomId('top orderType')
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()
@@ -458,7 +466,7 @@ function getMembersComponents(state, disabled) {
     BLOCKED(d.js 14.8): Deselection kills bot process
     new ActionRowBuilder().setComponents(
       new ChannelSelectMenuBuilder()
-        .setCustomId('commandsSlash/top.js channel')
+        .setCustomId('top channel')
         .setDisabled(disabled)
         .setChannelTypes(
           ChannelType.GuildText,
@@ -477,7 +485,7 @@ function getChannelMembersComponents(state, disabled) {
     ...getGlobalComponents(state.window, state.time, state.page, disabled),
     new ActionRowBuilder().setComponents(
       new ChannelSelectMenuBuilder()
-        .setCustomId('commandsSlash/top.js channel')
+        .setCustomId('top channel')
         .setDisabled(disabled)
         .setChannelTypes(
           ChannelType.GuildText,

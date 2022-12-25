@@ -62,7 +62,7 @@ module.exports.execute = async function (i) {
     'lastVoteDate',
     i.guild.appData.voteCooldownSeconds
   );
-  console.log(toWait, nowDate, Date.now());
+
   if (toWait > 0) {
     return await i.reply({
       content: `You already voted recently. You will be able to vote again <t:${Math.ceil(

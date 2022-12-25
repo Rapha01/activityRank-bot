@@ -47,7 +47,9 @@ async function oldSystem(interaction, role, changeAmount) {
     withPresences: false,
     force: true,
   });
-  console.log('Role give members ', members.size);
+
+  interaction.client.logger.debug(`Old role give to ${members.size} members`);
+
   await interaction.editReply({
     content: `Applying \`${changeAmount}\` XP...`,
     allowedMentions: { parse: [] },
@@ -63,7 +65,8 @@ async function oldSystem(interaction, role, changeAmount) {
     }
   }
   module.exports.currentJobs.delete(interaction.guild.id);
-  console.log('Role give affected members', affected);
+
+  interaction.client.logger.debug(`Old role give affected ${affected} members`);
 
   await interaction.editReply({
     content: oneLine`Successfully gave \`${changeAmount}\` bonus XP 
@@ -96,7 +99,10 @@ async function betaSystem(interaction, role, changeAmount) {
     },
   });
 
-  console.debug('Member count ', interaction.guild.memberCount);
+  interaction.client.logger.debug(
+    `New role give to guild with member count ${interaction.guild.memberCount}`
+  );
+
   const members = await getApplicableMembers(
     role.id,
     nonce,
@@ -135,7 +141,8 @@ async function betaSystem(interaction, role, changeAmount) {
   }
 
   module.exports.currentJobs.delete(interaction.guild.id);
-  console.log('Role give affected members', affected);
+
+  interaction.client.logger.debug(`New role give affected ${affected} members`);
 
   await interaction.followUp({
     content: oneLine`Successfully gave \`${changeAmount}\` bonus XP

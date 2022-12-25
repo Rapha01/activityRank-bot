@@ -7,7 +7,8 @@ module.exports = {
     try {
       if (!(process.env.NODE_ENV == 'production')) await localDeploy(client);
 
-      console.log(`Logged in as ${client.user.tag}!`);
+      client.logger.info(`Logged in as ${client.user.tag}!`);
+
       client.user.setActivity('Calculating..');
       await cronScheduler.start(client);
     } catch (e) {
