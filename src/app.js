@@ -1,6 +1,5 @@
 const scheduler = require('./cron/scheduler.js');
 const fct = require('./util/fct.js');
-const config = require('./const/config.js');
 const keys = require('./const/keys.js').get();
 const deployGlobal = require('./util/deploy-global');
 //const updateGl = require('./cron/updateGl.js');
@@ -15,10 +14,11 @@ const managerOptions = {
 };
 
 const { ShardingManager } = require('discord.js');
+const logger = require('./util/logger.js');
 const manager = new ShardingManager('./bot/bot.js', managerOptions);
 
 start().catch(async (e) => {
-  console.log(e);
+  logger.fatal(e);
   await fct.waitAndReboot(3000);
 });
 
@@ -39,9 +39,9 @@ async function start() {
 
 // Process Exit
 process.on('SIGINT', () => {
-  console.info('SIGINT signal received in Manager..');
+  logger.warn('SIGINT signal received in Manager');
 });
 
 process.on('SIGTERM', () => {
-  console.info('SIGTERM signal received in Manager.');
+  logger.warn('SIGTERM signal received in Manager');
 });

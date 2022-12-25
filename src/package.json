@@ -25,6 +25,7 @@
     "discord.js": "^14.7.0",
     "node-cron": "^3.0.2",
     "node-emoji": "^1.11.0",
+    "pino": "^8.8.0",
     "pretty-ms": "^7.0.1",
     "promise-mysql": "^5.0.4",
     "public-ip": "^4.0.4"
@@ -33,7 +34,8 @@
   "devDependencies": {
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "nodemon": "^2.0.14"
+    "nodemon": "^2.0.14",
+    "pino-pretty": "^9.1.1"
   },
   "license": ""
 }

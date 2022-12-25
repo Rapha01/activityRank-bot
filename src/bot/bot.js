@@ -5,6 +5,8 @@ const fct = require('../util/fct.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 const loadCommands = require('./util/cmdLoader');
+const loggerManager = require('./util/logger.js');
+const globalLogger = require('../util/logger.js');
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -47,8 +49,11 @@ async function start() {
     await loadCommands(client);
 
     await client.login();
+
+    client.logger = loggerManager.init(client.shard.ids);
+    client.logger.info('Logged in');
   } catch (e) {
-    console.log(e);
+    globalLogger.error(e, 'Error while launching shard');
     await fct.waitAndReboot(3000);
   }
 }
@@ -78,28 +83,20 @@ for (const file of eventFiles) {
   }
 }
 
-function initClientCaches(client) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      client.appData = {};
-      client.appData.statFlushCache = {};
-      client.appData.botShardStat = {
-        commands1h: 0,
-        botInvites1h: 0,
-        botKicks1h: 0,
-        voiceMinutes1h: 0,
-        textMessages1h: 0,
-        roleAssignments1h: 0,
-        rolesDeassignments1h: 0,
-      };
-      await textModel.cache.load(client);
-      await settingModel.cache.load(client);
-
-      resolve();
-    } catch (e) {
-      return reject(e);
-    }
-  });
+async function initClientCaches(client) {
+  client.appData = {};
+  client.appData.statFlushCache = {};
+  client.appData.botShardStat = {
+    commands1h: 0,
+    botInvites1h: 0,
+    botKicks1h: 0,
+    voiceMinutes1h: 0,
+    textMessages1h: 0,
+    roleAssignments1h: 0,
+    rolesDeassignments1h: 0,
+  };
+  await textModel.cache.load(client);
+  await settingModel.cache.load(client);
 }
 
 process.on('SIGINT', () => {
