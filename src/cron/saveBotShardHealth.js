@@ -42,10 +42,12 @@ module.exports = async (manager) => {
 
   const updateSqls = keys.map((k) => `${k}=VALUES(${k})`);
 
-  const valueSqls = shards.map((s) => keys.map((k) => escape(s[k])).join(','));
+  const valueSqls = shards.map(
+    (s) => `(${keys.map((k) => escape(s[k])).join(',')})`
+  );
 
   await managerDb.query(`INSERT INTO botShardStat (${keys.join(',')})
-      VALUES (${valueSqls.join(',')}) ON DUPLICATE KEY UPDATE ${updateSqls.join(
+    VALUES ${valueSqls.join(',')} ON DUPLICATE KEY UPDATE ${updateSqls.join(
     ','
   )}`);
 };
