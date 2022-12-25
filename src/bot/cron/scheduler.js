@@ -32,13 +32,19 @@ exports.start = (client) => {
 
 const startVoiceXp = async (client) => {
   while (true) {
-    await voiceXpRound(client).catch((e) => console.log(e));
+    await voiceXpRound(client).catch((e) =>
+      client.logger.warn(e, 'Error in voiceXpRound')
+    );
   }
 };
 
 const startResetJob = async () => {
   while (true) {
-    await resetJob().catch((e) => console.log(e));
-    await fct.sleep(resetJobInterval).catch((e) => console.log(e));
+    await resetJob().catch((e) => client.logger.warn(e, 'Error in resetJob'));
+    await fct
+      .sleep(resetJobInterval)
+      .catch((e) =>
+        client.logger.warn(e, 'Error sleeping in resetJob interval')
+      );
   }
 };

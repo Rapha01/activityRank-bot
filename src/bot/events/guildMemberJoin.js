@@ -72,7 +72,7 @@ const autoPostServerJoin = (member, roleAssignmentString) => {
       } catch (err) {
         if (err.code === 50013)
           // Missing Permissions
-          console.log(
+          member.client.logger.debug(
             `Failed to send welcome message in guild ${member.guild.id}`
           );
         else throw err;

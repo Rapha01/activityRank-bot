@@ -23,8 +23,8 @@ module.exports = async (client) => {
           await fct.sleep(200);
 
           if (!skip(guild.id)) await rankVoiceGuild(guild);
-        } catch (e) {
-          console.log(e);
+        } catch (err) {
+          client.logger.warn({ err, guild }, 'Error in voiceXpRound');
         }
       }
 
@@ -34,18 +34,11 @@ module.exports = async (client) => {
       const secondsToAdd = roundEnd - roundStart + leftover;
       minutesToAdd = Math.floor(secondsToAdd / 60);
       leftover = Math.round(secondsToAdd % 60);
-      // console.log(client.options.shards);
-      console.log(
-        'RankVoice for shard ' +
-          client.options.shards[0] +
-          ' round ' +
-          round +
-          ' finished. ' +
-          'minutesToAdd ' +
-          minutesToAdd +
-          ', leftover ' +
-          leftover
+
+      client.logger.debug(
+        `[Rank Voice] (${round}): ${minutesToAdd}m (${leftover})`
       );
+
       round++;
       resolve();
     } catch (e) {

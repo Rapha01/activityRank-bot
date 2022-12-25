@@ -116,7 +116,7 @@ module.exports = {
           interaction.client.adminCommands.get(interaction.commandName);
 
         if (!command) {
-          interaction.client.logger.warn(interaction, 'No command found');
+          interaction.client.logger.warn({ interaction }, 'No command found');
           return;
         }
 

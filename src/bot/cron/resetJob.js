@@ -1,4 +1,5 @@
 const resetModel = require('../models/resetModel.js');
+const { logger } = require('../util/logger.js');
 let jobIndex = 0;
 
 const batchsize = process.env.NODE_ENV == 'production' ? 10_000 : 10;
@@ -16,12 +17,13 @@ module.exports = async () => {
       await doResetJob(resetJob);
       hrend = process.hrtime(hrstart);
       jobIndex++;
-      console.log(
+      logger.debug(
+        { resetJob },
         `doResetJob ${resetJob.type} for ${resetJob.cmdChannel.guild.id} finished after ${hrend[0]}s.`
       );
     }
   } catch (e) {
-    console.log(e);
+    logger.warn(e, 'Reset job error');
   }
 };
 
@@ -33,7 +35,7 @@ const doResetJob = async (resetJob) => {
       throw 'Resetjob cache properties undefined.';
     }
 
-    console.log('Doing reset job ', resetJob);
+    logger.debug({ resetJob }, 'Doing reset job');
 
     if (resetJob.type == 'all')
       count = await resetModel.storage.resetGuildAll(

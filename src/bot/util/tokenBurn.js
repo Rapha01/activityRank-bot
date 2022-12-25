@@ -57,20 +57,13 @@ module.exports = (guild) => {
         tokensToBurnNow
       );
 
-      console.log(
-        'BURRN BABY BURRNNN ' +
-          guild.name +
-          ' (' +
-          guild.memberCount +
-          ' members) for ' +
-          tokensToBurnNow +
-          ' tokens after ' +
-          Math.floor((lastBurnTimeDifference / 60 / 60) * 10) / 10 +
-          'h. 24h burn: ' +
-          Math.floor(tokensToBurn24h) +
-          '. Guild tokens left: ' +
-          (myGuild.tokens - tokensToBurnNow) +
-          '.'
+      console.debug(
+        { tokensToBurn24h, remaining: myGuild.tokens - tokensToBurnNow },
+        `[Token Burn] [${guild.name} (${
+          guild.memberCount
+        })] ${tokensToBurnNow} after ${
+          Math.floor((lastBurnTimeDifference / 60 / 60) * 10) / 10
+        }h. `
       );
       resolve();
     } catch (e) {

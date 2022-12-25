@@ -25,7 +25,10 @@ exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
     if (oldLevel >= newLevel) return resolve();
 
     await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
-      console.log('SendError autoPostLevelup: ' + e)
+      member.client.logger.warn(
+        e,
+        'Sending error while autoposting levelup message'
+      )
     );
 
     resolve();

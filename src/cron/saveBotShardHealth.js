@@ -1,6 +1,7 @@
 const publicIp = require('public-ip');
 const managerDb = require('../models/managerDb/managerDb.js');
 const { escape } = require('promise-mysql');
+const logger = require('../util/logger.js');
 
 function _save(client) {
   const obj = {
@@ -14,7 +15,7 @@ function _save(client) {
 }
 
 module.exports = async (manager) => {
-  console.log('Saving shard health');
+  logger.debug('Saving shard health');
   const round = (n) => ~~n;
   const nowDate = round(new Date().getTime() / 1000);
   const shards = await manager.broadcastEval(_save);
