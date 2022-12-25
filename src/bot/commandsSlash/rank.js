@@ -58,11 +58,15 @@ module.exports.execute = async (i) => {
     } catch (err) {
       if (err.code === 10008)
         // Unknown Message
-        console.log('/rank tried to update Unknown message');
+        i.client.logger.debug(
+          { i, id: i.message.id },
+          '/rank tried to update Unknown message'
+        );
       else throw err;
     }
   };
-  setTimeout(cleanCache, 5 * 60 * 1_000);
+  // setTimeout(cleanCache, 5 * 60 * 1_000);
+  setTimeout(cleanCache, 30 * 1_000);
 
   exports.activeCache.set(id, initialState);
 };
@@ -72,8 +76,13 @@ module.exports.component = async (i) => {
   let payload = i.customId.split(' ')[2] ?? i.values[0];
 
   const cachedMessage = exports.activeCache.get(i.message.id);
-  if (!cachedMessage)
-    return console.log(`Could not find cachedMessage ${i.message.id}`);
+  if (!cachedMessage) {
+    i.client.logger.debug(
+      { i, id: i.message.id },
+      'Could not find cachedMessage'
+    );
+    return;
+  }
 
   if (cachedMessage.owner !== i.user.id)
     return await i.reply({

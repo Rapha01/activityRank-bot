@@ -61,7 +61,10 @@ module.exports.execute = async (i) => {
     } catch (err) {
       if (err.code === 10008)
         // Unknown Message
-        console.log('/top tried to update Unknown message');
+        i.client.logger.debug(
+          { i, id: i.message.id },
+          '/top tried to update Unknown message'
+        );
       else throw err;
     }
   };
@@ -76,8 +79,13 @@ module.exports.component = async (i) => {
     i.customId.split(' ')[2] ?? i?.channels?.first() ?? i.values[0] ?? null;
 
   const cachedMessage = exports.activeCache.get(i.message.id);
-  if (!cachedMessage)
-    return console.log(`Could not find cachedMessage ${i.message.id}`);
+  if (!cachedMessage) {
+    i.client.logger.debug(
+      { i, id: i.message.id },
+      'Could not find cachedMessage'
+    );
+    return;
+  }
 
   if (cachedMessage.owner !== i.user.id)
     return await i.reply({
