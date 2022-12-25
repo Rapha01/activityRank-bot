@@ -5,6 +5,7 @@ const fct = require('../util/fct.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 const loadCommands = require('./util/cmdLoader');
+const load = require('./util/startup/index.js');
 const loggerManager = require('./util/logger.js');
 const globalLogger = require('../util/logger.js');
 
@@ -52,34 +53,17 @@ async function start() {
 
     client.logger = loggerManager.init(client.shard.ids);
     client.logger.info('Logged in');
+
+    try {
+      load(client);
+    } catch (e) {
+      client.logger.warn(e, 'Error while loading in shard');
+      await fct.waitAndReboot(3_000);
+    }
+    client.logger.info('Initialized');
   } catch (e) {
-    globalLogger.error(e, 'Error while launching shard');
-    await fct.waitAndReboot(3000);
-  }
-}
-
-const eventFiles = fs
-  .readdirSync(path.resolve(__dirname, './events'))
-  .filter((file) => file.endsWith('.js'));
-
-for (const file of eventFiles) {
-  const event = require(`./events/${file}`);
-  if (event.once) {
-    client.once(event.name, async (...args) => {
-      try {
-        await event.execute(...args);
-      } catch (e) {
-        console.log(e);
-      }
-    });
-  } else {
-    client.on(event.name, async (...args) => {
-      try {
-        await event.execute(...args);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+    globalLogger.warn(e, 'Error while launching shard');
+    await fct.waitAndReboot(3_000);
   }
 }
 

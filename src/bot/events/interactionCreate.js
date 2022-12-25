@@ -1,3 +1,4 @@
+const path = require('path');
 const guildModel = require('../models/guild/guildModel.js');
 const userModel = require('../models/userModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
@@ -11,7 +12,8 @@ const {
   ButtonStyle,
 } = require('discord.js');
 const { supportServerInviteLink } = require('../../const/config.js');
-const userPrivileges = require('../../const/privilegedUsers').userLevels;
+const { stripIndent } = require('common-tags');
+const { userLevels } = require('../../const/privilegedUsers');
 
 module.exports = {
   name: 'interactionCreate',
@@ -22,7 +24,9 @@ module.exports = {
       await guildModel.cache.load(interaction.guild);
 
       if (interaction.guild.appData.isBanned) {
-        console.log(`Banned guild ${interaction.guild.id} used interaction.`);
+        interaction.client.logger.debug(
+          `Banned guild ${interaction.guild.id} used interaction.`
+        );
         await interaction.reply({
           embeds: [
             new EmbedBuilder()
@@ -44,7 +48,9 @@ module.exports = {
       await userModel.cache.load(interaction.user);
 
       if (interaction.user.appData.isBanned) {
-        console.log(`Banned user ${interaction.user.id} used interaction.`);
+        interaction.client.logger.debug(
+          `Banned user ${interaction.user.id} used interaction.`
+        );
         return interaction.reply({
           embeds: [
             new EmbedBuilder()
@@ -98,25 +104,32 @@ module.exports = {
         interaction.isChannelSelectMenu()
       ) {
         await component(interaction);
-      } else if (interaction.isUserContextMenuCommand()) {
-        await userCtx(interaction);
       } else if (interaction.isModalSubmit()) {
         await modalSubmit(interaction);
-      } else if (interaction.isCommand() || interaction.isAutocomplete()) {
-        const path = await getPath(interaction);
+      } else if (
+        interaction.isCommand() ||
+        interaction.isAutocomplete() ||
+        interaction.isUserContextMenuCommand()
+      ) {
         const command =
-          interaction.client.commands.get(path) ??
+          interaction.client.commands.get(getPath(interaction)) ??
           interaction.client.adminCommands.get(interaction.commandName);
-        if (!command) return console.log('No command found: ', path);
+
+        if (!command) {
+          interaction.client.logger.warn(interaction, 'No command found');
+          return;
+        }
 
         if (
           command.isAdmin &&
-          userPrivileges[interaction.user.id] &&
-          userPrivileges[interaction.user.id] < command.requiredPrivileges
+          userLevels[interaction.user.id] &&
+          userLevels[interaction.user.id] < command.requiredPrivileges
         ) {
-          console.log(
-            `!!! Unauthorized command attempt: ${interaction.user.id} ${interaction.commandName}`
+          interaction.client.logger.warn(
+            interaction,
+            'Unauthorized admin command attempt'
           );
+
           return await interaction.reply({
             content: 'This is an admin command you have no access to.',
             ephemeral: true,
@@ -131,41 +144,41 @@ module.exports = {
         }
       }
     } catch (e) {
-      if (!interaction.replied) {
-        try {
-          if (interaction.deferred)
-            await interaction.editReply({
-              content: 'There was an error while executing this command!',
-              ephemeral: true,
-            });
-          else
-            await interaction.reply({
-              content: 'There was an error while executing this command!',
-              ephemeral: true,
-            });
-        } catch (e2) {
-          if (e2.code !== 10062)
-            // Unknown Interaction
-            throw e2;
-          else return console.log('Unknown interaction after error');
-        }
+      try {
+        const message = {
+          content: stripIndent`
+            There was an error while executing this command! 
+            If this error persists, report it [in our support server](${supportServerInviteLink})`,
+          ephemeral: true,
+        };
+
+        if (interaction.replied) await interaction.followUp(message);
+        else if (interaction.deferred) await interaction.editReply(message);
+        else await interaction.reply(message);
+      } catch (e2) {
+        if (e2.code === 10062)
+          // Unknown Interaction
+          interaction.client.logger.debug(
+            'Unknown interaction while responding to command error'
+          );
+        else
+          interaction.client.logger.error(
+            { err: e2 },
+            'Error while responding to command error'
+          );
       }
-      throw e;
+      interaction.client.logger.warn({ err: e, interaction }, 'Command error');
     }
   },
 };
 
-const getPath = async (interaction) => {
-  let path = 'commandsSlash';
-  path = path.concat('/', interaction.commandName);
-  const group = await interaction.options.getSubcommandGroup(false);
-  const sub = await interaction.options.getSubcommand(false);
-  if (group) path = path.concat('/', group);
-  if (sub) path = path.concat('/', sub);
-  path = path.concat('.js');
-
-  console.log(path);
-  return path;
+const getPath = (interaction) => {
+  const args = [
+    interaction.commandName,
+    interaction.options?.getSubcommandGroup(false),
+    interaction.options?.getSubcommand(false),
+  ].filter((i) => i !== null);
+  return path.join(...args);
 };
 
 const component = async (interaction) => {
@@ -177,14 +190,6 @@ const component = async (interaction) => {
   if (!command) return;
 
   await command.component(interaction);
-};
-
-const userCtx = async (interaction) => {
-  const command = interaction.client.commands.get(
-    `contextMenus/${interaction.commandName}.js`
-  );
-
-  await command.execute(interaction);
 };
 
 async function modalSubmit(interaction) {
