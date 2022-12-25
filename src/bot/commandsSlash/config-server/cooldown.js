@@ -50,7 +50,6 @@ module.exports.execute = async function (i) {
 
 module.exports.autocomplete = async (i) => {
   const { name } = i.options.getFocused(true);
-  console.log(name);
   if (name === 'message') {
     await i.respond([
       { name: 'No time', value: 0 },

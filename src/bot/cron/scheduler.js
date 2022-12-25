@@ -24,8 +24,6 @@ exports.start = (client) => {
         str += `${a.memberCount.toLocaleString().padEnd(9)} | ${a.name}\n`;
 
       client.logger.info('High-member count guilds:\n' + str);
-
-      // console.log(`maxGuilds for shard ${client.shard.ids[0]}\n${str}`);
     } catch (e) {
       client.warn(e, 'Error in highestGuilds');
     }
