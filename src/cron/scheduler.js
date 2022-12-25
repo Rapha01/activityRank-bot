@@ -5,28 +5,15 @@ const statFlush = require('../models/shardDb/statFlush.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 
-let backupDelay,
-  updateDelay,
-  restartDelay,
-  cronBackupInterval,
-  cronUpdateInterval,
-  saveShardStatsInterval;
-
-if (process.env.NODE_ENV == 'production') {
-  restartDelay = 86400000 * 7;
-  statFlushCacheInterval = 15000;
-  updateSettingsInterval = 300000;
-  updateTextsInterval = 300000;
-  saveBotShardHealthInterval = 180000;
-  statFlushCacheCronInterval = '30 * * * * *';
-} else {
-  restartDelay = 86400000;
-  statFlushCacheInterval = 5000;
-  updateSettingsInterval = 10000;
-  updateTextsInterval = 10000;
-  saveBotShardHealthInterval = 8000;
-  statFlushCacheCronInterval = '*/10 * * * * *';
-}
+const isProd = process.env.NODE_ENV == 'production';
+const settings = {
+  restartDelay: isProd ? 86_400_000 * 7 : 86_400_000,
+  // statFlushCacheInterval: isProd ? 15_000 : 5_000,
+  updateSettingsInterval: isProd ? 300_000 : 10_000,
+  updateTextsInterval: isProd ? 300_000 : 10_000,
+  saveBotShardHealthInterval: isProd ? 180_000 : 8_000,
+  statFlushCacheCronInterval: isProd ? '30 * * * * *' : '*/10 * * * * *',
+};
 
 exports.start = (manager) => {
   return new Promise(async function (resolve, reject) {
@@ -43,9 +30,9 @@ exports.start = (manager) => {
         } catch (e) {
           console.log(e);
         }
-      }, restartDelay);
+      }, settings.restartDelay);
 
-      cron.schedule(statFlushCacheCronInterval, async function () {
+      cron.schedule(settings.statFlushCacheCronInterval, async function () {
         try {
           await statFlush(manager);
         } catch (e) {
@@ -85,7 +72,9 @@ const startUpdateSettings = async (manager) => {
       console.log(e);
     }
 
-    await fct.sleep(updateSettingsInterval).catch((e) => console.log(e));
+    await fct
+      .sleep(settings.updateSettingsInterval)
+      .catch((e) => console.log(e));
   }
 };
 
@@ -105,13 +94,15 @@ const startUpdateTexts = async (manager) => {
       console.log(e);
     }
 
-    await fct.sleep(updateTextsInterval).catch((e) => console.log(e));
+    await fct.sleep(settings.updateTextsInterval).catch((e) => console.log(e));
   }
 };
 
 const startSaveBotShardHealth = async (manager) => {
   while (true) {
     await saveBotShardHealth(manager).catch((e) => console.log(e));
-    await fct.sleep(saveBotShardHealthInterval).catch((e) => console.log(e));
+    await fct
+      .sleep(settings.saveBotShardHealthInterval)
+      .catch((e) => console.log(e));
   }
 };
