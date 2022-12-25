@@ -36,7 +36,9 @@ module.exports = async (client) => {
       leftover = Math.round(secondsToAdd % 60);
 
       client.logger.debug(
-        `[Rank Voice] (${round}): ${minutesToAdd}m (${leftover})`
+        `[Rank Voice] #${round
+          .toString()
+          .padEnd(4)}: ${minutesToAdd} (${leftover.toString().padEnd(2)})`
       );
 
       round++;
