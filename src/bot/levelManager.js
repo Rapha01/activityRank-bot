@@ -133,6 +133,19 @@ const sendGratulationMessage = (member, roleMessages, level) => {
       .setDescription(gratulationMessage)
       .setThumbnail(member.user.avatarURL());
 
+    function handleGratulationMessageError(err) {
+      if (err.code === 50001)
+        // Missing Access
+        member.client.logger.debug(
+          `Missing access to send gratulationMessage in guild ${member.guild.id}`
+        );
+      else
+        member.client.logger.warn(
+          err,
+          'Error while sending gratulationMessage'
+        );
+    }
+
     // Active Channel
     let notified = false;
     if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
@@ -147,12 +160,7 @@ const sendGratulationMessage = (member, roleMessages, level) => {
           await channel
             .send(msg)
             .then(() => (notified = true))
-            .catch((e) =>
-              member.client.logger.warn(
-                e,
-                'Error while sending gratulationMessage in activeChannel'
-              )
-            );
+            .catch(handleGratulationMessageError);
         }
       }
     }
@@ -170,12 +178,7 @@ const sendGratulationMessage = (member, roleMessages, level) => {
         await channel
           .send(msg)
           .then(() => (notified = true))
-          .catch((e) =>
-            member.client.logger.warn(
-              e,
-              'Error while sending gratulationMessage in autopostChannel'
-            )
-          );
+          .catch(handleGratulationMessageError);
       }
     }
 
@@ -194,12 +197,7 @@ const sendGratulationMessage = (member, roleMessages, level) => {
       await member
         .send(msg)
         .then(() => (notified = true))
-        .catch((e) =>
-          member.client.logger.warn(
-            e,
-            'Error while sending gratulationMessage in dm'
-          )
-        );
+        .catch(handleGratulationMessageError);
     }
 
     resolve();
