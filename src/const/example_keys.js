@@ -13,7 +13,8 @@ const keys = {
       dbUser: '',
       dbPassword: '',
       dbName: ''
-    }
+    },
+    patreonAccessToken: ''
   },
   development: {
     dblApiKey:'',
@@ -29,7 +30,8 @@ const keys = {
       dbUser: '',
       dbPassword: '',
       dbName: ''
-    }
+    },
+    patreonAccessToken: ''
   }
 };
 

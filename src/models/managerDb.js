@@ -24,6 +24,18 @@ module.exports.getConnection = () => {
   });
 };
 
+exports.getAllDbHosts = () => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+      let res = await module.exports.query(`SELECT ${hostField} AS host FROM dbShard`);
+      const hosts = [];
+      for (let row of res) hosts.push(row.host); 
+      resolve(hosts);
+    } catch (e) { reject(e); }
+  });
+}
+
 const createPool = () => {
   return new Promise(async function (resolve, reject) {
     try {

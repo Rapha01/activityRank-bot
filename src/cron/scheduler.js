@@ -1,6 +1,8 @@
 const resetModel = require('../models/resetModel.js');
 const cron = require('node-cron');
-const apiCaller = require('./apiCaller.js');
+const topgg_api = require('../util/topgg_api.js');
+const patreon_api = require('../util/patreon_api.js');
+
 
 if (new Date().getTimezoneOffset() !== 0)
   console.warn(`\n\n\n!!!\nThe current timezone is off from UTC by ${new Date().getTimezoneOffset() / 60} hours.
@@ -31,14 +33,20 @@ exports.start = (manager) => {
             await resetModel.resetScoreByTime('year');
           } catch (e) { console.log(e); }
         });
-
         // Send servercount to Discordbots.org
         cron.schedule('*/23 * * * *', async function() {
             try {
-              await apiCaller.sendServerCountToDiscordbotsOrg();
+              await topgg_api.sendServerCountToDiscordbotsOrg();
             } catch (e) { console.log(e); }
         });
+        // Update patrons
+        cron.schedule('21 * * * *', async function() {
+          try {
+            await patreon_api.updatePatrons();
+          } catch (e) { console.log(e); }
+        });
       }
+      await patreon_api.updatePatrons();
 
       resolve();
     } catch (e) { reject(e); }

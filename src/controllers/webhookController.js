@@ -40,8 +40,11 @@ exports.dblUpvote = async (req, res, next) => {
       if (isNaN(userId))
         return;
 
-      await userModel.storage.get(userId);
-      await userModel.storage.increment(userId,'tokens',3);
+      //await userModel.storage.get(userId);
+      //await userModel.storage.increment(userId,'tokens',3);
+
+      await userModel.storage.set(i.user, 'voteMultiplierUntil', (Date.now() / 1000) + 259200);
+      await userModel.storage.set(i.user, 'voteMultiplier', 2);
 
       console.log('Received Upvote from user ' + userId);
       res.send('1');
