@@ -35,7 +35,7 @@ module.exports.resetScoreByTime = async function (time) {
                 + `INNER JOIN guild ON ${statsTable}.guildId = guild.guildId `
                 + `SET ${time} = 0 `
                 + `WHERE (${time} != 0) `
-                + `AND (guildId BETWEEN ${min} AND ${max}) `
+                + `AND (${statsTable}.guildId BETWEEN ${min} AND ${max}) `
                 + extraConstraint
                 )
             } catch (e) {
