@@ -40,13 +40,12 @@ exports.start = (manager) => {
             } catch (e) { console.log(e); }
         });
         // Update patrons
-        cron.schedule('21 * * * *', async function() {
+        cron.schedule('*/6 * * * *', async function() {
           try {
             await patreon_api.updatePatrons();
           } catch (e) { console.log(e); }
         });
       }
-      await patreon_api.updatePatrons();
 
       resolve();
     } catch (e) { reject(e); }
