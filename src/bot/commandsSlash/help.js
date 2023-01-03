@@ -26,7 +26,7 @@ module.exports = {
               { label: 'Server Statistics', value: 'stats' },
               { label: 'Voting and Inviting', value: 'voting' },
               { label: 'Configuration Info', value: 'info' },
-              { label: 'Tokens', value: 'token' },
+              //{ label: 'Tokens', value: 'token' },
               { label: 'Personal Settings', value: 'mysettings' },
               { label: 'FAQ and Patchnotes', value: 'other' },
               { label: 'Server Settings', value: 'serverSettings' },

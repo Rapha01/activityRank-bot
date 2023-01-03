@@ -2,7 +2,7 @@ const fct = require('../../util/fct.js');
 const { users } = require('../../const/privilegedUsers.js');
 
 const premiumLowersCooldownMessage =
-  'You can significantly lower this cooldown by using tokens to activate premium time for your server. You can find further info about it here: https://activityrank.me/premium. ';
+  'You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it here: https://patreon.com/rapha01/. ';
 const activeStatCommandCooldown = (cd, toWait) => {
   return (
     'You can use stat commands only once per ' +
@@ -36,9 +36,16 @@ exports.checkStatCommandsCooldown = (interaction) => {
     try {
       if (users.includes(interaction.user.id)) return resolve(true);
 
-      const isPremiumGuild = fct.isPremiumGuild(interaction.guild);
-      const cd = isPremiumGuild ? 5 : 30;
-      const premiumLowersCooldownString = isPremiumGuild
+      const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+
+      //const isPremiumGuild = fct.isPremiumGuild(interaction.guild);
+      //const cd = isPremiumGuild ? 5 : 30;
+      let cd = 300;
+      if (userTier == 1) cd = 60;
+      if (ownerTier == 3) cd = 30;
+      if (userTier == 2 || userTier == 3) cd = 5;
+
+      const premiumLowersCooldownString = userTier == 2 || userTier == 3
         ? ''
         : premiumLowersCooldownMessage;
 

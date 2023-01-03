@@ -2,7 +2,7 @@ const path = require('path');
 const guildModel = require('../models/guild/guildModel.js');
 const userModel = require('../models/userModel.js');
 const guildChannelModel = require('../models/guild/guildChannelModel.js');
-const tokenBurn = require('../util/tokenBurn.js');
+//const tokenBurn = require('../util/tokenBurn.js');
 const askForPremium = require('../util/askForPremium.js');
 const {
   PermissionFlagsBits,
@@ -96,7 +96,7 @@ module.exports = {
         });
       }
 
-      await tokenBurn(interaction.guild);
+      //await tokenBurn(interaction.guild);
 
       if (
         interaction.isButton() ||

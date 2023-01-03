@@ -34,8 +34,9 @@ module.exports.data = new SlashCommandBuilder()
 module.exports.execute = async (i) => {
   await i.deferReply();
 
-  await guildMemberModel.cache.load(i.member);
   await guildModel.cache.load(i.guild);
+  await guildMemberModel.cache.load(i.member);
+  
   const myGuild = await guildModel.storage.get(i.guild);
 
   if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;

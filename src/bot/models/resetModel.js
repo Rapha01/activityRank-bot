@@ -24,10 +24,10 @@ exports.storage.resetGuildAll = async (batchsize, guild) => {
 
 const noResetGuildFields = [
   'guildId',
-  'tokens',
-  'tokensBurned',
+  //'tokens',
+  //'tokensBurned',
   'lastCommandDate',
-  'lastTokenBurnDate',
+  //'lastTokenBurnDate',
   'joinedAtDate',
   'leftAtDate',
   'addDate',

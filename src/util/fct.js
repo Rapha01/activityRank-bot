@@ -1,5 +1,7 @@
 const mysql = require('mysql');
 const guildRoleModel = require('../bot/models/guild/guildRoleModel.js');
+const userModel = require('../bot/models/userModel.js');
+
 
 module.exports.maxBigInt = 9223372036854775807;
 module.exports.minIdInt = 1000000000000;
@@ -52,13 +54,14 @@ exports.dateTimeString = (date) => {
   return date.toISOString().slice(0, 19).replace('T', ' ');
 };
 
+/*
 exports.isPremiumGuild = (guild) => {
   if (guild.appData.addDate + 86400 * 7 > Date.now() / 1000) return true;
 
   if (guild.appData.tokens >= exports.getTokensToBurn24h(guild.memberCount))
     return true;
   else return false;
-};
+};*/
 
 exports.hasNoXpRole = async (member) => {
   for (const role of member.roles.cache.values()) {
@@ -68,9 +71,10 @@ exports.hasNoXpRole = async (member) => {
   return false;
 };
 
+/*
 exports.getTokensToBurn24h = (memberCount) => {
   return Math.pow(memberCount, 1 / 1.5);
-};
+};*/
 
 exports.extractPage = (args, entriesPerPage) => {
   let page = 1;
@@ -128,6 +132,36 @@ function solve(a, b, c) {
   else return null;
 }
 
+exports.getPatreonTiers = async (interaction) => {
+  const ownerUser = (await interaction.guild.members.fetch({user: interaction.guild.ownerId, cache: true})).user;
+
+  await userModel.cache.load(interaction.user);
+  await userModel.cache.load(ownerUser);
+
+  const myUser = await userModel.storage.get(interaction.user);
+  const myOwnerUser = await userModel.storage.get(ownerUser);
+
+  let userTier;
+  if (Date.now() / 1000 <= myUser.patreonTierUntilDate) {
+    userTier = myUser.patreonTier;
+  } else
+    usertIer = 0;
+
+  let ownerTier;
+  if (Date.now() / 1000 <= myOwnerUser.patreonTierUntilDate) {
+    ownerTier = myOwnerUser.patreonTier;
+  } else
+    ownerTier = 0;
+
+  return { userTier, ownerTier }
+};
+
+exports.getPatreonTierName = (tier) => {
+  if (tier == 3) return 'Serveradmin';
+  else if (tier == 2) return 'Poweruser';
+  else if (tier == 1) return 'Supporter';
+  else return 'No tier';
+};
 /*
 exports.getGuildActionCooldown = (guild,field,cd) => {
     const nowDate = new Date() / 1000;

@@ -160,9 +160,10 @@ async function info(i, myGuild) {
     myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'
   }
   List entries per page: ${myGuild.entriesPerPage}
-  Status: ${fct.isPremiumGuild(i.guild) ? 'Premium' : 'Not Premium'}`,
+  Status: ${(await fct.getPatreonTiers(i)).ownerTier == 3 ? 'Premium' : 'Not Premium'}`,
   });
 
+  /*
   e.addFields({
     name: '**Tokens**',
     value: stripIndent`
@@ -175,7 +176,7 @@ async function info(i, myGuild) {
         Date.now() / 1000
     )}>
     Burned: ${myGuild.tokensBurned}`,
-  });
+  });*/
 
   let bonusTimeString = '';
   if (myGuild.bonusUntilDate > Date.now() / 1000) {

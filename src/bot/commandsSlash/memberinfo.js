@@ -6,6 +6,7 @@ const utilModel = require('../models/utilModel.js');
 const nameUtil = require('../util/nameUtil.js');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const { stripIndent } = require('common-tags');
+const fct = require('../../util/fct.js');
 
 module.exports.data = new SlashCommandBuilder()
   .setName('memberinfo')
@@ -60,8 +61,17 @@ module.exports.execute = async function (i) {
     lastActivityStr += `Last vote: ${lastActivities.vote}\n`;
   if (i.guild.appData.bonusXp)
     lastActivityStr += `Last bonus: ${lastActivities.bonus}\n`;
-
+  
   targetMemberInfo.joinedAt = Math.ceil(targetMemberInfo.joinedAt / 1000);
+  
+  if (myTargetUser.patreonTierUntilDate > Date.now() / 1000 && myTargetUser.patreonTier > 0) {
+    targetMemberInfo.patreonText = stripIndent`
+        Active Tier: ${myTargetUser.patreonTier} (${fct.getPatreonTierName(myTargetUser.patreonTier)})
+        Valid until: <t:${myTargetUser.patreonTierUntilDate}:D>, <t:${myTargetUser.patreonTierUntilDate}:R>`;
+  } else {
+    targetMemberInfo.patreonText = stripIndent`No active Tier`;
+  }
+
   const embed = new EmbedBuilder()
     .setAuthor({
       name: `Info for ${targetMemberInfo.name} in server ${i.guild.name}`,
@@ -76,11 +86,8 @@ module.exports.execute = async function (i) {
         Inviter: ${inviterInfo.name}`,
       },
       {
-        name: 'Tokens',
-        value: stripIndent`
-        Available: \`${myTargetUser.tokens}\`
-        Burned (this server): \`${myTargetMember.tokensBurned}\`
-        Bought (total): \`${myTargetUser.tokensBought}\``,
+        name: 'Patreon',
+        value: targetMemberInfo.patreonText
       },
       {
         name: 'Settings',

@@ -82,6 +82,6 @@ module.exports.execute = async function (i) {
     );
   } else {
     await i.reply(oneLine`You have successfully voted for ${targetMember}. 
-      Check \`/token get\` for information on how to increase your voting power!`);
+      Upvote the bot on top.gg to increase your voting power!`);
   }
 };

@@ -10,7 +10,7 @@ exports.storage = {};
 const hostField =
   process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
-  'tokens',
+  //'tokens',
   'showNicknames',
   'textXp',
   'voiceXp',

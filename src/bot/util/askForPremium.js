@@ -23,7 +23,9 @@ module.exports = async function (interaction) {
   )
     return;
 
-  if (fct.isPremiumGuild(interaction.guild)) return;
+  //if (fct.isPremiumGuild(interaction.guild)) return;
+  const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+  if (userTier > 0 || ownerTier > 0) return;
 
   await userModel.cache.load(interaction.user);
   const myUser = await userModel.storage.get(interaction.user);
@@ -49,12 +51,10 @@ async function sendAskForPremiumEmbed(interaction) {
 
   e.addFields({
     name: 'The maintenance and development of this bot depend on your support!',
-    value: oneLine`${interaction.user}, please consider helping this server to go Premium. 
-      All features of the bot are free, but Premium servers receive additional (current and upcoming) 
-      quality of life enhancements (significantly shorter stats cooldown, premium support, etc.). 
-      Simply go to https://activityrank.me/premium to buy a few tokens for your user account or get some 
-      **TOKENS FOR FREE** by regularly upvoting the bot on https://top.gg/bot/534589798267224065. 
-      These tokens can then be redeemed for premium time on any server. **Thank you!**`,
+    value: oneLine`${interaction.user}, please consider helping us by becoming a Patron. 
+      The Bot is mostly free! Activating Premium for you or your server can unlock some new 
+      features and gives you quality of life upgrades, like reduced cooldowns on commands. 
+      Simply go to https://patreon.com/rapha01/ select your suiting tier and become a Patron **Thank you!**`,
   });
 
   await interaction.followUp({ embeds: [e], ephemeral: true });

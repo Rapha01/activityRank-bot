@@ -70,26 +70,6 @@
     "new": "/memberinfo"
   },
   {
-    "old": "token get externUpvote",
-    "desc": "See how to earn Tokens by upvoting the bot on external server listings",
-    "new": "/token get"
-  },
-  {
-    "old": "token get buy",
-    "desc": "Get the website URL to buy tokens",
-    "new": "/token get"
-  },
-  {
-    "old": "token redeem votePower",
-    "desc": "Redeem Tokens to double your voting/like power (10 Tokens for 3 days)",
-    "new": "/token redeem votePower"
-  },
-  {
-    "old": "token redeem premiumServer",
-    "desc": "Fuel Token into the Server to get some perks (for more info use ar!help token or ar!token get buy)",
-    "new": "/token redeem premium"
-  },
-  {
     "old": "member set notifyLevelupDm",
     "desc": "Toggle your own settings if you want to receive DMs from the Bot or not (in case `notifyLevelupDm` is set to on)",
     "new": "/config-member"
