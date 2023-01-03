@@ -4,6 +4,7 @@ const shardDb = require('../models/shardDb.js');
 const keys = require('../const/keys.js').get();
 const mysql = require('promise-mysql');
 
+/*
 exports.paypalComplete = async (req, res, next) => {
   try {
     if (req.body.event_type != 'PAYMENT.CAPTURE.COMPLETED')
@@ -28,7 +29,7 @@ exports.paypalComplete = async (req, res, next) => {
     console.log(e);
     res.send(fct.apiResponseJson([],'Could not process paypal payment.'));
   }
-}
+}*/
 
 exports.dblUpvote = async (req, res, next) => {
   try {

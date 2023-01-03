@@ -7,7 +7,7 @@ const path = require('path');
 
 // Incoming Webhooks
 router.route('/webhook/dbl/upvote/').post(webhookController.dblUpvote);
-router.route('/webhook/paypal/complete').post(webhookController.paypalComplete);
+//router.route('/webhook/paypal/complete').post(webhookController.paypalComplete);
 
 // Text
 router.route('/api/texts/').get(textController.getTexts);

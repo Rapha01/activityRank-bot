@@ -7,7 +7,7 @@ module.exports = [
       "Type <code>/</code> - If you don't see any commands listed, reinvite the bot " +
       '<a href="https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands">here</a>.'
   },
-  {
+  /*{
     id: 2,
     title: 'What are tokens and how do I get/earn them?',
     desc: 'Tokens are used to double your votepower (see FAQ number 17).<br>' +
@@ -16,7 +16,7 @@ module.exports = [
       '<br>' +
       'You receive tokens by <a href="https://top.gg/bot/534589798267224065">upvoting the bot on top.gg</a>. <br>' +
       'You can buy tokens <a href="https://activityrank.me/tokens">on our website</a>. '
-  },
+  },*/
   {
     id: 3,
     title: 'How do I get the role, channel or user ID?',
@@ -159,10 +159,10 @@ module.exports = [
       'You can change the votecooldown with <code>/config-server cooldown</code><br>' +
       '<br>' +
       'You can change your vote-emote and name with <code>/config-server vote</code> then when a user reacts on a message, it gives the message sender one Like (or two if you got 2x power), and they gain a set amount of XP.<br>' +
-      'You can get 2x power for 3 days by redeeming 10 tokens: <code>/token redeem votepower</code><br>' +
-      '<br>' +
-      'You receive tokens by <a href="https://top.gg/bot/534589798267224065">upvoting the bot on top.gg</a>. <br>' +
-      'You can buy tokens <a href="https://activityrank.me/tokens">on our website</a>.'
+      'You can get 2x power for 3 days by upvoting the bot on top.gg <code>/token redeem votepower</code><br>' 
+      //'<br>' +
+      //'You receive tokens by <a href="https://top.gg/bot/534589798267224065">upvoting the bot on top.gg</a>. <br>' +
+      //'You can buy tokens <a href="https://activityrank.me/tokens">on our website</a>.'
   },
   {
     id: 16,
