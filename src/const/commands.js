@@ -31,6 +31,7 @@ exports.info = {
   ]
 };
 
+/*
 exports.token = {
   title: 'Get and redeem tokens',
   desc: 'Earn or buy tokens and redeem them for special boosts or to power your bot.',
@@ -41,6 +42,7 @@ exports.token = {
     { title: 'Gain votepower', command: '/token redeem votepower', desc: 'Your upvotes will have 2x more impact, but it will cost 10 Tokens to activate for three days.', example: '/token redeem votepower' },
   ]
 };
+*/
 
 exports.mysettings = {
   title: 'My settings',
