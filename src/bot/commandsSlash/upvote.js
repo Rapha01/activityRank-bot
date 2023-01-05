@@ -55,6 +55,15 @@ module.exports.execute = async function (i) {
   if (myUser.voteMultiplierUntil > nowDate)
     value = value * myUser.voteMultiplier;
 
+  if (myUser.patreonTierUntilDate > Date.now() / 1000 && myUser.patreonTier > 0 ) {
+    if (myUser.patreonTier == 1)
+      value = value * 2;
+    else if (myUser.patreonTier == 2)
+      value = value * 3;
+    else if (myUser.patreonTier == 3)
+      value = value * 4;
+  }
+
   // Check Command cooldown
 
   const toWait = cooldownUtil.getCachedCooldown(
