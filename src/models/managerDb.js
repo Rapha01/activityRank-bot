@@ -29,8 +29,10 @@ exports.getAllDbHosts = () => {
     try {
       const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
       let res = await module.exports.query(`SELECT ${hostField} AS host FROM dbShard`);
+
       const hosts = [];
       for (let row of res) hosts.push(row.host); 
+      
       resolve(hosts);
     } catch (e) { reject(e); }
   });
