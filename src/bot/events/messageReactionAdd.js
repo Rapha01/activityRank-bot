@@ -66,22 +66,7 @@ module.exports = {
         // Get author multiplier
         await userModel.cache.load(member.user);
         const myUser = await userModel.storage.get(member.user);
-        const nowDate = Date.now() / 1000;
-
-        let value = 1;
-
-        if (myUser.voteMultiplierUntil > nowDate)
-          value = value * myUser.voteMultiplier;
-
-        if (myUser.patreonTierUntilDate > Date.now() / 1000 && myUser.patreonTier > 0 ) {
-          if (myUser.patreonTier == 1)
-            value = value * 2;
-          else if (myUser.patreonTier == 2)
-            value = value * 3;
-          else if (myUser.patreonTier == 3)
-            value = value * 4;
-        }
-        
+        const value = fct.getVoteMultiplier(myUser);
 
         const toWait = cooldownUtil.getCachedCooldown(
           member.appData,
@@ -90,7 +75,7 @@ module.exports = {
         );
         if (toWait > 0) return resolve();
 
-        member.appData.lastVoteDate = nowDate;
+        member.appData.lastVoteDate = Date.now() / 1000;
 
         await statFlushCache.addVote(targetMember, value);
 

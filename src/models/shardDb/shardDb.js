@@ -1,4 +1,6 @@
 const mysql = require('promise-mysql');
+const managerDb = require('../managerDb/managerDb.js');
+
 const net = require('net');
 let keys = require('../../const/keys').get();
 let dbuser,
@@ -15,6 +17,21 @@ module.exports.query = (dbHost, sql) => {
     } catch (e) {
       reject(e);
     }
+  });
+};
+
+module.exports.queryAllHosts = (sql) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      const hosts = await managerDb.getAllDbHosts();
+
+      let aggregate = [];
+      for (let host of hosts) {
+        aggregate = aggregate.concat(await module.exports.query(host, sql));
+      }
+
+      resolve(aggregate);
+    } catch (e) { reject(e); }
   });
 };
 

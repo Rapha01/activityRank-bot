@@ -5,6 +5,7 @@ const textModel = require('../models/managerDb/textModel.js');
 const load = require('./util/startup/index.js');
 const loggerManager = require('./util/logger.js');
 const globalLogger = require('../util/logger.js');
+const cronScheduler = require('./cron/scheduler.js');
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -48,13 +49,14 @@ async function start() {
 
     client.logger = loggerManager.init(client.shard.ids);
     client.logger.info('Logged in');
-
+    
     try {
       load(client);
     } catch (e) {
       client.logger.warn(e, 'Error while loading in shard');
       await fct.waitAndReboot(3_000);
     }
+    
     client.logger.info('Initialized');
   } catch (e) {
     globalLogger.warn(e, 'Error while launching shard');

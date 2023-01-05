@@ -156,6 +156,24 @@ exports.getPatreonTiers = async (interaction) => {
   return { userTier, ownerTier }
 };
 
+exports.getVoteMultiplier = (myUser) => {
+  let multiplier = 1;
+
+  if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000)
+    multiplier = 2;
+
+  if (myUser.patreonTierUntilDate > Date.now() / 1000 && myUser.patreonTier > 0 ) {
+    if (myUser.patreonTier == 1)
+      multiplier = 2;
+    else if (myUser.patreonTier == 2)
+      multiplier = 3;
+    else if (myUser.patreonTier == 3)
+      multiplier = 4;
+  }
+
+  return multiplier;
+};
+
 exports.getPatreonTierName = (tier) => {
   if (tier == 3) return 'Serveradmin';
   else if (tier == 2) return 'Poweruser';

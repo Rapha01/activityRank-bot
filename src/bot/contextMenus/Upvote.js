@@ -52,40 +52,35 @@ module.exports = {
     // Get author multiplier
     await userModel.cache.load(i.user);
     const myUser = await userModel.storage.get(i.user);
-    const nowDate = Date.now() / 1000;
-
-    let value = 1;
-
-    if (myUser.voteMultiplierUntil > nowDate)
-      value = value * myUser.voteMultiplier;
+    const value = fct.getVoteMultiplier(myUser);
 
     // Check Command cooldown
-
     const toWait = cooldownUtil.getCachedCooldown(
       i.member.appData,
       'lastVoteDate',
       i.guild.appData.voteCooldownSeconds
     );
+
     if (toWait > 0) {
       return await i.reply({
         content: `You already voted recently. You will be able to vote again <t:${Math.ceil(
-          toWait + nowDate
+          toWait + Date.now() / 1000
         )}:R>.`,
         ephemeral: true,
       });
     }
 
-    i.member.appData.lastVoteDate = nowDate;
+    i.member.appData.lastVoteDate = Date.now() / 1000;
 
     await statFlushCache.addVote(targetMember, value);
 
-    if (myUser.voteMultiplierUntil > nowDate) {
+    if (value > 1) {
       await i.reply(
-        `You have successfully voted for ${targetMember}. Your vote counts \`${myUser.voteMultiplier}x\`.`
+        `You have successfully voted for ${targetMember}. Your vote counts \`${value}x\`.`
       );
     } else {
       await i.reply(oneLine`You have successfully voted for ${targetMember}. 
-        Check \`/token get\` for information on how to increase your voting power!`);
+        Upvote the bot on top.gg or subscribe on https://www.patreon.com/rapha01 to increase your voting power!`);
     }
   },
 };

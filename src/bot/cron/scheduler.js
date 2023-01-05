@@ -1,11 +1,14 @@
 const cron = require('node-cron');
 const voiceXpRound = require('./voiceXpRound.js');
+const autoAssignPatreonRoles = require('./autoAssignPatreonRoles.js');
 const resetJob = require('./resetJob.js');
 const fct = require('../../util/fct.js');
+const config = require('../../const/config.js');
 
 const isProd = process.env.NODE_ENV === 'production';
 
 const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
+const autoAssignPatreonRolesInterval = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
 const resetJobInterval = 3_000;
 
 exports.start = (client) => {
@@ -25,9 +28,22 @@ exports.start = (client) => {
 
       client.logger.info('High-member count guilds:\n' + str);
     } catch (e) {
-      client.warn(e, 'Error in highestGuilds');
+      client.logger.warn(e, 'Error in highestGuilds');
     }
   });
+
+  const supportGuild = client.guilds.cache.get(config.supportServerId);
+  if (supportGuild) {
+    cron.schedule(autoAssignPatreonRolesInterval, async () => {
+      try {
+        await autoAssignPatreonRoles(supportGuild);
+         
+        client.logger.info('Updated support server Patreon roles');
+      } catch (e) {
+        client.logger.warn(e, 'Error in autoAssignPatreonRoles');
+      }
+    });
+  }
 };
 
 const startVoiceXp = async (client) => {
