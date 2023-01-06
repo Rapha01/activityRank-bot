@@ -38,8 +38,6 @@ exports.checkStatCommandsCooldown = (interaction) => {
 
       const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
-      //const isPremiumGuild = fct.isPremiumGuild(interaction.guild);
-      //const cd = isPremiumGuild ? 5 : 30;
       let cd = 300;
       if (userTier == 1) cd = 60;
       if (ownerTier == 3) cd = 30;
@@ -81,29 +79,34 @@ exports.checkStatCommandsCooldown = (interaction) => {
   });
 };
 
-exports.checkResetServerCommandCooldown = (msg) => {
+exports.checkResetServerCommandCooldown = (interaction) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const isPremiumGuild = fct.isPremiumGuild(msg.guild);
-      const cd = isPremiumGuild ? 5 : 30;
-      const premiumLowersCooldownString = isPremiumGuild
+      const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+
+      let cd = 300;
+      if (userTier == 1) cd = 120;
+      if (ownerTier == 3) cd = 60;
+      if (userTier == 2 || userTier == 3) cd = 10;
+
+      const premiumLowersCooldownString = userTier == 2 || userTier == 3
         ? ''
         : premiumLowersCooldownMessage;
 
       const toWait = exports.getCachedCooldown(
-        msg.guild.appData,
+        interaction.guild.appData,
         'lastResetServer',
         cd
       );
       if (toWait > 0) {
-        await msg.channel.send(
+        await interaction.channel.send(
           activeResetServerCommandCooldown(cd, toWait) +
             premiumLowersCooldownString
         );
         return resolve(false);
       }
 
-      msg.guild.appData.lastResetServer = Date.now() / 1000;
+      interaction.guild.appData.lastResetServer = Date.now() / 1000;
       resolve(true);
     } catch (e) {
       reject(e);
