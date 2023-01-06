@@ -6,6 +6,7 @@ const emoji = require('node-emoji');
 const cooldownUtil = require('../util/cooldownUtil.js');
 const statFlushCache = require('../statFlushCache.js');
 const skip = require('../skip.js');
+const fct = require('../../util/fct.js');
 
 module.exports = {
   name: 'messageReactionAdd',
