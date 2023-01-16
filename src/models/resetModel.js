@@ -26,7 +26,7 @@ module.exports.resetScoreByTime = async function (time) {
 
       for (let statsTable of statsTables) {
         try {
-          let min = 0;
+          let min = 0n;
           let max = increment;
           do {
             try {
@@ -41,6 +41,9 @@ module.exports.resetScoreByTime = async function (time) {
             } catch (e) {
               errorCount++;
               console.log(e);
+            } finally {
+              min += increment;
+              max += increment;
             }
           } while (min < currentSnowflake)
         } catch (e) {
