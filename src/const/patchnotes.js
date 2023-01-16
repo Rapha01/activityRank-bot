@@ -1,5 +1,58 @@
 module.exports = [
   {
+    version: '4.6',
+    date: '2022-12-16',
+    time: '00:00:00',
+    title: 'Bugfixes',
+    desc: 'Small adjustments and bugfixes',
+    features: [
+      {title: 'Blacklists', description: 'The developers can now blacklist servers or users from the bot entirely.'},
+    ],
+    fixes: [
+      {title: '/rank member', description: 'Using the ID of a member that has left the server will no longer redirect to your own stats.'},
+      {title: 'Logging', description: 'Added systems to try to track down the reset bug.'},
+      {title: 'Bot crashes', description: 'Added a potential fix to permanent shard outages.'},
+      {title: 'Typos', description: 'Fixed a few typos.'},
+    ],
+  },
+  {
+    version: '4.5',
+    date: '2022-11-11',
+    time: '00:00:00',
+    title: 'Better /top and /rank',
+    desc: 'Improved /top and /rank, added a beta flag for /bonus role, and fixed noXp voice channels',
+    features: [
+      {title: '/top improvements', description: '/top now uses buttons and slash commands for a more interactive experience.'},
+      {title: '/rank improvements', description: '/rank now supports buttons, and /top channels member has been moved to a submenu of /rank.'},
+      {title: '/bonus role beta', description: '/bonus role now has a beta flag. When enabled, levelup messages will not be sent, but the command will be significantly faster and more stable.'},
+    ],
+    fixes: [
+      {title: 'Voice channels and noXp', description: 'Voice channels will now obey noXp settings.'},
+      {title: 'Removed /role give|take', description: '/role give and /role take are outdated commands; /bonus role should be used instead.'},
+    ],
+  },
+  {
+    version: '4.4',
+    date: '2022-11-11',
+    time: '00:00:00',
+    title: 'Small Fixes & Forums',
+    desc: 'Improvements to slash commands, noXp categories, and bugfixes.',
+    features: [
+      {title: 'Discord.js v14', description: 'Discord.js is now updated to version 14.x'},
+      {title: 'Thread improvements', description: 'Handling of threads and forums are now more stable'},
+      {title: 'Description changes', description: 'Small changes to instructions and feature names'},
+      {title: 'NoXP Categories', description: 'Categories can be set to NoXp and this will apply to all of their child channels'},
+      {title: 'Removed prefix commands', description: 'All uses and mentions of prefixed commands have been removed.'},
+      {title: 'Removed transition utilities', description: '/clearprefix and warnings to use slash commands have been removed. /migrate will remain for a few more versions.'},
+    ],
+    fixes: [
+      {title: 'Custom Roleassignment messages can be removed', description: 'Previously, there was no way to remove custom Roleassignment messages'},
+      {title: 'Token End Date', description: '/serverinfo now shows the correct (predicted) end date for tokens'},
+      {title: 'Serverinfo Server Thumbnail', description: '/serverinfo now shows the server\'s icon as the embed thumbnail'},
+      {title: 'Scheduled Resets', description: 'Scheduled resets are now working.'},
+    ],
+  },
+  {
     version: '4.3',
     date: '2022-04-02',
     time: '00:00:00',
