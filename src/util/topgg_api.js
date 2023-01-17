@@ -2,8 +2,13 @@ const axios = require('axios');
 const botShardStatModel = require("../models/botShardStatModel.js");
 const keys = require('../const/keys.js').get();
 
+const headers = {
+  "Authorization": keys.dblApiKey,
+  "Content-Type": "application/json;charset=UTF-8",
+}
+
 exports.sendServerCountToDiscordbotsOrg = async function() {
-  const counts = await botShardStatModel.getShardServerCounts();
+  const server_count = await botShardStatModel.getShardServerCounts();
 
   const now = new Date().toLocaleString();
 
@@ -20,12 +25,9 @@ exports.sendServerCountToDiscordbotsOrg = async function() {
 
   axios.post(
     `https://top.gg/api/bots/${keys.botId}/stats`,
-    counts,
-    { headers: {
-      "Authorization": keys.dblApiKey,
-      "Content-Type": "application/json;charset=UTF-8",
-    } }
+    { server_count },
+    { headers }
   )
-    .then(() => console.log(`${now} [top.gg request success] ${res.status}`))
+    .then(({ status }) => console.log(`${now} [top.gg request success] ${status}`))
     .catch(handleError)
 }
