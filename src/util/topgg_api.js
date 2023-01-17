@@ -1,32 +1,31 @@
-const request = require('request');
+const axios = require('axios');
 const botShardStatModel = require("../models/botShardStatModel.js");
 const keys = require('../const/keys.js').get();
 
-exports.sendServerCountToDiscordbotsOrg = function() {
-  return new Promise(async function (resolve, reject) {
-    const counts = await botShardStatModel.getShardServerCounts();
-    console.log(counts);
+exports.sendServerCountToDiscordbotsOrg = async function() {
+  const counts = await botShardStatModel.getShardServerCounts();
 
-    const options = {
-      uri: 'https://discordbots.org/api/bots/' + keys.botId + '/stats',
-      method: 'POST',
-      json: {
-        "server_count": counts
-      },
-      headers: {
-        'Authorization': keys.dblApiKey
-      }
-    };
+  const now = new Date().toLocaleString();
 
-    request(options, function (error, response, body) {
-      const now = new Date(Date.now()).toLocaleString();
+  function handleError(e) {
+    console.log(`${now} [top.gg request error]`)
+    if (e.response) {
+      console.log(e.response.data);
+      console.log(e.response.status);
+      console.log(e.response.headers);
+    } else {
+      console.log(error.message);
+    }
+  }
 
-      if (!error && response.statusCode == 200) {
-        console.log(now + ' Successfully sent servercount to discordbots.org');
-      } else {
-        console.log(now + ' Request error sending servercount to discordbots.org. \nerr:' + error + '\nresponse:' + JSON.stringify(response.body));
-      }
-    });
-    resolve();
-  });
+  axios.post(
+    `https://top.gg/api/bots/${keys.botId}/stats`,
+    counts,
+    { headers: {
+      "Authorization": keys.dblApiKey,
+      "Content-Type": "application/json;charset=UTF-8",
+    } }
+  )
+    .then(() => console.log(`${now} [top.gg request success] ${res.status}`))
+    .catch(handleError)
 }
