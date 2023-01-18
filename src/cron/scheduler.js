@@ -13,7 +13,7 @@ exports.start = (manager) => {
     try {
       if (process.env.NODE_ENV == 'production') {
         // Reset daily/weekly/monthly/yearly stats
-        cron.schedule('5 23 * * *', async function() {
+        cron.schedule('5 * * * *', async function() {
           try {
             await resetModel.resetScoreByTime('day');
           } catch (e) { console.log(e); }
