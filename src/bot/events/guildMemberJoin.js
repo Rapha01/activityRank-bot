@@ -9,7 +9,7 @@ module.exports = {
   execute(member) {
     return new Promise(async function (resolve, reject) {
       try {
-        // if (member.user.bot) return;
+        if (member.user.bot) return;
         await guildModel.cache.load(member.guild);
         await guildMemberModel.cache.load(member);
 

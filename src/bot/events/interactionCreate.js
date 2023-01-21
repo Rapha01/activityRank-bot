@@ -19,7 +19,14 @@ module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
     try {
-      if (!interaction.guild || !interaction.channel) return;
+      if (!interaction.guild) return;
+      if (!interaction.channel) {
+        // TODO: move this check to command handlers?
+        return await interaction.reply({
+          content: 'I need to be able to see this channel!',
+          ephemeral: true,
+        });
+      }
 
       await guildModel.cache.load(interaction.guild);
 

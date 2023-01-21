@@ -62,10 +62,7 @@ module.exports.execute = async (i) => {
     } catch (err) {
       if (err.code === 10008)
         // Unknown Message
-        i.client.logger.debug(
-          { i, id: i.message.id },
-          '/top tried to update Unknown message'
-        );
+        i.client.logger.debug({ i }, '/top tried to update Unknown message');
       else throw err;
     }
   };

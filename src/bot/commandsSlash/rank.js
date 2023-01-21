@@ -58,15 +58,11 @@ module.exports.execute = async (i) => {
     } catch (err) {
       if (err.code === 10008)
         // Unknown Message
-        i.client.logger.debug(
-          { i, id: i.message.id },
-          '/rank tried to update Unknown message'
-        );
+        i.client.logger.debug({ i }, '/rank tried to update Unknown message');
       else throw err;
     }
   };
-  // setTimeout(cleanCache, 5 * 60 * 1_000);
-  setTimeout(cleanCache, 30 * 1_000);
+  setTimeout(cleanCache, 5 * 60 * 1_000);
 
   exports.activeCache.set(id, initialState);
 };
