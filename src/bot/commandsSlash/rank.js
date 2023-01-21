@@ -62,8 +62,7 @@ module.exports.execute = async (i) => {
       else throw err;
     }
   };
-  // setTimeout(cleanCache, 5 * 60 * 1_000);
-  setTimeout(cleanCache, 30 * 1_000);
+  setTimeout(cleanCache, 5 * 60 * 1_000);
 
   exports.activeCache.set(id, initialState);
 };
