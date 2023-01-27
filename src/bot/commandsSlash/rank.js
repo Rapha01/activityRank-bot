@@ -53,6 +53,11 @@ module.exports.execute = async (i) => {
   const cleanCache = async () => {
     const state = exports.activeCache.get(id);
     exports.activeCache.delete(id);
+    if (!i.guild)
+      return i.client.logger.debug(
+        { i },
+        '/rank tried to update uncached guild'
+      );
     try {
       await i.editReply(await generateCard(state, i.guild, myGuild, true));
     } catch (err) {
