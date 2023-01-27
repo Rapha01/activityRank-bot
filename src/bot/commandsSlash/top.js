@@ -57,6 +57,11 @@ module.exports.execute = async (i) => {
   const cleanCache = async () => {
     const state = exports.activeCache.get(id);
     exports.activeCache.delete(id);
+    if (!i.guild)
+      return i.client.logger.debug(
+        { i },
+        '/top tried to update uncached guild'
+      );
     try {
       await i.editReply(await generate(state, i.guild, myGuild, true));
     } catch (err) {
