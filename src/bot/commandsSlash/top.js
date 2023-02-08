@@ -36,7 +36,7 @@ module.exports.execute = async (i) => {
 
   await guildModel.cache.load(i.guild);
   await guildMemberModel.cache.load(i.member);
-  
+
   const myGuild = await guildModel.storage.get(i.guild);
 
   if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
@@ -133,12 +133,22 @@ async function generateChannels(state, guild, myGuild, disabled) {
     .addFields(
       {
         name: 'Text',
-        value: await getTopChannels(guild, 'textMessage', state.time, page),
+        value: await getTopChannels(
+          guild,
+          'textMessage',
+          state.time,
+          page
+        ).slice(0, 1024),
         inline: true,
       },
       {
         name: 'Voice',
-        value: await getTopChannels(guild, 'voiceMinute', state.time, page),
+        value: await getTopChannels(
+          guild,
+          'voiceMinute',
+          state.time,
+          page
+        ).slice(0, 1024),
         inline: true,
       }
     );
