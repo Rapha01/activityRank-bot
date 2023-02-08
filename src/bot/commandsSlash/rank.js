@@ -147,7 +147,7 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
           state.targetUser.id,
           state.time,
           'textMessage'
-        ),
+        ).slice(0, 1024),
         inline: true,
       },
       {
@@ -158,7 +158,7 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
           state.targetUser.id,
           state.time,
           'voiceMinute'
-        ),
+        ).slice(0, 1024),
         inline: true,
       }
     );
