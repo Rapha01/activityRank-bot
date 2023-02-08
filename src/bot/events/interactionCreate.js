@@ -152,6 +152,13 @@ module.exports = {
       }
     } catch (e) {
       try {
+        // tracking down strange bug
+        if (!interaction || !interaction.reply)
+          interaction.client.logger.error(
+            { i: interaction },
+            'Interaction or interaction.reply not defined in command error'
+          );
+
         const message = {
           content: stripIndent`
             There was an error while executing this command! 
