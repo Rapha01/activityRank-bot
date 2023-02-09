@@ -141,23 +141,27 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
     .addFields(
       {
         name: 'Text',
-        value: await getTopChannels(
-          page,
-          guild,
-          state.targetUser.id,
-          state.time,
-          'textMessage'
+        value: (
+          await getTopChannels(
+            page,
+            guild,
+            state.targetUser.id,
+            state.time,
+            'textMessage'
+          )
         ).slice(0, 1024),
         inline: true,
       },
       {
         name: 'Voice',
-        value: await getTopChannels(
-          page,
-          guild,
-          state.targetUser.id,
-          state.time,
-          'voiceMinute'
+        value: (
+          await getTopChannels(
+            page,
+            guild,
+            state.targetUser.id,
+            state.time,
+            'voiceMinute'
+          )
         ).slice(0, 1024),
         inline: true,
       }
