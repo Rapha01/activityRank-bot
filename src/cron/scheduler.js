@@ -4,6 +4,7 @@ const fct = require('../util/fct.js');
 const statFlush = require('../models/shardDb/statFlush.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
+const checkQueuedShardRestarts = require('./checkQueuedShardRestarts.js');
 
 const isProd = process.env.NODE_ENV == 'production';
 const settings = {
@@ -13,6 +14,7 @@ const settings = {
   updateTextsInterval: isProd ? 300_000 : 10_000,
   saveBotShardHealthInterval: isProd ? 180_000 : 8_000,
   statFlushCacheCronInterval: isProd ? '30 * * * * *' : '*/10 * * * * *',
+  checkQueuedShardRestartsInterval: isProd ? 120_000 : 20_000,
 };
 
 exports.start = (manager) => {
@@ -22,6 +24,7 @@ exports.start = (manager) => {
       startUpdateSettings(manager);
       startUpdateTexts(manager);
       startSaveBotShardHealth(manager);
+      //startCheckQueuedShardRestarts(manager);
 
       // Periodical Restart
       setTimeout(function () {
@@ -103,6 +106,15 @@ const startSaveBotShardHealth = async (manager) => {
     await saveBotShardHealth(manager).catch((e) => console.log(e));
     await fct
       .sleep(settings.saveBotShardHealthInterval)
+      .catch((e) => console.log(e));
+  }
+};
+
+const startCheckQueuedShardRestarts = async (manager) => {
+  while (true) {
+    await checkQueuedShardRestarts(manager).catch((e) => console.log(e));
+    await fct
+      .sleep(settings.checkQueuedShardRestartsInterval)
       .catch((e) => console.log(e));
   }
 };
