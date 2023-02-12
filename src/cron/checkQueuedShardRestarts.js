@@ -13,18 +13,16 @@ module.exports = async (manager) => {
     if (shard)
       shardIdsToRestart.push(row.shardId);
   }
-    
 
   logger.debug('Shards queued for restart: ' + (shardIdsToRestart.length == 0 ? 'None' : shardIdsToRestart.join(',')));
 
-  /*if (shardIdsToRestart.length > 0)
+  if (shardIdsToRestart.length > 0)
     await managerDb.query(`UPDATE botShardStat SET restartQueued = 0 
-        WHERE shardId IN (${valueSqls.join(',')}) `);*/
+        WHERE shardId IN (${shardIdsToRestart.join(',')}) `);
   
   for (let shardId of shardIdsToRestart) {
     const shard = manager.shards.find(shard => shard.id == shardId);
     if (shard)
-      await shard.kill();
-  }
-    
+      await shard.respawn();
+  }  
 };

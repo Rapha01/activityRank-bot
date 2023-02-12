@@ -14,7 +14,7 @@ const settings = {
   updateTextsInterval: isProd ? 300_000 : 10_000,
   saveBotShardHealthInterval: isProd ? 180_000 : 8_000,
   statFlushCacheCronInterval: isProd ? '30 * * * * *' : '*/10 * * * * *',
-  checkQueuedShardRestartsInterval: isProd ? 120_000 : 20_000,
+  checkQueuedShardRestartsInterval: isProd ? 120_000 : 30_000,
 };
 
 exports.start = (manager) => {
@@ -24,7 +24,9 @@ exports.start = (manager) => {
       startUpdateSettings(manager);
       startUpdateTexts(manager);
       startSaveBotShardHealth(manager);
-      //startCheckQueuedShardRestarts(manager);
+
+      if (isProd)
+        startCheckQueuedShardRestarts(manager);
 
       // Periodical Restart
       setTimeout(function () {
@@ -112,9 +114,10 @@ const startSaveBotShardHealth = async (manager) => {
 
 const startCheckQueuedShardRestarts = async (manager) => {
   while (true) {
-    await checkQueuedShardRestarts(manager).catch((e) => console.log(e));
     await fct
       .sleep(settings.checkQueuedShardRestartsInterval)
       .catch((e) => console.log(e));
+    
+    await checkQueuedShardRestarts(manager).catch((e) => console.log(e));
   }
 };
