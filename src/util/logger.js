@@ -3,13 +3,15 @@ const pino = require('pino');
 const globalConfig = { base: { pid: process.pid }, level: 'debug' };
 
 const localConfig =
-  process.env.NODE_ENV === 'development'
-    ? {
-        transport: {
-          target: './dev-transport',
-        },
-      }
-    : {};
+  //process.env.NODE_ENV === 'development' 
+    //? 
+    {
+      transport: {
+        target: './dev-transport',
+      },
+    }
+    //: {}
+    ;
 
 const logger = pino({ ...globalConfig, ...localConfig });
 
