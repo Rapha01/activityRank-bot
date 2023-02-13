@@ -147,7 +147,7 @@ module.exports = {
 
         if (interaction.isCommand()) {
           interaction.client.logger.debug(command.data.name + ' command used by Member ' + interaction.user.username);
-          console.log(interaction.member,command);
+
           await command.execute(interaction);
           if (!command.isAdmin) await askForPremium(interaction);
         } else if (interaction.isAutocomplete()) {
