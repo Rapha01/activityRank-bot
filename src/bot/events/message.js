@@ -32,18 +32,15 @@ module.exports = {
     );
     if (msg.content && mentionRegex.test(msg.content))
       await msg.reply('This test is successful. The bot is up and running.');
-
-    if (
-      msg.guild.appData.textXp &&
-      acceptedChannelTypes.includes(msg.channel.type)
-    )
+    
+    if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type) )
       await rankMessage(msg);
   },
 };
 
 async function rankMessage(msg) {
   if (!msg.channel) return;
-
+  
   const channel =
     msg.channel.type === ChannelType.PublicThread
       ? msg.channel.parent
@@ -86,6 +83,8 @@ async function rankMessage(msg) {
       return;
     msg.member.appData.lastTextMessageDate = nowSec;
   }
+
+  msg.client.appData.botShardStat.textMessagesTotal++;
 
   // Add Score
   await statFlushCache.addTextMessage(msg.member, channel, 1);

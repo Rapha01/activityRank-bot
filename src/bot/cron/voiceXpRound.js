@@ -7,9 +7,7 @@ const skip = require('../skip.js');
 const statFlushCache = require('../statFlushCache.js');
 const noXpUtil = require('../util/noXpUtil.js');
 const { ChannelType } = require('discord.js');
-let minutesToAdd = 0,
-  leftover = 0,
-  round = 0;
+let minutesToAdd = 0, leftover = 0, round = 0;
 
 module.exports = async (client) => {
   return new Promise(async function (resolve, reject) {
@@ -35,11 +33,12 @@ module.exports = async (client) => {
       minutesToAdd = Math.floor(secondsToAdd / 60);
       leftover = Math.round(secondsToAdd % 60);
 
-      client.logger.debug(
-        `[Rank Voice] #${round
-          .toString()
-          .padEnd(4)}: ${minutesToAdd} (${leftover.toString().padEnd(2)})`
-      );
+      if (round % 5 == 0)
+        client.logger.debug(
+          `[Rank Voice] #${round
+            .toString()
+            .padEnd(4)}: ${minutesToAdd} (${leftover.toString().padEnd(2)})`
+        );
 
       round++;
       resolve();

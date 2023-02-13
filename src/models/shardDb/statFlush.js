@@ -1,4 +1,5 @@
 const shardDb = require('./shardDb.js');
+const logger = require('../../util/logger.js');
 
 module.exports = (manager) => {
   return new Promise(async function (resolve, reject) {
@@ -28,7 +29,7 @@ module.exports = (manager) => {
       await Promise.all(promises);
 
       const hrend = process.hrtime(hrstart);
-      console.log(
+      logger.info(
         'Stat flush finished after ' +
           hrend +
           's. Saved rows: ' +

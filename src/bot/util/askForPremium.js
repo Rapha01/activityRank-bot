@@ -37,10 +37,10 @@ module.exports = async function (interaction) {
   interaction.guild.appData.lastAskForPremiumDate = now;
 
   await sendAskForPremiumEmbed(interaction);
-  interaction.client.logger.debug(
+  /*interaction.client.logger.debug(
     { guildId: interaction.guild.id },
     `Sent askForPremium in ${interaction.guild.name}`
-  );
+  );*/
 };
 
 async function sendAskForPremiumEmbed(interaction) {

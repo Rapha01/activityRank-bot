@@ -10,12 +10,14 @@ function _save(client) {
     readyDate: client.readyTimestamp,
     serverCount: client.guilds.cache.size,
     status: client.ws.status,
+    commandsTotal: client.appData.botShardStat.commandsTotal,
+    textMessagesTotal: client.appData.botShardStat.textMessagesTotal,
   };
   return obj;
 }
 
 module.exports = async (manager) => {
-  logger.debug('Saving shard health');
+  //logger.debug('Saving shard health');
   const round = (n) => ~~n;
   const nowDate = round(new Date().getTime() / 1000);
   const shards = await manager.broadcastEval(_save);
@@ -39,6 +41,8 @@ module.exports = async (manager) => {
     'readyDate',
     'ip',
     'changedHealthDate',
+    'commandsTotal',
+    'textMessagesTotal'
   ];
 
   const updateSqls = keys.map((k) => `${k}=VALUES(${k})`);
@@ -48,7 +52,5 @@ module.exports = async (manager) => {
   );
 
   await managerDb.query(`INSERT INTO botShardStat (${keys.join(',')})
-    VALUES ${valueSqls.join(',')} ON DUPLICATE KEY UPDATE ${updateSqls.join(
-    ','
-  )}`);
+    VALUES ${valueSqls.join(',')} ON DUPLICATE KEY UPDATE ${updateSqls.join(',')}`);
 };

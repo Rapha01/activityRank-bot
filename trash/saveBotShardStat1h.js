@@ -14,9 +14,14 @@ module.exports = (manager) => {
           textMessages1h: this.appData.botShardStat.textMessages1h,
           roleAssignments1h: this.appData.botShardStat.roleAssignments1h,
           rolesDeassignments1h: this.appData.botShardStat.rolesDeassignments1h,
-          serverCount: this.guilds.cache.size
         };
-        this.appData.botShardStat = { commands1h: 0, botInvites1h: 0, botKicks1h: 0, voiceMinutes1h: 0, textMessages1h: 0, roleAssignments1h: 0, rolesDeassignments1h: 0 };
+        this.appData.botShardStat.commands1h = 0;
+        this.appData.botShardStat.botInvites1h: 0; 
+        this.appData.botShardStat.botKicks1h: 0;
+        this.appData.botShardStat.voiceMinutes1h: 0; 
+        this.appData.botShardStat.textMessages1h: 0;
+        this.appData.botShardStat.roleAssignments1h: 0;
+        this.appData.botShardStat.rolesDeassignments1h: 0;
         obj;
 		  `);
 

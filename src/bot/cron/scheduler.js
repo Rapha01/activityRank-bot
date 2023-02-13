@@ -4,9 +4,11 @@ const autoAssignPatreonRoles = require('./autoAssignPatreonRoles.js');
 const resetJob = require('./resetJob.js');
 const fct = require('../../util/fct.js');
 const config = require('../../const/config.js');
+const util = require('util')
 
 const isProd = process.env.NODE_ENV === 'production';
 
+const logShardDiagnostics = isProd ? '0 */10 * * * *' : '*/20 * * * * *';
 const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
 const autoAssignPatreonRolesInterval = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
 const resetJobInterval = 3_000;
@@ -16,6 +18,7 @@ exports.start = (client) => {
   startVoiceXp(client);
   startResetJob();
 
+  /*
   cron.schedule(logHighestGuildsInterval, async () => {
     try {
       const sort = client.guilds.cache
@@ -31,6 +34,36 @@ exports.start = (client) => {
       client.logger.warn(e, 'Error in highestGuilds');
     }
   });
+  */
+  
+  cron.schedule(logShardDiagnostics, async () => {
+    try {
+      let str = '';
+      str += client.options.presence.status + ' ';
+      str += client.options.ws.presence.status + ' ';
+      str += client.ws.status + ' ';
+      str += client.ws.destroyed + ' ';
+
+      str += client.rest.requestManager.globalRemaining + ' ';
+      str += client.rest.requestManager.hashTimer._destroyed + ' ';
+      str += client.rest.requestManager.handlerTimer._destroyed + ' ';
+
+      str += client.guilds.cache.size + ' ';
+      str += client.presence.status + ' ';
+      str += client.presence.clientStatus + ' ';
+
+      str += JSON.stringify(util.inspect(client.sweepers.threads)) + ' ';
+
+      str += client.appData.botShardStat.commandsTotal + ' ';
+      str += client.appData.botShardStat.textMessagesTotal + ' ';
+
+      //console.log(client);
+      client.logger.debug('logShardDiagnostics: ' + str);
+    } catch (e) {
+      client.logger.warn(e, 'Error in logShardDiagnostics');
+    }
+  });
+
 
   const supportGuild = client.guilds.cache.get(config.supportServerId);
   if (supportGuild) {
