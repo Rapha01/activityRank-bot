@@ -146,7 +146,8 @@ module.exports = {
         interaction.client.appData.botShardStat.commandsTotal++;
 
         if (interaction.isCommand()) {
-          interaction.client.logger.debug(command.data.name + ' command used by Member ' + interaction.user.username);
+          if (command.data && interaction.user)
+            interaction.client.logger.debug(command.data.name + ' command used by Member ' + interaction.user.username);
 
           await command.execute(interaction);
           if (!command.isAdmin) await askForPremium(interaction);
