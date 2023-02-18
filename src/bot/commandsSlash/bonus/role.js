@@ -31,7 +31,19 @@ module.exports.execute = async (i) => {
 
   module.exports.currentJobs.add(i.guild.id);
   // backup removes after 1h
-  setTimeout(() => module.exports.currentJobs.delete(i.guild.id), 36e5);
+  const clean = () => {
+    let rm;
+    try {
+      rm = module.exports.currentJobs.delete(i.guild.id);
+    } catch (e) {
+      i.client.logger.debug('Guild left before bonus role job sweep');
+    }
+    if (rm)
+      i.client.logger.warn(
+        `role bonus job removed during sweep from guild ${i.guild.id}`
+      );
+  };
+  setTimeout(clean, 36e5);
 
   if (i.options.getBoolean('use-beta'))
     return await betaSystem(i, role, change);
