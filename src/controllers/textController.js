@@ -1,7 +1,4 @@
 const fct = require('../util/fct.js');
-const request = require('request');
-const path = require("path");
-const fs = require('fs');
 
 const commands = require('../const/commands.js');
 const patchnotes = require('../const/patchnotes.js');

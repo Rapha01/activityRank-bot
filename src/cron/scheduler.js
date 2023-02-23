@@ -3,7 +3,7 @@ const cron = require('node-cron');
 const topgg_api = require('../util/topgg_api.js');
 const patreon_api = require('../util/patreon_api.js');
 
-
+// should never trigger because Docker defaults to UTC
 if (new Date().getTimezoneOffset() !== 0)
   console.warn(`\n\n\n!!!\nThe current timezone is off from UTC by ${new Date().getTimezoneOffset() / 60} hours.
 This may affect the expected reset time.\n!!!\n\n\n`)
@@ -13,7 +13,7 @@ exports.start = (manager) => {
     try {
       if (process.env.NODE_ENV == 'production') {
         // Reset daily/weekly/monthly/yearly stats
-        cron.schedule('10 * * * *', async function() {
+        cron.schedule('5 * * * *', async function() {
           try {
             await resetModel.resetScoreByTime('day');
           } catch (e) { console.log(e); }
