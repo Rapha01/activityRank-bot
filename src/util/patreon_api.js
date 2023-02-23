@@ -21,12 +21,15 @@ exports.updatePatrons = async function() {
   /*
   * Parse Patreon API. Create activePledges array: Contains all currently active pledges with untilDate, tier and discord connection.
   */
+  console.log(' -------------- Patreon result.data -------------- ');
+  console.log(res.data);
 
   let activePledges = [];
   for (let member of res.data.data) {
     try {
       let newPledge = {};
       // Set patreonUserId
+      
       newPledge.patreonUserId = member.relationships.user.data.id;
 
       // Set tier. Ignore if no currently entitled tier.
@@ -61,6 +64,9 @@ exports.updatePatrons = async function() {
       console.log('Patreon Api parsing error for member '+ member.attributes.full_name + ': ' + error);
     }
   }
+
+  console.log(' -------------- Patreon parsed activePledges -------------- ');
+  console.log(activePledges);
 
   /*
   * Update DB. Use activePledges to update DB (if information of pledge and DB differ)
