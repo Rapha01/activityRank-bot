@@ -46,7 +46,7 @@ exports.start = (manager) => {
           } catch (e) { console.log(e); }
         });
       }
-
+      await patreon_api.updatePatrons();
       resolve();
     } catch (e) { reject(e); }
   });
