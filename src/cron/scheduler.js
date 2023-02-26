@@ -5,6 +5,8 @@ const statFlush = require('../models/shardDb/statFlush.js');
 const settingModel = require('../models/managerDb/settingModel.js');
 const textModel = require('../models/managerDb/textModel.js');
 const checkQueuedShardRestarts = require('./checkQueuedShardRestarts.js');
+const checkForDeadShards = require('./checkForDeadShards.js');
+
 
 const isProd = process.env.NODE_ENV == 'production';
 const settings = {
@@ -15,6 +17,7 @@ const settings = {
   saveBotShardHealthInterval: isProd ? 180_000 : 8_000,
   statFlushCacheCronInterval: isProd ? '30 * * * * *' : '*/10 * * * * *',
   checkQueuedShardRestartsInterval: isProd ? 120_000 : 30_000,
+  checkForDeadShardsInterval: isProd ? 1200_000 : 10_000,
 };
 
 exports.start = (manager) => {
@@ -24,6 +27,7 @@ exports.start = (manager) => {
       startUpdateSettings(manager);
       startUpdateTexts(manager);
       startSaveBotShardHealth(manager);
+      startCheckForDeadShards(manager);
 
       if (isProd)
         startCheckQueuedShardRestarts(manager);
@@ -119,5 +123,15 @@ const startCheckQueuedShardRestarts = async (manager) => {
       .catch((e) => console.log(e));
     
     await checkQueuedShardRestarts(manager).catch((e) => console.log(e));
+  }
+};
+
+const startCheckForDeadShards = async (manager) => {
+  while (true) {
+    await fct
+      .sleep(settings.checkForDeadShardsInterval)
+      .catch((e) => console.log(e));
+    
+    await checkForDeadShards(manager).catch((e) => console.log(e));
   }
 };
