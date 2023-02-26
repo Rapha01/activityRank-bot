@@ -2,7 +2,7 @@ const publicIp = require('public-ip');
 const managerDb = require('../models/managerDb/managerDb.js');
 const logger = require('../util/logger.js');
 
-function _save(client) {
+function _getStats(client) {
   const obj = {
     shardId: client.shard.ids[0],
     commandsTotal: client.appData.botShardStat.commandsTotal,
@@ -26,11 +26,11 @@ let history = [];
 
 module.exports = async (manager) => {
   const timestamp = Math.round(Date.now() / 1000);
-  const shards = await manager.broadcastEval(_save);
+  const shards = await manager.broadcastEval(_getStats);
 
   history.push({timestamp, shards});
 
-  // Pick latest set that is older than minutesDead
+  // Pick setOld: latest set that is older than secondsDead
   const setOld = history
       .filter(set => set.timestamp < timestamp - secondsDead)
       .reverse()[0];
@@ -40,10 +40,10 @@ module.exports = async (manager) => {
   // Clean unused old sets from history
   history = history.filter(set => set.timestamp >= setOld.timestamp);
 
-  // Pick latest set
+  // Pick setNow: latest set added just now to history
   const setNow = history[history.length - 1];
 
-  // Compare latest set with set that is older than secondsDead
+  // Compare setNow with setOld
   const deadShardIds = [];
   for (const shardOld of setOld.shards) {
     const shardNow = setNow.shards.find(s => s.shardId == shardOld.shardId);
