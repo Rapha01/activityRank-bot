@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const botDir = fileURLToPath(import.meta.resolve('../..'));
+const botDir = fileURLToPath(new URL('../..', import.meta.url));
 const eventDir = path.join(botDir, 'events');
 
 const files = fs.readdirSync(eventDir).filter((file) => file.endsWith('.js'));
