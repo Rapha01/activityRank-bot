@@ -20,7 +20,7 @@ const managerOptions = {
 
 import { ShardingManager } from 'discord.js';
 import logger from './util/logger.js';
-const manager = new ShardingManager('./bot/bot.js', managerOptions);
+const manager = new ShardingManager('./src/bot/bot.js', managerOptions);
 
 start().catch(async (e) => {
   logger.fatal(e);
