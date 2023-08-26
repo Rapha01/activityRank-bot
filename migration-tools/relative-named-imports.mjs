@@ -1,6 +1,7 @@
 /* 
 REGEX TESTED ON:
 
+import deployGlobal from './util/deploy-global';
 import { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers.js';
 import TEST, { PRIVILEGE_LEVELS } from '../../const/privilegedUsers.js';
@@ -56,7 +57,7 @@ for (const file of files) {
 
   for (const [i, line] of lines.entries()) {
     const regex =
-      /(?<=import ?(?:.+,)? ?{.+} ?from ?['"])(\..+(?<!\.js))(?=['"];?)/gim;
+      /(?<=import (?:.+,? )?(?:{.+})? ?from ?['"])(\..+(?<!\.js))(?=['"];?)/gim;
     if (regex.test(line)) {
       lines[
         i
