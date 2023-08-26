@@ -1,3 +1,6 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -8,7 +11,9 @@ import {
 } from 'discord.js';
 
 import { stripIndent } from 'common-tags';
-import { supportServerInviteLink } from '../../const/config';
+// GENERATED: added extension to relative import
+// import { supportServerInviteLink } from '../../const/config';
+import { supportServerInviteLink } from '../../const/config.js';
 
 export default {
   data: new SlashCommandBuilder()

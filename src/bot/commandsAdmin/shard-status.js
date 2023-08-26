@@ -1,3 +1,6 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import {
   SlashCommandBuilder,
   PermissionFlagsBits,
@@ -6,7 +9,9 @@ import {
   Status,
 } from 'discord.js';
 
-import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+// GENERATED: added extension to relative import
+// import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers.js';
 import { DurationFormatter } from '@sapphire/duration';
 import managerDb from '../../models/managerDb/managerDb';
 

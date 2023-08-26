@@ -1,3 +1,6 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import {
   SlashCommandBuilder,
   EmbedBuilder,
@@ -6,7 +9,9 @@ import {
   ButtonStyle,
 } from 'discord.js';
 
-import { botInviteLink } from '../../const/config';
+// GENERATED: added extension to relative import
+// import { botInviteLink } from '../../const/config';
+import { botInviteLink } from '../../const/config.js';
 
 export default {
   data: new SlashCommandBuilder()

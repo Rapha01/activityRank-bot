@@ -1,7 +1,12 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import resetModel from '../../models/resetModel.js';
 import nameUtil from '../../util/nameUtil';
-import { parseChannel } from '../../util/parser';
+// GENERATED: added extension to relative import
+// import { parseChannel } from '../../util/parser';
+import { parseChannel } from '../../util/parser.js';
 
 export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
