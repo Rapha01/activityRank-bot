@@ -5,8 +5,6 @@ import path from 'path';
 import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-
-//const tokenBurn = require('../util/tokenBurn.js');
 import askForPremium from '../util/askForPremium.js';
 
 import {
@@ -35,12 +33,12 @@ export default {
           ephemeral: true,
         });
       }
-      
+
       await guildModel.cache.load(interaction.guild);
 
       if (interaction.guild.appData.isBanned) {
         interaction.client.logger.debug(
-          `Banned guild ${interaction.guild.id} used interaction.`
+          `Banned guild ${interaction.guild.id} used interaction.`,
         );
         await interaction.reply({
           embeds: [
@@ -53,7 +51,7 @@ export default {
               new ButtonBuilder()
                 .setStyle(ButtonStyle.Link)
                 .setURL(supportServerInviteLink)
-                .setLabel('Appeal')
+                .setLabel('Appeal'),
             ),
           ],
         });
@@ -64,7 +62,7 @@ export default {
 
       if (interaction.user.appData.isBanned) {
         interaction.client.logger.debug(
-          `Banned user ${interaction.user.id} used interaction.`
+          `Banned user ${interaction.user.id} used interaction.`,
         );
         return interaction.reply({
           embeds: [
@@ -77,7 +75,7 @@ export default {
               new ButtonBuilder()
                 .setStyle(ButtonStyle.Link)
                 .setURL(supportServerInviteLink)
-                .setLabel('Appeal')
+                .setLabel('Appeal'),
             ),
           ],
         });
@@ -142,7 +140,7 @@ export default {
         ) {
           interaction.client.logger.warn(
             interaction,
-            'Unauthorized admin command attempt'
+            'Unauthorized admin command attempt',
           );
 
           return await interaction.reply({
@@ -155,9 +153,18 @@ export default {
 
         if (interaction.isCommand()) {
           if (command.data)
-            interaction.client.logger.debug(command.data.name + ' command used by Member ' + interaction.user.username + ' in guild ' + interaction.guild.name);
+            interaction.client.logger.debug(
+              command.data.name +
+                ' command used by Member ' +
+                interaction.user.username +
+                ' in guild ' +
+                interaction.guild.name,
+            );
           else
-            interaction.client.logger.debug('isCommand but no data field: command: ' + JSON.stringify(command));
+            interaction.client.logger.debug(
+              'isCommand but no data field: command: ' +
+                JSON.stringify(command),
+            );
 
           await command.execute(interaction);
           if (!command.isAdmin) await askForPremium(interaction);
@@ -171,7 +178,7 @@ export default {
         if (!interaction || !interaction.reply)
           interaction.client.logger.error(
             { i: interaction },
-            'Interaction or interaction.reply not defined in command error'
+            'Interaction or interaction.reply not defined in command error',
           );
 
         const message = {
@@ -188,12 +195,12 @@ export default {
         if (e2.code === 10062)
           // Unknown Interaction
           interaction.client.logger.debug(
-            'Unknown interaction while responding to command error'
+            'Unknown interaction while responding to command error',
           );
         else
           interaction.client.logger.error(
             { err: e2 },
-            'Error while responding to command error'
+            'Error while responding to command error',
           );
       }
       interaction.client.logger.warn({ err: e, interaction }, 'Command error');
@@ -213,7 +220,7 @@ const getPath = (interaction) => {
 const component = async (interaction) => {
   if (interaction.customId.split(' ')[0] === 'ignore') return;
   const command = interaction.client.commands.get(
-    interaction.customId.split(' ')[0]
+    interaction.customId.split(' ')[0],
   );
 
   if (!command) return;
@@ -223,7 +230,7 @@ const component = async (interaction) => {
 
 async function modalSubmit(interaction) {
   const command = interaction.client.commands.get(
-    interaction.customId.split(' ')[0]
+    interaction.customId.split(' ')[0],
   );
   if (!command) return;
   await command.modal(interaction);

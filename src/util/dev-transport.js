@@ -1,5 +1,6 @@
+import pretty from 'pino-pretty';
 export default (opts) =>
-  require('pino-pretty')({
+  pretty({
     ...opts,
     colorize: true,
     translateTime: 'SYS:mm/dd HH:MM:ss',
