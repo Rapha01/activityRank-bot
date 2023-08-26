@@ -1,7 +1,12 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import scheduler from './cron/scheduler.js';
 import fct from './util/fct.js';
 const keys = require('./const/keys.js').get();
-import deployGlobal from './util/deploy-global';
+// GENERATED: added extension to relative import
+// import deployGlobal from './util/deploy-global';
+import deployGlobal from './util/deploy-global.js';
 //const updateGl = require('./cron/updateGl.js');
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV != 'production')
