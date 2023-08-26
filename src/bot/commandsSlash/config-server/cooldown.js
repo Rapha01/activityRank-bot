@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
-const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const { stripIndent } = require('common-tags');
-const guildModel = require('../../models/guild/guildModel.js');
-const prettyTime = require('pretty-ms');
+import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 
-module.exports.execute = async function (i) {
+import { stripIndent } from 'common-tags';
+import guildModel from '../../models/guild/guildModel.js';
+import prettyTime from 'pretty-ms';
+
+export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:
@@ -48,7 +49,7 @@ module.exports.execute = async function (i) {
   });
 };
 
-module.exports.autocomplete = async (i) => {
+export const autocomplete = async (i) => {
   const { name } = i.options.getFocused(true);
   if (name === 'message') {
     await i.respond([

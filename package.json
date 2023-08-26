@@ -3,6 +3,7 @@
   "version": "5.0.0",
   "description": "ActivityRank Bot",
   "main": "src/app.js",
+  "type": "module",
   "scripts": {
     "production": "NODE_ENV=production node ./src/app.js",
     "development": "NODE_ENV=development node ./src/app.js",

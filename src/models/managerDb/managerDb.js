@@ -1,9 +1,9 @@
-const fetch = require('node-fetch');
-const mysql = require('promise-mysql');
+import fetch from 'node-fetch';
+import mysql from 'promise-mysql';
 let keys = require('../../const/keys').get();
 let dbHost, dbpassword, dbname, dbhost, pool;
 
-module.exports.query = (sql) => {
+export const query = (sql) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (!pool) await createPool();
@@ -15,10 +15,10 @@ module.exports.query = (sql) => {
   });
 };
 
-module.exports.getConnection = () => {
+export const getConnection = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (!pool) await module.exports.createPool();
+      if (!pool) await createPool();
 
       resolve(await pool.getConnection());
     } catch (e) {
@@ -27,11 +27,11 @@ module.exports.getConnection = () => {
   });
 };
 
-exports.getAllDbHosts = () => {
+export const getAllDbHosts = () => {
   return new Promise(async function (resolve, reject) {
     try {
       const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-      let res = await module.exports.query(`SELECT ${hostField} AS host FROM dbShard`);
+      let res = await query(`SELECT ${hostField} AS host FROM dbShard`);
 
       const hosts = [];
       for (let row of res) hosts.push(row.host); 
@@ -39,7 +39,7 @@ exports.getAllDbHosts = () => {
       resolve(hosts);
     } catch (e) { reject(e); }
   });
-}
+};
 
 const createPool = () => {
   return new Promise(async function (resolve, reject) {
@@ -81,7 +81,7 @@ const createPool = () => {
   });
 };
 
-exports.fetch = (body, route, method) => {
+export const fetch = (body, route, method) => {
   return new Promise(async function (resolve, reject) {
     try {
       let res;

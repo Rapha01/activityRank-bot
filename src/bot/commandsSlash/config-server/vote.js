@@ -1,8 +1,8 @@
-const { EmbedBuilder } = require('discord.js');
-const { stripIndent } = require('common-tags');
-const guildModel = require('../../models/guild/guildModel.js');
+import { EmbedBuilder } from 'discord.js';
+import { stripIndent } from 'common-tags';
+import guildModel from '../../models/guild/guildModel.js';
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has('MANAGE_GUILD')) {
     return await i.reply({
       content:

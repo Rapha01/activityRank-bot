@@ -1,13 +1,14 @@
-const {
+import {
   SlashCommandBuilder,
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-} = require('discord.js');
-const { botInviteLink } = require('../../const/config');
+} from 'discord.js';
 
-module.exports = {
+import { botInviteLink } from '../../const/config';
+
+export default {
   data: new SlashCommandBuilder()
     .setName('ping')
     .setDescription("Checks the bot's latency"),

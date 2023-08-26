@@ -1,13 +1,14 @@
 /* eslint-disable max-len */
-const {
+import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
   EmbedBuilder,
   PermissionFlagsBits,
-} = require('discord.js');
-const { stripIndent } = require('common-tags');
-const guildModel = require('../../models/guild/guildModel.js');
+} from 'discord.js';
+
+import { stripIndent } from 'common-tags';
+import guildModel from '../../models/guild/guildModel.js';
 
 const generateRows = async (i) => {
   const myGuild = await guildModel.storage.get(i.guild);
@@ -103,7 +104,7 @@ const _close = (i) =>
       .setCustomId(`config-server/set ${i.member.id} closeMenu`)
   );
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:
@@ -177,7 +178,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const [, memberId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)

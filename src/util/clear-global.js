@@ -1,5 +1,5 @@
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
 const { botId, botAuth } = require('../const/keys').get();
 
 main = async () => {

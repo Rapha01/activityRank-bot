@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const commands = require('../temp/const/commands');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import commands from '../temp/const/commands';
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('migrate')
   .setDescription('Look up the new equivalent of a command!')
   .addStringOption((o) =>
@@ -12,7 +12,7 @@ module.exports.data = new SlashCommandBuilder()
       .setAutocomplete(true)
   );
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   const opt = i.options.getString('command').trim();
   let cmd = null;
   cmd = commands.find((o) => o.old === opt);
@@ -37,7 +37,7 @@ module.exports.execute = async function (i) {
   });
 };
 
-module.exports.autocomplete = async function (i) {
+export const autocomplete = async function (i) {
   let cmds = commands.map((o) => o.old.trim());
   const focused = i.options.getFocused().trim().replace('ar!', '');
   cmds = cmds.filter((o) => o.includes(focused));

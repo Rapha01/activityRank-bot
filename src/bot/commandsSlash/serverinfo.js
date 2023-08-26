@@ -1,20 +1,21 @@
-const {
+import {
   StringSelectMenuBuilder,
   ButtonStyle,
   SlashCommandBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   EmbedBuilder,
-} = require('discord.js');
-const guildModel = require('../models/guild/guildModel.js');
-const { stripIndent } = require('common-tags');
-const guildChannelModel = require('../models/guild/guildChannelModel.js');
-const guildRoleModel = require('../models/guild/guildRoleModel.js');
-const fct = require('../../util/fct.js');
-const nameUtil = require('../util/nameUtil.js');
-const { botInviteLink } = require('../../const/config.js');
+} from 'discord.js';
 
-module.exports.data = new SlashCommandBuilder()
+import guildModel from '../models/guild/guildModel.js';
+import { stripIndent } from 'common-tags';
+import guildChannelModel from '../models/guild/guildChannelModel.js';
+import guildRoleModel from '../models/guild/guildRoleModel.js';
+import fct from '../../util/fct.js';
+import nameUtil from '../util/nameUtil.js';
+import { botInviteLink } from '../../const/config.js';
+
+export const data = new SlashCommandBuilder()
   .setName('serverinfo')
   .setDescription('Information about your server!');
 
@@ -71,7 +72,7 @@ const rows = (type, page, memberId) => {
   ];
 };
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   const myGuild = await guildModel.storage.get(i.guild);
   const page = fct.extractPageSimple(
     i.options.getInteger('page') ?? 1,
@@ -86,7 +87,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.component = async function (i) {
+export const component = async function (i) {
   const [, memberId] =
     i.message.components[2].components[0].customId.split(' ');
   if (memberId !== i.member.id)

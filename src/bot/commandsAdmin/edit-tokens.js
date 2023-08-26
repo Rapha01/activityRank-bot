@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
-const userModel = require('../models/userModel');
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+import userModel from '../models/userModel';
 
 const authorizedUsers = [
   '270273690074087427', // Wolf
@@ -8,9 +8,9 @@ const authorizedUsers = [
   '774660568728469585', // 01
 ];
 
-module.exports.requiredPrivileges = PRIVILEGE_LEVELS.Moderator;
+export const requiredPrivileges = PRIVILEGE_LEVELS.Moderator;
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('edit-tokens')
   .setDescription("Edit a user's tokens.")
   .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
@@ -51,7 +51,7 @@ module.exports.data = new SlashCommandBuilder()
       )
   );
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   if (!authorizedUsers.includes(i.user.id)) {
     i.client.logger.warn(
       `Unauthorized command attempt in editTokens command by user ${i.user.tag} [${i.user.id}]`

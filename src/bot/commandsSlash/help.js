@@ -1,15 +1,16 @@
-const {
+import {
   SlashCommandBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
-} = require('discord.js');
-const { stripIndent } = require('common-tags');
-const { supportServerInviteLink } = require('../../const/config');
+} from 'discord.js';
 
-module.exports = {
+import { stripIndent } from 'common-tags';
+import { supportServerInviteLink } from '../../const/config';
+
+export default {
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Shows information for operating the bot'),

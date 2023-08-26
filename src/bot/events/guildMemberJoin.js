@@ -1,10 +1,10 @@
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const levelManager = require('../levelManager.js');
-const guildModel = require('../models/guild/guildModel.js');
-const fct = require('../../util/fct.js');
-const Discord = require('discord.js');
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import levelManager from '../levelManager.js';
+import guildModel from '../models/guild/guildModel.js';
+import fct from '../../util/fct.js';
+import Discord from 'discord.js';
 
-module.exports = {
+export default {
   name: '_guildMemberJoin',
   execute(member) {
     return new Promise(async function (resolve, reject) {

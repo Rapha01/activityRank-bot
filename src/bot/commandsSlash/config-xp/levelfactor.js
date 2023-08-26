@@ -1,8 +1,8 @@
-const { PermissionFlagsBits } = require('discord.js');
-const guildModel = require('../../models/guild/guildModel.js');
-const resetModel = require('../../models/resetModel.js');
+import { PermissionFlagsBits } from 'discord.js';
+import guildModel from '../../models/guild/guildModel.js';
+import resetModel from '../../models/resetModel.js';
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:

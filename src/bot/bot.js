@@ -1,11 +1,11 @@
-const { Client, Options, GatewayIntentBits } = require('discord.js');
-const fct = require('../util/fct.js');
-const settingModel = require('../models/managerDb/settingModel.js');
-const textModel = require('../models/managerDb/textModel.js');
-const load = require('./util/startup/index.js');
-const loggerManager = require('./util/logger.js');
-const globalLogger = require('../util/logger.js');
-const cronScheduler = require('./cron/scheduler.js');
+import { Client, Options, GatewayIntentBits } from 'discord.js';
+import fct from '../util/fct.js';
+import settingModel from '../models/managerDb/settingModel.js';
+import textModel from '../models/managerDb/textModel.js';
+import load from './util/startup/index.js';
+import loggerManager from './util/logger.js';
+import globalLogger from '../util/logger.js';
+import cronScheduler from './cron/scheduler.js';
 
 const intents = [
   GatewayIntentBits.Guilds,

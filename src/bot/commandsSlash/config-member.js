@@ -1,12 +1,13 @@
-const {
+import {
   SlashCommandBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
-} = require('discord.js');
-const { oneLine } = require('common-tags');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
+} from 'discord.js';
+
+import { oneLine } from 'common-tags';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
 
 const generateRow = (i, myGuildMember) => {
   const r = [
@@ -34,11 +35,11 @@ const _close = (i) =>
       .setCustomId(`config-member ${i.member.id} closeMenu`)
   );
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('config-member')
   .setDescription('Change your personal settings');
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   await guildMemberModel.cache.load(i.member);
   const myGuildMember = await guildMemberModel.storage.get(
     i.guild,
@@ -68,7 +69,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const [, memberId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)

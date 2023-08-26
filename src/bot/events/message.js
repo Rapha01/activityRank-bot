@@ -1,10 +1,10 @@
-const guildModel = require('../models/guild/guildModel.js');
-const guildChannelModel = require('../models/guild/guildChannelModel.js');
-const guildRoleModel = require('../models/guild/guildRoleModel.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const statFlushCache = require('../statFlushCache.js');
-const skip = require('../skip.js');
-const { MessageType, ChannelType } = require('discord.js');
+import guildModel from '../models/guild/guildModel.js';
+import guildChannelModel from '../models/guild/guildChannelModel.js';
+import guildRoleModel from '../models/guild/guildRoleModel.js';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import statFlushCache from '../statFlushCache.js';
+import skip from '../skip.js';
+import { MessageType, ChannelType } from 'discord.js';
 
 const acceptedChannelTypes = [
   ChannelType.GuildText,
@@ -13,7 +13,7 @@ const acceptedChannelTypes = [
 ];
 const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
-module.exports = {
+export default {
   name: 'messageCreate',
   async execute(msg) {
     if (

@@ -1,21 +1,21 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const guildModel = require('../models/guild/guildModel.js');
-const userModel = require('../models/userModel.js');
-const utilModel = require('../models/utilModel.js');
-const nameUtil = require('../util/nameUtil.js');
-const cooldownUtil = require('../util/cooldownUtil.js');
-const { stripIndent } = require('common-tags');
-const fct = require('../../util/fct.js');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import guildModel from '../models/guild/guildModel.js';
+import userModel from '../models/userModel.js';
+import utilModel from '../models/utilModel.js';
+import nameUtil from '../util/nameUtil.js';
+import cooldownUtil from '../util/cooldownUtil.js';
+import { stripIndent } from 'common-tags';
+import fct from '../../util/fct.js';
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('memberinfo')
   .setDescription('Show information on a member.')
   .addUserOption((o) =>
     o.setName('member').setDescription('The member to show information about')
   );
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   const member = i.options.getMember('member') ?? i.member;
   await guildMemberModel.cache.load(i.member);
   const myGuild = await guildModel.storage.get(i.guild);

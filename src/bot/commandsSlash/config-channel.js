@@ -1,18 +1,19 @@
-const {
+import {
   SlashCommandBuilder,
   ActionRowBuilder,
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ChannelType: { GuildText, GuildVoice, GuildCategory, GuildForum },
+  ChannelType,
   PermissionFlagsBits,
   ChannelType,
-} = require('discord.js');
-const { oneLine, stripIndent } = require('common-tags');
-const guildChannelModel = require('../models/guild/guildChannelModel.js');
-const guildModel = require('../models/guild/guildModel.js');
-const nameUtil = require('../util/nameUtil.js');
-const { parseChannel } = require('../util/parser');
+} from 'discord.js';
+
+import { oneLine, stripIndent } from 'common-tags';
+import guildChannelModel from '../models/guild/guildChannelModel.js';
+import guildModel from '../models/guild/guildModel.js';
+import nameUtil from '../util/nameUtil.js';
+import { parseChannel } from '../util/parser';
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-channel')

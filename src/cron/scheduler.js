@@ -1,11 +1,11 @@
-const cron = require('node-cron');
-const saveBotShardHealth = require('./saveBotShardHealth.js');
-const fct = require('../util/fct.js');
-const statFlush = require('../models/shardDb/statFlush.js');
-const settingModel = require('../models/managerDb/settingModel.js');
-const textModel = require('../models/managerDb/textModel.js');
-const checkQueuedShardRestarts = require('./checkQueuedShardRestarts.js');
-const checkForDeadShards = require('./checkForDeadShards.js');
+import cron from 'node-cron';
+import saveBotShardHealth from './saveBotShardHealth.js';
+import fct from '../util/fct.js';
+import statFlush from '../models/shardDb/statFlush.js';
+import settingModel from '../models/managerDb/settingModel.js';
+import textModel from '../models/managerDb/textModel.js';
+import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
+import checkForDeadShards from './checkForDeadShards.js';
 
 
 const isProd = process.env.NODE_ENV == 'production';
@@ -20,7 +20,7 @@ const settings = {
   checkForDeadShardsInterval: isProd ? 1200_000 : 10_000,
 };
 
-exports.start = (manager) => {
+export const start = (manager) => {
   return new Promise(async function (resolve, reject) {
     try {
       //startStatFlush(manager);

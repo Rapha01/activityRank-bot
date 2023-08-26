@@ -1,14 +1,14 @@
-const shardDb = require('../../models/shardDb/shardDb.js');
-const managerDb = require('../../models/managerDb/managerDb.js');
-const mysql = require('promise-mysql');
-const fct = require('../../util/fct.js');
+import shardDb from '../../models/shardDb/shardDb.js';
+import managerDb from '../../models/managerDb/managerDb.js';
+import mysql from 'promise-mysql';
+import fct from '../../util/fct.js';
 
 const promises = {};
 let defaultCache = null;
 let defaultAll = null;
 const cachedFields = ['userId', 'isBanned'];
-exports.cache = {};
-exports.storage = {};
+export const cache = {};
+export const storage = {};
 const hostField =
   process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 

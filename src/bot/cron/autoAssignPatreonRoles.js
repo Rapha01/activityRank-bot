@@ -1,8 +1,8 @@
-const shardDb = require('../../models/shardDb/shardDb.js');
-const config = require('../../const/config.js');
+import shardDb from '../../models/shardDb/shardDb.js';
+import config from '../../const/config.js';
 
 
-module.exports = async (supportGuild) => {
+export default async (supportGuild) => {
 
   // Get active Patrons and support server members
   const myUsers = await shardDb.queryAllHosts(`SELECT * FROM user WHERE patreonTier > 0 && patreonTierUntilDate > ${Date.now() / 1000}`);

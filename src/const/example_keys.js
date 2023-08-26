@@ -37,7 +37,7 @@ const keys = {
   },
 };
 
-module.exports.get = () => {
+export const get = () => {
   if (process.env.NODE_ENV == 'production') return keys.production;
   else return keys.development;
 };

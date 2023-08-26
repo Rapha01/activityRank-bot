@@ -1,10 +1,10 @@
-const resetModel = require('../models/resetModel.js');
-const { logger } = require('../util/logger.js');
+import resetModel from '../models/resetModel.js';
+import { logger } from '../util/logger.js';
 let jobIndex = 0;
 
 const batchsize = process.env.NODE_ENV == 'production' ? 10_000 : 10;
 
-module.exports = async () => {
+export default async () => {
   try {
     let hrstart, hrend, resetJob;
     const keys = Object.keys(resetModel.resetJobs);

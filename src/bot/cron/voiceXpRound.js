@@ -1,15 +1,15 @@
-const levelManager = require('../levelManager.js');
-const fct = require('../../util/fct.js');
-const guildChannelModel = require('../models/guild/guildChannelModel.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const guildModel = require('../models/guild/guildModel.js');
-const skip = require('../skip.js');
-const statFlushCache = require('../statFlushCache.js');
-const noXpUtil = require('../util/noXpUtil.js');
-const { ChannelType } = require('discord.js');
+import levelManager from '../levelManager.js';
+import fct from '../../util/fct.js';
+import guildChannelModel from '../models/guild/guildChannelModel.js';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import guildModel from '../models/guild/guildModel.js';
+import skip from '../skip.js';
+import statFlushCache from '../statFlushCache.js';
+import noXpUtil from '../util/noXpUtil.js';
+import { ChannelType } from 'discord.js';
 let minutesToAdd = 0, leftover = 0, round = 0;
 
-module.exports = async (client) => {
+export default async (client) => {
   return new Promise(async function (resolve, reject) {
     try {
       const roundStart = Date.now() / 1000;

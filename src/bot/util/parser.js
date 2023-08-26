@@ -6,7 +6,7 @@
   .setName('id').setDescription('The ID of the channel to modify'));
 */
 
-module.exports.parseChannel = async (i) => {
+export const parseChannel = async (i) => {
   let id = null;
   if (i.options.get('channel')) id = i.options.get('channel').value;
   if (i.options.getString('id')) id = i.options.getString('id');
@@ -18,7 +18,7 @@ module.exports.parseChannel = async (i) => {
   return { id, channel };
 };
 
-module.exports.parseRole = async (i) => {
+export const parseRole = async (i) => {
   let id = null;
   if (i.options.get('role')) id = i.options.get('role').value;
   if (i.options.getString('id')) id = i.options.getString('id');
@@ -30,7 +30,7 @@ module.exports.parseRole = async (i) => {
   return { id, role };
 };
 
-module.exports.parseMember = async (i) => {
+export const parseMember = async (i) => {
   let id = null;
   if (i.options.get('member')) id = i.options.get('member').value;
   if (i.options.getString('id')) id = i.options.getString('id');

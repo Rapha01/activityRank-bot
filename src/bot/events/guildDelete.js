@@ -1,6 +1,6 @@
-const guildModel = require('../models/guild/guildModel.js');
+import guildModel from '../models/guild/guildModel.js';
 
-module.exports = {
+export default {
   name: 'guildDelete',
   execute(guild) {
     return new Promise(async function (resolve, reject) {

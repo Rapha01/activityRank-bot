@@ -1,4 +1,4 @@
-const {
+import {
   SlashCommandBuilder,
   EmbedBuilder,
   ActionRowBuilder,
@@ -6,25 +6,26 @@ const {
   ButtonStyle,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-} = require('discord.js');
-const cooldownUtil = require('../util/cooldownUtil.js');
-const guildModel = require('../models/guild/guildModel.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const rankModel = require('../models/rankModel.js');
-const fct = require('../../util/fct.js');
-const nameUtil = require('../util/nameUtil.js');
-const userModel = require('../models/userModel.js');
+} from 'discord.js';
 
-module.exports.activeCache = new Map();
+import cooldownUtil from '../util/cooldownUtil.js';
+import guildModel from '../models/guild/guildModel.js';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import rankModel from '../models/rankModel.js';
+import fct from '../../util/fct.js';
+import nameUtil from '../util/nameUtil.js';
+import userModel from '../models/userModel.js';
 
-module.exports.data = new SlashCommandBuilder()
+export const activeCache = new Map();
+
+export const data = new SlashCommandBuilder()
   .setName('rank')
   .setDescription("Find your or another member's rank")
   .addUserOption((o) =>
     o.setName('member').setDescription('The member to check the rank of')
   );
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   await i.deferReply();
 
   await guildMemberModel.cache.load(i.member);
@@ -72,7 +73,7 @@ module.exports.execute = async (i) => {
   exports.activeCache.set(id, initialState);
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const action = i.customId.split(' ')[1];
   let payload = i.customId.split(' ')[2] ?? i.values[0];
 

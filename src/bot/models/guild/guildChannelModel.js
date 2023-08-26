@@ -1,11 +1,11 @@
-const shardDb = require('../../../models/shardDb/shardDb.js');
-const mysql = require('promise-mysql');
-const rankModel = require('../rankModel.js');
-const fct = require('../../../util/fct.js');
+import shardDb from '../../../models/shardDb/shardDb.js';
+import mysql from 'promise-mysql';
+import rankModel from '../rankModel.js';
+import fct from '../../../util/fct.js';
 
 const promises = {};
-exports.cache = {};
-exports.storage = {};
+export const cache = {};
+export const storage = {};
 
 const cachedFields = ['noXp', 'noCommand'];
 let defaultCache = null;
@@ -85,7 +85,7 @@ exports.storage.set = (guild, channelId, field, value) => {
   });
 };
 
-exports.getRankedChannelIds = (guild) => {
+export const getRankedChannelIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const textmessageUserIds = await shardDb.query(
@@ -111,7 +111,7 @@ exports.getRankedChannelIds = (guild) => {
   });
 };
 
-exports.getNoXpChannelIds = (guild) => {
+export const getNoXpChannelIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
@@ -129,7 +129,7 @@ exports.getNoXpChannelIds = (guild) => {
   });
 };
 
-exports.getNoCommandChannelIds = (guild) => {
+export const getNoCommandChannelIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(

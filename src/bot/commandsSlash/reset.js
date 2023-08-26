@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('discord.js');
+import { SlashCommandBuilder } from 'discord.js';
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('reset')
   .setDescription('Reset your server or members')
   .addSubcommand((sc) =>

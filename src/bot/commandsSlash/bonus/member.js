@@ -1,8 +1,8 @@
-const { PermissionFlagsBits } = require('discord.js');
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const statFlushCache = require('../../statFlushCache.js');
+import { PermissionFlagsBits } from 'discord.js';
+import guildMemberModel from '../../models/guild/guildMemberModel.js';
+import statFlushCache from '../../statFlushCache.js';
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   const member = i.options.getMember('member');
   await guildMemberModel.cache.load(member);
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {

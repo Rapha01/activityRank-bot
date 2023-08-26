@@ -1,19 +1,19 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { oneLine } = require('common-tags');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const fct = require('../../util/fct.js');
-const cooldownUtil = require('../util/cooldownUtil.js');
-const statFlushCache = require('../statFlushCache.js');
-const userModel = require('../models/userModel.js');
+import { SlashCommandBuilder } from 'discord.js';
+import { oneLine } from 'common-tags';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import fct from '../../util/fct.js';
+import cooldownUtil from '../util/cooldownUtil.js';
+import statFlushCache from '../statFlushCache.js';
+import userModel from '../models/userModel.js';
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('upvote')
   .setDescription('Upvote a member!')
   .addUserOption((o) =>
     o.setName('member').setDescription('The member to upvote').setRequired(true)
   );
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   if (!i.guild.appData.voteXp)
     return await i.reply({
       content: 'Voting is disabled on this server.',

@@ -1,41 +1,41 @@
-const { ChannelType } = require('discord.js');
+import { ChannelType } from 'discord.js';
 
-exports.getChannelName = (channels, channelId) => {
+export const getChannelName = (channels, channelId) => {
   const channel = channels.get(channelId);
 
-  if (channel) return exports.cutName(channel.name);
+  if (channel) return cutName(channel.name);
   else return 'Deleted [' + channelId + ']';
 };
 
-exports.getChannelMention = (channels, channelId) => {
+export const getChannelMention = (channels, channelId) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.toString();
   else return `Deleted [${channelId}]`;
 };
 
-exports.getChannelType = (channels, channelId) => {
+export const getChannelType = (channels, channelId) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.type;
   else return null;
 };
 
-exports.getRoleName = (roles, roleId) => {
+export const getRoleName = (roles, roleId) => {
   const role = roles.get(roleId);
 
-  if (role) return exports.cutName(role.name);
+  if (role) return cutName(role.name);
   else return 'Deleted [' + roleId + ']\n';
 };
 
-exports.getRoleMention = (roles, roleId) => {
+export const getRoleMention = (roles, roleId) => {
   const role = roles.get(roleId);
 
   if (role) return role.toString();
   else return `Deleted [${roleId}]`;
 };
 
-exports.getChannelTypeIcon = (channels, channelId) => {
+export const getChannelTypeIcon = (channels, channelId) => {
   const channel = channels.get(channelId);
 
   if (!channel) return ':grey_question:';
@@ -53,7 +53,7 @@ exports.getChannelTypeIcon = (channels, channelId) => {
   }
 };
 
-exports.getGuildMemberInfos = (guild, userIds) => {
+export const getGuildMemberInfos = (guild, userIds) => {
   return new Promise(async function (resolve, reject) {
     try {
       let member,
@@ -65,7 +65,7 @@ exports.getGuildMemberInfos = (guild, userIds) => {
 
         if (member) {
           infos[userId] = {};
-          infos[userId].name = exports.getGuildMemberAlias(member);
+          infos[userId].name = getGuildMemberAlias(member);
           infos[userId].avatarUrl = member.user.avatarURL();
           infos[userId].joinedAt = member.joinedAt;
         } else {
@@ -83,7 +83,7 @@ exports.getGuildMemberInfos = (guild, userIds) => {
         for (const fetchedMember of fetchedMembers) {
           member = fetchedMember[1];
           infos[member.id] = {};
-          infos[member.id].name = exports.getGuildMemberAlias(member);
+          infos[member.id].name = getGuildMemberAlias(member);
           infos[member.id].avatarUrl = member.user.avatarURL();
           infos[member.id].joinedAt = member.joinedAt;
         }
@@ -106,11 +106,11 @@ exports.getGuildMemberInfos = (guild, userIds) => {
   });
 };
 
-exports.getGuildMemberInfo = (guild, userId) => {
+export const getGuildMemberInfo = (guild, userId) => {
   return new Promise(async function (resolve, reject) {
     try {
       const guildMemberName = (
-        await exports.getGuildMemberInfos(guild, [userId])
+        await getGuildMemberInfos(guild, [userId])
       )[userId];
       resolve(guildMemberName);
     } catch (e) {
@@ -119,20 +119,20 @@ exports.getGuildMemberInfo = (guild, userId) => {
   });
 };
 
-exports.getGuildMemberMention = (members, memberId) => {
+export const getGuildMemberMention = (members, memberId) => {
   const role = members.get(memberId);
 
   if (role) return role.toString();
   else return `Deleted [${memberId}]`;
 };
 
-exports.addGuildMemberNamesToRanks = (guild, memberRanks) => {
+export const addGuildMemberNamesToRanks = (guild, memberRanks) => {
   return new Promise(async function (resolve, reject) {
     try {
       let userIds = [],
         memberRank;
       for (memberRank of memberRanks) userIds.push(memberRank.userId);
-      const memberInfos = await exports.getGuildMemberInfos(guild, userIds);
+      const memberInfos = await getGuildMemberInfos(guild, userIds);
 
       for (memberRank of memberRanks)
         memberRank.name = memberInfos[memberRank.userId].name;
@@ -144,16 +144,16 @@ exports.addGuildMemberNamesToRanks = (guild, memberRanks) => {
   });
 };
 
-exports.getGuildMemberAlias = (member) => {
+export const getGuildMemberAlias = (member) => {
   if (member.guild.appData.showNicknames) {
-    if (member.nickname) return exports.cutName(member.nickname);
-    else return exports.cutName(member.user.username);
+    if (member.nickname) return cutName(member.nickname);
+    else return cutName(member.user.username);
   } else {
-    return exports.cutName(member.user.username);
+    return cutName(member.user.username);
   }
 };
 
-exports.cutName = (name) => {
+export const cutName = (name) => {
   if (name.length > 32) name = name.substr(0, 32) + '..';
 
   return name;

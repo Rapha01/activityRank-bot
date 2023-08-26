@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const botDir = path.resolve(path.join(__dirname, '..', '..'));
 const eventDir = path.join(botDir, 'events');
 
 const files = fs.readdirSync(eventDir).filter((file) => file.endsWith('.js'));
 
-module.exports = (client) => {
+export default (client) => {
   for (const file of files) {
     const event = require(path.join(eventDir, file));
 

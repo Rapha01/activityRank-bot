@@ -1,10 +1,10 @@
-const cron = require('node-cron');
-const voiceXpRound = require('./voiceXpRound.js');
-const autoAssignPatreonRoles = require('./autoAssignPatreonRoles.js');
-const resetJob = require('./resetJob.js');
-const fct = require('../../util/fct.js');
-const config = require('../../const/config.js');
-const util = require('util')
+import cron from 'node-cron';
+import voiceXpRound from './voiceXpRound.js';
+import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
+import resetJob from './resetJob.js';
+import fct from '../../util/fct.js';
+import config from '../../const/config.js';
+import util from 'util';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -13,7 +13,7 @@ const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
 const autoAssignPatreonRolesInterval = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
 const resetJobInterval = 3_000;
 
-exports.start = (client) => {
+export const start = (client) => {
   // Loops
   startVoiceXp(client);
   startResetJob();

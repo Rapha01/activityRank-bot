@@ -1,14 +1,14 @@
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const guildModel = require('../models/guild/guildModel.js');
-const userModel = require('../models/userModel.js');
-const guildRoleModel = require('../models/guild/guildRoleModel.js');
-const emoji = require('node-emoji');
-const cooldownUtil = require('../util/cooldownUtil.js');
-const statFlushCache = require('../statFlushCache.js');
-const skip = require('../skip.js');
-const fct = require('../../util/fct.js');
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import guildModel from '../models/guild/guildModel.js';
+import userModel from '../models/userModel.js';
+import guildRoleModel from '../models/guild/guildRoleModel.js';
+import emoji from 'node-emoji';
+import cooldownUtil from '../util/cooldownUtil.js';
+import statFlushCache from '../statFlushCache.js';
+import skip from '../skip.js';
+import fct from '../../util/fct.js';
 
-module.exports = {
+export default {
   name: 'messageReactionAdd',
   execute(reaction) {
     return new Promise(async function (resolve, reject) {

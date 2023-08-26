@@ -1,10 +1,10 @@
-const fct = require('../util/fct.js');
-const nameUtil = require('./util/nameUtil.js');
-const guildRoleModel = require('./models/guild/guildRoleModel.js');
-const Discord = require('discord.js');
-const { PermissionFlagsBits } = require('discord.js');
+import fct from '../util/fct.js';
+import nameUtil from './util/nameUtil.js';
+import guildRoleModel from './models/guild/guildRoleModel.js';
+import Discord from 'discord.js';
+import { PermissionFlagsBits } from 'discord.js';
 
-exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
+export const checkLevelUp = (member, oldTotalScore, newTotalScore) => {
   return new Promise(async function (resolve, reject) {
     let oldLevel, newLevel, roleMessages;
     try {
@@ -16,7 +16,7 @@ exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
       );
 
       if (oldLevel != newLevel)
-        roleMessages = await exports.checkRoleAssignment(member, newLevel);
+        roleMessages = await checkRoleAssignment(member, newLevel);
     } catch (e) {
       return reject(e);
     }
@@ -35,7 +35,7 @@ exports.checkLevelUp = (member, oldTotalScore, newTotalScore) => {
   });
 };
 
-exports.checkRoleAssignment = (member, level) => {
+export const checkRoleAssignment = (member, level) => {
   return new Promise(async function (resolve, reject) {
     try {
       let roleMessages = [],

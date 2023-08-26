@@ -1,6 +1,6 @@
-const shardDb = require('../../models/shardDb/shardDb.js');
-const guildMemberModel = require('./guild/guildMemberModel.js');
-const guildChannelModel = require('./guild/guildChannelModel.js');
+import shardDb from '../../models/shardDb/shardDb.js';
+import guildMemberModel from './guild/guildMemberModel.js';
+import guildChannelModel from './guild/guildChannelModel.js';
 
 const resetJobs = {};
 exports.resetJobs = resetJobs;

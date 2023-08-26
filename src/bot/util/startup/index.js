@@ -1,7 +1,7 @@
-const cmdLoader = require('./cmdLoader');
-const eventLoader = require('./eventLoader');
+import cmdLoader from './cmdLoader';
+import eventLoader from './eventLoader';
 
-module.exports = function load(client) {
+export default function load(client) {
   cmdLoader(client);
   eventLoader(client);
 };

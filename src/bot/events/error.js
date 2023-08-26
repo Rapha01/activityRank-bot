@@ -1,6 +1,6 @@
-const cronScheduler = require('../cron/scheduler.js');
+import cronScheduler from '../cron/scheduler.js';
 
-module.exports = {
+export default {
   name: 'error',
   execute(err) {
     console.log('client.onError: ', err);

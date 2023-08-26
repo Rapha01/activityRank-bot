@@ -1,10 +1,10 @@
-const publicIp = require('public-ip');
-const managerDb = require('../models/managerDb/managerDb.js');
-const { escape } = require('promise-mysql');
-const logger = require('../util/logger.js');
+import publicIp from 'public-ip';
+import managerDb from '../models/managerDb/managerDb.js';
+import { escape } from 'promise-mysql';
+import logger from '../util/logger.js';
 
 
-module.exports = async (manager) => {
+export default async (manager) => {
   const res = await managerDb.query(`SELECT shardId from botShardStat WHERE restartQueued = 1`);
 
   shardIdsToRestart = [];

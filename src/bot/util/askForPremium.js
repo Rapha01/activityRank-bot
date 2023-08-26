@@ -1,8 +1,8 @@
-const userModel = require('../models/userModel.js');
-const fct = require('../../util/fct.js');
-const cooldownUtil = require('./cooldownUtil.js');
-const { EmbedBuilder } = require('discord.js');
-const { oneLine } = require('common-tags');
+import userModel from '../models/userModel.js';
+import fct from '../../util/fct.js';
+import cooldownUtil from './cooldownUtil.js';
+import { EmbedBuilder } from 'discord.js';
+import { oneLine } from 'common-tags';
 
 let askForPremiumCdGuild, askForPremiumCdUser;
 if (process.env.NODE_ENV == 'production') {
@@ -13,7 +13,7 @@ if (process.env.NODE_ENV == 'production') {
   askForPremiumCdUser = 3600 * 6; // 60
 }
 
-module.exports = async function (interaction) {
+export default async function (interaction) {
   if (
     cooldownUtil.getCachedCooldown(
       interaction.guild.appData,

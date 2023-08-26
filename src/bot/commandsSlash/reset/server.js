@@ -1,13 +1,8 @@
-const cooldownUtil = require('../../util/cooldownUtil.js');
-const resetModel = require('../../models/resetModel.js');
-const {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  PermissionFlagsBits,
-} = require('discord.js');
+import cooldownUtil from '../../util/cooldownUtil.js';
+import resetModel from '../../models/resetModel.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:

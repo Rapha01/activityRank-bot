@@ -1,7 +1,7 @@
-const scheduler = require('./cron/scheduler.js');
-const fct = require('./util/fct.js');
+import scheduler from './cron/scheduler.js';
+import fct from './util/fct.js';
 const keys = require('./const/keys.js').get();
-const deployGlobal = require('./util/deploy-global');
+import deployGlobal from './util/deploy-global';
 //const updateGl = require('./cron/updateGl.js');
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV != 'production')
@@ -13,8 +13,8 @@ const managerOptions = {
   // totalShards: 20
 };
 
-const { ShardingManager } = require('discord.js');
-const logger = require('./util/logger.js');
+import { ShardingManager } from 'discord.js';
+import logger from './util/logger.js';
 const manager = new ShardingManager('./bot/bot.js', managerOptions);
 
 start().catch(async (e) => {

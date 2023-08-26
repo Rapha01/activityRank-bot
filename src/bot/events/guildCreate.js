@@ -1,6 +1,6 @@
-const guildModel = require('../models/guild/guildModel.js');
+import guildModel from '../models/guild/guildModel.js';
 
-module.exports = {
+export default {
   name: 'guildCreate',
   async execute(guild) {
     guild.client.logger.info(`Joined guild ${guild.toString()}`);
