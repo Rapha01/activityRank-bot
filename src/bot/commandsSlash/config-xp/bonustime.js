@@ -1,5 +1,10 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import { PermissionFlagsBits } from 'discord.js';
-import guildModel from '../../models/guild/guildModel';
+// GENERATED: added extension to relative import
+// import guildModel from '../../models/guild/guildModel';
+import guildModel from '../../models/guild/guildModel.js';
 
 export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {

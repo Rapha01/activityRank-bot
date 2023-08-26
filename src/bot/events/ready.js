@@ -1,5 +1,10 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import cronScheduler from '../cron/scheduler.js';
-import localDeploy from '../util/deploy-local';
+// GENERATED: added extension to relative import
+// import localDeploy from '../util/deploy-local';
+import localDeploy from '../util/deploy-local.js';
 
 export default {
   name: 'ready',

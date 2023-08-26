@@ -1,5 +1,10 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import commands from '../temp/const/commands';
+// GENERATED: added extension to relative import
+// import commands from '../temp/const/commands';
+import commands from '../temp/const/commands.js';
 
 export const data = new SlashCommandBuilder()
   .setName('migrate')
