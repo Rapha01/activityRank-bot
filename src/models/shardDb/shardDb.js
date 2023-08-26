@@ -1,7 +1,8 @@
 import mysql from 'promise-mysql';
 import managerDb from '../managerDb/managerDb.js';
 import net from 'net';
-let keys = require('../../const/keys').get();
+import { get as getKeys } from '../../const/keys.js';
+let keys = getKeys();
 let dbuser,
   dbpassword,
   dbname,
@@ -30,7 +31,9 @@ export const queryAllHosts = (sql) => {
       }
 
       resolve(aggregate);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
@@ -52,7 +55,7 @@ const createPool = (dbHost) => {
       if (!pools[dbHost]) {
         if (!net.isIP(dbHost))
           return reject(
-            'Query triggered without defined dbHost. dbHost: ' + dbHost + '.'
+            'Query triggered without defined dbHost. dbHost: ' + dbHost + '.',
           );
 
         pools[dbHost] = await mysql.createPool({
@@ -73,7 +76,7 @@ const createPool = (dbHost) => {
             console.log(
               'PROTOCOL_CONNECTION_LOST for shardDb @' +
                 dbHost +
-                '. Deleting connection.'
+                '. Deleting connection.',
             );
             delete pools[dbHost];
           } else {
@@ -91,15 +94,13 @@ const createPool = (dbHost) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    query,
-    queryAllHosts,
-    getConnection,
-}
+  query,
+  queryAllHosts,
+  getConnection,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

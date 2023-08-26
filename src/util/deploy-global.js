@@ -2,7 +2,8 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
 import path from 'path';
-const { botId, botAuth, adminGuild } = require('../const/keys').get();
+import { get as getKeys } from '../const/keys.js';
+const { botId, botAuth, adminGuild } = getKeys();
 
 const commands = [];
 const adminCommands = [];
@@ -38,15 +39,15 @@ export default async function () {
     console.log('Refreshing GLOBAL application (/) commands...');
     await rest.put(Routes.applicationCommands(botId), { body: commands });
     console.log(
-      'Successfully reloaded GLOBAL application (/) commands.\nRefreshing admin commands...'
+      'Successfully reloaded GLOBAL application (/) commands.\nRefreshing admin commands...',
     );
     await rest.put(Routes.applicationGuildCommands(botId, adminGuild), {
       body: adminCommands,
     });
     console.log(
-      `Loaded local application and admin (/) commands in admin guild (${adminGuild})`
+      `Loaded local application and admin (/) commands in admin guild (${adminGuild})`,
     );
   } catch (error) {
     console.error(error);
   }
-};
+}

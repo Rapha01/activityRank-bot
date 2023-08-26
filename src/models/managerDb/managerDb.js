@@ -1,6 +1,7 @@
 import nativeFetch from 'node-fetch';
 import mysql from 'promise-mysql';
-let keys = require('../../const/keys').get();
+import { get as getKeys } from '../../const/keys.js';
+let keys = getKeys();
 let dbHost, dbpassword, dbname, dbhost, pool;
 
 export const query = (sql) => {
@@ -116,16 +117,14 @@ export const fetch = (body, route, method) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    query,
-    getConnection,
-    getAllDbHosts,
-    fetch,
-}
+  query,
+  getConnection,
+  getAllDbHosts,
+  fetch,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-
