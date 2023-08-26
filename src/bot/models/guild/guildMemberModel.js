@@ -11,7 +11,7 @@ const cachedFields = ['notifyLevelupDm', 'reactionVote'];
 let defaultCache = null;
 let defaultAll = null;
 
-exports.cache.load = (member) => {
+cache.load = (member) => {
   if (!member.appData) {
     if (promises[member.guild.id + member.id]) {
       return promises[member.guild.id + member.id];
@@ -27,7 +27,7 @@ exports.cache.load = (member) => {
           delete promises[member.guild.id + member.id];
           reject(e);
         }
-      }
+      },
     );
 
     return promises[member.guild.id + member.id];
@@ -38,14 +38,14 @@ exports.cache.load = (member) => {
   });
 };
 
-exports.storage.get = (guild, userId) => {
+storage.get = (guild, userId) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
         `SELECT * FROM guildMember WHERE guildId = ${
           guild.id
-        } && userId = ${mysql.escape(userId)}`
+        } && userId = ${mysql.escape(userId)}`,
       );
 
       if (res.length == 0) {
@@ -53,7 +53,7 @@ exports.storage.get = (guild, userId) => {
           defaultAll = (
             await shardDb.query(
               guild.appData.dbHost,
-              `SELECT * FROM guildMember WHERE guildId = 0 AND userId = 0`
+              `SELECT * FROM guildMember WHERE guildId = 0 AND userId = 0`,
             )
           )[0];
         return resolve(defaultAll);
@@ -64,7 +64,7 @@ exports.storage.get = (guild, userId) => {
   });
 };
 
-exports.storage.set = (guild, userId, field, value) => {
+storage.set = (guild, userId, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
@@ -72,8 +72,8 @@ exports.storage.set = (guild, userId, field, value) => {
         `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${
           guild.id
         },${mysql.escape(userId)},${mysql.escape(
-          value
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`
+          value,
+        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
       );
 
       const member = guild.members.cache.get(userId);
@@ -87,7 +87,7 @@ exports.storage.set = (guild, userId, field, value) => {
   });
 };
 
-exports.storage.increment = (guild, userId, field, value) => {
+storage.increment = (guild, userId, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
@@ -95,10 +95,10 @@ exports.storage.increment = (guild, userId, field, value) => {
         `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${
           guild.id
         },${mysql.escape(userId)},${mysql.escape(
-          value
+          value,
         )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(
-          value
-        )}`
+          value,
+        )}`,
       );
 
       const member = guild.members.cache.get(userId);
@@ -117,19 +117,19 @@ export const getRankedUserIds = (guild) => {
     try {
       const textmessageUserIds = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`
+        `SELECT DISTINCT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
       );
       const voiceMinuteUserIds = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`
+        `SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
       );
       const voteUserIds = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0`
+        `SELECT DISTINCT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0`,
       );
       const bonusUserIds = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0`
+        `SELECT DISTINCT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0`,
       );
 
       const ids = [
@@ -160,7 +160,7 @@ const buildCache = (member) => {
         member.guild.appData.dbHost,
         `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = ${
           member.guild.id
-        } AND userId = ${member.id}`
+        } AND userId = ${member.id}`,
       );
 
       if (cache.length > 0) cache = cache[0];
@@ -170,7 +170,7 @@ const buildCache = (member) => {
       }
 
       cache.totalXp = parseInt(
-        await rankModel.getGuildMemberTotalScore(member.guild, member.id)
+        await rankModel.getGuildMemberTotalScore(member.guild, member.id),
       );
       cache.lastTextMessageDate = 0;
 
@@ -188,21 +188,21 @@ const loadDefaultCache = (dbHost) => {
       let res = await shardDb.query(
         dbHost,
         `SELECT ${cachedFields.join(
-          ','
-        )} FROM guildMember WHERE guildId = 0 AND userId = 0`
+          ',',
+        )} FROM guildMember WHERE guildId = 0 AND userId = 0`,
       );
 
       if (res.length == 0)
         await shardDb.query(
           dbHost,
-          `INSERT IGNORE INTO guildMember (guildId,userId) VALUES (0,0)`
+          `INSERT IGNORE INTO guildMember (guildId,userId) VALUES (0,0)`,
         );
 
       res = await shardDb.query(
         dbHost,
         `SELECT ${cachedFields.join(
-          ','
-        )} FROM guildMember WHERE guildId = 0 AND userId = 0`
+          ',',
+        )} FROM guildMember WHERE guildId = 0 AND userId = 0`,
       );
 
       defaultCache = res[0];
@@ -213,15 +213,13 @@ const loadDefaultCache = (dbHost) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    cache,
-    storage,
-    getRankedUserIds,
-}
+  cache,
+  storage,
+  getRankedUserIds,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-
