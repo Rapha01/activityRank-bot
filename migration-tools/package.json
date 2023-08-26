@@ -1,0 +1,12 @@
+{
+  "name": "migration-tools",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Tools for migrating AR to TS",
+  "author": "piemot",
+  "dependencies": {
+    "acorn": "^8.10.0",
+    "picomatch": "^2.3.1"
+  }
+}

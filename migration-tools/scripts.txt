@@ -1,0 +1,1 @@
+node --experimental-import-meta-resolve exports-to-default.mjs src 2>&1 | tee logs/exports-to-default.log
