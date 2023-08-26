@@ -79,3 +79,15 @@ export const execute = async function (i) {
       Upvote the bot on top.gg or subscribe on https://www.patreon.com/rapha01 to increase your voting power!`);
   }
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+    execute,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

@@ -14,3 +14,14 @@ export const channelTypes = [
   'GUILD_PRIVATE_THREAD',
   'GUILD_STAGE_VOICE',
 ];
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    channelTypes,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

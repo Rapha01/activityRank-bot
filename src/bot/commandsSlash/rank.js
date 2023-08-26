@@ -398,3 +398,17 @@ function getTypes(appData) {
     'totalScore',
   ].filter((i) => i !== null);
 }
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    activeCache,
+    data,
+    execute,
+    component,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

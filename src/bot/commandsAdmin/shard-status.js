@@ -143,3 +143,17 @@ function parseShardInfoContent(shard) {
     `  **Last updated**: <t:${shard.changedHealthDate}:T>, <t:${shard.changedHealthDate}:R>`,
   ].join('\n');
 }
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    activeCache,
+    requiredPrivileges,
+    data,
+    execute,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

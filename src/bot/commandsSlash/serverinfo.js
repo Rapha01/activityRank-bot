@@ -404,3 +404,16 @@ async function messages(i, myGuild, from, to) {
 
   return e;
 }
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+    execute,
+    component,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

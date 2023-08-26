@@ -247,3 +247,15 @@ const replaceTagsLevelup = (text, member, level) => {
       .replace(/<servername>/g, member.guild.name) + '\n'
   );
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    checkLevelUp,
+    checkRoleAssignment,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

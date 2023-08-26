@@ -172,3 +172,25 @@ export const cutName = (name) => {
   return embed;
 
 } */
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    getChannelName,
+    getChannelMention,
+    getChannelType,
+    getRoleName,
+    getRoleMention,
+    getChannelTypeIcon,
+    getGuildMemberInfos,
+    getGuildMemberInfo,
+    getGuildMemberMention,
+    addGuildMemberNamesToRanks,
+    getGuildMemberAlias,
+    cutName,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

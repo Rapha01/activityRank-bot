@@ -598,3 +598,18 @@ export const sendMembersEmbed = async (i, type) => {
     embeds: [e],
   });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    activeCache,
+    data,
+    execute,
+    component,
+    sendMembersEmbed,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

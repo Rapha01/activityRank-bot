@@ -61,7 +61,7 @@ for (const file of files) {
 
   if (!ast.body.some((node) => node.type === 'ExportNamedDeclaration')) {
     console.log(`ignoring file ${file}: has no named declarations`);
-    return;
+    continue;
   }
 
   contents +=

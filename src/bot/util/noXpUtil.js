@@ -32,3 +32,14 @@ export const noVoiceXp = (member, channel) => {
     }
   });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    noVoiceXp,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+
