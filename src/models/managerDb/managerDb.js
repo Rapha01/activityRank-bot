@@ -115,3 +115,17 @@ export const fetch = (body, route, method) => {
     }
   });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    query,
+    getConnection,
+    getAllDbHosts,
+    fetch,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

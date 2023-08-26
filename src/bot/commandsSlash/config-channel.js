@@ -9,7 +9,6 @@ import {
   ButtonStyle,
   ChannelType,
   PermissionFlagsBits,
-  ChannelType,
 } from 'discord.js';
 
 import { oneLine, stripIndent } from 'common-tags';
@@ -27,10 +26,10 @@ module.exports.data = new SlashCommandBuilder()
     o
       .setName('channel')
       .setDescription('The channel to modify')
-      .addChannelTypes(GuildText, GuildVoice, GuildForum)
+      .addChannelTypes(GuildText, GuildVoice, GuildForum),
   )
   .addStringOption((o) =>
-    o.setName('id').setDescription('The ID of the channel to modify')
+    o.setName('id').setDescription('The ID of the channel to modify'),
   );
 
 const generateRow = (i, id, type, myChannel) => {
@@ -51,35 +50,35 @@ const generateRow = (i, id, type, myChannel) => {
   if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
   r[2].setCustomId(
-    `config-channel ${i.member.id} ${id} ${type} commandOnlyChannel`
+    `config-channel ${i.member.id} ${id} ${type} commandOnlyChannel`,
   );
   r[2].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[2].setStyle(
     i.guild.appData.commandOnlyChannel == id
       ? ButtonStyle.Success
-      : ButtonStyle.Danger
+      : ButtonStyle.Danger,
   );
   if (r[2].disabled) r[2].setStyle(ButtonStyle.Secondary);
 
   r[3].setCustomId(
-    `config-channel ${i.member.id} ${id} ${type} autopost_serverJoin`
+    `config-channel ${i.member.id} ${id} ${type} autopost_serverJoin`,
   );
   r[3].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[3].setStyle(
     i.guild.appData.autopost_serverJoin == id
       ? ButtonStyle.Success
-      : ButtonStyle.Danger
+      : ButtonStyle.Danger,
   );
   if (r[3].disabled) r[3].setStyle(ButtonStyle.Secondary);
 
   r[4].setCustomId(
-    `config-channel ${i.member.id} ${id} ${type} autopost_levelup`
+    `config-channel ${i.member.id} ${id} ${type} autopost_levelup`,
   );
   r[4].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[4].setStyle(
     i.guild.appData.autopost_levelup == id
       ? ButtonStyle.Success
-      : ButtonStyle.Danger
+      : ButtonStyle.Danger,
   );
   if (r[4].disabled) r[4].setStyle(ButtonStyle.Secondary);
 
@@ -91,7 +90,7 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-channel ${i.member.id} - - closeMenu`)
+      .setCustomId(`config-channel ${i.member.id} - - closeMenu`),
   );
 
 module.exports.execute = async (i) => {
@@ -114,13 +113,13 @@ module.exports.execute = async (i) => {
 
   const myChannel = await guildChannelModel.storage.get(
     i.guild,
-    resolvedChannel.id
+    resolvedChannel.id,
   );
 
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Channel Settings' })
     .setDescription(
-      nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id)
+      nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id),
     )
     .setColor(0x00ae86)
     .addFields({
@@ -131,7 +130,7 @@ module.exports.execute = async (i) => {
   if (
     !resolvedChannel.channel ||
     [ChannelType.GuildText, ChannelType.GuildForum].includes(
-      resolvedChannel.channel.type
+      resolvedChannel.channel.type,
     )
   ) {
     e.addFields({
@@ -166,8 +165,8 @@ module.exports.execute = async (i) => {
           resolvedChannel.channel
             ? resolvedChannel.channel.type.toString()
             : '0',
-          myChannel
-        )
+          myChannel,
+        ),
       ),
       _close(i),
     ],
@@ -206,7 +205,7 @@ module.exports.component = async (i) => {
   await i.update({
     components: [
       new ActionRowBuilder().addComponents(
-        generateRow(i, channelId, channelType, myChannel)
+        generateRow(i, channelId, channelType, myChannel),
       ),
       _close(i),
     ],
