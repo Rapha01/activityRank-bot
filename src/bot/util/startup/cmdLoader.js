@@ -5,7 +5,7 @@ import { Collection } from 'discord.js';
 
 let files = [];
 
-const botDir = fileURLToPath(import.meta.resolve('../..'));
+const botDir = fileURLToPath(new URL('../..', import.meta.url));
 const contextDir = path.join(botDir, 'contextMenus');
 const commandsDir = path.join(botDir, 'commandsSlash');
 const adminDir = path.join(botDir, 'commandsAdmin');

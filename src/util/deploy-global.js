@@ -9,14 +9,14 @@ const commands = [];
 const adminCommands = [];
 
 const commandFiles = fs
-  .readdirSync(fileURLToPath(import.meta.resolve('../bot/commandsSlash')))
+  .readdirSync(fileURLToPath(new URL('../bot/commandsSlash', import.meta.url)))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 const contextFiles = fs
-  .readdirSync(fileURLToPath(import.meta.resolve('../bot/contextMenus')))
+  .readdirSync(fileURLToPath(new URL('../bot/contextMenus', import.meta.url)))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 const adminFiles = fs
-  .readdirSync(fileURLToPath(import.meta.resolve('../bot/commandsAdmin')))
+  .readdirSync(fileURLToPath(new URL('../bot/commandsAdmin', import.meta.url)))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 export default async function () {

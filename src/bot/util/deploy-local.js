@@ -8,13 +8,13 @@ const { adminGuild, botAuth } = getKeys();
 const commands = [];
 const adminCommands = [];
 const commandFiles = fs
-  .readdirSync(fileURLToPath(import.meta.resolve('../commandsSlash')))
+  .readdirSync(fileURLToPath(new URL('../commandsSlash', import.meta.url)))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 const contextFiles = fs
-  .readdirSync(fileURLToPath(import.meta.resolve('../contextMenus')))
+  .readdirSync(fileURLToPath(new URL('../contextMenus', import.meta.url)))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 const adminFiles = fs
-  .readdirSync(pfileURLToPath(import.meta.resolve('../commandsAdmin')))
+  .readdirSync(pfileURLToPath(new URL('../commandsAdmin', import.meta.url)))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 export default async (client) => {
