@@ -1,10 +1,10 @@
-const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const { commaListsAnd } = require('common-tags');
-const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const nameUtil = require('../../util/nameUtil.js');
-const { parseRole } = require('../../util/parser');
+import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { commaListsAnd } from 'common-tags';
+import guildRoleModel from '../../models/guild/guildRoleModel.js';
+import nameUtil from '../../util/nameUtil.js';
+import { parseRole } from '../../util/parser';
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:

@@ -1,21 +1,24 @@
-const path = require('path');
-const guildModel = require('../models/guild/guildModel.js');
-const userModel = require('../models/userModel.js');
-const guildChannelModel = require('../models/guild/guildChannelModel.js');
+import path from 'path';
+import guildModel from '../models/guild/guildModel.js';
+import userModel from '../models/userModel.js';
+import guildChannelModel from '../models/guild/guildChannelModel.js';
+
 //const tokenBurn = require('../util/tokenBurn.js');
-const askForPremium = require('../util/askForPremium.js');
-const {
+import askForPremium from '../util/askForPremium.js';
+
+import {
   PermissionFlagsBits,
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-} = require('discord.js');
-const { supportServerInviteLink } = require('../../const/config.js');
-const { stripIndent } = require('common-tags');
-const { userLevels } = require('../../const/privilegedUsers');
+} from 'discord.js';
 
-module.exports = {
+import { supportServerInviteLink } from '../../const/config.js';
+import { stripIndent } from 'common-tags';
+import { userLevels } from '../../const/privilegedUsers';
+
+export default {
   name: 'interactionCreate',
   async execute(interaction) {
     try {

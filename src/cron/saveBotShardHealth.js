@@ -1,7 +1,7 @@
-const publicIp = require('public-ip');
-const managerDb = require('../models/managerDb/managerDb.js');
-const { escape } = require('promise-mysql');
-const logger = require('../util/logger.js');
+import publicIp from 'public-ip';
+import managerDb from '../models/managerDb/managerDb.js';
+import { escape } from 'promise-mysql';
+import logger from '../util/logger.js';
 
 function _save(client) {
   const obj = {
@@ -16,7 +16,7 @@ function _save(client) {
   return obj;
 }
 
-module.exports = async (manager) => {
+export default async (manager) => {
   //logger.debug('Saving shard health');
   const round = (n) => ~~n;
   const nowDate = round(new Date().getTime() / 1000);

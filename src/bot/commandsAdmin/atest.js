@@ -1,18 +1,14 @@
-const {
-  EmbedBuilder,
-  SlashCommandBuilder,
-  PermissionFlagsBits,
-} = require('discord.js');
-const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
+import { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
 
-module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
+export const requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('atest')
   .setDescription('A test admin command.')
   .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers);
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   const sent = await i.deferReply({ fetchReply: true, ephemeral: true });
   const pingEmbed = new EmbedBuilder()
     .setColor(0x00ae86)

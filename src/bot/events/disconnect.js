@@ -1,6 +1,6 @@
-const cronScheduler = require('../cron/scheduler.js');
+import cronScheduler from '../cron/scheduler.js';
 
-module.exports = {
+export default {
   name: 'disconnect',
   execute(msg, code) {
     if (code === 0) return console.log('client.onDisconnect: ', msg);

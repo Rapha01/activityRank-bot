@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('patchnote')
   .setDescription(
     'Show patchnotes. Omit the version parameter to see a generalized list.'
@@ -14,7 +14,7 @@ module.exports.data = new SlashCommandBuilder()
       .setAutocomplete(true)
   );
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   const version = i.options.getString('version');
   const patchnotes = i.client.appData.texts.patchnotes;
   const applicableVersions = patchnotes.map((o) => o.version);
@@ -34,7 +34,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.autocomplete = async (i) => {
+export const autocomplete = async (i) => {
   let patchnoteVersions = i.client.appData.texts.patchnotes.map(
     (o) => o.version
   );

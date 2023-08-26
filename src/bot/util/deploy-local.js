@@ -1,7 +1,7 @@
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const fs = require('fs');
-const path = require('path');
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
+import fs from 'fs';
+import path from 'path';
 const { adminGuild, botAuth } = require('../../const/keys.js').get();
 
 const commands = [];
@@ -16,7 +16,7 @@ const adminFiles = fs
   .readdirSync(path.resolve(__dirname, '../commandsAdmin'))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
-module.exports = async (client) => {
+export default async (client) => {
   for (const file of commandFiles) {
     const command = require(`../commandsSlash/${file}`);
     commands.push(command.data.toJSON());

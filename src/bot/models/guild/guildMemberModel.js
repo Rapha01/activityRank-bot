@@ -1,11 +1,11 @@
-const shardDb = require('../../../models/shardDb/shardDb.js');
-const mysql = require('promise-mysql');
-const rankModel = require('../rankModel.js');
-const fct = require('../../../util/fct.js');
+import shardDb from '../../../models/shardDb/shardDb.js';
+import mysql from 'promise-mysql';
+import rankModel from '../rankModel.js';
+import fct from '../../../util/fct.js';
 
 const promises = {};
-exports.cache = {};
-exports.storage = {};
+export const cache = {};
+export const storage = {};
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'];
 let defaultCache = null;
@@ -112,7 +112,7 @@ exports.storage.increment = (guild, userId, field, value) => {
   });
 };
 
-exports.getRankedUserIds = (guild) => {
+export const getRankedUserIds = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const textmessageUserIds = await shardDb.query(

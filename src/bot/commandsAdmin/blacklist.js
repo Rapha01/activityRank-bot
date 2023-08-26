@@ -1,11 +1,11 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
-const guildModel = require('../models/guild/guildModel');
-const userModel = require('../models/userModel');
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+import guildModel from '../models/guild/guildModel';
+import userModel from '../models/userModel';
 
-module.exports.requiredPrivileges = PRIVILEGE_LEVELS.Developer;
+export const requiredPrivileges = PRIVILEGE_LEVELS.Developer;
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('blacklist')
   .setDescription('Blacklist a user or server from the bot.')
   .addSubcommand((sc) =>
@@ -34,7 +34,7 @@ module.exports.data = new SlashCommandBuilder()
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   const sc = await i.options.getSubcommand();
   if (sc === 'user') {
     const user = await i.client.users.fetch(i.options.getUser('user'));

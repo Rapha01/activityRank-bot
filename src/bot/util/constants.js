@@ -1,4 +1,4 @@
-module.exports.channelTypes = [
+export const channelTypes = [
   'GUILD_TEXT',
   'DM',
   'GUILD_VOICE',

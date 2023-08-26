@@ -1,5 +1,5 @@
-const fct = require('../util/fct.js');
-const { logger } = require('./util/logger.js');
+import fct from '../util/fct.js';
+import { logger } from './util/logger.js';
 
 let warmup;
 
@@ -8,7 +8,7 @@ if (process.env.NODE_ENV == 'production') {
   decrementWarmup();
 } else warmup = 0;
 
-module.exports = () => warmup != 0 && Math.floor(Math.random() * warmup) != 0;
+export default () => warmup != 0 && Math.floor(Math.random() * warmup) != 0;
 
 async function decrementWarmup() {
   try {

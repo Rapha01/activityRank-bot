@@ -1,10 +1,11 @@
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const guildModel = require('../models/guild/guildModel.js');
-const rankModel = require('../models/rankModel.js');
-const fct = require('../../util/fct.js');
-const cooldownUtil = require('../util/cooldownUtil.js');
-const nameUtil = require('../util/nameUtil.js');
-const {
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import guildModel from '../models/guild/guildModel.js';
+import rankModel from '../models/rankModel.js';
+import fct from '../../util/fct.js';
+import cooldownUtil from '../util/cooldownUtil.js';
+import nameUtil from '../util/nameUtil.js';
+
+import {
   SlashCommandBuilder,
   EmbedBuilder,
   ActionRowBuilder,
@@ -14,7 +15,7 @@ const {
   StringSelectMenuOptionBuilder,
   ChannelSelectMenuBuilder,
   ChannelType,
-} = require('discord.js');
+} from 'discord.js';
 
 const _prettifyTime = {
   Day: 'Today',
@@ -24,14 +25,14 @@ const _prettifyTime = {
   Alltime: 'Forever',
 };
 
-module.exports.activeCache = new Map();
+export const activeCache = new Map();
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('top')
   .setDescription('Toplists for the server')
   .setDMPermission(false);
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   await i.deferReply();
 
   await guildModel.cache.load(i.guild);
@@ -76,7 +77,7 @@ module.exports.execute = async (i) => {
   exports.activeCache.set(id, initialState);
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const action = i.customId.split(' ')[1];
   let payload =
     i.customId.split(' ')[2] ?? i?.channels?.first() ?? i.values[0] ?? null;
@@ -514,7 +515,7 @@ function getChannelComponents(state, disabled) {
   ];
 }
 
-exports.sendMembersEmbed = async (i, type) => {
+export const sendMembersEmbed = async (i, type) => {
   await i.deferReply();
   await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);

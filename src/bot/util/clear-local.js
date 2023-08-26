@@ -1,6 +1,6 @@
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const { Client, IntentsBitField } = require('discord.js');
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
+import { Client, IntentsBitField } from 'discord.js';
 const { botId, botAuth } = require('../../const/keys.js').get();
 
 const client = new Client({ intents: [IntentsBitField.GUILDS] });

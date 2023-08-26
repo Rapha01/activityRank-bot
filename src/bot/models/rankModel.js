@@ -1,9 +1,9 @@
-const shardDb = require('../../models/shardDb/shardDb.js');
-const mysql = require('mysql');
-const fct = require('../../util/fct.js');
+import shardDb from '../../models/shardDb/shardDb.js';
+import mysql from 'mysql';
+import fct from '../../util/fct.js';
 
 // Toplist
-exports.getGuildMemberRanks = (guild, type, time, from, to) => {
+export const getGuildMemberRanks = (guild, type, time, from, to) => {
   return new Promise(async function (resolve, reject) {
     try {
       const memberRanksSql =
@@ -32,7 +32,7 @@ exports.getGuildMemberRanks = (guild, type, time, from, to) => {
 };
 
 // All scores for one member
-exports.getGuildMemberRank = function (guild, userId) {
+export const getGuildMemberRank = function (guild, userId) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
@@ -51,7 +51,7 @@ exports.getGuildMemberRank = function (guild, userId) {
 };
 
 // Positions of one type of one member within a guild
-exports.getGuildMemberRankPosition = function (guild, userId, typeTime) {
+export const getGuildMemberRankPosition = function (guild, userId, typeTime) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
@@ -74,7 +74,7 @@ exports.getGuildMemberRankPosition = function (guild, userId, typeTime) {
 };
 
 // Most active channels within a guild
-exports.getChannelRanks = (guild, type, time, from, to) => {
+export const getChannelRanks = (guild, type, time, from, to) => {
   return new Promise(async function (resolve, reject) {
     try {
       const ranks = await shardDb.query(
@@ -95,7 +95,7 @@ exports.getChannelRanks = (guild, type, time, from, to) => {
 };
 
 // Most active Members of a specific channel
-exports.getChannelMemberRanks = (guild, channelId, type, time, from, to) => {
+export const getChannelMemberRanks = (guild, channelId, type, time, from, to) => {
   return new Promise(async function (resolve, reject) {
     try {
       const ranks = await shardDb.query(
@@ -115,7 +115,7 @@ exports.getChannelMemberRanks = (guild, channelId, type, time, from, to) => {
 };
 
 // Most active channels of a certain member
-exports.getGuildMemberTopChannels = function (
+export const getGuildMemberTopChannels = function (
   guild,
   userId,
   type,
@@ -145,7 +145,7 @@ exports.getGuildMemberTopChannels = function (
   });
 };
 
-exports.countGuildRanks = function (guild) {
+export const countGuildRanks = function (guild) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
@@ -161,7 +161,7 @@ exports.countGuildRanks = function (guild) {
   });
 };
 
-exports.getGuildMemberTotalScore = function (guild, userId) {
+export const getGuildMemberTotalScore = function (guild, userId) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(

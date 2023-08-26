@@ -6,7 +6,7 @@
 */
 
 // Prevent magic numbers
-module.exports.PRIVILEGE_LEVELS = {
+export const PRIVILEGE_LEVELS = {
   Owner: 4,
   Developer: 3,
   Moderator: 2,
@@ -20,10 +20,8 @@ const users = {
   development: {},
 };
 
-module.exports.userLevels =
-  process.env.NODE_ENV === 'production' ? users.production : users.development;
+export const userLevels = process.env.NODE_ENV === 'production' ? users.production : users.development;
 
-module.exports.users =
-  process.env.NODE_ENV === 'production'
-    ? Object.keys(users.production)
-    : Object.keys(users.development);
+export const users = process.env.NODE_ENV === 'production'
+  ? Object.keys(users.production)
+  : Object.keys(users.development);

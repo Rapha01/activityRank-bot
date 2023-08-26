@@ -1,19 +1,19 @@
-const {
+import {
   SlashCommandBuilder,
   PermissionFlagsBits,
   AttachmentBuilder,
   EmbedBuilder,
   Status,
-} = require('discord.js');
-const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
-const { DurationFormatter } = require('@sapphire/duration');
-const managerDb = require('../../models/managerDb/managerDb');
+} from 'discord.js';
 
-module.exports.activeCache = new Map();
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+import { DurationFormatter } from '@sapphire/duration';
+import managerDb from '../../models/managerDb/managerDb';
 
-module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
+export const activeCache = new Map();
+export const requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('shard-status')
   .setDescription('Check the shard statuses')
   .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -44,7 +44,7 @@ module.exports.data = new SlashCommandBuilder()
   )
   .setDMPermission(false);
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   const ephemeral = i.options.getBoolean('eph');
 
   await i.deferReply({ ephemeral });

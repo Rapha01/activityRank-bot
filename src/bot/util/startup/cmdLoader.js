@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const { Collection } = require('discord.js');
+import fs from 'fs';
+import path from 'path';
+import { Collection } from 'discord.js';
 
 let files = [];
 
@@ -21,7 +21,7 @@ getRecursive(commandsDir);
 
 files = files.map((fileName) => fileName.replace(commandsDir + '/', ''));
 
-module.exports = (client) => {
+export default (client) => {
   client.commands = new Collection();
   client.adminCommands = new Collection();
 

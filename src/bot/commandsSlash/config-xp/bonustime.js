@@ -1,7 +1,7 @@
-const { PermissionFlagsBits } = require('discord.js');
-const guildModel = require('../../models/guild/guildModel');
+import { PermissionFlagsBits } from 'discord.js';
+import guildModel from '../../models/guild/guildModel';
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:
@@ -18,7 +18,7 @@ module.exports.execute = async function (i) {
   });
 };
 
-module.exports.autocomplete = async (i) => {
+export const autocomplete = async (i) => {
   i.respond([
     { name: 'End Now', value: 0 },
     { name: '1 hour', value: 60 },

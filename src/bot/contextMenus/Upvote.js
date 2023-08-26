@@ -1,12 +1,12 @@
-const { ContextMenuCommandBuilder } = require('@discordjs/builders');
-const { oneLine } = require('common-tags');
-const statFlushCache = require('../statFlushCache.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
-const userModel = require('../models/userModel.js');
-const fct = require('../../util/fct.js');
-const cooldownUtil = require('../util/cooldownUtil.js');
+import { ContextMenuCommandBuilder } from '@discordjs/builders';
+import { oneLine } from 'common-tags';
+import statFlushCache from '../statFlushCache.js';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
+import userModel from '../models/userModel.js';
+import fct from '../../util/fct.js';
+import cooldownUtil from '../util/cooldownUtil.js';
 
-module.exports = {
+export default {
   data: new ContextMenuCommandBuilder()
     .setName('Upvote')
     // User

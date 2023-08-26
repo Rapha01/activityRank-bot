@@ -1,14 +1,14 @@
-const guildModel = require('../../models/guild/guildModel.js');
-const guildMemberModel = require('../../models/guild/guildMemberModel.js');
-const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const statFlushCache = require('../../statFlushCache.js');
-const { oneLine, stripIndent } = require('common-tags');
-const { PermissionFlagsBits, Events, GatewayOpcodes } = require('discord.js');
-const { DiscordSnowflake } = require('@sapphire/snowflake');
+import guildModel from '../../models/guild/guildModel.js';
+import guildMemberModel from '../../models/guild/guildMemberModel.js';
+import guildRoleModel from '../../models/guild/guildRoleModel.js';
+import statFlushCache from '../../statFlushCache.js';
+import { oneLine, stripIndent } from 'common-tags';
+import { PermissionFlagsBits, Events, GatewayOpcodes } from 'discord.js';
+import { DiscordSnowflake } from '@sapphire/snowflake';
 
-module.exports.currentJobs = new Set();
+export const currentJobs = new Set();
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   await guildModel.cache.load(i.guild);
 
   if (module.exports.currentJobs.has(i.guild.id)) {

@@ -1,4 +1,4 @@
-const {
+import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
@@ -7,10 +7,11 @@ const {
   TextInputBuilder,
   TextInputStyle,
   PermissionFlagsBits,
-} = require('discord.js');
-const guildRoleModel = require('../../models/guild/guildRoleModel.js');
-const nameUtil = require('../../util/nameUtil.js');
-const { parseRole } = require('../../util/parser');
+} from 'discord.js';
+
+import guildRoleModel from '../../models/guild/guildRoleModel.js';
+import nameUtil from '../../util/nameUtil.js';
+import { parseRole } from '../../util/parser';
 
 const generateRow = (i, id, myRole) => {
   const r = [
@@ -61,7 +62,7 @@ const _modal = (roleId, assignState) =>
       )
     );
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:
@@ -124,7 +125,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const [, memberId, roleId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
@@ -199,7 +200,7 @@ module.exports.component = async (i) => {
   }
 };
 
-module.exports.modal = async (i) => {
+export const modal = async (i) => {
   const [, roleId, type] = i.customId.split(' ');
   const value = await i.fields.getTextInputValue('msg-component-1');
   await guildRoleModel.storage.set(i.guild, roleId, type, value);

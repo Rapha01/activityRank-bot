@@ -1,13 +1,13 @@
-const mysql = require('mysql');
-const guildRoleModel = require('../bot/models/guild/guildRoleModel.js');
-const userModel = require('../bot/models/userModel.js');
+import mysql from 'mysql';
+import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
+import userModel from '../bot/models/userModel.js';
 
 
-module.exports.maxBigInt = 9223372036854775807;
-module.exports.minIdInt = 1000000000000;
+export const maxBigInt = 9223372036854775807;
+export const minIdInt = 1000000000000;
 
 // Db
-exports.conditionsToSQL = (conditions) => {
+export const conditionsToSQL = (conditions) => {
   const properties = Object.keys(conditions);
   const conditionStrings = [];
 
@@ -19,10 +19,10 @@ exports.conditionsToSQL = (conditions) => {
 };
 
 // System
-exports.waitAndReboot = async (milliseconds) => {
+export const waitAndReboot = async (milliseconds) => {
   try {
     console.log('Restarting in ' + milliseconds / 1000 + 's');
-    await exports.sleep(milliseconds);
+    await sleep(milliseconds);
     console.log('Restart');
     process.exit();
   } catch (err) {
@@ -30,16 +30,16 @@ exports.waitAndReboot = async (milliseconds) => {
   }
 };
 
-exports.sleep = (milliseconds) => {
+export const sleep = (milliseconds) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-exports.isDateInThePast = (compareDate, nowDate) => {
+export const isDateInThePast = (compareDate, nowDate) => {
   if (compareDate.getTime() < nowDate.getTime()) return true;
   else return false;
 };
 
-exports.dateDifferenceSec = (date1, date2) => {
+export const dateDifferenceSec = (date1, date2) => {
   const date1Timestamp =
     new Date(date1.getTime() - date1.getTimezoneOffset() * 60000).getTime() /
     1000;
@@ -50,7 +50,7 @@ exports.dateDifferenceSec = (date1, date2) => {
   return date1Timestamp - date2Timestamp;
 };
 
-exports.dateTimeString = (date) => {
+export const dateTimeString = (date) => {
   return date.toISOString().slice(0, 19).replace('T', ' ');
 };
 
@@ -63,7 +63,7 @@ exports.isPremiumGuild = (guild) => {
   else return false;
 };*/
 
-exports.hasNoXpRole = async (member) => {
+export const hasNoXpRole = async (member) => {
   for (const role of member.roles.cache.values()) {
     await guildRoleModel.cache.load(role);
     if (role.appData.noXp) return true;
@@ -76,7 +76,7 @@ exports.getTokensToBurn24h = (memberCount) => {
   return Math.pow(memberCount, 1 / 1.5);
 };*/
 
-exports.extractPage = (args, entriesPerPage) => {
+export const extractPage = (args, entriesPerPage) => {
   let page = 1;
 
   for (let i = 0; i < args.length; i++) {
@@ -89,13 +89,13 @@ exports.extractPage = (args, entriesPerPage) => {
   return { page, from, to };
 };
 
-exports.extractPageSimple = (page, entriesPerPage) => {
+export const extractPageSimple = (page, entriesPerPage) => {
   const from = Math.max((page - 1) * entriesPerPage + 1);
   const to = page * entriesPerPage;
   return { page, from, to };
 };
 
-exports.extractTime = (args) => {
+export const extractTime = (args) => {
   let time = 'Alltime';
 
   for (let i = 0; i < args.length; i++) {
@@ -105,21 +105,21 @@ exports.extractTime = (args) => {
       args[i] == 'week' ||
       args[i] == 'day'
     )
-      time = exports.capitalizeFirstLetter(args[i]);
+      time = capitalizeFirstLetter(args[i]);
   }
 
   return time;
 };
 
-exports.capitalizeFirstLetter = (string) => {
+export const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-exports.getLevel = (levelProgression) => {
+export const getLevel = (levelProgression) => {
   return Math.floor(levelProgression);
 };
 
-exports.getLevelProgression = (totalScore, levelFactor) => {
+export const getLevelProgression = (totalScore, levelFactor) => {
   return solve(levelFactor / 2, levelFactor / 2 + 100, -totalScore) + 1;
 };
 
@@ -132,7 +132,7 @@ function solve(a, b, c) {
   else return null;
 }
 
-exports.getPatreonTiers = async (interaction) => {
+export const getPatreonTiers = async (interaction) => {
   const ownerUser = (await interaction.guild.members.fetch({user: interaction.guild.ownerId, cache: true})).user;
 
   await userModel.cache.load(interaction.user);
@@ -156,7 +156,7 @@ exports.getPatreonTiers = async (interaction) => {
   return { userTier, ownerTier }
 };
 
-exports.getVoteMultiplier = (myUser) => {
+export const getVoteMultiplier = (myUser) => {
   let multiplier = 1;
 
   if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000)
@@ -174,7 +174,7 @@ exports.getVoteMultiplier = (myUser) => {
   return multiplier;
 };
 
-exports.getPatreonTierName = (tier) => {
+export const getPatreonTierName = (tier) => {
   if (tier == 3) return 'Serveradmin';
   else if (tier == 2) return 'Poweruser';
   else if (tier == 1) return 'Supporter';

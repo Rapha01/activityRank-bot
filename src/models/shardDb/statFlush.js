@@ -1,7 +1,7 @@
-const shardDb = require('./shardDb.js');
-const logger = require('../../util/logger.js');
+import shardDb from './shardDb.js';
+import logger from '../../util/logger.js';
 
-module.exports = (manager) => {
+export default (manager) => {
   return new Promise(async function (resolve, reject) {
     try {
       const hrstart = process.hrtime();

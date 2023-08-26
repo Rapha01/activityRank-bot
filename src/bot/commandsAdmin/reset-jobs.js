@@ -1,14 +1,10 @@
-const {
-  SlashCommandBuilder,
-  PermissionFlagsBits,
-  AttachmentBuilder,
-} = require('discord.js');
-const { PRIVILEGE_LEVELS } = require('../../const/privilegedUsers');
-const resetModel = require('../models/resetModel');
+import { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder } from 'discord.js';
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+import resetModel from '../models/resetModel';
 
-module.exports.requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
+export const requiredPrivileges = PRIVILEGE_LEVELS.HelpStaff;
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('reset-jobs')
   .setDescription('Check the reset job status')
   .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
@@ -27,7 +23,7 @@ module.exports.data = new SlashCommandBuilder()
   )
   .setDMPermission(false);
 
-module.exports.execute = async function (i) {
+export const execute = async function (i) {
   const useFull = i.options.getBoolean('full') ?? false;
   const search = i.options.getString('search');
   let content;

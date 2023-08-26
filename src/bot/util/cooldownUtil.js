@@ -1,5 +1,5 @@
-const fct = require('../../util/fct.js');
-const { users } = require('../../const/privilegedUsers.js');
+import fct from '../../util/fct.js';
+import { users } from '../../const/privilegedUsers.js';
 
 const premiumLowersCooldownMessage =
   'You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it here: https://patreon.com/rapha01/. ';
@@ -22,7 +22,7 @@ const activeResetServerCommandCooldown = (cd, toWait) => {
   );
 };
 
-exports.getCachedCooldown = (cache, field, cd) => {
+export const getCachedCooldown = (cache, field, cd) => {
   const nowDate = new Date() / 1000;
 
   if (typeof cache[field] === 'undefined') cache[field] = 0;
@@ -31,7 +31,7 @@ exports.getCachedCooldown = (cache, field, cd) => {
   return remaining;
 };
 
-exports.checkStatCommandsCooldown = (interaction) => {
+export const checkStatCommandsCooldown = (interaction) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (users.includes(interaction.user.id)) return resolve(true);
@@ -47,11 +47,7 @@ exports.checkStatCommandsCooldown = (interaction) => {
         ? ''
         : premiumLowersCooldownMessage;
 
-      const toWait = exports.getCachedCooldown(
-        interaction.member.appData,
-        'lastStatCmdDate',
-        cd
-      );
+      const toWait = getCachedCooldown(interaction.member.appData, 'lastStatCmdDate', cd);
       if (toWait > 0) {
         if (interaction.deferred) {
           await interaction.editReply({
@@ -79,7 +75,7 @@ exports.checkStatCommandsCooldown = (interaction) => {
   });
 };
 
-exports.checkResetServerCommandCooldown = (interaction) => {
+export const checkResetServerCommandCooldown = (interaction) => {
   return new Promise(async function (resolve, reject) {
     try {
       const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
@@ -93,11 +89,7 @@ exports.checkResetServerCommandCooldown = (interaction) => {
         ? ''
         : premiumLowersCooldownMessage;
 
-      const toWait = exports.getCachedCooldown(
-        interaction.guild.appData,
-        'lastResetServer',
-        cd
-      );
+      const toWait = getCachedCooldown(interaction.guild.appData, 'lastResetServer', cd);
       if (toWait > 0) {
         await interaction.channel.send(
           activeResetServerCommandCooldown(cd, toWait) +

@@ -1,4 +1,4 @@
-const pino = require('pino');
+import pino from 'pino';
 
 const globalConfig = { base: { pid: process.pid }, level: 'debug' };
 
@@ -15,7 +15,7 @@ const localConfig =
 
 const logger = pino({ ...globalConfig, ...localConfig });
 
-module.exports = logger;
+export default logger;
 
 logger.trace('Logger initialized.');
 logger.trace({ env: process.env }, 'Environment');

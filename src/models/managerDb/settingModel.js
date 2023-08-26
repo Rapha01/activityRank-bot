@@ -1,7 +1,7 @@
-const managerDb = require('./managerDb.js');
+import managerDb from './managerDb.js';
 
-exports.storage = {};
-exports.cache = {};
+export const storage = {};
+export const cache = {};
 
 exports.storage.get = () => {
   return new Promise(async function (resolve, reject) {

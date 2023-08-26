@@ -1,9 +1,10 @@
-const masterLogger = require('../../util/logger');
+import masterLogger from '../../util/logger';
 
 let logger = null;
-module.exports.init = (shards) => {
+
+export const init = (shards) => {
   logger = masterLogger.child({ shards });
   return logger;
 };
 
-module.exports.logger = logger ?? masterLogger.child({ shards: ['?'] });
+export const logger = logger ?? masterLogger.child({ shards: ['?'] });

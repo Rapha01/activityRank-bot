@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const {
+import {
   SlashCommandBuilder,
   ActionRowBuilder,
   ButtonBuilder,
@@ -11,8 +11,9 @@ const {
   TextInputStyle,
   PermissionFlagsBits,
   Embed,
-} = require('discord.js');
-const guildModel = require('../models/guild/guildModel.js');
+} from 'discord.js';
+
+import guildModel from '../models/guild/guildModel.js';
 
 const generateRows = async (i) => {
   return [
@@ -61,11 +62,11 @@ const _modal = (type) =>
       )
     );
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('config-messages')
   .setDescription("Configures the guild's autopost messages");
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
       content:
@@ -105,7 +106,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const [, memberId, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)
@@ -153,7 +154,7 @@ module.exports.component = async (i) => {
   if (type === 'select') return await i.showModal(_modal(i.values[0]));
 };
 
-module.exports.modal = async function (i) {
+export const modal = async function (i) {
   const [, type] = i.customId.split(' ');
   const value = i.fields.getTextInputValue('msg-component-1');
   await guildModel.storage.set(i.guild, type, value);

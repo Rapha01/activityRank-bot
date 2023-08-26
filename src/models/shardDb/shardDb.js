@@ -1,14 +1,13 @@
-const mysql = require('promise-mysql');
-const managerDb = require('../managerDb/managerDb.js');
-
-const net = require('net');
+import mysql from 'promise-mysql';
+import managerDb from '../managerDb/managerDb.js';
+import net from 'net';
 let keys = require('../../const/keys').get();
 let dbuser,
   dbpassword,
   dbname,
   pools = {};
 
-module.exports.query = (dbHost, sql) => {
+export const query = (dbHost, sql) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (!pools[dbHost]) await createPool(dbHost);
@@ -20,14 +19,14 @@ module.exports.query = (dbHost, sql) => {
   });
 };
 
-module.exports.queryAllHosts = (sql) => {
+export const queryAllHosts = (sql) => {
   return new Promise(async function (resolve, reject) {
     try {
       const hosts = await managerDb.getAllDbHosts();
 
       let aggregate = [];
       for (let host of hosts) {
-        aggregate = aggregate.concat(await module.exports.query(host, sql));
+        aggregate = aggregate.concat(await query(host, sql));
       }
 
       resolve(aggregate);
@@ -35,7 +34,7 @@ module.exports.queryAllHosts = (sql) => {
   });
 };
 
-module.exports.getConnection = (dbHost) => {
+export const getConnection = (dbHost) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (!pools[dbHost]) await createPool(dbHost);

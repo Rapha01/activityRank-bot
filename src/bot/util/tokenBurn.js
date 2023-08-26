@@ -1,6 +1,6 @@
-const guildModel = require('../models/guild/guildModel.js');
-const fct = require('../../util/fct.js');
-const cooldownUtil = require('./cooldownUtil.js');
+import guildModel from '../models/guild/guildModel.js';
+import fct from '../../util/fct.js';
+import cooldownUtil from './cooldownUtil.js';
 
 let tokenBurnCd;
 if (process.env.NODE_ENV == 'production') {
@@ -9,7 +9,7 @@ if (process.env.NODE_ENV == 'production') {
   tokenBurnCd = 600;
 }
 
-module.exports = (guild) => {
+export default (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (

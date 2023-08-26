@@ -1,7 +1,7 @@
-const cronScheduler = require('../cron/scheduler.js');
-const localDeploy = require('../util/deploy-local');
+import cronScheduler from '../cron/scheduler.js';
+import localDeploy from '../util/deploy-local';
 
-module.exports = {
+export default {
   name: 'ready',
   async execute(client) {
     try {

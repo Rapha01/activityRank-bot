@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   embedColor: '#4fd6c8',
   supportServerId: '534598374985302027',
   //supportServerId: '537331047810203658',

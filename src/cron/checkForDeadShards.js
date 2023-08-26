@@ -1,6 +1,6 @@
-const publicIp = require('public-ip');
-const managerDb = require('../models/managerDb/managerDb.js');
-const logger = require('../util/logger.js');
+import publicIp from 'public-ip';
+import managerDb from '../models/managerDb/managerDb.js';
+import logger from '../util/logger.js';
 
 function _getStats(client) {
   const obj = {
@@ -24,7 +24,7 @@ function compare( a, b ) {
 const secondsDead = process.env.NODE_ENV == 'production' ? 3600 : 30 ;
 let history = [];
 
-module.exports = async (manager) => {
+export default async (manager) => {
   const timestamp = Math.round(Date.now() / 1000);
   const shards = await manager.broadcastEval(_getStats);
 

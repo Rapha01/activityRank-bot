@@ -1,6 +1,6 @@
-const guildRoleModel = require('../models/guild/guildRoleModel.js');
+import guildRoleModel from '../models/guild/guildRoleModel.js';
 
-exports.noVoiceXp = (member, channel) => {
+export const noVoiceXp = (member, channel) => {
   return new Promise(async function (resolve, reject) {
     try {
       if (member.user.bot) return resolve(true);

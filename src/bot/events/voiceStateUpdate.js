@@ -1,7 +1,7 @@
-const guildModel = require('../models/guild/guildModel.js');
-const guildMemberModel = require('../models/guild/guildMemberModel.js');
+import guildModel from '../models/guild/guildModel.js';
+import guildMemberModel from '../models/guild/guildMemberModel.js';
 
-module.exports = {
+export default {
   name: 'voiceStateUpdate',
   execute(oldState, newState) {
     return new Promise(async function (resolve, reject) {

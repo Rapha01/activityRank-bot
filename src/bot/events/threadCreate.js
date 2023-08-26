@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'threadCreate',
   execute(thread) {
     return new Promise(async function (resolve, reject) {

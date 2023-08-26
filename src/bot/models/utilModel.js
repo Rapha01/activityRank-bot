@@ -1,7 +1,7 @@
-const fct = require('../../util/fct.js');
-const shardDb = require('../../models/shardDb/shardDb.js');
+import fct from '../../util/fct.js';
+import shardDb from '../../models/shardDb/shardDb.js';
 
-exports.storage = {};
+export const storage = {};
 
 // Storage
 

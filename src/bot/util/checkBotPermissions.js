@@ -1,14 +1,14 @@
-const fct = require('../../util/fct.js');
-const cooldownUtil = require('./cooldownUtil.js');
-const { EmbedBuilder } = require('discord.js');
-const { stripIndent } = require('common-tags');
-const { botInviteLink } = require('../../const/config.js');
+import fct from '../../util/fct.js';
+import cooldownUtil from './cooldownUtil.js';
+import { EmbedBuilder } from 'discord.js';
+import { stripIndent } from 'common-tags';
+import { botInviteLink } from '../../const/config.js';
 
 let checkPermissionsCd;
 if (process.env.NODE_ENV == 'production') checkPermissionsCd = 604800; // 1 week
 else checkPermissionsCd = 3600 * 0.4; // 24 mins
 
-module.exports = async (msg) => {
+export default async (msg) => {
   if (
     cooldownUtil.getCachedCooldown(
       msg.guild.appData,
