@@ -1,3 +1,6 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import path from 'path';
 import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
@@ -16,7 +19,9 @@ import {
 
 import { supportServerInviteLink } from '../../const/config.js';
 import { stripIndent } from 'common-tags';
-import { userLevels } from '../../const/privilegedUsers';
+// GENERATED: added extension to relative import
+// import { userLevels } from '../../const/privilegedUsers';
+import { userLevels } from '../../const/privilegedUsers.js';
 
 export default {
   name: 'interactionCreate',

@@ -1,3 +1,6 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -13,7 +16,9 @@ import { oneLine, stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildModel from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
-import { parseChannel } from '../util/parser';
+// GENERATED: added extension to relative import
+// import { parseChannel } from '../util/parser';
+import { parseChannel } from '../util/parser.js';
 
 module.exports.data = new SlashCommandBuilder()
   .setName('config-channel')

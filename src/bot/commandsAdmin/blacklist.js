@@ -1,5 +1,10 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+// GENERATED: added extension to relative import
+// import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
+import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers.js';
 import guildModel from '../models/guild/guildModel';
 import userModel from '../models/userModel';
 

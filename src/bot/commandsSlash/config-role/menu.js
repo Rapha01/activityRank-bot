@@ -1,3 +1,6 @@
+// GENERATED: this file has been altered by `relative-named-imports`.
+// [GENERATED: relative-named-imports:v0]
+
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -11,7 +14,9 @@ import {
 
 import guildRoleModel from '../../models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { parseRole } from '../../util/parser';
+// GENERATED: added extension to relative import
+// import { parseRole } from '../../util/parser';
+import { parseRole } from '../../util/parser.js';
 
 const generateRow = (i, id, myRole) => {
   const r = [

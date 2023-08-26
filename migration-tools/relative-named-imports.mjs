@@ -36,7 +36,7 @@ async function getFiles(dir) {
 }
 
 const path = await import.meta.resolve(`../${process.argv[2]}`);
-const files = (await getFiles(fileURLToPath(path))).slice(0, 10);
+const files = await getFiles(fileURLToPath(path));
 
 console.log(`running ${VERSION_KEY} on files:`);
 console.log(files);
