@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { Collection } from 'discord.js';
 
 let files = [];
 
-const botDir = path.resolve(path.join(__dirname, '..', '..'));
+const botDir = fileURLToPath(import.meta.resolve('../..'));
 const contextDir = path.join(botDir, 'contextMenus');
 const commandsDir = path.join(botDir, 'commandsSlash');
 const adminDir = path.join(botDir, 'commandsAdmin');

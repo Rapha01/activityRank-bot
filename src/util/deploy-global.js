@@ -1,7 +1,7 @@
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import fs from 'fs';
-import path from 'path';
+import { fileURLToPath } from 'url';
 import { get as getKeys } from '../const/keys.js';
 const { botId, botAuth, adminGuild } = getKeys();
 
@@ -9,14 +9,14 @@ const commands = [];
 const adminCommands = [];
 
 const commandFiles = fs
-  .readdirSync(path.resolve(__dirname, '../bot/commandsSlash'))
+  .readdirSync(fileURLToPath(import.meta.resolve('../bot/commandsSlash')))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 const contextFiles = fs
-  .readdirSync(path.resolve(__dirname, '../bot/contextMenus'))
+  .readdirSync(fileURLToPath(import.meta.resolve('../bot/contextMenus')))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 const adminFiles = fs
-  .readdirSync(path.resolve(__dirname, '../bot/commandsAdmin'))
+  .readdirSync(fileURLToPath(import.meta.resolve('../bot/commandsAdmin')))
   .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 export default async function () {
