@@ -19,15 +19,15 @@ const adminFiles = fs
 
 export default async (client) => {
   for (const file of commandFiles) {
-    const command = require(`../commandsSlash/${file}`);
+    const command = await import(`../commandsSlash/${file}`);
     commands.push(command.data.toJSON());
   }
   for (const file of contextFiles) {
-    const command = require(`../contextMenus/${file}`);
+    const command = await import(`../contextMenus/${file}`);
     commands.push(command.data.toJSON());
   }
   for (const file of adminFiles) {
-    const command = require(`../commandsAdmin/${file}`);
+    const command = await import(`../commandsAdmin/${file}`);
     adminCommands.push(command.data.toJSON());
   }
 

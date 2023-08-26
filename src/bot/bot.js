@@ -49,14 +49,14 @@ async function start() {
 
     client.logger = loggerManager.init(client.shard.ids);
     client.logger.info('Logged in');
-    
+
     try {
-      load(client);
+      await load(client);
     } catch (e) {
       client.logger.warn(e, 'Error while loading in shard');
       await fct.waitAndReboot(3_000);
     }
-    
+
     client.logger.info('Initialized');
   } catch (e) {
     globalLogger.warn(e, 'Error while launching shard');

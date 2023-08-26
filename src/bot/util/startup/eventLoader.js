@@ -6,9 +6,9 @@ const eventDir = path.join(botDir, 'events');
 
 const files = fs.readdirSync(eventDir).filter((file) => file.endsWith('.js'));
 
-export default (client) => {
+export default async (client) => {
   for (const file of files) {
-    const event = require(path.join(eventDir, file));
+    const event = await import(path.join(eventDir, file));
 
     if (event.once) {
       client.once(event.name, genHandler(event.name, event.execute));

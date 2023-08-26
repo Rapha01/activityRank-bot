@@ -21,24 +21,24 @@ getRecursive(commandsDir);
 
 files = files.map((fileName) => fileName.replace(commandsDir + '/', ''));
 
-export default (client) => {
+export default async (client) => {
   client.commands = new Collection();
   client.adminCommands = new Collection();
 
-  files.forEach((fileName) => {
-    const command = require(path.join(commandsDir, fileName));
+  files.forEach(async (fileName) => {
+    const command = await import(path.join(commandsDir, fileName));
     client.commands.set(fileName.slice(0, -3), command);
   });
 
   for (const file of fs.readdirSync(contextDir)) {
     client.commands.set(
       file.slice(0, -3),
-      require(path.join(contextDir, file))
+      await import(path.join(contextDir, file)),
     );
   }
 
   for (const file of fs.readdirSync(adminDir)) {
-    const command = require(path.join(adminDir, file));
+    const command = await import(path.join(adminDir, file));
     command.isAdmin = true;
     if (
       !command.requiredPrivileges ||
@@ -47,7 +47,7 @@ export default (client) => {
       command.requiredPrivileges < 1
     )
       throw new Error(
-        `Admin command ${file} does not have a valid requiredPrivileges field!`
+        `Admin command ${file} does not have a valid requiredPrivileges field!`,
       );
     client.adminCommands.set(file.slice(0, -3), command);
   }
