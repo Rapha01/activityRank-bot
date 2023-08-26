@@ -23,3 +23,14 @@ export const execute = async function (i) {
     ephemeral: true,
   });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    execute,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

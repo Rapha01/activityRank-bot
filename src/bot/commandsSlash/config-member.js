@@ -98,3 +98,16 @@ export const component = async (i) => {
     ],
   });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+    execute,
+    component,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

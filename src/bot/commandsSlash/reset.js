@@ -52,3 +52,14 @@ export const data = new SlashCommandBuilder()
         o.setName('id').setDescription('The ID of the channel to reset')
       )
   );
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

@@ -80,3 +80,16 @@ function patchnotesVersionEmbed(patchnote) {
 
   return embed;
 }
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+    execute,
+    autocomplete,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

@@ -44,3 +44,16 @@ export const autocomplete = async function (i) {
   cmds = cmds.map((o) => ({ name: 'ar!' + o, value: o }));
   i.respond(cmds.slice(0, 25));
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+    execute,
+    autocomplete,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

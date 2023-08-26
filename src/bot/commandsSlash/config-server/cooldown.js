@@ -74,3 +74,15 @@ export const autocomplete = async (i) => {
     ]);
   }
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    execute,
+    autocomplete,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

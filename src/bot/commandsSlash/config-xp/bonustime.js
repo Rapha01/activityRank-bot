@@ -29,3 +29,15 @@ export const autocomplete = async (i) => {
     { name: '3 days', value: 4320 },
   ]);
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    execute,
+    autocomplete,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

@@ -201,3 +201,18 @@ const loadDefaultCache = (dbHost) => {
     }
   });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    cache,
+    storage,
+    getRankedChannelIds,
+    getNoXpChannelIds,
+    getNoCommandChannelIds,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

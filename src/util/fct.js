@@ -205,3 +205,31 @@ exports.getMemberActionCooldown = (member,field,cd) => {
     return(remaining);
 }
 */
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    maxBigInt,
+    minIdInt,
+    conditionsToSQL,
+    waitAndReboot,
+    sleep,
+    isDateInThePast,
+    dateDifferenceSec,
+    dateTimeString,
+    hasNoXpRole,
+    extractPage,
+    extractPageSimple,
+    extractTime,
+    capitalizeFirstLetter,
+    getLevel,
+    getLevelProgression,
+    getPatreonTiers,
+    getVoteMultiplier,
+    getPatreonTierName,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

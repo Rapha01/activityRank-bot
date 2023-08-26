@@ -199,3 +199,15 @@ export const component = async (i) => {
 
   await i.update({ components: await generateRows(i) });
 };
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    execute,
+    component,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+

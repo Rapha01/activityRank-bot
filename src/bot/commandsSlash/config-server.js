@@ -64,3 +64,14 @@ export const data = new SlashCommandBuilder()
   .addSubcommand((sc) =>
     sc.setName('set').setDescription('Open a button menu to configure')
   );
+
+
+// GENERATED: start of generated content by `exports-to-default`.
+// [GENERATED: exports-to-default:v0]
+
+export default {
+    data,
+}
+
+// GENERATED: end of generated content by `exports-to-default`.
+
