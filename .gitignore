@@ -1,3 +1,4 @@
 **/keys.js
 **/privilegedUsers.js
 **/node_modules
+.private
