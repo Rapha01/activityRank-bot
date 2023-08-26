@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import nativeFetch from 'node-fetch';
 import mysql from 'promise-mysql';
 let keys = require('../../const/keys').get();
 let dbHost, dbpassword, dbname, dbhost, pool;
@@ -30,14 +30,17 @@ export const getConnection = () => {
 export const getAllDbHosts = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+      const hostField =
+        process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
       let res = await query(`SELECT ${hostField} AS host FROM dbShard`);
 
       const hosts = [];
-      for (let row of res) hosts.push(row.host); 
-      
+      for (let row of res) hosts.push(row.host);
+
       resolve(hosts);
-    } catch (e) { reject(e); }
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
@@ -63,7 +66,7 @@ const createPool = () => {
             console.log(
               'PROTOCOL_CONNECTION_LOST for manager @' +
                 dbHost +
-                '. Deleting connection.'
+                '. Deleting connection.',
             );
             pool = null;
           } else {
@@ -97,7 +100,10 @@ export const fetch = (body, route, method) => {
 
       if (body != null) requestObject.body = JSON.stringify(body);
 
-      res = await fetch('http://' + keys.managerHost + route, requestObject);
+      res = await nativeFetch(
+        'http://' + keys.managerHost + route,
+        requestObject,
+      );
 
       res = await res.json();
       if (res.error != null) return reject('Remote DB Error: ' + res.error);
