@@ -37,7 +37,7 @@ cache.load = (user) => {
   });
 };
 
-torage.set = (user, field, value) => {
+storage.set = (user, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
