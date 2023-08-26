@@ -21,15 +21,15 @@ const adminFiles = fs
 
 export default async function () {
   for (const file of commandFiles) {
-    const command = require(`../bot/commandsSlash/${file}`);
+    const command = await import(`../bot/commandsSlash/${file}`);
     commands.push(command.data.toJSON());
   }
   for (const file of contextFiles) {
-    const command = require(`../bot/contextMenus/${file}`);
+    const command = await import(`../bot/contextMenus/${file}`);
     commands.push(command.data.toJSON());
   }
   for (const file of adminFiles) {
-    const command = require(`../bot/commandsAdmin/${file}`);
+    const command = await import(`../bot/commandsAdmin/${file}`);
     adminCommands.push(command.data.toJSON());
   }
 

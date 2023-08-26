@@ -8,7 +8,7 @@ import cmdLoader from './cmdLoader.js';
 // import eventLoader from './eventLoader';
 import eventLoader from './eventLoader.js';
 
-export default function load(client) {
-  cmdLoader(client);
-  eventLoader(client);
-};
+export default async function load(client) {
+  await cmdLoader(client);
+  await eventLoader(client);
+}
