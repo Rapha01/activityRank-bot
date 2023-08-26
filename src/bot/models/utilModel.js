@@ -5,14 +5,14 @@ export const storage = {};
 
 // Storage
 
-exports.storage.getLastActivities = (guild, userId, timestamp = false) => {
+storage.getLastActivities = (guild, userId, timestamp = false) => {
   return new Promise(async function (resolve, reject) {
     try {
       let lastActivities = {},
         res;
       res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT changeDate FROM textMessage WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`
+        `SELECT changeDate FROM textMessage WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
       );
       if (timestamp)
         lastActivities.textMessage = res.length > 0 ? res[0].changeDate : null;
@@ -23,7 +23,7 @@ exports.storage.getLastActivities = (guild, userId, timestamp = false) => {
             : 'n/a';
       res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT changeDate FROM voiceMinute WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`
+        `SELECT changeDate FROM voiceMinute WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
       );
       if (timestamp)
         lastActivities.voiceMinute = res.length > 0 ? res[0].changeDate : null;
@@ -34,7 +34,7 @@ exports.storage.getLastActivities = (guild, userId, timestamp = false) => {
             : 'n/a';
       res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT changeDate FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`
+        `SELECT changeDate FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
       );
       if (timestamp)
         lastActivities.invite = res.length > 0 ? res[0].changeDate : null;
@@ -45,7 +45,7 @@ exports.storage.getLastActivities = (guild, userId, timestamp = false) => {
             : 'n/a';
       res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT changeDate FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`
+        `SELECT changeDate FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
       );
       if (timestamp)
         lastActivities.vote = res.length > 0 ? res[0].changeDate : null;
@@ -56,7 +56,7 @@ exports.storage.getLastActivities = (guild, userId, timestamp = false) => {
             : 'n/a';
       res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT changeDate FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`
+        `SELECT changeDate FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
       );
       if (timestamp)
         lastActivities.bonus = res.length > 0 ? res[0].changeDate : null;
@@ -73,13 +73,11 @@ exports.storage.getLastActivities = (guild, userId, timestamp = false) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    storage,
-}
+  storage,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

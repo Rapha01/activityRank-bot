@@ -17,7 +17,7 @@ const cachedFields = [
 let defaultCache = null;
 let defaultAll = null;
 
-exports.cache.load = (role) => {
+cache.load = (role) => {
   if (!role.appData) {
     if (promises[role.id]) {
       return promises[role.id];
@@ -42,14 +42,14 @@ exports.cache.load = (role) => {
   });
 };
 
-exports.storage.get = (guild, roleId) => {
+storage.get = (guild, roleId) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
         `SELECT * FROM guildRole WHERE guildId = ${
           guild.id
-        } && roleId = ${mysql.escape(roleId)}`
+        } && roleId = ${mysql.escape(roleId)}`,
       );
 
       if (res.length == 0) {
@@ -57,7 +57,7 @@ exports.storage.get = (guild, roleId) => {
           defaultAll = (
             await shardDb.query(
               guild.appData.dbHost,
-              `SELECT * FROM guildRole WHERE guildId = 0 AND roleId = 0`
+              `SELECT * FROM guildRole WHERE guildId = 0 AND roleId = 0`,
             )
           )[0];
         return resolve(defaultAll);
@@ -68,7 +68,7 @@ exports.storage.get = (guild, roleId) => {
   });
 };
 
-exports.storage.set = (guild, roleId, field, value) => {
+storage.set = (guild, roleId, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
@@ -76,8 +76,8 @@ exports.storage.set = (guild, roleId, field, value) => {
         `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${
           guild.id
         },${mysql.escape(roleId)},${mysql.escape(
-          value
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`
+          value,
+        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
       );
 
       const role = guild.roles.cache.get(roleId);
@@ -91,12 +91,12 @@ exports.storage.set = (guild, roleId, field, value) => {
   });
 };
 
-exports.storage.getRoleAssignments = (guild) => {
+storage.getRoleAssignments = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND (assignLevel != 0 OR deassignLevel != 0) ORDER BY assignLevel ASC`
+        `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND (assignLevel != 0 OR deassignLevel != 0) ORDER BY assignLevel ASC`,
       );
 
       return resolve(res);
@@ -106,14 +106,14 @@ exports.storage.getRoleAssignments = (guild) => {
   });
 };
 
-exports.storage.getRoleAssignmentsByLevel = (guild, type, level) => {
+storage.getRoleAssignmentsByLevel = (guild, type, level) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
         `SELECT * FROM guildRole WHERE guildId = ${
           guild.id
-        } AND ${type} = ${mysql.escape(level)}`
+        } AND ${type} = ${mysql.escape(level)}`,
       );
 
       return resolve(res);
@@ -123,12 +123,12 @@ exports.storage.getRoleAssignmentsByLevel = (guild, type, level) => {
   });
 };
 
-exports.storage.getRoleAssignmentsByRole = (guild, roleId) => {
+storage.getRoleAssignmentsByRole = (guild, roleId) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND roleId = ${roleId}`
+        `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND roleId = ${roleId}`,
       );
 
       return resolve(res);
@@ -143,7 +143,7 @@ export const getNoXpRoleIds = (guild) => {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT roleId FROM guildRole WHERE guildId = ${guild.id} AND noXp = 1`
+        `SELECT roleId FROM guildRole WHERE guildId = ${guild.id} AND noXp = 1`,
       );
 
       let ids = [];
@@ -163,7 +163,7 @@ const buildCache = (role) => {
         role.guild.appData.dbHost,
         `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = ${
           role.guild.id
-        } AND roleId = ${role.id}`
+        } AND roleId = ${role.id}`,
       );
 
       if (cache.length > 0) cache = cache[0];
@@ -186,21 +186,21 @@ const loadDefaultCache = (dbHost) => {
       let res = await shardDb.query(
         dbHost,
         `SELECT ${cachedFields.join(
-          ','
-        )} FROM guildRole WHERE guildId = 0 AND roleId = 0`
+          ',',
+        )} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
       );
 
       if (res.length == 0)
         await shardDb.query(
           dbHost,
-          `INSERT IGNORE INTO guildRole (guildId,roleId) VALUES (0,0)`
+          `INSERT IGNORE INTO guildRole (guildId,roleId) VALUES (0,0)`,
         );
 
       res = await shardDb.query(
         dbHost,
         `SELECT ${cachedFields.join(
-          ','
-        )} FROM guildRole WHERE guildId = 0 AND roleId = 0`
+          ',',
+        )} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
       );
 
       defaultCache = res[0];
@@ -211,15 +211,13 @@ const loadDefaultCache = (dbHost) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    cache,
-    storage,
-    getNoXpRoleIds,
-}
+  cache,
+  storage,
+  getNoXpRoleIds,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

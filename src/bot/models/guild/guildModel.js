@@ -55,7 +55,7 @@ const cachedFields = [
   'isBanned',
 ];
 
-exports.cache.load = (guild) => {
+cache.load = (guild) => {
   if (!guild.appData) {
     if (promises[guild.id]) return promises[guild.id];
 
@@ -78,14 +78,14 @@ exports.cache.load = (guild) => {
   });
 };
 
-exports.storage.set = (guild, field, value) => {
+storage.set = (guild, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
         guild.appData.dbHost,
         `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${
           guild.id
-        }`
+        }`,
       );
 
       if (cachedFields.indexOf(field) > -1) guild.appData[field] = value;
@@ -97,14 +97,14 @@ exports.storage.set = (guild, field, value) => {
   });
 };
 
-exports.storage.increment = (guild, field, value) => {
+storage.increment = (guild, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
         guild.appData.dbHost,
         `UPDATE guild SET ${field} = ${field} + ${mysql.escape(
-          value
-        )} WHERE guildId = ${guild.id}`
+          value,
+        )} WHERE guildId = ${guild.id}`,
       );
 
       if (cachedFields.indexOf(field) > -1) guild.appData[field] += value * 1;
@@ -116,12 +116,12 @@ exports.storage.increment = (guild, field, value) => {
   });
 };
 
-exports.storage.get = (guild) => {
+storage.get = (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guild WHERE guildId = ${guild.id}`
+        `SELECT * FROM guild WHERE guildId = ${guild.id}`,
       );
       if (res.length == 0) return resolve(null);
       else return resolve(res[0]);
@@ -139,7 +139,7 @@ const buildCache = (guild) => {
         dbHost,
         `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${
           guild.id
-        }`
+        }`,
       );
 
       if (cache.length == 0) {
@@ -149,14 +149,14 @@ const buildCache = (guild) => {
           `INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${
             guild.id
           },${Math.floor(guild.members.me.joinedAt / 1000)},${Math.floor(
-            Date.now() / 1000
-          )})`
+            Date.now() / 1000,
+          )})`,
         );
         cache = await shardDb.query(
           dbHost,
           `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${
             guild.id
-          }`
+          }`,
         );
       }
 
@@ -177,15 +177,15 @@ const getDbHost = (guildId) => {
   return new Promise(async function (resolve, reject) {
     try {
       let res = await managerDb.query(
-        `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`
+        `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
       );
 
       if (res.length < 1) {
         await managerDb.query(
-          `INSERT INTO guildRoute (guildId) VALUES (${guildId})`
+          `INSERT INTO guildRoute (guildId) VALUES (${guildId})`,
         );
         res = await managerDb.query(
-          `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`
+          `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
         );
       }
 
@@ -196,14 +196,12 @@ const getDbHost = (guildId) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    cache,
-    storage,
-}
+  cache,
+  storage,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

@@ -12,7 +12,7 @@ export const storage = {};
 const hostField =
   process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 
-exports.cache.load = (user) => {
+cache.load = (user) => {
   if (!user.appData) {
     if (promises[user.id]) {
       return promises[user.id];
@@ -37,14 +37,14 @@ exports.cache.load = (user) => {
   });
 };
 
-exports.storage.set = (user, field, value) => {
+torage.set = (user, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
         user.appData.dbHost,
         `INSERT INTO user (userId,${field}) VALUES (${user.id},${mysql.escape(
-          value
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`
+          value,
+        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
       );
 
       if (cachedFields[field]) user.appData[field] = value;
@@ -56,7 +56,7 @@ exports.storage.set = (user, field, value) => {
   });
 };
 
-exports.storage.increment = (user, field, value) => {
+storage.increment = (user, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
@@ -64,10 +64,10 @@ exports.storage.increment = (user, field, value) => {
         `INSERT INTO user (userId,${field}) VALUES (${
           user.id
         },DEFAULT(${field}) + ${mysql.escape(
-          value
+          value,
         )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(
-          value
-        )}`
+          value,
+        )}`,
       );
 
       if (cachedFields[field]) user.appData[field] += value;
@@ -79,19 +79,19 @@ exports.storage.increment = (user, field, value) => {
   });
 };
 
-exports.storage.get = (user) => {
+storage.get = (user) => {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
         user.appData.dbHost,
-        `SELECT * FROM user WHERE userId = ${user.id}`
+        `SELECT * FROM user WHERE userId = ${user.id}`,
       );
       if (res.length == 0) {
         if (!defaultAll)
           defaultAll = (
             await shardDb.query(
               user.appData.dbHost,
-              `SELECT * FROM user WHERE userId = 0`
+              `SELECT * FROM user WHERE userId = 0`,
             )
           )[0];
         return resolve(defaultAll);
@@ -108,7 +108,7 @@ const buildCache = (user) => {
       let dbHost = await getDbHost(user.id);
       let cache = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(',')} FROM user WHERE userId = ${user.id}`
+        `SELECT ${cachedFields.join(',')} FROM user WHERE userId = ${user.id}`,
       );
 
       if (cache.length > 0) cache = cache[0];
@@ -131,15 +131,15 @@ const getDbHost = (userId) => {
   return new Promise(async function (resolve, reject) {
     try {
       let res = await managerDb.query(
-        `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`
+        `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`,
       );
 
       if (res.length < 1) {
         await managerDb.query(
-          `INSERT INTO userRoute (userId) VALUES (${userId})`
+          `INSERT INTO userRoute (userId) VALUES (${userId})`,
         );
         res = await managerDb.query(
-          `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`
+          `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`,
         );
       }
 
@@ -155,18 +155,18 @@ const loadDefaultCache = (dbHost) => {
     try {
       let res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`
+        `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`,
       );
 
       if (res.length == 0)
         await shardDb.query(
           dbHost,
-          `INSERT IGNORE INTO user (userId) VALUES (0)`
+          `INSERT IGNORE INTO user (userId) VALUES (0)`,
         );
 
       res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`
+        `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`,
       );
 
       defaultCache = res[0];
@@ -177,14 +177,12 @@ const loadDefaultCache = (dbHost) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    cache,
-    storage,
-}
+  cache,
+  storage,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-
