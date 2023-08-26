@@ -5,11 +5,11 @@
 // import masterLogger from '../../util/logger';
 import masterLogger from '../../util/logger.js';
 
-let logger = null;
+let shardLogger = null;
 
 export const init = (shards) => {
-  logger = masterLogger.child({ shards });
-  return logger;
+  shardLogger = masterLogger.child({ shards });
+  return shardLogger;
 };
 
-export const logger = logger ?? masterLogger.child({ shards: ['?'] });
+export const logger = shardLogger ?? masterLogger.child({ shards: ['?'] });

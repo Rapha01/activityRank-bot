@@ -13,15 +13,19 @@ export const PRIVILEGE_LEVELS = {
   HelpStaff: 1,
 };
 
-const users = {
+const savedUsers = {
   production: {
     uid: 4,
   },
   development: {},
 };
 
-export const userLevels = process.env.NODE_ENV === 'production' ? users.production : users.development;
+export const userLevels =
+  process.env.NODE_ENV === 'production'
+    ? savedUsers.production
+    : savedUsers.development;
 
-export const users = process.env.NODE_ENV === 'production'
-  ? Object.keys(users.production)
-  : Object.keys(users.development);
+export const users =
+  process.env.NODE_ENV === 'production'
+    ? Object.keys(savedUsers.production)
+    : Object.keys(savedUsers.development);
