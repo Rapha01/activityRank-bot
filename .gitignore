@@ -1,4 +1,5 @@
 **/keys.ts
 **/privilegedUsers.ts
 **/node_modules
+dist
 .private
