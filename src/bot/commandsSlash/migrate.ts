@@ -4,7 +4,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 // GENERATED: added extension to relative import
 // import commands from '../temp/const/commands';
-import commands from '../temp/const/commands.js';
+import commands from '../temp/const/commands.json';
 
 export const data = new SlashCommandBuilder()
   .setName('migrate')
