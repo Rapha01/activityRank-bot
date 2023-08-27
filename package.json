@@ -36,7 +36,8 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "nodemon": "^2.0.14",
-    "pino-pretty": "^9.1.1"
+    "pino-pretty": "^9.1.1",
+    "typescript": "^5.2.2"
   },
   "license": ""
 }
