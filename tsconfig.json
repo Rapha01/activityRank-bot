@@ -2,9 +2,9 @@
   "compilerOptions": {
     "target": "es2022",
     "lib": ["ESNext"],
-    "module": "ES2022",
+    "module": "NodeNext",
     "rootDir": "./src",
-    "moduleResolution": "Node16",
+    "moduleResolution": "NodeNext",
     "baseUrl": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"]
 }
