@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+  activityrankbot:
+    build:
+      target: production
+    container_name: ActivityRank-Bot
+    command: node dist/app.js

@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  activityrankbot:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    volumes:
+      - ./src:/usr/src/app/src
+    container_name: ActivityRank-Bot.Dev
+    command: npm run developmentNodemon
