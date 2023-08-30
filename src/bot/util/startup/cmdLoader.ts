@@ -14,7 +14,7 @@ function getRecursive(dir) {
   fs.readdirSync(dir).forEach((file) => {
     const absolute = path.join(dir, file);
     if (fs.statSync(absolute).isDirectory()) return getRecursive(absolute);
-    return files.push(absolute);
+    if (absolute.endsWith('.js')) files.push(absolute);
   });
 }
 
@@ -32,6 +32,7 @@ export default async (client) => {
   });
 
   for (const file of fs.readdirSync(contextDir)) {
+    if (!file.endsWith('.js')) return;
     client.commands.set(
       file.slice(0, -3),
       await import(path.join(contextDir, file)),
@@ -39,6 +40,7 @@ export default async (client) => {
   }
 
   for (const file of fs.readdirSync(adminDir)) {
+    if (!file.endsWith('.js')) return;
     const { default: command } = await import(path.join(adminDir, file));
     command.isAdmin = true;
     if (
