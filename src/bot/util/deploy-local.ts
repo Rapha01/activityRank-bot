@@ -1,33 +1,27 @@
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+import {
+  commandFiles,
+  contextFiles,
+  adminFiles,
+} from '../../util/command-files.js';
 import { get as getKeys } from '../../const/keys.js';
 const { adminGuild, botAuth } = getKeys();
 
 const commands = [];
 const adminCommands = [];
-const commandFiles = fs
-  .readdirSync(fileURLToPath(new URL('../commandsSlash', import.meta.url)))
-  .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
-const contextFiles = fs
-  .readdirSync(fileURLToPath(new URL('../contextMenus', import.meta.url)))
-  .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
-const adminFiles = fs
-  .readdirSync(pfileURLToPath(new URL('../commandsAdmin', import.meta.url)))
-  .filter((file) => file.endsWith('.js') && !file.startsWith('-'));
 
 export default async (client) => {
   for (const file of commandFiles) {
-    const command = await import(`../commandsSlash/${file}`);
+    const { default: command } = await import(`../commandsSlash/${file}`);
     commands.push(command.data.toJSON());
   }
   for (const file of contextFiles) {
-    const command = await import(`../contextMenus/${file}`);
+    const { default: command } = await import(`../contextMenus/${file}`);
     commands.push(command.data.toJSON());
   }
   for (const file of adminFiles) {
-    const command = await import(`../commandsAdmin/${file}`);
+    const { default: command } = await import(`../commandsAdmin/${file}`);
     adminCommands.push(command.data.toJSON());
   }
 
