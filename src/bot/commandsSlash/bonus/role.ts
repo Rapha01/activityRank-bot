@@ -11,7 +11,7 @@ export const currentJobs = new Set();
 export const execute = async (i) => {
   await guildModel.cache.load(i.guild);
 
-  if (module.exports.currentJobs.has(i.guild.id)) {
+  if (currentJobs.has(i.guild.id)) {
     return await i.reply({
       content: 'This server already has a mass role operation running.',
       ephemeral: true,
@@ -29,18 +29,18 @@ export const execute = async (i) => {
 
   const change = i.options.getInteger('change', true);
 
-  module.exports.currentJobs.add(i.guild.id);
+  currentJobs.add(i.guild.id);
   // backup removes after 1h
   const clean = () => {
     let rm;
     try {
-      rm = module.exports.currentJobs.delete(i.guild.id);
+      rm = currentJobs.delete(i.guild.id);
     } catch (e) {
       i.client.logger.debug('Guild left before bonus role job sweep');
     }
     if (rm)
       i.client.logger.warn(
-        `role bonus job removed during sweep from guild ${i.guild.id}`
+        `role bonus job removed during sweep from guild ${i.guild.id}`,
       );
   };
   setTimeout(clean, 36e5);
@@ -76,7 +76,7 @@ async function oldSystem(interaction, role, changeAmount) {
       affected++;
     }
   }
-  module.exports.currentJobs.delete(interaction.guild.id);
+  currentJobs.delete(interaction.guild.id);
 
   interaction.client.logger.debug(`Old role give affected ${affected} members`);
 
@@ -112,7 +112,7 @@ async function betaSystem(interaction, role, changeAmount) {
   });
 
   interaction.client.logger.debug(
-    `New role give to guild with member count ${interaction.guild.memberCount}`
+    `New role give to guild with member count ${interaction.guild.memberCount}`,
   );
 
   const members = await getApplicableMembers(
@@ -120,7 +120,7 @@ async function betaSystem(interaction, role, changeAmount) {
     nonce,
     interaction.client,
     (c) => interaction.editReply(c),
-    interaction.guild.memberCount
+    interaction.guild.memberCount,
   );
   console.debug(`${members.size} Members found`);
 
@@ -135,7 +135,7 @@ async function betaSystem(interaction, role, changeAmount) {
       member,
       interaction.guild,
       interaction.client,
-      changeAmount
+      changeAmount,
     );
 
     affected++;
@@ -152,7 +152,7 @@ async function betaSystem(interaction, role, changeAmount) {
     }
   }
 
-  module.exports.currentJobs.delete(interaction.guild.id);
+  currentJobs.delete(interaction.guild.id);
 
   interaction.client.logger.debug(`New role give affected ${affected} members`);
 
@@ -216,14 +216,12 @@ function progressBar(index, max, len = 40) {
   }%`;
 }
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    currentJobs,
-    execute,
-}
+  currentJobs,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

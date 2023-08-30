@@ -4,7 +4,8 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 // GENERATED: added extension to relative import
 // import commands from '../temp/const/commands';
-import commands from '../temp/const/commands.json';
+import { createRequire } from 'node:module';
+const commands = createRequire(import.meta.url)('../temp/const/commands.json');
 
 export const data = new SlashCommandBuilder()
   .setName('migrate')
@@ -14,7 +15,7 @@ export const data = new SlashCommandBuilder()
       .setName('command')
       .setDescription('The command to look up')
       .setRequired(true)
-      .setAutocomplete(true)
+      .setAutocomplete(true),
   );
 
 export const execute = async function (i) {
@@ -35,7 +36,7 @@ export const execute = async function (i) {
         .setAuthor({ name: 'ar!' + cmd.old })
         .addFields(
           { name: 'Description', value: cmd.desc },
-          { name: 'Replacement', value: cmd.new }
+          { name: 'Replacement', value: cmd.new },
         )
         .setColor(0x00ae86),
     ],
@@ -50,15 +51,13 @@ export const autocomplete = async function (i) {
   i.respond(cmds.slice(0, 25));
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-    autocomplete,
-}
+  data,
+  execute,
+  autocomplete,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

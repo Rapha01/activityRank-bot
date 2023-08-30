@@ -3,7 +3,7 @@
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import resetModel from '../../models/resetModel.js';
-import nameUtil from '../../util/nameUtil';
+import nameUtil from '../../util/nameUtil.js';
 // GENERATED: added extension to relative import
 // import { parseChannel } from '../../util/parser';
 import { parseChannel } from '../../util/parser.js';
@@ -35,12 +35,12 @@ export const execute = async (i) => {
       .setCustomId('ignore cancel')
       .setLabel('Cancel')
       .setEmoji('❎')
-      .setStyle(ButtonStyle.Secondary)
+      .setStyle(ButtonStyle.Secondary),
   );
   const msg = await i.reply({
     content: `Are you sure you want to reset all the statistics of ${nameUtil.getChannelMention(
       i.guild.channels.cache,
-      resolvedChannel.id
+      resolvedChannel.id,
     )}?`,
     ephemeral: true,
     fetchReply: true,
@@ -80,13 +80,11 @@ export const execute = async (i) => {
   }
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-}
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

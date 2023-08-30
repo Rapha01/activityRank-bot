@@ -19,14 +19,18 @@ import nameUtil from '../util/nameUtil.js';
 // import { parseChannel } from '../util/parser';
 import { parseChannel } from '../util/parser.js';
 
-module.exports.data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('config-channel')
   .setDescription("Change a channel's settings!")
   .addChannelOption((o) =>
     o
       .setName('channel')
       .setDescription('The channel to modify')
-      .addChannelTypes(GuildText, GuildVoice, GuildForum),
+      .addChannelTypes(
+        ChannelType.GuildText,
+        ChannelType.GuildVoice,
+        ChannelType.GuildForum,
+      ),
   )
   .addStringOption((o) =>
     o.setName('id').setDescription('The ID of the channel to modify'),
@@ -93,7 +97,7 @@ const _close = (i) =>
       .setCustomId(`config-channel ${i.member.id} - - closeMenu`),
   );
 
-module.exports.execute = async (i) => {
+export const execute = async (i) => {
   const resolvedChannel = await parseChannel(i);
 
   if (!resolvedChannel) {
@@ -173,7 +177,7 @@ module.exports.execute = async (i) => {
   });
 };
 
-module.exports.component = async (i) => {
+export const component = async (i) => {
   const [, memberId, channelId, channelType, type] = i.customId.split(' ');
 
   if (memberId !== i.member.id)

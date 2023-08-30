@@ -3,7 +3,7 @@
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import resetModel from '../../models/resetModel.js';
-import nameUtil from '../../util/nameUtil';
+import nameUtil from '../../util/nameUtil.js';
 // GENERATED: added extension to relative import
 // import { parseMember } from '../../util/parser';
 import { parseMember } from '../../util/parser.js';
