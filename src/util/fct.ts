@@ -145,7 +145,7 @@ export const getPatreonTiers = async (interaction) => {
   if (Date.now() / 1000 <= myUser.patreonTierUntilDate) {
     userTier = myUser.patreonTier;
   } else
-    usertIer = 0;
+    userTier = 0;
 
   let ownerTier;
   if (Date.now() / 1000 <= myOwnerUser.patreonTierUntilDate) {
