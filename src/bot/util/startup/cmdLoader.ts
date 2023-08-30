@@ -27,7 +27,7 @@ export default async (client) => {
   client.adminCommands = new Collection();
 
   files.forEach(async (fileName) => {
-    const command = await import(path.join(commandsDir, fileName));
+    const { default: command } = await import(path.join(commandsDir, fileName));
     client.commands.set(fileName.slice(0, -3), command);
   });
 
@@ -39,7 +39,7 @@ export default async (client) => {
   }
 
   for (const file of fs.readdirSync(adminDir)) {
-    const command = await import(path.join(adminDir, file));
+    const { default: command } = await import(path.join(adminDir, file));
     command.isAdmin = true;
     if (
       !command.requiredPrivileges ||
