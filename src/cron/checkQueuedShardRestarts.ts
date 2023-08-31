@@ -1,4 +1,3 @@
-import publicIp from 'public-ip';
 import managerDb from '../models/managerDb/managerDb.js';
 import { escape } from 'promise-mysql';
 import logger from '../util/logger.js';
