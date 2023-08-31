@@ -90,7 +90,7 @@ export const getGuildMemberInfos = (guild, userIds) => {
       }
 
       // Add deleted
-      for (userId of userIds) {
+      for (const userId of userIds) {
         if (!infos[userId]) {
           infos[userId] = {};
           infos[userId].name = 'User left [' + userId + ']';
