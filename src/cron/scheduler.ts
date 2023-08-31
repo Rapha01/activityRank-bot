@@ -7,7 +7,6 @@ import textModel from '../models/managerDb/textModel.js';
 import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
 import checkForDeadShards from './checkForDeadShards.js';
 
-
 const isProd = process.env.NODE_ENV == 'production';
 const settings = {
   restartDelay: isProd ? 86_400_000 * 7 : 86_400_000,
@@ -29,8 +28,7 @@ export const start = (manager) => {
       startSaveBotShardHealth(manager);
       startCheckForDeadShards(manager);
 
-      if (isProd)
-        startCheckQueuedShardRestarts(manager);
+      if (isProd) startCheckQueuedShardRestarts(manager);
 
       // Periodical Restart
       setTimeout(function () {
@@ -81,9 +79,7 @@ const startUpdateSettings = async (manager) => {
       console.log(e);
     }
 
-    await fct
-      .sleep(settings.updateSettingsInterval)
-      .catch((e) => console.log(e));
+    await fct.sleep(settings.updateSettingsInterval).catch((e) => console.log(e));
   }
 };
 
@@ -110,29 +106,24 @@ const startUpdateTexts = async (manager) => {
 const startSaveBotShardHealth = async (manager) => {
   while (true) {
     await saveBotShardHealth(manager).catch((e) => console.log(e));
-    await fct
-      .sleep(settings.saveBotShardHealthInterval)
-      .catch((e) => console.log(e));
+    await fct.sleep(settings.saveBotShardHealthInterval).catch((e) => console.log(e));
   }
 };
 
 const startCheckQueuedShardRestarts = async (manager) => {
   while (true) {
-    await fct
-      .sleep(settings.checkQueuedShardRestartsInterval)
-      .catch((e) => console.log(e));
-    
+    await fct.sleep(settings.checkQueuedShardRestartsInterval).catch((e) => console.log(e));
+
     await checkQueuedShardRestarts(manager).catch((e) => console.log(e));
   }
 };
 
 const startCheckForDeadShards = async (manager) => {
   while (true) {
-    await fct
-      .sleep(settings.checkForDeadShardsInterval)
-      .catch((e) => console.log(e));
-    
-    if (isProd || process.env.USE_DEAD_SHARDS) await checkForDeadShards(manager).catch((e) => console.log(e));
+    await fct.sleep(settings.checkForDeadShardsInterval).catch((e) => console.log(e));
+
+    if (isProd || process.env.USE_DEAD_SHARDS)
+      await checkForDeadShards(manager).catch((e) => console.log(e));
   }
 };
 
@@ -140,8 +131,7 @@ const startCheckForDeadShards = async (manager) => {
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    start,
-}
+  start,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

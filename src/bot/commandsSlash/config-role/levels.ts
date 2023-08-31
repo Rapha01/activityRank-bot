@@ -12,8 +12,7 @@ import { parseRole } from '../../util/parser.js';
 export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -41,19 +40,17 @@ export const execute = async function (i) {
   };
   if (Object.values(items).every((x) => x === null)) {
     return await i.reply({
-      content:
-        'You must specify at least one option for this command to do anything!',
+      content: 'You must specify at least one option for this command to do anything!',
       ephemeral: true,
     });
   }
 
   for (const k in items) {
-    const roleAssignmentsByLevel =
-      await guildRoleModel.storage.getRoleAssignmentsByLevel(
-        i.guild,
-        k,
-        items[k]
-      );
+    const roleAssignmentsByLevel = await guildRoleModel.storage.getRoleAssignmentsByLevel(
+      i.guild,
+      k,
+      items[k],
+    );
     if (items[k] !== 0 && roleAssignmentsByLevel.length >= 3) {
       return await i.reply({
         content:
@@ -61,26 +58,16 @@ export const execute = async function (i) {
         ephemeral: true,
       });
     }
-    if (items[k] !== null)
-      await guildRoleModel.storage.set(i.guild, resolvedRole.id, k, items[k]);
+    if (items[k] !== null) await guildRoleModel.storage.set(i.guild, resolvedRole.id, k, items[k]);
   }
-  const x = await guildRoleModel.storage.getRoleAssignmentsByRole(
-    i.guild,
-    resolvedRole.id
-  );
+  const x = await guildRoleModel.storage.getRoleAssignmentsByRole(i.guild, resolvedRole.id);
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Assign/Deassignments for this role' })
     .setColor(0x00ae86)
-    .setDescription(
-      nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id)
-    );
+    .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id));
 
-  const roleAssignLevels = x.map((o) =>
-    o.assignLevel != 0 ? `\`${o.assignLevel}\`` : null
-  );
-  const roleDeassignLevels = x.map((o) =>
-    o.deassignLevel != 0 ? `\`${o.deassignLevel}\`` : null
-  );
+  const roleAssignLevels = x.map((o) => (o.assignLevel != 0 ? `\`${o.assignLevel}\`` : null));
+  const roleDeassignLevels = x.map((o) => (o.deassignLevel != 0 ? `\`${o.deassignLevel}\`` : null));
   if (!roleAssignLevels.every((o) => o === null))
     e.addFields({
       name: 'Assignment Levels',
@@ -98,13 +85,11 @@ export const execute = async function (i) {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-}
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

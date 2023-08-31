@@ -25,41 +25,31 @@ export const data = new SlashCommandBuilder()
               value: 'deletedmembers',
             },
             { name: 'Deleted channels', value: 'deletedchannels' },
-            { name: 'Cancel Active Resets', value: 'stop' }
+            { name: 'Cancel Active Resets', value: 'stop' },
           )
-          .setRequired(true)
-      )
+          .setRequired(true),
+      ),
   )
   .addSubcommand((sc) =>
     sc
       .setName('member')
       .setDescription('Reset a member')
-      .addUserOption((o) =>
-        o.setName('member').setDescription('The member to reset')
-      )
-      .addStringOption((o) =>
-        o.setName('id').setDescription('The ID of the member to reset')
-      )
+      .addUserOption((o) => o.setName('member').setDescription('The member to reset'))
+      .addStringOption((o) => o.setName('id').setDescription('The ID of the member to reset')),
   )
   .addSubcommand((sc) =>
     sc
       .setName('channel')
       .setDescription('Reset a channel')
-      .addChannelOption((o) =>
-        o.setName('channel').setDescription('The channel to reset')
-      )
-      .addStringOption((o) =>
-        o.setName('id').setDescription('The ID of the channel to reset')
-      )
+      .addChannelOption((o) => o.setName('channel').setDescription('The channel to reset'))
+      .addStringOption((o) => o.setName('id').setDescription('The ID of the channel to reset')),
   );
-
 
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-}
+  data,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

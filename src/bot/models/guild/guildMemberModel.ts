@@ -17,18 +17,16 @@ cache.load = (member) => {
       return promises[member.guild.id + member.id];
     }
 
-    promises[member.guild.id + member.id] = new Promise(
-      async (resolve, reject) => {
-        try {
-          await buildCache(member);
-          delete promises[member.guild.id + member.id];
-          resolve();
-        } catch (e) {
-          delete promises[member.guild.id + member.id];
-          reject(e);
-        }
-      },
-    );
+    promises[member.guild.id + member.id] = new Promise(async (resolve, reject) => {
+      try {
+        await buildCache(member);
+        delete promises[member.guild.id + member.id];
+        resolve();
+      } catch (e) {
+        delete promises[member.guild.id + member.id];
+        reject(e);
+      }
+    });
 
     return promises[member.guild.id + member.id];
   }
@@ -43,9 +41,7 @@ storage.get = (guild, userId) => {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guildMember WHERE guildId = ${
-          guild.id
-        } && userId = ${mysql.escape(userId)}`,
+        `SELECT * FROM guildMember WHERE guildId = ${guild.id} && userId = ${mysql.escape(userId)}`,
       );
 
       if (res.length == 0) {
@@ -69,11 +65,9 @@ storage.set = (guild, userId, field, value) => {
     try {
       await shardDb.query(
         guild.appData.dbHost,
-        `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${
-          guild.id
-        },${mysql.escape(userId)},${mysql.escape(
-          value,
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+        `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${mysql.escape(
+          userId,
+        )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
       );
 
       const member = guild.members.cache.get(userId);
@@ -92,11 +86,9 @@ storage.increment = (guild, userId, field, value) => {
     try {
       await shardDb.query(
         guild.appData.dbHost,
-        `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${
-          guild.id
-        },${mysql.escape(userId)},${mysql.escape(
-          value,
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(
+        `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${mysql.escape(
+          userId,
+        )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(
           value,
         )}`,
       );
@@ -133,12 +125,7 @@ export const getRankedUserIds = (guild) => {
       );
 
       const ids = [
-        ...new Set([
-          ...textmessageUserIds,
-          ...voiceMinuteUserIds,
-          ...voteUserIds,
-          ...bonusUserIds,
-        ]),
+        ...new Set([...textmessageUserIds, ...voiceMinuteUserIds, ...voteUserIds, ...bonusUserIds]),
       ];
 
       let userIds = [];
@@ -169,9 +156,7 @@ const buildCache = (member) => {
         cache = Object.assign({}, defaultCache);
       }
 
-      cache.totalXp = parseInt(
-        await rankModel.getGuildMemberTotalScore(member.guild, member.id),
-      );
+      cache.totalXp = parseInt(await rankModel.getGuildMemberTotalScore(member.guild, member.id));
       cache.lastTextMessageDate = 0;
 
       member.appData = cache;
@@ -187,22 +172,15 @@ const loadDefaultCache = (dbHost) => {
     try {
       let res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(
-          ',',
-        )} FROM guildMember WHERE guildId = 0 AND userId = 0`,
+        `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = 0 AND userId = 0`,
       );
 
       if (res.length == 0)
-        await shardDb.query(
-          dbHost,
-          `INSERT IGNORE INTO guildMember (guildId,userId) VALUES (0,0)`,
-        );
+        await shardDb.query(dbHost, `INSERT IGNORE INTO guildMember (guildId,userId) VALUES (0,0)`);
 
       res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(
-          ',',
-        )} FROM guildMember WHERE guildId = 0 AND userId = 0`,
+        `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = 0 AND userId = 0`,
       );
 
       defaultCache = res[0];

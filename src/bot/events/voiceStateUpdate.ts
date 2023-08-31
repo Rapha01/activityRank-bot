@@ -14,11 +14,7 @@ export default {
         await guildModel.cache.load(oldState.guild);
         await guildMemberModel.cache.load(member);
 
-        if (
-          oldState.channel == null &&
-          newState.channel != null &&
-          newState.member != null
-        ) {
+        if (oldState.channel == null && newState.channel != null && newState.member != null) {
           // Join
         } else if (
           newState.channel == null &&

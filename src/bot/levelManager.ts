@@ -9,14 +9,13 @@ export const checkLevelUp = (member, oldTotalScore, newTotalScore) => {
     let oldLevel, newLevel, roleMessages;
     try {
       oldLevel = fct.getLevel(
-        fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor)
+        fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor),
       );
       newLevel = fct.getLevel(
-        fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor)
+        fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor),
       );
 
-      if (oldLevel != newLevel)
-        roleMessages = await checkRoleAssignment(member, newLevel);
+      if (oldLevel != newLevel) roleMessages = await checkRoleAssignment(member, newLevel);
     } catch (e) {
       return reject(e);
     }
@@ -25,10 +24,7 @@ export const checkLevelUp = (member, oldTotalScore, newTotalScore) => {
     if (oldLevel >= newLevel) return resolve();
 
     await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
-      member.client.logger.warn(
-        e,
-        'Sending error while autoposting levelup message'
-      )
+      member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
     );
 
     resolve();
@@ -44,9 +40,7 @@ export const checkRoleAssignment = (member, level) => {
 
       if (
         roles.size == 0 ||
-        !member.guild.members.me.permissions.has(
-          PermissionFlagsBits.ManageRoles
-        )
+        !member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)
       )
         return resolve(roleMessages);
 
@@ -54,17 +48,12 @@ export const checkRoleAssignment = (member, level) => {
         role = role[1];
         await guildRoleModel.cache.load(role);
 
-        if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0)
-          continue;
-        if (role.comparePositionTo(member.guild.members.me.roles.highest) > 0)
-          continue;
+        if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0) continue;
+        if (role.comparePositionTo(member.guild.members.me.roles.highest) > 0) continue;
 
         memberHasRole = member.roles.cache.get(role.id);
 
-        if (
-          role.appData.deassignLevel != 0 &&
-          level >= role.appData.deassignLevel
-        ) {
+        if (role.appData.deassignLevel != 0 && level >= role.appData.deassignLevel) {
           // User is above role. Deassign or do nothing.
           if (memberHasRole) {
             await member.roles.remove(role).catch((e) => {
@@ -72,10 +61,7 @@ export const checkRoleAssignment = (member, level) => {
             });
             addRoleDeassignMessage(roleMessages, member, role, level);
           }
-        } else if (
-          role.appData.assignLevel != 0 &&
-          level >= role.appData.assignLevel
-        ) {
+        } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
           // User is within role. Assign or do nothing.
           if (!memberHasRole) {
             await member.roles.add(role).catch((e) => {
@@ -115,15 +101,11 @@ const sendGratulationMessage = (member, roleMessages, level) => {
     )
       gratulationMessage = member.guild.appData.levelupMessage + '\n';
 
-    if (roleMessages.length > 0)
-      gratulationMessage += roleMessages.join('\n') + '\n';
+    if (roleMessages.length > 0) gratulationMessage += roleMessages.join('\n') + '\n';
 
     if (gratulationMessage == '') return resolve();
 
-    const ping =
-      gratulationMessage.indexOf('<mention>') > -1
-        ? '<@' + member.id + '>'
-        : '';
+    const ping = gratulationMessage.indexOf('<mention>') > -1 ? '<@' + member.id + '>' : '';
 
     gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 
@@ -137,22 +119,16 @@ const sendGratulationMessage = (member, roleMessages, level) => {
       if (err.code === 50001)
         // Missing Access
         member.client.logger.debug(
-          `Missing access to send gratulationMessage in guild ${member.guild.id}`
+          `Missing access to send gratulationMessage in guild ${member.guild.id}`,
         );
-      else
-        member.client.logger.warn(
-          err,
-          'Error while sending gratulationMessage'
-        );
+      else member.client.logger.warn(err, 'Error while sending gratulationMessage');
     }
 
     // Active Channel
     let notified = false;
     if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
       if (member.appData.lastMessageChannelId) {
-        const channel = member.guild.channels.cache.get(
-          member.appData.lastMessageChannelId
-        );
+        const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
         if (channel) {
           const msg = { embeds: [levelupEmbed] };
           if (ping) msg['content'] = ping;
@@ -167,9 +143,7 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 
     // Post_ Channel
     if (!notified && member.guild.appData.autopost_levelup != 0) {
-      const channel = member.guild.channels.cache.get(
-        member.guild.appData.autopost_levelup
-      );
+      const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
 
       if (channel && channel.send) {
         const msg = { embeds: [levelupEmbed] };
@@ -207,13 +181,11 @@ const sendGratulationMessage = (member, roleMessages, level) => {
 const addRoleDeassignMessage = (roleMessages, member, role, level) => {
   let message = '';
 
-  if (role.appData.deassignMessage != '')
-    message = role.appData.deassignMessage;
+  if (role.appData.deassignMessage != '') message = role.appData.deassignMessage;
   else if (member.guild.appData.roleDeassignMessage != '')
     message = member.guild.appData.roleDeassignMessage;
 
-  if (message != '')
-    roleMessages.push(replaceTagsRole(message, member, role, level));
+  if (message != '') roleMessages.push(replaceTagsRole(message, member, role, level));
 
   return roleMessages;
 };
@@ -225,8 +197,7 @@ const addRoleAssignMessage = (roleMessages, member, role, level) => {
   else if (member.guild.appData.roleAssignMessage != '')
     message = member.guild.appData.roleAssignMessage;
 
-  if (message != '')
-    roleMessages.push(replaceTagsRole(message, member, role, level));
+  if (message != '') roleMessages.push(replaceTagsRole(message, member, role, level));
 
   return roleMessages;
 };
@@ -248,14 +219,12 @@ const replaceTagsLevelup = (text, member, level) => {
   );
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    checkLevelUp,
-    checkRoleAssignment,
-}
+  checkLevelUp,
+  checkRoleAssignment,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

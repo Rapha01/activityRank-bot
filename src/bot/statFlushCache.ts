@@ -132,8 +132,7 @@ export const addBonus = (member, count) => {
         };
       else entry.count += count;
 
-      if (member.appData)
-        await addTotalXp(member, count * member.guild.appData.xpPerBonus);
+      if (member.appData) await addTotalXp(member, count * member.guild.appData.xpPerBonus);
 
       resolve();
     } catch (e) {
@@ -190,18 +189,16 @@ const directlyBuildStatFlushCache = (client, guild, type) => {
   return statFlushCache[dbHost][type];
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    addTextMessage,
-    addVoiceMinute,
-    addInvite,
-    addVote,
-    addBonus,
-    directlyAddBonus,
-}
+  addTextMessage,
+  addVoiceMinute,
+  addInvite,
+  addVote,
+  addBonus,
+  directlyAddBonus,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

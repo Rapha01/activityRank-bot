@@ -7,10 +7,7 @@ export const data = new SlashCommandBuilder()
   .setName('inviter')
   .setDescription('Set a member as your inviter')
   .addUserOption((o) =>
-    o
-      .setName('member')
-      .setDescription('The user that invited you to the server')
-      .setRequired(true)
+    o.setName('member').setDescription('The user that invited you to the server').setRequired(true),
   );
 
 export const execute = async (i) => {
@@ -29,14 +26,8 @@ export const execute = async (i) => {
     });
   }
 
-  const myGuildMember = await guildMemberModel.storage.get(
-    i.guild,
-    i.member.id
-  );
-  const myTargetGuildMember = await guildMemberModel.storage.get(
-    i.guild,
-    member.id
-  );
+  const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
+  const myTargetGuildMember = await guildMemberModel.storage.get(i.guild, member.id);
 
   if (myGuildMember.inviter != 0) {
     return await i.reply({
@@ -44,13 +35,9 @@ export const execute = async (i) => {
       ephemeral: true,
     });
   }
-  if (
-    myTargetGuildMember.inviter != 0 &&
-    myTargetGuildMember.inviter == i.member.id
-  ) {
+  if (myTargetGuildMember.inviter != 0 && myTargetGuildMember.inviter == i.member.id) {
     return await i.reply({
-      content:
-        'You cannot set your inviter to a person who has been invited by you.',
+      content: 'You cannot set your inviter to a person who has been invited by you.',
       ephemeral: true,
     });
   }
@@ -70,12 +57,7 @@ export const execute = async (i) => {
       ephemeral: true,
     });
   }
-  await guildMemberModel.storage.set(
-    i.guild,
-    i.member.id,
-    'inviter',
-    member.id
-  );
+  await guildMemberModel.storage.set(i.guild, i.member.id, 'inviter', member.id);
 
   await statFlushCache.addInvite(member, 1);
   await statFlushCache.addInvite(i.member, 1);
@@ -87,14 +69,12 @@ export const execute = async (i) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-}
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

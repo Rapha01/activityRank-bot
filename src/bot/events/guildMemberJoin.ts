@@ -15,15 +15,9 @@ export default {
 
         // Roleassignments
         const level = fct.getLevel(
-          fct.getLevelProgression(
-            member.appData.totalScore,
-            member.guild.appData.levelFactor
-          )
+          fct.getLevelProgression(member.appData.totalScore, member.guild.appData.levelFactor),
         );
-        const roleAssignmentString = await levelManager.checkRoleAssignment(
-          member,
-          level
-        );
+        const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
 
         // AutoPost serverjoin
         if (member.guild.appData.autopost_serverJoin != 0)
@@ -40,9 +34,7 @@ export default {
 const autoPostServerJoin = (member, roleAssignmentString) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const channel = member.guild.channels.cache.get(
-        member.guild.appData.autopost_serverJoin
-      );
+      const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
       if (!channel) return resolve();
 
       if (!channel.viewable) return resolve();
@@ -72,9 +64,7 @@ const autoPostServerJoin = (member, roleAssignmentString) => {
       } catch (err) {
         if (err.code === 50013)
           // Missing Permissions
-          member.client.logger.debug(
-            `Failed to send welcome message in guild ${member.guild.id}`
-          );
+          member.client.logger.debug(`Failed to send welcome message in guild ${member.guild.id}`);
         else throw err;
       }
 

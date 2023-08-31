@@ -26,15 +26,9 @@ export const data = new SlashCommandBuilder()
     o
       .setName('channel')
       .setDescription('The channel to modify')
-      .addChannelTypes(
-        ChannelType.GuildText,
-        ChannelType.GuildVoice,
-        ChannelType.GuildForum,
-      ),
+      .addChannelTypes(ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildForum),
   )
-  .addStringOption((o) =>
-    o.setName('id').setDescription('The ID of the channel to modify'),
-  );
+  .addStringOption((o) => o.setName('id').setDescription('The ID of the channel to modify'));
 
 const generateRow = (i, id, type, myChannel) => {
   const r = [
@@ -53,37 +47,23 @@ const generateRow = (i, id, type, myChannel) => {
   r[1].setDisabled(parseInt(type) !== ChannelType.GuildText);
   if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
-  r[2].setCustomId(
-    `config-channel ${i.member.id} ${id} ${type} commandOnlyChannel`,
-  );
+  r[2].setCustomId(`config-channel ${i.member.id} ${id} ${type} commandOnlyChannel`);
   r[2].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[2].setStyle(
-    i.guild.appData.commandOnlyChannel == id
-      ? ButtonStyle.Success
-      : ButtonStyle.Danger,
+    i.guild.appData.commandOnlyChannel == id ? ButtonStyle.Success : ButtonStyle.Danger,
   );
   if (r[2].disabled) r[2].setStyle(ButtonStyle.Secondary);
 
-  r[3].setCustomId(
-    `config-channel ${i.member.id} ${id} ${type} autopost_serverJoin`,
-  );
+  r[3].setCustomId(`config-channel ${i.member.id} ${id} ${type} autopost_serverJoin`);
   r[3].setDisabled(parseInt(type) !== ChannelType.GuildText);
   r[3].setStyle(
-    i.guild.appData.autopost_serverJoin == id
-      ? ButtonStyle.Success
-      : ButtonStyle.Danger,
+    i.guild.appData.autopost_serverJoin == id ? ButtonStyle.Success : ButtonStyle.Danger,
   );
   if (r[3].disabled) r[3].setStyle(ButtonStyle.Secondary);
 
-  r[4].setCustomId(
-    `config-channel ${i.member.id} ${id} ${type} autopost_levelup`,
-  );
+  r[4].setCustomId(`config-channel ${i.member.id} ${id} ${type} autopost_levelup`);
   r[4].setDisabled(parseInt(type) !== ChannelType.GuildText);
-  r[4].setStyle(
-    i.guild.appData.autopost_levelup == id
-      ? ButtonStyle.Success
-      : ButtonStyle.Danger,
-  );
+  r[4].setStyle(i.guild.appData.autopost_levelup == id ? ButtonStyle.Success : ButtonStyle.Danger);
   if (r[4].disabled) r[4].setStyle(ButtonStyle.Secondary);
 
   return r;
@@ -109,22 +89,16 @@ export const execute = async (i) => {
 
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
 
-  const myChannel = await guildChannelModel.storage.get(
-    i.guild,
-    resolvedChannel.id,
-  );
+  const myChannel = await guildChannelModel.storage.get(i.guild, resolvedChannel.id);
 
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Channel Settings' })
-    .setDescription(
-      nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id),
-    )
+    .setDescription(nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id))
     .setColor(0x00ae86)
     .addFields({
       name: 'No XP',
@@ -133,9 +107,7 @@ export const execute = async (i) => {
 
   if (
     !resolvedChannel.channel ||
-    [ChannelType.GuildText, ChannelType.GuildForum].includes(
-      resolvedChannel.channel.type,
-    )
+    [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.channel.type)
   ) {
     e.addFields({
       name: 'No Commands',
@@ -149,13 +121,11 @@ export const execute = async (i) => {
     });
     e.addFields({
       name: 'Server Join Channel',
-      value:
-        'If this is enabled, server join messages will be sent to this channel.',
+      value: 'If this is enabled, server join messages will be sent to this channel.',
     });
     e.addFields({
       name: 'Levelup Channel',
-      value:
-        'If this is enabled, levelup messages will be sent to this channel.',
+      value: 'If this is enabled, levelup messages will be sent to this channel.',
     });
   }
 
@@ -166,9 +136,7 @@ export const execute = async (i) => {
         generateRow(
           i,
           resolvedChannel.id,
-          resolvedChannel.channel
-            ? resolvedChannel.channel.type.toString()
-            : '0',
+          resolvedChannel.channel ? resolvedChannel.channel.type.toString() : '0',
           myChannel,
         ),
       ),
@@ -194,23 +162,19 @@ export const component = async (i) => {
   let myChannel = await guildChannelModel.storage.get(i.guild, channelId);
 
   if (['noXp', 'noCommand'].includes(type)) {
-    if (myChannel[type])
-      await guildChannelModel.storage.set(i.guild, channelId, type, 0);
+    if (myChannel[type]) await guildChannelModel.storage.set(i.guild, channelId, type, 0);
     else await guildChannelModel.storage.set(i.guild, channelId, type, 1);
 
     myChannel = await guildChannelModel.storage.get(i.guild, channelId);
   } else {
     // eslint-disable-next-line no-lonely-if
-    if (i.guild.appData[type] == channelId)
-      await guildModel.storage.set(i.guild, type, 0);
+    if (i.guild.appData[type] == channelId) await guildModel.storage.set(i.guild, type, 0);
     else await guildModel.storage.set(i.guild, type, channelId);
   }
 
   await i.update({
     components: [
-      new ActionRowBuilder().addComponents(
-        generateRow(i, channelId, channelType, myChannel),
-      ),
+      new ActionRowBuilder().addComponents(generateRow(i, channelId, channelType, myChannel)),
       _close(i),
     ],
   });

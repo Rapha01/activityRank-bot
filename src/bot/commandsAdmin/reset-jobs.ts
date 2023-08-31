@@ -13,18 +13,14 @@ export const data = new SlashCommandBuilder()
   .setName('reset-jobs')
   .setDescription('Check the reset job status')
   .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-  .addBooleanOption((o) =>
-    o.setName('full').setDescription('Send the full contents of resetJobs')
-  )
-  .addBooleanOption((o) =>
-    o.setName('eph').setDescription('Send as an ephemeral message')
-  )
+  .addBooleanOption((o) => o.setName('full').setDescription('Send the full contents of resetJobs'))
+  .addBooleanOption((o) => o.setName('eph').setDescription('Send as an ephemeral message'))
   .addStringOption((o) =>
     o
       .setName('search')
       .setDescription('Get the current reset of the specified guild ID')
       .setMinLength(17)
-      .setMaxLength(19)
+      .setMaxLength(19),
   )
   .setDMPermission(false);
 
@@ -33,9 +29,7 @@ export const execute = async function (i) {
   const search = i.options.getString('search');
   let content;
   if (search) {
-    content =
-      '**Reset information: **' +
-      (resetModel.resetJobs[search] ?? '`No current job`');
+    content = '**Reset information: **' + (resetModel.resetJobs[search] ?? '`No current job`');
   } else {
     const types = [
       'guildMembersStats',
@@ -54,13 +48,11 @@ export const execute = async function (i) {
       (t) =>
         `\n - ${t}: ${Object.values(resetModel.resetJobs).reduce(
           (p, c) => (c.type === t ? ++p : p),
-          0
-        )}`
+          0,
+        )}`,
     );
 
-    content = `Length: ${
-      Object.keys(resetModel.resetJobs).length
-    }\nTypes: ${typeDisplay}`;
+    content = `Length: ${Object.keys(resetModel.resetJobs).length}\nTypes: ${typeDisplay}`;
   }
 
   const res = {
@@ -70,25 +62,22 @@ export const execute = async function (i) {
 
   if (useFull) {
     res.files = [
-      new AttachmentBuilder(
-        Buffer.from(JSON.stringify(resetModel.resetJobs, null, 2), 'utf8'),
-        { name: 'logs.json' }
-      ),
+      new AttachmentBuilder(Buffer.from(JSON.stringify(resetModel.resetJobs, null, 2), 'utf8'), {
+        name: 'logs.json',
+      }),
     ];
   }
 
   await i.reply(res);
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    requiredPrivileges,
-    data,
-    execute,
-}
+  requiredPrivileges,
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

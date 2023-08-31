@@ -41,37 +41,28 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-role/menu ${i.member.id} - closeMenu`)
+      .setCustomId(`config-role/menu ${i.member.id} - closeMenu`),
   );
 
 const _modal = (roleId, assignState) =>
   new ModalBuilder()
-    .setCustomId(
-      `config-role/menu ${roleId} ${
-        assignState ? 'assignMessage' : 'deassignMessage'
-      }`
-    )
+    .setCustomId(`config-role/menu ${roleId} ${assignState ? 'assignMessage' : 'deassignMessage'}`)
     .setTitle(`${assignState ? 'Assignment' : 'Deassignment'} Message`)
     .addComponents(
       new ActionRowBuilder().addComponents(
         new TextInputBuilder()
           .setCustomId('msg-component-1')
-          .setLabel(
-            `The message to send upon ${
-              assignState ? 'assignment' : 'deassignment'
-            }`
-          )
+          .setLabel(`The message to send upon ${assignState ? 'assignment' : 'deassignment'}`)
           .setStyle(TextInputStyle.Paragraph)
           .setMaxLength(1000)
-          .setRequired(true)
-      )
+          .setRequired(true),
+      ),
     );
 
 export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -89,15 +80,12 @@ export const execute = async (i) => {
 
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Role Settings' })
-    .setDescription(
-      nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id)
-    )
+    .setDescription(nameUtil.getRoleMention(i.guild.roles.cache, resolvedRole.id))
     .setColor(0x00ae86)
     .addFields(
       {
         name: 'No XP',
-        value:
-          'If this is enabled, no xp will be given to members that have this role.',
+        value: 'If this is enabled, no xp will be given to members that have this role.',
       },
       {
         name: 'Assign Message',
@@ -108,23 +96,19 @@ export const execute = async (i) => {
         name: 'Deassign Message',
         value:
           'This is the message sent when this role is removed from a member. Defaults to the global deassignMessage.',
-      }
+      },
     );
 
   await i.reply({
     embeds: [e],
     components: [
-      new ActionRowBuilder().addComponents(
-        generateRow(i, resolvedRole.id, myRole)
-      ),
+      new ActionRowBuilder().addComponents(generateRow(i, resolvedRole.id, myRole)),
       _close(i),
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setLabel('Clear a message')
           .setStyle(ButtonStyle.Danger)
-          .setCustomId(
-            `config-role/menu ${i.member.id} ${resolvedRole.id} clear`
-          )
+          .setCustomId(`config-role/menu ${i.member.id} ${resolvedRole.id} clear`),
       ),
     ],
   });
@@ -146,16 +130,12 @@ export const component = async (i) => {
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setLabel('Assignment Message')
-            .setCustomId(
-              `config-role/menu ${i.member.id} ${roleId} clear-assign`
-            )
+            .setCustomId(`config-role/menu ${i.member.id} ${roleId} clear-assign`)
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setLabel('Deassignment Message')
-            .setCustomId(
-              `config-role/menu ${i.member.id} ${roleId} clear-deassign`
-            )
-            .setStyle(ButtonStyle.Secondary)
+            .setCustomId(`config-role/menu ${i.member.id} ${roleId} clear-deassign`)
+            .setStyle(ButtonStyle.Secondary),
         ),
       ],
       ephemeral: true,
@@ -167,7 +147,7 @@ export const component = async (i) => {
       i.guild,
       roleId,
       type === 'clear-assign' ? 'assignMessage' : 'deassignMessage',
-      ''
+      '',
     );
 
     await i.deferReply({ ephemeral: true });
@@ -195,10 +175,7 @@ export const component = async (i) => {
       myRole.noXp = 1;
     }
     await i.update({
-      components: [
-        new ActionRowBuilder().addComponents(generateRow(i, roleId, myRole)),
-        _close(i),
-      ],
+      components: [new ActionRowBuilder().addComponents(generateRow(i, roleId, myRole)), _close(i)],
     });
   } else {
     return await i.showModal(_modal(roleId, type === 'assignMessage'));
@@ -220,15 +197,13 @@ export const modal = async (i) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-    component,
-    modal,
-}
+  execute,
+  component,
+  modal,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

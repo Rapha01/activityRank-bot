@@ -26,21 +26,19 @@ export const execute = async function (i) {
       {
         name: '💗 API Heartbeat 💗',
         value: `\`\`\`${Math.round(i.client.ws.ping)}ms\`\`\``,
-      }
+      },
     )
     .setTimestamp();
   await i.editReply({ embeds: [pingEmbed], ephemeral: true });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    requiredPrivileges,
-    data,
-    execute,
-}
+  requiredPrivileges,
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

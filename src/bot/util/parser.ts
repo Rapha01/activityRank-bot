@@ -45,15 +45,13 @@ export const parseMember = async (i) => {
   return { id, member };
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    parseChannel,
-    parseRole,
-    parseMember,
-}
+  parseChannel,
+  parseRole,
+  parseMember,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

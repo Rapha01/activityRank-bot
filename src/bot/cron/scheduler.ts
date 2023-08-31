@@ -35,7 +35,7 @@ export const start = (client) => {
     }
   });
   */
-  
+
   cron.schedule(logShardDiagnostics, async () => {
     try {
       let str = '';
@@ -64,13 +64,12 @@ export const start = (client) => {
     }
   });
 
-
   const supportGuild = client.guilds.cache.get(config.supportServerId);
   if (supportGuild) {
     cron.schedule(autoAssignPatreonRolesInterval, async () => {
       try {
         await autoAssignPatreonRoles(supportGuild);
-         
+
         client.logger.info('Updated support server Patreon roles');
       } catch (e) {
         client.logger.warn(e, 'Error in autoAssignPatreonRoles');
@@ -81,9 +80,7 @@ export const start = (client) => {
 
 const startVoiceXp = async (client) => {
   while (true) {
-    await voiceXpRound(client).catch((e) =>
-      client.logger.warn(e, 'Error in voiceXpRound')
-    );
+    await voiceXpRound(client).catch((e) => client.logger.warn(e, 'Error in voiceXpRound'));
   }
 };
 
@@ -92,19 +89,15 @@ const startResetJob = async () => {
     await resetJob().catch((e) => client.logger.warn(e, 'Error in resetJob'));
     await fct
       .sleep(resetJobInterval)
-      .catch((e) =>
-        client.logger.warn(e, 'Error sleeping in resetJob interval')
-      );
+      .catch((e) => client.logger.warn(e, 'Error sleeping in resetJob interval'));
   }
 };
-
 
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    start,
-}
+  start,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

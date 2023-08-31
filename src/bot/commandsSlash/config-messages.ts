@@ -29,13 +29,13 @@ const generateRows = async (i) => {
             label: 'Default Role Deassign Message',
             value: 'roleDeassignMessage',
           },
-        ])
+        ]),
     ),
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel('Clear a message')
         .setStyle(ButtonStyle.Danger)
-        .setCustomId(`config-messages ${i.member.id} clear`)
+        .setCustomId(`config-messages ${i.member.id} clear`),
     ),
   ];
 };
@@ -58,8 +58,8 @@ const _modal = (type) =>
           .setLabel(`The ${_prettifyId[type]}`)
           .setStyle(TextInputStyle.Paragraph)
           .setMaxLength(type === 'levelupMessage' ? 1000 : 500)
-          .setRequired(true)
-      )
+          .setRequired(true),
+      ),
     );
 
 export const data = new SlashCommandBuilder()
@@ -69,35 +69,29 @@ export const data = new SlashCommandBuilder()
 export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
 
-  const e = new EmbedBuilder()
-    .setAuthor({ name: 'Server Messages' })
-    .setColor(0x00ae86)
-    .addFields(
-      {
-        name: 'Server Join Message',
-        value: 'The message to send when a member joins the server',
-      },
-      {
-        name: 'Levelup Message',
-        value: 'The message to send when a member gains a level',
-      },
-      {
-        name: 'Role Assign Message',
-        value:
-          'The message to send when a member gains a role, unless overridden',
-      },
-      {
-        name: 'Role Deassign Message',
-        value:
-          'The message to send when a member loses a role, unless overridden',
-      }
-    );
+  const e = new EmbedBuilder().setAuthor({ name: 'Server Messages' }).setColor(0x00ae86).addFields(
+    {
+      name: 'Server Join Message',
+      value: 'The message to send when a member joins the server',
+    },
+    {
+      name: 'Levelup Message',
+      value: 'The message to send when a member gains a level',
+    },
+    {
+      name: 'Role Assign Message',
+      value: 'The message to send when a member gains a role, unless overridden',
+    },
+    {
+      name: 'Role Deassign Message',
+      value: 'The message to send when a member loses a role, unless overridden',
+    },
+  );
 
   await i.reply({
     embeds: [e],
@@ -134,7 +128,7 @@ export const component = async (i) => {
                 label: 'Default Role Deassign Message',
                 value: 'roleDeassignMessage',
               },
-            ])
+            ]),
         ),
       ],
       ephemeral: true,
@@ -167,16 +161,14 @@ export const modal = async function (i) {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-    component,
-    modal,
-}
+  data,
+  execute,
+  component,
+  modal,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

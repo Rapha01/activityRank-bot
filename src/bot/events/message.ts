@@ -27,24 +27,19 @@ export default {
 
     await guildModel.cache.load(msg.guild);
 
-    const mentionRegex = new RegExp(
-      `^(<@!?${msg.client.user.id}>)\\s*test\\s*$`
-    );
+    const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
     if (msg.content && mentionRegex.test(msg.content))
       await msg.reply('This test is successful. The bot is up and running.');
-    
-    if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type) )
+
+    if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type))
       await rankMessage(msg);
   },
 };
 
 async function rankMessage(msg) {
   if (!msg.channel) return;
-  
-  const channel =
-    msg.channel.type === ChannelType.PublicThread
-      ? msg.channel.parent
-      : msg.channel;
+
+  const channel = msg.channel.type === ChannelType.PublicThread ? msg.channel.parent : msg.channel;
 
   await msg.guild.members.fetch(msg.author.id);
 

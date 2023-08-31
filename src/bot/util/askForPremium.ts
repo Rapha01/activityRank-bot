@@ -18,7 +18,7 @@ export default async function (interaction) {
     cooldownUtil.getCachedCooldown(
       interaction.guild.appData,
       'lastAskForPremiumDate',
-      askForPremiumCdGuild
+      askForPremiumCdGuild,
     ) > 0
   )
     return;
@@ -41,7 +41,7 @@ export default async function (interaction) {
     { guildId: interaction.guild.id },
     `Sent askForPremium in ${interaction.guild.name}`
   );*/
-};
+}
 
 async function sendAskForPremiumEmbed(interaction) {
   const e = new EmbedBuilder()

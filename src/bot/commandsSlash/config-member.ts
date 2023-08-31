@@ -15,15 +15,11 @@ const generateRow = (i, myGuildMember) => {
     new ButtonBuilder().setLabel('Reaction voting'),
   ];
   r[0].setCustomId(`config-member ${i.member.id} notifyLevelupDm`);
-  r[0].setStyle(
-    myGuildMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger
-  );
+  r[0].setStyle(myGuildMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger);
 
   r[1].setCustomId(`config-member ${i.member.id} reactionVote`);
   r[1].setDisabled(!i.guild.appData.voteXp || !i.guild.appData.reactionVote);
-  r[1].setStyle(
-    myGuildMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger
-  );
+  r[1].setStyle(myGuildMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger);
   return r;
 };
 
@@ -32,7 +28,7 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-member ${i.member.id} closeMenu`)
+      .setCustomId(`config-member ${i.member.id} closeMenu`),
   );
 
 export const data = new SlashCommandBuilder()
@@ -41,31 +37,24 @@ export const data = new SlashCommandBuilder()
 
 export const execute = async (i) => {
   await guildMemberModel.cache.load(i.member);
-  const myGuildMember = await guildMemberModel.storage.get(
-    i.guild,
-    i.member.id
-  );
+  const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
   await i.reply({
     embeds: [
       new EmbedBuilder().setAuthor({ name: 'Personal Settings' }).addFields(
         {
           name: 'Notify Levelup via DM',
-          value:
-            'If this is enabled, the bot will send you a DM when you level up.',
+          value: 'If this is enabled, the bot will send you a DM when you level up.',
         },
         {
           name: 'Reaction Voting',
           value: oneLine`
         If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
         will give an upvote to the member that sent the message.`,
-        }
+        },
       ),
     ],
-    components: [
-      new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)),
-      _close(i),
-    ],
+    components: [new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)), _close(i)],
   });
 };
 
@@ -86,28 +75,22 @@ export const component = async (i) => {
   await guildMemberModel.cache.load(i.member);
   let myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
-  if (myGuildMember[type])
-    await guildMemberModel.storage.set(i.guild, memberId, type, 0);
+  if (myGuildMember[type]) await guildMemberModel.storage.set(i.guild, memberId, type, 0);
   else await guildMemberModel.storage.set(i.guild, memberId, type, 1);
 
   myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
   await i.update({
-    components: [
-      new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)),
-      _close(i),
-    ],
+    components: [new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)), _close(i)],
   });
 };
-
 
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-    component,
-}
+  data,
+  execute,
+  component,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

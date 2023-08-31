@@ -21,8 +21,7 @@ export const execute = async (i) => {
   const role = i.options.getRole('role', true);
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -38,15 +37,11 @@ export const execute = async (i) => {
     } catch (e) {
       i.client.logger.debug('Guild left before bonus role job sweep');
     }
-    if (rm)
-      i.client.logger.warn(
-        `role bonus job removed during sweep from guild ${i.guild.id}`,
-      );
+    if (rm) i.client.logger.warn(`role bonus job removed during sweep from guild ${i.guild.id}`);
   };
   setTimeout(clean, 36e5);
 
-  if (i.options.getBoolean('use-beta'))
-    return await betaSystem(i, role, change);
+  if (i.options.getBoolean('use-beta')) return await betaSystem(i, role, change);
   else return await oldSystem(i, role, change);
 };
 

@@ -2,7 +2,6 @@ import mysql from 'mysql';
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import userModel from '../bot/models/userModel.js';
 
-
 export const maxBigInt = 9223372036854775807;
 export const minIdInt = 1000000000000;
 
@@ -41,11 +40,9 @@ export const isDateInThePast = (compareDate, nowDate) => {
 
 export const dateDifferenceSec = (date1, date2) => {
   const date1Timestamp =
-    new Date(date1.getTime() - date1.getTimezoneOffset() * 60000).getTime() /
-    1000;
+    new Date(date1.getTime() - date1.getTimezoneOffset() * 60000).getTime() / 1000;
   const date2Timestamp =
-    new Date(date2.getTime() - date2.getTimezoneOffset() * 60000).getTime() /
-    1000;
+    new Date(date2.getTime() - date2.getTimezoneOffset() * 60000).getTime() / 1000;
 
   return date1Timestamp - date2Timestamp;
 };
@@ -99,12 +96,7 @@ export const extractTime = (args) => {
   let time = 'Alltime';
 
   for (let i = 0; i < args.length; i++) {
-    if (
-      args[i] == 'year' ||
-      args[i] == 'month' ||
-      args[i] == 'week' ||
-      args[i] == 'day'
-    )
+    if (args[i] == 'year' || args[i] == 'month' || args[i] == 'week' || args[i] == 'day')
       time = capitalizeFirstLetter(args[i]);
   }
 
@@ -133,7 +125,9 @@ function solve(a, b, c) {
 }
 
 export const getPatreonTiers = async (interaction) => {
-  const ownerUser = (await interaction.guild.members.fetch({user: interaction.guild.ownerId, cache: true})).user;
+  const ownerUser = (
+    await interaction.guild.members.fetch({ user: interaction.guild.ownerId, cache: true })
+  ).user;
 
   await userModel.cache.load(interaction.user);
   await userModel.cache.load(ownerUser);
@@ -144,31 +138,25 @@ export const getPatreonTiers = async (interaction) => {
   let userTier;
   if (Date.now() / 1000 <= myUser.patreonTierUntilDate) {
     userTier = myUser.patreonTier;
-  } else
-    userTier = 0;
+  } else userTier = 0;
 
   let ownerTier;
   if (Date.now() / 1000 <= myOwnerUser.patreonTierUntilDate) {
     ownerTier = myOwnerUser.patreonTier;
-  } else
-    ownerTier = 0;
+  } else ownerTier = 0;
 
-  return { userTier, ownerTier }
+  return { userTier, ownerTier };
 };
 
 export const getVoteMultiplier = (myUser) => {
   let multiplier = 1;
 
-  if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000)
-    multiplier = 2;
+  if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;
 
-  if (myUser.patreonTierUntilDate > Date.now() / 1000 && myUser.patreonTier > 0 ) {
-    if (myUser.patreonTier == 1)
-      multiplier = 2;
-    else if (myUser.patreonTier == 2)
-      multiplier = 3;
-    else if (myUser.patreonTier == 3)
-      multiplier = 4;
+  if (myUser.patreonTierUntilDate > Date.now() / 1000 && myUser.patreonTier > 0) {
+    if (myUser.patreonTier == 1) multiplier = 2;
+    else if (myUser.patreonTier == 2) multiplier = 3;
+    else if (myUser.patreonTier == 3) multiplier = 4;
   }
 
   return multiplier;
@@ -206,30 +194,28 @@ exports.getMemberActionCooldown = (member,field,cd) => {
 }
 */
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    maxBigInt,
-    minIdInt,
-    conditionsToSQL,
-    waitAndReboot,
-    sleep,
-    isDateInThePast,
-    dateDifferenceSec,
-    dateTimeString,
-    hasNoXpRole,
-    extractPage,
-    extractPageSimple,
-    extractTime,
-    capitalizeFirstLetter,
-    getLevel,
-    getLevelProgression,
-    getPatreonTiers,
-    getVoteMultiplier,
-    getPatreonTierName,
-}
+  maxBigInt,
+  minIdInt,
+  conditionsToSQL,
+  waitAndReboot,
+  sleep,
+  isDateInThePast,
+  dateDifferenceSec,
+  dateTimeString,
+  hasNoXpRole,
+  extractPage,
+  extractPageSimple,
+  extractTime,
+  capitalizeFirstLetter,
+  getLevel,
+  getLevelProgression,
+  getPatreonTiers,
+  getVoteMultiplier,
+  getPatreonTierName,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

@@ -41,9 +41,9 @@ storage.get = (guild, channelId) => {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guildChannel WHERE guildId = ${
-          guild.id
-        } && channelId = ${mysql.escape(channelId)}`,
+        `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${mysql.escape(
+          channelId,
+        )}`,
       );
 
       if (res.length == 0) {
@@ -67,11 +67,9 @@ storage.set = (guild, channelId, field, value) => {
     try {
       await shardDb.query(
         guild.appData.dbHost,
-        `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${
-          guild.id
-        },${mysql.escape(channelId)},${mysql.escape(
-          value,
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+        `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${mysql.escape(
+          channelId,
+        )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
       );
 
       const channel = guild.channels.cache.get(channelId);
@@ -176,9 +174,7 @@ const loadDefaultCache = (dbHost) => {
     try {
       let res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(
-          ',',
-        )} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
+        `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
       );
 
       if (res.length == 0)
@@ -189,9 +185,7 @@ const loadDefaultCache = (dbHost) => {
 
       res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(
-          ',',
-        )} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
+        `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
       );
 
       defaultCache = res[0];

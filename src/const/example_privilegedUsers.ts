@@ -21,24 +21,20 @@ const savedUsers = {
 };
 
 export const userLevels =
-  process.env.NODE_ENV === 'production'
-    ? savedUsers.production
-    : savedUsers.development;
+  process.env.NODE_ENV === 'production' ? savedUsers.production : savedUsers.development;
 
 export const users =
   process.env.NODE_ENV === 'production'
     ? Object.keys(savedUsers.production)
     : Object.keys(savedUsers.development);
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    PRIVILEGE_LEVELS,
-    userLevels,
-    users,
-}
+  PRIVILEGE_LEVELS,
+  userLevels,
+  users,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

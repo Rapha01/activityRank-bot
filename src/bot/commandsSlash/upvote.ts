@@ -10,7 +10,7 @@ export const data = new SlashCommandBuilder()
   .setName('upvote')
   .setDescription('Upvote a member!')
   .addUserOption((o) =>
-    o.setName('member').setDescription('The member to upvote').setRequired(true)
+    o.setName('member').setDescription('The member to upvote').setRequired(true),
   );
 
 export const execute = async function (i) {
@@ -54,13 +54,13 @@ export const execute = async function (i) {
   const toWait = cooldownUtil.getCachedCooldown(
     i.member.appData,
     'lastVoteDate',
-    i.guild.appData.voteCooldownSeconds
+    i.guild.appData.voteCooldownSeconds,
   );
 
   if (toWait > 0) {
     return await i.reply({
       content: `You already voted recently. You will be able to vote again <t:${Math.ceil(
-        toWait + Date.now() / 1000
+        toWait + Date.now() / 1000,
       )}:R>.`,
       ephemeral: true,
     });
@@ -72,7 +72,7 @@ export const execute = async function (i) {
 
   if (value > 1) {
     await i.reply(
-      `You have successfully voted for ${targetMember}. Your vote counts \`${value}x\`.`
+      `You have successfully voted for ${targetMember}. Your vote counts \`${value}x\`.`,
     );
   } else {
     await i.reply(oneLine`You have successfully voted for ${targetMember}. 
@@ -80,14 +80,12 @@ export const execute = async function (i) {
   }
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-}
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

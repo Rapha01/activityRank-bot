@@ -43,8 +43,8 @@ const rows = (type, page, memberId) => {
           { label: 'No Command Channels', value: 'nocommandchannels' },
           { label: 'Noxp Channels', value: 'noxpchannels' },
           { label: 'Noxp Roles', value: 'noxproles' },
-          { label: 'Autosend Messages', value: 'messages' }
-        )
+          { label: 'Autosend Messages', value: 'messages' },
+        ),
     ),
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -61,23 +61,20 @@ const rows = (type, page, memberId) => {
         .setEmoji('➡️')
         .setCustomId('serverinfo 1')
         .setStyle(ButtonStyle.Primary)
-        .setDisabled(paginationDisabled || page > 100)
+        .setDisabled(paginationDisabled || page > 100),
     ),
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel('Close')
         .setStyle(ButtonStyle.Danger)
-        .setCustomId(`serverinfo ${memberId} closeMenu`)
+        .setCustomId(`serverinfo ${memberId} closeMenu`),
     ),
   ];
 };
 
 export const execute = async (i) => {
   const myGuild = await guildModel.storage.get(i.guild);
-  const page = fct.extractPageSimple(
-    i.options.getInteger('page') ?? 1,
-    myGuild.entriesPerPage
-  );
+  const page = fct.extractPageSimple(i.options.getInteger('page') ?? 1, myGuild.entriesPerPage);
 
   const embed = await embeds['general'](i, myGuild, page.from, page.to);
 
@@ -88,8 +85,7 @@ export const execute = async (i) => {
 };
 
 export const component = async function (i) {
-  const [, memberId] =
-    i.message.components[2].components[0].customId.split(' ');
+  const [, memberId] = i.message.components[2].components[0].customId.split(' ');
   if (memberId !== i.member.id)
     return await i.reply({
       content: "Sorry, this menu isn't for you.",
@@ -140,8 +136,7 @@ async function info(i, myGuild) {
     : myGuild.notifyLevelupCurrentChannel
     ? 'Current Channel'
     : myGuild.autopost_levelup
-    ? '#' +
-      nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup)
+    ? '#' + nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup)
     : 'None';
 
   e.addFields({
@@ -157,9 +152,7 @@ async function info(i, myGuild) {
   }
   Notify levelup: ${notifyLevelupType}
   Include levelup message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
-  Take away assigned roles on level down: ${
-    myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'
-  }
+  Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
   List entries per page: ${myGuild.entriesPerPage}
   Status: ${(await fct.getPatreonTiers(i)).ownerTier == 3 ? 'Premium' : 'Not Premium'}`,
   });
@@ -181,25 +174,17 @@ async function info(i, myGuild) {
 
   let bonusTimeString = '';
   if (myGuild.bonusUntilDate > Date.now() / 1000) {
-    bonusTimeString = `**!! Bonus XP Active !!** (ends <t:${
-      myGuild.bonusUntilDate
-    }:R>)
+    bonusTimeString = `**!! Bonus XP Active !!** (ends <t:${myGuild.bonusUntilDate}:R>)
     ${myGuild.bonusPerTextMessage * myGuild.xpPerBonus} Bonus XP per textmessage
     ${myGuild.bonusPerVoiceMinute * myGuild.xpPerBonus} Bonus XP per voiceminute
-    ${myGuild.bonusPerVote * myGuild.xpPerBonus} Bonus XP for ${
-      myGuild.voteTag
-    }`;
+    ${myGuild.bonusPerVote * myGuild.xpPerBonus} Bonus XP for ${myGuild.voteTag}`;
   }
 
   let xpPerString = '';
-  if (i.guild.appData.textXp)
-    xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
-  if (i.guild.appData.voiceXp)
-    xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
-  if (i.guild.appData.voteXp)
-    xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
-  if (i.guild.appData.inviteXp)
-    xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
+  if (i.guild.appData.textXp) xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
+  if (i.guild.appData.voiceXp) xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
+  if (i.guild.appData.voteXp) xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
+  if (i.guild.appData.inviteXp) xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
 
   // eslint-disable-next-line max-len
   const textmessageCooldownString = myGuild.textMessageCooldownSeconds
@@ -209,7 +194,7 @@ async function info(i, myGuild) {
     name: '**Points**',
     value: stripIndent`
     Vote Cooldown: A user has to wait ${Math.round(
-      myGuild.voteCooldownSeconds / 60
+      myGuild.voteCooldownSeconds / 60,
     )} minutes between each vote
     Text Message Cooldown: Messages give XP ${textmessageCooldownString}
     Muted voice XP allowed: ${myGuild.allowMutedXp ? 'Yes' : 'No'}
@@ -227,7 +212,7 @@ async function levels(i, myGuild, from, to) {
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
     .setDescription(
-      `XP needed to reach next level (total XP).\nLevelfactor: ${myGuild.levelFactor}.`
+      `XP needed to reach next level (total XP).\nLevelfactor: ${myGuild.levelFactor}.`,
     );
 
   let recordingLevels = [],
@@ -257,9 +242,7 @@ async function roles(i, myGuild, from, to) {
     .setDescription("This server's activity roles and their respective levels.")
     .setColor('#4fd6c8');
 
-  let roleAssignments = await guildRoleModel.storage.getRoleAssignments(
-    i.guild
-  );
+  let roleAssignments = await guildRoleModel.storage.getRoleAssignments(i.guild);
   roleAssignments = roleAssignments.slice(from - 1, to);
 
   for (const myRole of roleAssignments)
@@ -286,22 +269,14 @@ async function noCommandChannels(i, myGuild, from, to) {
   if (i.guild.appData.commandOnlyChannel != 0) {
     description +=
       ':warning: The commandOnly channel is set. The bot will respond only in channel ' +
-      nameUtil.getChannelName(
-        i.guild.channels.cache,
-        i.guild.appData.commandOnlyChannel
-      ) +
+      nameUtil.getChannelName(i.guild.channels.cache, i.guild.appData.commandOnlyChannel) +
       '. \n \n';
   }
 
-  description +=
-    'NoCommand channels (does not affect users with manage server permission): \n';
-  const e = new EmbedBuilder()
-    .setAuthor({ name: 'NoCommand channels info' })
-    .setColor('#4fd6c8');
+  description += 'NoCommand channels (does not affect users with manage server permission): \n';
+  const e = new EmbedBuilder().setAuthor({ name: 'NoCommand channels info' }).setColor('#4fd6c8');
 
-  let noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(
-    i.guild
-  );
+  let noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(i.guild);
   noCommandChannelIds = noCommandChannelIds.slice(from - 1, to);
 
   for (const channelId of noCommandChannelIds) {
@@ -312,8 +287,7 @@ async function noCommandChannels(i, myGuild, from, to) {
     });
   }
 
-  if (noCommandChannelIds.length == 0)
-    description += 'No channels to show here.';
+  if (noCommandChannelIds.length == 0) description += 'No channels to show here.';
 
   e.setDescription(description);
 
@@ -405,15 +379,13 @@ async function messages(i, myGuild, from, to) {
   return e;
 }
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-    component,
-}
+  data,
+  execute,
+  component,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

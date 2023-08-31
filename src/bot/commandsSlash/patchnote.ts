@@ -2,16 +2,12 @@ import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
   .setName('patchnote')
-  .setDescription(
-    'Show patchnotes. Omit the version parameter to see a generalized list.'
-  )
+  .setDescription('Show patchnotes. Omit the version parameter to see a generalized list.')
   .addStringOption((o) =>
     o
       .setName('version')
-      .setDescription(
-        'The specific version to show. Defaults to the latest version.'
-      )
-      .setAutocomplete(true)
+      .setDescription('The specific version to show. Defaults to the latest version.')
+      .setAutocomplete(true),
   );
 
 export const execute = async (i) => {
@@ -21,13 +17,9 @@ export const execute = async (i) => {
   applicableVersions.push('latest');
   let e;
 
-  if (!applicableVersions.includes(version) || !version)
-    e = patchnotesMainEmbed(patchnotes);
+  if (!applicableVersions.includes(version) || !version) e = patchnotesMainEmbed(patchnotes);
   else if (version == 'latest') e = patchnotesVersionEmbed(patchnotes[0]);
-  else
-    e = patchnotesVersionEmbed(
-      patchnotes.find((o) => o.version == version.toLowerCase())
-    );
+  else e = patchnotesVersionEmbed(patchnotes.find((o) => o.version == version.toLowerCase()));
 
   await i.reply({
     embeds: [e],
@@ -35,14 +27,10 @@ export const execute = async (i) => {
 };
 
 export const autocomplete = async (i) => {
-  let patchnoteVersions = i.client.appData.texts.patchnotes.map(
-    (o) => o.version
-  );
+  let patchnoteVersions = i.client.appData.texts.patchnotes.map((o) => o.version);
   const focused = i.options.getFocused().replace('v', '').replace('.', '');
 
-  patchnoteVersions = patchnoteVersions.filter((o) =>
-    o.replace('.', '').includes(focused)
-  );
+  patchnoteVersions = patchnoteVersions.filter((o) => o.replace('.', '').includes(focused));
 
   patchnoteVersions.push('latest');
   patchnoteVersions = patchnoteVersions.map((o) => ({ name: o, value: o }));
@@ -68,28 +56,23 @@ function patchnotesMainEmbed(patchnotes) {
 function patchnotesVersionEmbed(patchnote) {
   const embed = new EmbedBuilder()
     .setColor(0x00ae86)
-    .setTitle(
-      `**Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date})**`
-    );
+    .setTitle(`**Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date})**`);
 
   for (const feature of patchnote.features)
     embed.addFields({ name: feature.title, value: feature.desc });
 
-  for (const fix of patchnote.fixes)
-    embed.addFields({ name: fix.title, value: fix.desc });
+  for (const fix of patchnote.fixes) embed.addFields({ name: fix.title, value: fix.desc });
 
   return embed;
 }
-
 
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    data,
-    execute,
-    autocomplete,
-}
+  data,
+  execute,
+  autocomplete,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

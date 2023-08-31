@@ -9,8 +9,7 @@ let defaultAll = null;
 const cachedFields = ['userId', 'isBanned'];
 export const cache = {};
 export const storage = {};
-const hostField =
-  process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 
 cache.load = (user) => {
   if (!user.appData) {
@@ -61,13 +60,9 @@ storage.increment = (user, field, value) => {
     try {
       await shardDb.query(
         user.appData.dbHost,
-        `INSERT INTO user (userId,${field}) VALUES (${
-          user.id
-        },DEFAULT(${field}) + ${mysql.escape(
+        `INSERT INTO user (userId,${field}) VALUES (${user.id},DEFAULT(${field}) + ${mysql.escape(
           value,
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(
-          value,
-        )}`,
+        )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(value)}`,
       );
 
       if (cachedFields[field]) user.appData[field] += value;
@@ -89,10 +84,7 @@ storage.get = (user) => {
       if (res.length == 0) {
         if (!defaultAll)
           defaultAll = (
-            await shardDb.query(
-              user.appData.dbHost,
-              `SELECT * FROM user WHERE userId = 0`,
-            )
+            await shardDb.query(user.appData.dbHost, `SELECT * FROM user WHERE userId = 0`)
           )[0];
         return resolve(defaultAll);
       } else return resolve(res[0]);
@@ -135,9 +127,7 @@ const getDbHost = (userId) => {
       );
 
       if (res.length < 1) {
-        await managerDb.query(
-          `INSERT INTO userRoute (userId) VALUES (${userId})`,
-        );
+        await managerDb.query(`INSERT INTO userRoute (userId) VALUES (${userId})`);
         res = await managerDb.query(
           `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`,
         );
@@ -159,10 +149,7 @@ const loadDefaultCache = (dbHost) => {
       );
 
       if (res.length == 0)
-        await shardDb.query(
-          dbHost,
-          `INSERT IGNORE INTO user (userId) VALUES (0)`,
-        );
+        await shardDb.query(dbHost, `INSERT IGNORE INTO user (userId) VALUES (0)`);
 
       res = await shardDb.query(
         dbHost,

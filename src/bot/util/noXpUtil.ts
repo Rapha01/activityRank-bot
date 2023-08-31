@@ -5,16 +5,13 @@ export const noVoiceXp = (member, channel) => {
     try {
       if (member.user.bot) return resolve(true);
 
-      if (!member.guild.appData.allowMutedXp && member.voice.mute)
-        return resolve(true);
+      if (!member.guild.appData.allowMutedXp && member.voice.mute) return resolve(true);
 
-      if (!member.guild.appData.allowDeafenedXp && member.voice.deaf)
-        return resolve(true);
+      if (!member.guild.appData.allowDeafenedXp && member.voice.deaf) return resolve(true);
 
       //console.log(member.voice.mute, member.voice.deaf);
 
-      if (!member.guild.appData.allowSoloXp && channel.members.size < 2)
-        return resolve(true);
+      if (!member.guild.appData.allowSoloXp && channel.members.size < 2) return resolve(true);
 
       //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
       //return resolve(true);
@@ -33,13 +30,11 @@ export const noVoiceXp = (member, channel) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    noVoiceXp,
-}
+  noVoiceXp,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

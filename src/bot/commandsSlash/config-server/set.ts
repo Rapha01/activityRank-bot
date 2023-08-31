@@ -32,58 +32,39 @@ const generateRows = async (i) => {
   const r2 = [
     new ButtonBuilder()
       .setLabel('TAAROLD')
-      .setCustomId(
-        `config-server/set ${i.member.id} takeAwayAssignedRolesOnLevelDown`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} takeAwayAssignedRolesOnLevelDown`),
     new ButtonBuilder()
       .setLabel('Notify Via DM')
       .setCustomId(`config-server/set ${i.member.id} notifyLevelupDm`),
     new ButtonBuilder()
       .setLabel('Notify in Last Active Channel')
-      .setCustomId(
-        `config-server/set ${i.member.id} notifyLevelupCurrentChannel`
-      ),
+      .setCustomId(`config-server/set ${i.member.id} notifyLevelupCurrentChannel`),
     new ButtonBuilder()
       .setLabel('Include Levelup Message')
       .setCustomId(`config-server/set ${i.member.id} notifyLevelupWithRole`),
   ];
   const r3 = [
-    new ButtonBuilder()
-      .setEmoji('✍️')
-      .setCustomId(`config-server/set ${i.member.id} textXp`),
-    new ButtonBuilder()
-      .setEmoji('🎙️')
-      .setCustomId(`config-server/set ${i.member.id} voiceXp`),
-    new ButtonBuilder()
-      .setEmoji('✉️')
-      .setCustomId(`config-server/set ${i.member.id} inviteXp`),
-    new ButtonBuilder()
-      .setEmoji('❤️')
-      .setCustomId(`config-server/set ${i.member.id} voteXp`),
+    new ButtonBuilder().setEmoji('✍️').setCustomId(`config-server/set ${i.member.id} textXp`),
+    new ButtonBuilder().setEmoji('🎙️').setCustomId(`config-server/set ${i.member.id} voiceXp`),
+    new ButtonBuilder().setEmoji('✉️').setCustomId(`config-server/set ${i.member.id} inviteXp`),
+    new ButtonBuilder().setEmoji('❤️').setCustomId(`config-server/set ${i.member.id} voteXp`),
   ];
   r1.forEach((o) =>
     o.setStyle(
-      myGuild[o.data.custom_id.split(' ')[2]] === 1
-        ? ButtonStyle.Success
-        : ButtonStyle.Danger
-    )
+      myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
+    ),
   );
   r2.forEach((o) =>
     o.setStyle(
-      myGuild[o.data.custom_id.split(' ')[2]] === 1
-        ? ButtonStyle.Success
-        : ButtonStyle.Danger
-    )
+      myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
+    ),
   );
   r3.forEach((o) =>
     o.setStyle(
-      myGuild[o.data.custom_id.split(' ')[2]] === 1
-        ? ButtonStyle.Success
-        : ButtonStyle.Danger
-    )
+      myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
+    ),
   );
-  if (myGuild.notifyLevelupCurrentChannel)
-    r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
+  if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
   if (parseInt(myGuild.autopost_levelup)) {
     r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
     r2[2].setDisabled(true).setStyle(ButtonStyle.Danger);
@@ -101,14 +82,13 @@ const _close = (i) =>
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-server/set ${i.member.id} closeMenu`)
+      .setCustomId(`config-server/set ${i.member.id} closeMenu`),
   );
 
 export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -169,7 +149,7 @@ export const execute = async (i) => {
         value: stripIndent`
         These will enable or disable text, voice, invite, and upvoteXP respectively.
         You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`,
-      }
+      },
     );
 
   await i.reply({
@@ -200,14 +180,12 @@ export const component = async (i) => {
   await i.update({ components: await generateRows(i) });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-    component,
-}
+  execute,
+  component,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-
