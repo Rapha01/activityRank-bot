@@ -132,7 +132,7 @@ const startCheckForDeadShards = async (manager) => {
       .sleep(settings.checkForDeadShardsInterval)
       .catch((e) => console.log(e));
     
-    await checkForDeadShards(manager).catch((e) => console.log(e));
+    if (isProd || process.env.USE_DEAD_SHARDS) await checkForDeadShards(manager).catch((e) => console.log(e));
   }
 };
 
