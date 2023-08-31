@@ -1,4 +1,3 @@
-import publicIp from 'public-ip';
 import managerDb from '../models/managerDb/managerDb.js';
 import logger from '../util/logger.js';
 

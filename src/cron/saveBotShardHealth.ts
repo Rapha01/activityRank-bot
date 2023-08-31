@@ -1,4 +1,4 @@
-import publicIp from 'public-ip';
+import { publicIpv4 } from 'public-ip';
 import managerDb from '../models/managerDb/managerDb.js';
 import { escape } from 'promise-mysql';
 import logger from '../util/logger.js';
@@ -22,7 +22,7 @@ export default async (manager) => {
   const nowDate = round(new Date().getTime() / 1000);
   const shards = await manager.broadcastEval(_save);
 
-  let ip = await publicIp.v4();
+  let ip = await publicIpv4();
 
   for (const shard of shards) {
     shard.ip = ip;
