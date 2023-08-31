@@ -9,14 +9,11 @@ import guildModel from '../../models/guild/guildModel.js';
 export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
-  const endsAt = Math.floor(
-    Date.now() / 1000 + i.options.getInteger('time') * 60
-  );
+  const endsAt = Math.floor(Date.now() / 1000 + i.options.getInteger('time') * 60);
   await guildModel.storage.set(i.guild, 'bonusUntilDate', endsAt);
   await await i.reply({
     content: `Bonus time has started! It will end <t:${endsAt}:R>.`,
@@ -35,14 +32,12 @@ export const autocomplete = async (i) => {
   ]);
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-    autocomplete,
-}
+  execute,
+  autocomplete,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

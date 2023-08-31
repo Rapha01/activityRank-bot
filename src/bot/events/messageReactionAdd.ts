@@ -39,17 +39,10 @@ export default {
             return resolve();
         }
 
-        let targetMember = await guild.members.fetch(
-          reaction.message.author.id
-        );
+        let targetMember = await guild.members.fetch(reaction.message.author.id);
         let member = await guild.members.fetch(reaction.users.cache.last().id);
 
-        if (
-          !targetMember ||
-          !member ||
-          member.user.bot ||
-          targetMember.id == member.id
-        )
+        if (!targetMember || !member || member.user.bot || targetMember.id == member.id)
           return resolve();
 
         await guildMemberModel.cache.load(targetMember);
@@ -72,7 +65,7 @@ export default {
         const toWait = cooldownUtil.getCachedCooldown(
           member.appData,
           'lastVoteDate',
-          guild.appData.voteCooldownSeconds
+          guild.appData.voteCooldownSeconds,
         );
         if (toWait > 0) return resolve();
 

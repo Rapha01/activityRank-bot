@@ -39,14 +39,14 @@ export default {
               { label: 'XP Settings', value: 'xpSettings' },
               { label: 'Bonus XP', value: 'bonusxp' },
               { label: 'Role autoassignments', value: 'roleAssignments' },
-              { label: 'Resets', value: 'reset' }
-            )
+              { label: 'Resets', value: 'reset' },
+            ),
         ),
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setCustomId(`help closeMenu ${i.user.id}`)
             .setLabel('Close')
-            .setStyle(ButtonStyle.Danger)
+            .setStyle(ButtonStyle.Danger),
         ),
       ],
     });
@@ -63,19 +63,15 @@ export default {
       return await i.deleteReply();
     } else if (type === 'select') {
       let e = i.message.embeds[0];
-      e = helpFeatureEmbed(
-        i.guild,
-        i.client.appData.texts.commands[i.values[0]]
-      );
+      e = helpFeatureEmbed(i.guild, i.client.appData.texts.commands[i.values[0]]);
       i.update({ embeds: [e] });
     }
   },
 };
 
 function helpMainEmbed(guild, sections) {
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'ActivityRank Manual' })
-    .setColor(0x00ae86).setDescription(stripIndent`
+  const embed = new EmbedBuilder().setAuthor({ name: 'ActivityRank Manual' }).setColor(0x00ae86)
+    .setDescription(stripIndent`
       **[Website](https://activityrank.me/commands)**
       **[Support Server](${supportServerInviteLink})**
       By using this bot you accept the **[terms and conditions](https://activityrank.me/termsandconditions)**.`);

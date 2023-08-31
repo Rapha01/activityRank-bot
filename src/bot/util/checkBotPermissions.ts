@@ -13,7 +13,7 @@ export default async (msg) => {
     cooldownUtil.getCachedCooldown(
       msg.guild.appData,
       'lastCheckPermissionsDate',
-      checkPermissionsCd
+      checkPermissionsCd,
     ) > 0
   )
     return;
@@ -31,13 +31,12 @@ const sendPermissionsEmbed = async (msg) => {
   const embed = new EmbedBuilder()
     .setAuthor({
       name: 'WARNING',
-      iconURL:
-        'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png',
+      iconURL: 'https://cdn.pixabay.com/photo/2017/03/08/14/20/flat-2126885_1280.png',
     })
     .setDescription(
       stripIndent`Your bot is missing permissions it needs to function properly!
                     Please ask an administrator or your server owner to [click here to **reinvite it.**](${botInviteLink})
-                    Alternatively, run \`ar!i perms\` to find the permissions your bot is missing!`
+                    Alternatively, run \`ar!i perms\` to find the permissions your bot is missing!`,
     )
     .setColor('#ffcc00');
 

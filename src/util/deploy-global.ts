@@ -32,9 +32,7 @@ export default async function () {
     await rest.put(Routes.applicationGuildCommands(botId, adminGuild), {
       body: adminCommands,
     });
-    console.log(
-      `Loaded local application and admin (/) commands in admin guild (${adminGuild})`,
-    );
+    console.log(`Loaded local application and admin (/) commands in admin guild (${adminGuild})`);
   } catch (error) {
     console.error(error);
   }

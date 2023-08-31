@@ -74,9 +74,7 @@ const createPool = (dbHost) => {
           console.log('ShardDb pool error.');
           if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             console.log(
-              'PROTOCOL_CONNECTION_LOST for shardDb @' +
-                dbHost +
-                '. Deleting connection.',
+              'PROTOCOL_CONNECTION_LOST for shardDb @' + dbHost + '. Deleting connection.',
             );
             delete pools[dbHost];
           } else {

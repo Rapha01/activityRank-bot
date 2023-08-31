@@ -36,30 +36,27 @@ export const data = new SlashCommandBuilder()
       .setName('modify')
       .setDescription('Give or take tokens from a user')
       .addUserOption((o) =>
-        o
-          .setName('user')
-          .setDescription('The user to modify the tokens of')
-          .setRequired(true)
+        o.setName('user').setDescription('The user to modify the tokens of').setRequired(true),
       )
       .addIntegerOption((o) =>
         o
           .setName('amount')
           .setDescription('The amount of tokens to give/take from the user')
-          .setRequired(true)
+          .setRequired(true),
       )
       .addBooleanOption((o) =>
         o
           .setName('independent')
           .setDescription(
-            'If selected, will not count tokens as purchased. Also applies for negative changes.'
-          )
-      )
+            'If selected, will not count tokens as purchased. Also applies for negative changes.',
+          ),
+      ),
   );
 
 export const execute = async function (i) {
   if (!authorizedUsers.includes(i.user.id)) {
     i.client.logger.warn(
-      `Unauthorized command attempt in editTokens command by user ${i.user.tag} [${i.user.id}]`
+      `Unauthorized command attempt in editTokens command by user ${i.user.tag} [${i.user.id}]`,
     );
     return;
   }
@@ -88,15 +85,13 @@ export const execute = async function (i) {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    requiredPrivileges,
-    data,
-    execute,
-}
+  requiredPrivileges,
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

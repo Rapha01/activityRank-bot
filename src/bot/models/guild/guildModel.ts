@@ -7,8 +7,7 @@ const promises = {};
 export const cache = {};
 export const storage = {};
 
-const hostField =
-  process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
   //'tokens',
   'showNicknames',
@@ -83,9 +82,7 @@ storage.set = (guild, field, value) => {
     try {
       await shardDb.query(
         guild.appData.dbHost,
-        `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${
-          guild.id
-        }`,
+        `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
       );
 
       if (cachedFields.indexOf(field) > -1) guild.appData[field] = value;
@@ -102,9 +99,7 @@ storage.increment = (guild, field, value) => {
     try {
       await shardDb.query(
         guild.appData.dbHost,
-        `UPDATE guild SET ${field} = ${field} + ${mysql.escape(
-          value,
-        )} WHERE guildId = ${guild.id}`,
+        `UPDATE guild SET ${field} = ${field} + ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
       );
 
       if (cachedFields.indexOf(field) > -1) guild.appData[field] += value * 1;
@@ -137,26 +132,20 @@ const buildCache = (guild) => {
       const dbHost = await getDbHost(guild.id);
       let cache = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${
-          guild.id
-        }`,
+        `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
       );
 
       if (cache.length == 0) {
         console.log;
         await shardDb.query(
           dbHost,
-          `INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${
-            guild.id
-          },${Math.floor(guild.members.me.joinedAt / 1000)},${Math.floor(
-            Date.now() / 1000,
-          )})`,
+          `INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${guild.id},${Math.floor(
+            guild.members.me.joinedAt / 1000,
+          )},${Math.floor(Date.now() / 1000)})`,
         );
         cache = await shardDb.query(
           dbHost,
-          `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${
-            guild.id
-          }`,
+          `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
         );
       }
 
@@ -181,9 +170,7 @@ const getDbHost = (guildId) => {
       );
 
       if (res.length < 1) {
-        await managerDb.query(
-          `INSERT INTO guildRoute (guildId) VALUES (${guildId})`,
-        );
+        await managerDb.query(`INSERT INTO guildRoute (guildId) VALUES (${guildId})`);
         res = await managerDb.query(
           `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
         );

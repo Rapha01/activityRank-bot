@@ -7,7 +7,9 @@ import skip from '../skip.js';
 import statFlushCache from '../statFlushCache.js';
 import noXpUtil from '../util/noXpUtil.js';
 import { ChannelType } from 'discord.js';
-let minutesToAdd = 0, leftover = 0, round = 0;
+let minutesToAdd = 0,
+  leftover = 0,
+  round = 0;
 
 export default async (client) => {
   return new Promise(async function (resolve, reject) {
@@ -35,9 +37,9 @@ export default async (client) => {
 
       if (round % 5 == 0)
         client.logger.debug(
-          `[Rank Voice] #${round
+          `[Rank Voice] #${round.toString().padEnd(4)}: ${minutesToAdd} (${leftover
             .toString()
-            .padEnd(4)}: ${minutesToAdd} (${leftover.toString().padEnd(2)})`
+            .padEnd(2)})`,
         );
 
       round++;
@@ -57,7 +59,7 @@ const rankVoiceGuild = (guild) => {
       if (!guild.appData.voiceXp) return resolve();
 
       const voiceChannels = guild.channels.cache.filter(
-        (channel) => channel.type == ChannelType.GuildVoice
+        (channel) => channel.type == ChannelType.GuildVoice,
       );
 
       for (let channel of voiceChannels) {

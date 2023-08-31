@@ -33,10 +33,7 @@ export default async (client) => {
 
   for (const file of fs.readdirSync(contextDir)) {
     if (!file.endsWith('.js')) return;
-    client.commands.set(
-      file.slice(0, -3),
-      await import(path.join(contextDir, file)),
-    );
+    client.commands.set(file.slice(0, -3), await import(path.join(contextDir, file)));
   }
 
   for (const file of fs.readdirSync(adminDir)) {
@@ -49,9 +46,7 @@ export default async (client) => {
       command.requiredPrivileges > 5 ||
       command.requiredPrivileges < 1
     )
-      throw new Error(
-        `Admin command ${file} does not have a valid requiredPrivileges field!`,
-      );
+      throw new Error(`Admin command ${file} does not have a valid requiredPrivileges field!`);
     client.adminCommands.set(file.slice(0, -3), command);
   }
 

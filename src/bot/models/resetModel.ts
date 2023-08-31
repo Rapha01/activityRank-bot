@@ -11,12 +11,8 @@ export const cache = {};
 storage.resetGuildAll = async (batchsize, guild) => {
   let affectedRows = 0;
 
-  affectedRows += await storage.resetGuildStats(
-    batchsize - affectedRows,
-    guild,
-  );
-  if (affectedRows < batchsize)
-    affectedRows += await storage.resetGuildSettings(batchsize, guild);
+  affectedRows += await storage.resetGuildStats(batchsize - affectedRows, guild);
+  if (affectedRows < batchsize) affectedRows += await storage.resetGuildSettings(batchsize, guild);
 
   return affectedRows;
 };
@@ -41,9 +37,7 @@ storage.resetGuildSettings = async (batchsize, guild) => {
       affectedRows += (
         await shardDb.query(
           guild.appData.dbHost,
-          `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${
-            batchsize - affectedRows
-          }`,
+          `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`,
         )
       ).affectedRows;
     }
@@ -52,16 +46,12 @@ storage.resetGuildSettings = async (batchsize, guild) => {
   if (affectedRows < batchsize) {
     const keys = Object.keys(
       (
-        await shardDb.query(
-          guild.appData.dbHost,
-          `SELECT * FROM guild WHERE guildId = ${guild.id}`,
-        )
+        await shardDb.query(guild.appData.dbHost, `SELECT * FROM guild WHERE guildId = ${guild.id}`)
       )[0],
     );
     const keySqls = [];
     for (const key of keys) {
-      if (noResetGuildFields.indexOf(key) == -1)
-        keySqls.push(key + '=DEFAULT(' + key + ')');
+      if (noResetGuildFields.indexOf(key) == -1) keySqls.push(key + '=DEFAULT(' + key + ')');
     }
     await shardDb.query(
       guild.appData.dbHost,
@@ -86,9 +76,7 @@ storage.resetGuildStats = async (batchsize, guild) => {
       affectedRows += (
         await shardDb.query(
           guild.appData.dbHost,
-          `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${
-            batchsize - affectedRows
-          }`,
+          `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`,
         )
       ).affectedRows;
     }
@@ -98,9 +86,9 @@ storage.resetGuildStats = async (batchsize, guild) => {
     affectedRows += (
       await shardDb.query(
         guild.appData.dbHost,
-        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
-          guild.id
-        } LIMIT ${batchsize - affectedRows}`,
+        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${
+          batchsize - affectedRows
+        }`,
       )
     ).affectedRows;
   }
@@ -124,9 +112,9 @@ storage.resetGuildStatsByType = async (batchsize, guild, type) => {
     affectedRows += (
       await shardDb.query(
         guild.appData.dbHost,
-        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
-          guild.id
-        } LIMIT ${batchsize - affectedRows}`,
+        `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${
+          batchsize - affectedRows
+        }`,
       )
     ).affectedRows;
   }
@@ -146,11 +134,9 @@ storage.resetGuildMembersStats = async (batchsize, guild, userIds) => {
       affectedRows += (
         await shardDb.query(
           guild.appData.dbHost,
-          `DELETE FROM ${table} WHERE guildId = ${
-            guild.id
-          } AND userId in (${userIds.join(',')}) LIMIT ${
-            batchsize - affectedRows
-          }`,
+          `DELETE FROM ${table} WHERE guildId = ${guild.id} AND userId in (${userIds.join(
+            ',',
+          )}) LIMIT ${batchsize - affectedRows}`,
         )
       ).affectedRows;
     }
@@ -162,9 +148,7 @@ storage.resetGuildMembersStats = async (batchsize, guild, userIds) => {
         guild.appData.dbHost,
         `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
           guild.id
-        } AND userId IN (${userIds.join(',')}) LIMIT ${
-          batchsize - affectedRows
-        }`,
+        } AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`,
       )
     ).affectedRows;
   }
@@ -184,11 +168,9 @@ storage.resetGuildChannelsStats = async (batchsize, guild, channelIds) => {
       affectedRows += (
         await shardDb.query(
           guild.appData.dbHost,
-          `DELETE FROM ${table} WHERE guildId = ${
-            guild.id
-          } AND channelId IN (${channelIds.join(',')}) LIMIT ${
-            batchsize - affectedRows
-          }`,
+          `DELETE FROM ${table} WHERE guildId = ${guild.id} AND channelId IN (${channelIds.join(
+            ',',
+          )}) LIMIT ${batchsize - affectedRows}`,
         )
       ).affectedRows;
     }
@@ -242,22 +224,19 @@ cache.resetGuild = (guild) => {
 };
 
 cache.resetGuildMembersAll = (guild) => {
-  for (const member of guild.members.cache)
-    if (member[1].appData) delete member[1].appData;
+  for (const member of guild.members.cache) if (member[1].appData) delete member[1].appData;
 
   return;
 };
 
 cache.resetGuildChannelsAll = (guild) => {
-  for (const channel of guild.channels.cache)
-    if (channel[1].appData) delete channel[1].appData;
+  for (const channel of guild.channels.cache) if (channel[1].appData) delete channel[1].appData;
 
   return;
 };
 
 cache.resetGuildRolesAll = (guild) => {
-  for (const role of guild.roles.cache)
-    if (role[1].appData) delete role[1].appData;
+  for (const role of guild.roles.cache) if (role[1].appData) delete role[1].appData;
 
   return;
 };
@@ -291,15 +270,13 @@ function getSchema(tablename) {
 }
 */
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    resetJobs,
-    storage,
-    cache,
-}
+  resetJobs,
+  storage,
+  cache,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

@@ -11,34 +11,32 @@ function _getStats(client) {
   return obj;
 }
 
-function compare( a, b ) {
-  if ( a.timestamp > b.timestamp ) {
+function compare(a, b) {
+  if (a.timestamp > b.timestamp) {
     return -1;
   }
-  if ( a.timestamp < b.timestamp ) {
+  if (a.timestamp < b.timestamp) {
     return 1;
   }
   return 0;
 }
 
-const secondsDead = process.env.NODE_ENV == 'production' ? 3600 : 30 ;
+const secondsDead = process.env.NODE_ENV == 'production' ? 3600 : 30;
 let history = [];
 
 export default async (manager) => {
   const timestamp = Math.round(Date.now() / 1000);
   const shards = await manager.broadcastEval(_getStats);
 
-  history.push({timestamp, shards});
+  history.push({ timestamp, shards });
 
   // Pick setOld: latest set that is older than secondsDead
-  const setOld = history
-      .filter(set => set.timestamp < timestamp - secondsDead)
-      .reverse()[0];
+  const setOld = history.filter((set) => set.timestamp < timestamp - secondsDead).reverse()[0];
 
   if (!setOld) return;
 
   // Clean unused old sets from history
-  history = history.filter(set => set.timestamp >= setOld.timestamp);
+  history = history.filter((set) => set.timestamp >= setOld.timestamp);
 
   // Pick setNow: latest set added just now to history
   const setNow = history[history.length - 1];
@@ -46,24 +44,30 @@ export default async (manager) => {
   // Compare setNow with setOld
   const deadShardIds = [];
   for (const shardOld of setOld.shards) {
-    const shardNow = setNow.shards.find(s => s.shardId == shardOld.shardId);
-    if (!shardNow)
-      continue;
+    const shardNow = setNow.shards.find((s) => s.shardId == shardOld.shardId);
+    if (!shardNow) continue;
 
-    const diff = shardOld.textMessagesTotal + shardOld.commandsTotal - shardNow.textMessagesTotal - shardNow.commandsTotal;
+    const diff =
+      shardOld.textMessagesTotal +
+      shardOld.commandsTotal -
+      shardNow.textMessagesTotal -
+      shardNow.commandsTotal;
 
-    if (diff == 0)
-      deadShardIds.push(shardOld.shardId);
+    if (diff == 0) deadShardIds.push(shardOld.shardId);
   }
 
-  if (deadShardIds.length == 0)
-    return;
+  if (deadShardIds.length == 0) return;
 
-  logger.debug('Shard(s) ' + deadShardIds.join(', ') + ' dead (no commands or messages registered for ' + (secondsDead / 60) + 'm). Restarting..' );
+  logger.debug(
+    'Shard(s) ' +
+      deadShardIds.join(', ') +
+      ' dead (no commands or messages registered for ' +
+      secondsDead / 60 +
+      'm). Restarting..',
+  );
 
   for (const shardId of deadShardIds) {
-    const shard = manager.shards.find(shard => shard.id == shardId);
-    if (shard)
-      await shard.respawn();
+    const shard = manager.shards.find((shard) => shard.id == shardId);
+    if (shard) await shard.respawn();
   }
 };

@@ -7,13 +7,7 @@ const promises = {};
 export const cache = {};
 export const storage = {};
 
-const cachedFields = [
-  'noXp',
-  'assignLevel',
-  'deassignLevel',
-  'assignMessage',
-  'deassignMessage',
-];
+const cachedFields = ['noXp', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'];
 let defaultCache = null;
 let defaultAll = null;
 
@@ -47,9 +41,7 @@ storage.get = (guild, roleId) => {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guildRole WHERE guildId = ${
-          guild.id
-        } && roleId = ${mysql.escape(roleId)}`,
+        `SELECT * FROM guildRole WHERE guildId = ${guild.id} && roleId = ${mysql.escape(roleId)}`,
       );
 
       if (res.length == 0) {
@@ -73,16 +65,13 @@ storage.set = (guild, roleId, field, value) => {
     try {
       await shardDb.query(
         guild.appData.dbHost,
-        `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${
-          guild.id
-        },${mysql.escape(roleId)},${mysql.escape(
-          value,
-        )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+        `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${guild.id},${mysql.escape(
+          roleId,
+        )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
       );
 
       const role = guild.roles.cache.get(roleId);
-      if (role && role.appData && cachedFields.indexOf(field) > -1)
-        role.appData[field] = value;
+      if (role && role.appData && cachedFields.indexOf(field) > -1) role.appData[field] = value;
 
       return resolve();
     } catch (e) {
@@ -111,9 +100,7 @@ storage.getRoleAssignmentsByLevel = (guild, type, level) => {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT * FROM guildRole WHERE guildId = ${
-          guild.id
-        } AND ${type} = ${mysql.escape(level)}`,
+        `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${mysql.escape(level)}`,
       );
 
       return resolve(res);
@@ -185,22 +172,15 @@ const loadDefaultCache = (dbHost) => {
     try {
       let res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(
-          ',',
-        )} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
+        `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
       );
 
       if (res.length == 0)
-        await shardDb.query(
-          dbHost,
-          `INSERT IGNORE INTO guildRole (guildId,roleId) VALUES (0,0)`,
-        );
+        await shardDb.query(dbHost, `INSERT IGNORE INTO guildRole (guildId,roleId) VALUES (0,0)`);
 
       res = await shardDb.query(
         dbHost,
-        `SELECT ${cachedFields.join(
-          ',',
-        )} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
+        `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
       );
 
       defaultCache = res[0];

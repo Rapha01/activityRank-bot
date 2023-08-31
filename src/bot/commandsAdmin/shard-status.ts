@@ -22,30 +22,19 @@ export const data = new SlashCommandBuilder()
   .setName('shard-status')
   .setDescription('Check the shard statuses')
   .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-  .addBooleanOption((o) =>
-    o.setName('full').setDescription('Send the full shard list')
-  )
-  .addBooleanOption((o) =>
-    o.setName('eph').setDescription('Send as an ephemeral message')
-  )
-  .addBooleanOption((o) =>
-    o.setName('filtered').setDescription('Find problematic shards')
-  )
-  .addIntegerOption((o) =>
-    o.setName('page').setDescription('Find a page').setMaxValue(200)
-  )
+  .addBooleanOption((o) => o.setName('full').setDescription('Send the full shard list'))
+  .addBooleanOption((o) => o.setName('eph').setDescription('Send as an ephemeral message'))
+  .addBooleanOption((o) => o.setName('filtered').setDescription('Find problematic shards'))
+  .addIntegerOption((o) => o.setName('page').setDescription('Find a page').setMaxValue(200))
   .addIntegerOption(
-    (o) =>
-      o
-        .setName('search')
-        .setDescription('Get a specific shard') /* .setMaxValue(200) */
+    (o) => o.setName('search').setDescription('Get a specific shard') /* .setMaxValue(200) */,
   )
   .addStringOption((o) =>
     o
       .setName('search-guild')
       .setDescription('Get the shard of a specific guild')
       .setMinLength(17)
-      .setMaxLength(19)
+      .setMaxLength(19),
   )
   .setDMPermission(false);
 
@@ -67,10 +56,9 @@ export const execute = async function (i) {
 
   const files = i.options.getBoolean('full')
     ? [
-        new AttachmentBuilder(
-          Buffer.from(JSON.stringify(data, null, 2), 'utf8'),
-          { name: 'logs.json' }
-        ),
+        new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2), 'utf8'), {
+          name: 'logs.json',
+        }),
       ]
     : [];
 
@@ -123,7 +111,7 @@ export const execute = async function (i) {
         name: shard.shardId.toString(),
         value: parseShardInfoContent(shard),
         inline: true,
-      }))
+      })),
     );
 
   await i.editReply({
@@ -137,28 +125,23 @@ const durationFormatter = new DurationFormatter();
 
 function parseShardInfoContent(shard) {
   return [
-    `  **Status**: \`${
-      shard.status === 0 ? '🟢 Online' : `🔴 ${Status[shard.status]}`
-    }\``,
+    `  **Status**: \`${shard.status === 0 ? '🟢 Online' : `🔴 ${Status[shard.status]}`}\``,
     `  **Guilds**: \`${shard.serverCount.toLocaleString()}\``,
-    `  **Uptime**: \`${durationFormatter.format(
-      shard.uptimeSeconds * 1000,
-      3
-    )}\` since <t:${shard.readyDate}:f>, <t:${shard.readyDate}:R>`,
+    `  **Uptime**: \`${durationFormatter.format(shard.uptimeSeconds * 1000, 3)}\` since <t:${
+      shard.readyDate
+    }:f>, <t:${shard.readyDate}:R>`,
     `  **Last updated**: <t:${shard.changedHealthDate}:T>, <t:${shard.changedHealthDate}:R>`,
   ].join('\n');
 }
-
 
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    activeCache,
-    requiredPrivileges,
-    data,
-    execute,
-}
+  activeCache,
+  requiredPrivileges,
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

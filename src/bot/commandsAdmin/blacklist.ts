@@ -18,11 +18,8 @@ export const data = new SlashCommandBuilder()
       .setName('user')
       .setDescription('Blacklist a user from the bot')
       .addUserOption((o) =>
-        o
-          .setName('user')
-          .setDescription('The user to blacklist')
-          .setRequired(true)
-      )
+        o.setName('user').setDescription('The user to blacklist').setRequired(true),
+      ),
   )
   .addSubcommand((sc) =>
     sc
@@ -34,8 +31,8 @@ export const data = new SlashCommandBuilder()
           .setDescription('The ID of the server to blacklist')
           .setMinLength(17)
           .setMaxLength(19)
-          .setRequired(true)
-      )
+          .setRequired(true),
+      ),
   )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
@@ -98,15 +95,13 @@ export const execute = async function (i) {
   }
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    requiredPrivileges,
-    data,
-    execute,
-}
+  requiredPrivileges,
+  data,
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

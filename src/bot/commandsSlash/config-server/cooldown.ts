@@ -8,8 +8,7 @@ import prettyTime from 'pretty-ms';
 export const execute = async function (i) {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -20,29 +19,25 @@ export const execute = async function (i) {
   };
   if (Object.values(items).every((x) => x === null)) {
     return await i.reply({
-      content:
-        'You must specify at least one option for this command to do anything!',
+      content: 'You must specify at least one option for this command to do anything!',
       ephemeral: true,
     });
   }
 
-  for (const k in items)
-    if (items[k] != null) await guildModel.storage.set(i.guild, k, items[k]);
+  for (const k in items) if (items[k] != null) await guildModel.storage.set(i.guild, k, items[k]);
   await i.reply({
     embeds: [
-      new EmbedBuilder()
-        .setAuthor({ name: 'Cooldown Values' })
-        .setColor(0x00ae86).setDescription(stripIndent`
+      new EmbedBuilder().setAuthor({ name: 'Cooldown Values' }).setColor(0x00ae86)
+        .setDescription(stripIndent`
       Modified Cooldown Values! New values:
 
       Messages will only give XP if their author has not sent one in the last \`${prettyTime(
         i.guild.appData.textMessageCooldownSeconds * 1000,
-        { verbose: true }
+        { verbose: true },
       )}\`.
-      Votes will have a cooldown of \`${prettyTime(
-        i.guild.appData.voteCooldownSeconds * 1000,
-        { verbose: true }
-      )}\`.
+      Votes will have a cooldown of \`${prettyTime(i.guild.appData.voteCooldownSeconds * 1000, {
+        verbose: true,
+      })}\`.
       `),
     ],
     ephemeral: true,
@@ -75,14 +70,12 @@ export const autocomplete = async (i) => {
   }
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-    autocomplete,
-}
+  execute,
+  autocomplete,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

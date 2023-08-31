@@ -19,7 +19,7 @@ export default async () => {
       jobIndex++;
       logger.debug(
         { resetJob },
-        `doResetJob ${resetJob.type} for ${resetJob.cmdChannel.guild.id} finished after ${hrend[0]}s.`
+        `doResetJob ${resetJob.type} for ${resetJob.cmdChannel.guild.id} finished after ${hrend[0]}s.`,
       );
     }
   } catch (e) {
@@ -38,67 +38,52 @@ const doResetJob = async (resetJob) => {
     logger.debug({ resetJob }, 'Doing reset job');
 
     if (resetJob.type == 'all')
-      count = await resetModel.storage.resetGuildAll(
-        batchsize,
-        resetJob.cmdChannel.guild
-      );
+      count = await resetModel.storage.resetGuildAll(batchsize, resetJob.cmdChannel.guild);
     else if (resetJob.type == 'settings')
-      count = await resetModel.storage.resetGuildSettings(
-        batchsize,
-        resetJob.cmdChannel.guild
-      );
+      count = await resetModel.storage.resetGuildSettings(batchsize, resetJob.cmdChannel.guild);
     else if (resetJob.type == 'stats')
-      count = await resetModel.storage.resetGuildStats(
-        batchsize,
-        resetJob.cmdChannel.guild
-      );
+      count = await resetModel.storage.resetGuildStats(batchsize, resetJob.cmdChannel.guild);
     else if (resetJob.type == 'textstats')
       count = await resetModel.storage.resetGuildStatsByType(
         batchsize,
         resetJob.cmdChannel.guild,
-        'textMessage'
+        'textMessage',
       );
     else if (resetJob.type == 'voicestats')
       count = await resetModel.storage.resetGuildStatsByType(
         batchsize,
         resetJob.cmdChannel.guild,
-        'voiceMinute'
+        'voiceMinute',
       );
     else if (resetJob.type == 'invitestats')
       count = await resetModel.storage.resetGuildStatsByType(
         batchsize,
         resetJob.cmdChannel.guild,
-        'invite'
+        'invite',
       );
     else if (resetJob.type == 'votestats')
       count = await resetModel.storage.resetGuildStatsByType(
         batchsize,
         resetJob.cmdChannel.guild,
-        'vote'
+        'vote',
       );
     else if (resetJob.type == 'bonusstats')
       count = await resetModel.storage.resetGuildStatsByType(
         batchsize,
         resetJob.cmdChannel.guild,
-        'bonus'
+        'bonus',
       );
-    else if (
-      resetJob.type == 'guildMembersStats' &&
-      resetJob.userIds.length > 0
-    )
+    else if (resetJob.type == 'guildMembersStats' && resetJob.userIds.length > 0)
       count = await resetModel.storage.resetGuildMembersStats(
         batchsize,
         resetJob.cmdChannel.guild,
-        resetJob.userIds
+        resetJob.userIds,
       );
-    else if (
-      resetJob.type == 'guildChannelsStats' &&
-      resetJob.channelIds.length > 0
-    )
+    else if (resetJob.type == 'guildChannelsStats' && resetJob.channelIds.length > 0)
       count = await resetModel.storage.resetGuildChannelsStats(
         batchsize,
         resetJob.cmdChannel.guild,
-        resetJob.channelIds
+        resetJob.channelIds,
       );
 
     await resetJob.ref.followUp({

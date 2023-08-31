@@ -11,8 +11,7 @@ import { parseMember } from '../../util/parser.js';
 export const execute = async (i) => {
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -36,12 +35,12 @@ export const execute = async (i) => {
       .setCustomId('ignore cancel')
       .setLabel('Cancel')
       .setEmoji('❎')
-      .setStyle(ButtonStyle.Secondary)
+      .setStyle(ButtonStyle.Secondary),
   );
   const msg = await i.reply({
     content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(
       i.guild.members.cache,
-      resolvedMember.id
+      resolvedMember.id,
     )}?`,
     ephemeral: true,
     fetchReply: true,
@@ -81,13 +80,11 @@ export const execute = async (i) => {
   }
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-}
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

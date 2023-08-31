@@ -5,10 +5,7 @@ export default {
     .setName('faq')
     .setDescription('Displays the FAQ')
     .addIntegerOption((o) =>
-      o
-        .setName('number')
-        .setDescription('The specific FAQ to show')
-        .setAutocomplete(true)
+      o.setName('number').setDescription('The specific FAQ to show').setAutocomplete(true),
     ),
   async execute(i) {
     const faq = i.options.getInteger('number');
@@ -23,9 +20,7 @@ export default {
       });
 
     const item = faqs.find((o) => o.id == faq);
-    const embed = new EmbedBuilder()
-      .setTitle(`**ActivityRank FAQ #${faq}**`)
-      .setColor(0x00ae86);
+    const embed = new EmbedBuilder().setTitle(`**ActivityRank FAQ #${faq}**`).setColor(0x00ae86);
     if (!item) {
       embed.setDescription(`Could not find an FAQ with ID ${faq}!`);
     } else {
@@ -47,9 +42,7 @@ export default {
   async autocomplete(i) {
     let faqs = i.client.appData.texts.faqs;
     const focused = i.options.getFocused();
-    faqs = faqs.filter(
-      (faq) => faq.title.includes(focused) || focused.includes(faq.id)
-    );
+    faqs = faqs.filter((faq) => faq.title.includes(focused) || focused.includes(faq.id));
 
     faqs = faqs.map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id }));
     i.respond(faqs.slice(0, 20));
@@ -57,9 +50,7 @@ export default {
 };
 
 function faqReducedEmbed(faqs) {
-  const embed = new EmbedBuilder()
-    .setTitle('**ActivityRank FAQ**')
-    .setColor(0x00ae86);
+  const embed = new EmbedBuilder().setTitle('**ActivityRank FAQ**').setColor(0x00ae86);
 
   if (faqs.length == 0) embed.setDescription('No FAQs to show!');
 
@@ -67,7 +58,7 @@ function faqReducedEmbed(faqs) {
   embed.setDescription(
     'Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.' +
       '\n\n' +
-      titles.join('')
+      titles.join(''),
   );
 
   return embed;

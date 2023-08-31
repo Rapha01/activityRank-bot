@@ -1,10 +1,6 @@
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import {
-  commandFiles,
-  contextFiles,
-  adminFiles,
-} from '../../util/command-files.js';
+import { commandFiles, contextFiles, adminFiles } from '../../util/command-files.js';
 import { get as getKeys } from '../../const/keys.js';
 const { adminGuild, botAuth } = getKeys();
 
@@ -33,9 +29,7 @@ export default async (client) => {
         await rest.put(Routes.applicationGuildCommands(client.user.id, guild), {
           body: [...commands, ...adminCommands],
         });
-        console.log(
-          `Loaded local application and admin (/) commands in guild ${guild}`,
-        );
+        console.log(`Loaded local application and admin (/) commands in guild ${guild}`);
       } else {
         await rest.put(Routes.applicationGuildCommands(client.user.id, guild), {
           body: commands,

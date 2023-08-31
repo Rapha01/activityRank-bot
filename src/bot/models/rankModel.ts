@@ -13,15 +13,12 @@ export const getGuildMemberRanks = (guild, type, time, from, to) => {
         `,` +
         (to - (from - 1));
 
-      const ranks = await shardDb.query(
-        guild.appData.dbHost,
-        `${memberRanksSql}`
-      );
+      const ranks = await shardDb.query(guild.appData.dbHost, `${memberRanksSql}`);
 
       for (let rank of ranks)
         rank.levelProgression = fct.getLevelProgression(
           rank['totalScoreAlltime'],
-          guild.appData.levelFactor
+          guild.appData.levelFactor,
         );
 
       return resolve(ranks);
@@ -38,7 +35,7 @@ export const getGuildMemberRank = function (guild, userId) {
       const res = await shardDb.query(
         guild.appData.dbHost,
         `SELECT * FROM
-        ${getGuildMemberRankSql(guild, userId)} AS memberrank`
+        ${getGuildMemberRankSql(guild, userId)} AS memberrank`,
       );
 
       if (res.length == 0) return resolve(null);
@@ -58,10 +55,7 @@ export const getGuildMemberRankPosition = function (guild, userId, typeTime) {
         guild.appData.dbHost,
         `SELECT (COUNT(*) + 1) AS count FROM ${getGuildMemberRanksSql(guild)}
           AS memberranks WHERE memberranks.${typeTime} >
-          (SELECT ${typeTime} FROM ${getGuildMemberRankSql(
-          guild,
-          userId
-        )} AS alias2)`
+          (SELECT ${typeTime} FROM ${getGuildMemberRankSql(guild, userId)} AS alias2)`,
       );
 
       if (res.length == 0) return resolve(null);
@@ -85,7 +79,7 @@ export const getChannelRanks = (guild, type, time, from, to) => {
           ORDER BY ${time} DESC LIMIT ` +
           (from - 1) +
           `,` +
-          (to - (from - 1))
+          (to - (from - 1)),
       );
       resolve(ranks);
     } catch (e) {
@@ -105,7 +99,7 @@ export const getChannelMemberRanks = (guild, channelId, type, time, from, to) =>
           ORDER BY ${time} DESC LIMIT ` +
           (from - 1) +
           `,` +
-          (to - (from - 1))
+          (to - (from - 1)),
       );
       resolve(ranks);
     } catch (e) {
@@ -115,14 +109,7 @@ export const getChannelMemberRanks = (guild, channelId, type, time, from, to) =>
 };
 
 // Most active channels of a certain member
-export const getGuildMemberTopChannels = function (
-  guild,
-  userId,
-  type,
-  time,
-  from,
-  to
-) {
+export const getGuildMemberTopChannels = function (guild, userId, type, time, from, to) {
   return new Promise(async function (resolve, reject) {
     try {
       const res = await shardDb.query(
@@ -133,7 +120,7 @@ export const getGuildMemberTopChannels = function (
           LIMIT ` +
           (from - 1) +
           `,` +
-          (to - (from - 1))
+          (to - (from - 1)),
       );
 
       if (res.length == 0) return resolve(null);
@@ -150,9 +137,7 @@ export const countGuildRanks = function (guild) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(
-          guild
-        )} AS alias1`
+        `SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(guild)} AS alias1`,
       );
       return resolve(res[0].count);
     } catch (e) {
@@ -166,7 +151,7 @@ export const getGuildMemberTotalScore = function (guild, userId) {
     try {
       const res = await shardDb.query(
         guild.appData.dbHost,
-        `${getGuildMemberTotalScoreSql(guild, userId)}`
+        `${getGuildMemberTotalScoreSql(guild, userId)}`,
       );
 
       if (res.length == 0) return resolve(null);
@@ -452,20 +437,18 @@ function getGuildMemberRankSql(guild, userId) {
   return memberRankSql;
 }
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    getGuildMemberRanks,
-    getGuildMemberRank,
-    getGuildMemberRankPosition,
-    getChannelRanks,
-    getChannelMemberRanks,
-    getGuildMemberTopChannels,
-    countGuildRanks,
-    getGuildMemberTotalScore,
-}
+  getGuildMemberRanks,
+  getGuildMemberRank,
+  getGuildMemberRankPosition,
+  getChannelRanks,
+  getChannelMemberRanks,
+  getGuildMemberTopChannels,
+  countGuildRanks,
+  getGuildMemberTotalScore,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

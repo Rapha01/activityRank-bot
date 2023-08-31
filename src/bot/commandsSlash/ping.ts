@@ -14,9 +14,7 @@ import {
 import { botInviteLink } from '../../const/config.js';
 
 export default {
-  data: new SlashCommandBuilder()
-    .setName('ping')
-    .setDescription("Checks the bot's latency"),
+  data: new SlashCommandBuilder().setName('ping').setDescription("Checks the bot's latency"),
   async execute(i) {
     const sent = await i.deferReply({ fetchReply: true, ephemeral: true });
     const pingEmbed = new EmbedBuilder()
@@ -30,14 +28,14 @@ export default {
         {
           name: '💗 API Heartbeat 💗',
           value: `\`\`\`${Math.round(i.client.ws.ping)}ms\`\`\``,
-        }
+        },
       )
       .setTimestamp();
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel('Invite the bot')
         .setURL(botInviteLink)
-        .setStyle(ButtonStyle.Link)
+        .setStyle(ButtonStyle.Link),
     );
     await i.editReply({
       embeds: [pingEmbed],

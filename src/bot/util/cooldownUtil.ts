@@ -43,24 +43,19 @@ export const checkStatCommandsCooldown = (interaction) => {
       if (ownerTier == 3) cd = 30;
       if (userTier == 2 || userTier == 3) cd = 5;
 
-      const premiumLowersCooldownString = userTier == 2 || userTier == 3
-        ? ''
-        : premiumLowersCooldownMessage;
+      const premiumLowersCooldownString =
+        userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
 
       const toWait = getCachedCooldown(interaction.member.appData, 'lastStatCmdDate', cd);
       if (toWait > 0) {
         if (interaction.deferred) {
           await interaction.editReply({
-            content:
-              activeStatCommandCooldown(cd, toWait) +
-              premiumLowersCooldownString,
+            content: activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
             ephemeral: true,
           });
         } else {
           await interaction.reply({
-            content:
-              activeStatCommandCooldown(cd, toWait) +
-              premiumLowersCooldownString,
+            content: activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
             ephemeral: true,
           });
         }
@@ -85,15 +80,13 @@ export const checkResetServerCommandCooldown = (interaction) => {
       if (ownerTier == 3) cd = 60;
       if (userTier == 2 || userTier == 3) cd = 10;
 
-      const premiumLowersCooldownString = userTier == 2 || userTier == 3
-        ? ''
-        : premiumLowersCooldownMessage;
+      const premiumLowersCooldownString =
+        userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
 
       const toWait = getCachedCooldown(interaction.guild.appData, 'lastResetServer', cd);
       if (toWait > 0) {
         await interaction.channel.send(
-          activeResetServerCommandCooldown(cd, toWait) +
-            premiumLowersCooldownString
+          activeResetServerCommandCooldown(cd, toWait) + premiumLowersCooldownString,
         );
         return resolve(false);
       }
@@ -106,15 +99,13 @@ export const checkResetServerCommandCooldown = (interaction) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    getCachedCooldown,
-    checkStatCommandsCooldown,
-    checkResetServerCommandCooldown,
-}
+  getCachedCooldown,
+  checkStatCommandsCooldown,
+  checkResetServerCommandCooldown,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

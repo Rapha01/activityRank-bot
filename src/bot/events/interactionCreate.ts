@@ -37,9 +37,7 @@ export default {
       await guildModel.cache.load(interaction.guild);
 
       if (interaction.guild.appData.isBanned) {
-        interaction.client.logger.debug(
-          `Banned guild ${interaction.guild.id} used interaction.`,
-        );
+        interaction.client.logger.debug(`Banned guild ${interaction.guild.id} used interaction.`);
         await interaction.reply({
           embeds: [
             new EmbedBuilder()
@@ -61,9 +59,7 @@ export default {
       await userModel.cache.load(interaction.user);
 
       if (interaction.user.appData.isBanned) {
-        interaction.client.logger.debug(
-          `Banned user ${interaction.user.id} used interaction.`,
-        );
+        interaction.client.logger.debug(`Banned user ${interaction.user.id} used interaction.`);
         return interaction.reply({
           embeds: [
             new EmbedBuilder()
@@ -85,9 +81,7 @@ export default {
 
       if (
         interaction.channel.appData.noCommand &&
-        !interaction.member
-          .permissionsIn(interaction.channel)
-          .has(PermissionFlagsBits.ManageGuild)
+        !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
       ) {
         return await interaction.reply({
           content: 'This is a noCommand channel, and you are not an admin.',
@@ -97,11 +91,8 @@ export default {
 
       if (
         interaction.guild.appData.commandOnlyChannel != 0 &&
-        interaction.guild.appData.commandOnlyChannel !=
-          interaction.channel.id &&
-        !interaction.member
-          .permissionsIn(interaction.channel)
-          .has(PermissionFlagsBits.ManageGuild)
+        interaction.guild.appData.commandOnlyChannel != interaction.channel.id &&
+        !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
       ) {
         return await interaction.reply({
           content: `Commands can only be used in <#${interaction.guild.appData.commandOnlyChannel}> unless you are an admin.`,
@@ -138,10 +129,7 @@ export default {
           userLevels[interaction.user.id] &&
           userLevels[interaction.user.id] < command.requiredPrivileges
         ) {
-          interaction.client.logger.warn(
-            interaction,
-            'Unauthorized admin command attempt',
-          );
+          interaction.client.logger.warn(interaction, 'Unauthorized admin command attempt');
 
           return await interaction.reply({
             content: 'This is an admin command you have no access to.',
@@ -162,8 +150,7 @@ export default {
             );
           else
             interaction.client.logger.debug(
-              'isCommand but no data field: command: ' +
-                JSON.stringify(command),
+              'isCommand but no data field: command: ' + JSON.stringify(command),
             );
 
           await command.execute(interaction);
@@ -194,14 +181,9 @@ export default {
       } catch (e2) {
         if (e2.code === 10062)
           // Unknown Interaction
-          interaction.client.logger.debug(
-            'Unknown interaction while responding to command error',
-          );
+          interaction.client.logger.debug('Unknown interaction while responding to command error');
         else
-          interaction.client.logger.error(
-            { err: e2 },
-            'Error while responding to command error',
-          );
+          interaction.client.logger.error({ err: e2 }, 'Error while responding to command error');
       }
       interaction.client.logger.warn({ err: e, interaction }, 'Command error');
     }
@@ -219,9 +201,7 @@ const getPath = (interaction) => {
 
 const component = async (interaction) => {
   if (interaction.customId.split(' ')[0] === 'ignore') return;
-  const command = interaction.client.commands.get(
-    interaction.customId.split(' ')[0],
-  );
+  const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
 
   if (!command) return;
 
@@ -229,9 +209,7 @@ const component = async (interaction) => {
 };
 
 async function modalSubmit(interaction) {
-  const command = interaction.client.commands.get(
-    interaction.customId.split(' ')[0],
-  );
+  const command = interaction.client.commands.get(interaction.customId.split(' ')[0]);
   if (!command) return;
   await command.modal(interaction);
 }

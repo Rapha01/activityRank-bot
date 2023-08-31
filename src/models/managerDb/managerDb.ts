@@ -31,8 +31,7 @@ export const getConnection = () => {
 export const getAllDbHosts = () => {
   return new Promise(async function (resolve, reject) {
     try {
-      const hostField =
-        process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+      const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
       let res = await query(`SELECT ${hostField} AS host FROM dbShard`);
 
       const hosts = [];
@@ -65,9 +64,7 @@ const createPool = () => {
           console.log('ManagerDb pool error.');
           if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             console.log(
-              'PROTOCOL_CONNECTION_LOST for manager @' +
-                dbHost +
-                '. Deleting connection.',
+              'PROTOCOL_CONNECTION_LOST for manager @' + dbHost + '. Deleting connection.',
             );
             pool = null;
           } else {

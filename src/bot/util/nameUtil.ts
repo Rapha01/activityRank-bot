@@ -109,9 +109,7 @@ export const getGuildMemberInfos = (guild, userIds) => {
 export const getGuildMemberInfo = (guild, userId) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const guildMemberName = (
-        await getGuildMemberInfos(guild, [userId])
-      )[userId];
+      const guildMemberName = (await getGuildMemberInfos(guild, [userId]))[userId];
       resolve(guildMemberName);
     } catch (e) {
       return reject(e);
@@ -134,8 +132,7 @@ export const addGuildMemberNamesToRanks = (guild, memberRanks) => {
       for (memberRank of memberRanks) userIds.push(memberRank.userId);
       const memberInfos = await getGuildMemberInfos(guild, userIds);
 
-      for (memberRank of memberRanks)
-        memberRank.name = memberInfos[memberRank.userId].name;
+      for (memberRank of memberRanks) memberRank.name = memberInfos[memberRank.userId].name;
 
       resolve();
     } catch (e) {
@@ -173,24 +170,22 @@ export const cutName = (name) => {
 
 } */
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    getChannelName,
-    getChannelMention,
-    getChannelType,
-    getRoleName,
-    getRoleMention,
-    getChannelTypeIcon,
-    getGuildMemberInfos,
-    getGuildMemberInfo,
-    getGuildMemberMention,
-    addGuildMemberNamesToRanks,
-    getGuildMemberAlias,
-    cutName,
-}
+  getChannelName,
+  getChannelMention,
+  getChannelType,
+  getRoleName,
+  getRoleMention,
+  getChannelTypeIcon,
+  getGuildMemberInfos,
+  getGuildMemberInfo,
+  getGuildMemberMention,
+  addGuildMemberNamesToRanks,
+  getGuildMemberAlias,
+  cutName,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-

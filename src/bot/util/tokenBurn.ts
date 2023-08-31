@@ -12,28 +12,17 @@ if (process.env.NODE_ENV == 'production') {
 export default (guild) => {
   return new Promise(async function (resolve, reject) {
     try {
-      if (
-        cooldownUtil.getCachedCooldown(
-          guild.appData,
-          'lastTokenBurnDate',
-          tokenBurnCd
-        ) > 0
-      )
+      if (cooldownUtil.getCachedCooldown(guild.appData, 'lastTokenBurnDate', tokenBurnCd) > 0)
         return resolve();
       guild.appData.lastTokenBurnDate = Date.now() / 1000;
 
       const myGuild = await guildModel.storage.get(guild);
-      let lastBurnTimeDifference =
-        Date.now() / 1000 - myGuild.lastTokenBurnDate;
+      let lastBurnTimeDifference = Date.now() / 1000 - myGuild.lastTokenBurnDate;
       const tokensToBurn24h = fct.getTokensToBurn24h(guild.memberCount);
 
       if (lastBurnTimeDifference < tokenBurnCd) return resolve();
 
-      await guildModel.storage.set(
-        guild,
-        'lastTokenBurnDate',
-        Date.now() / 1000
-      );
+      await guildModel.storage.set(guild, 'lastTokenBurnDate', Date.now() / 1000);
 
       if (myGuild.lastTokenBurnDate == 0) return resolve();
 
@@ -45,25 +34,17 @@ export default (guild) => {
 
       //console.log(myGuild.lastTokenBurnDate,myGuild.tokens,tokensToBurn24h);
 
-      let tokensToBurnNow = Math.floor(
-        (lastBurnTimeDifference / 86400) * tokensToBurn24h
-      );
+      let tokensToBurnNow = Math.floor((lastBurnTimeDifference / 86400) * tokensToBurn24h);
       if (tokensToBurnNow > myGuild.tokens) tokensToBurnNow = myGuild.tokens;
 
       await guildModel.storage.increment(guild, 'tokens', -tokensToBurnNow);
-      await guildModel.storage.increment(
-        guild,
-        'tokensBurned',
-        tokensToBurnNow
-      );
+      await guildModel.storage.increment(guild, 'tokensBurned', tokensToBurnNow);
 
       console.debug(
         { tokensToBurn24h, remaining: myGuild.tokens - tokensToBurnNow },
-        `[Token Burn] [${guild.name} (${
-          guild.memberCount
-        })] ${tokensToBurnNow} after ${
+        `[Token Burn] [${guild.name} (${guild.memberCount})] ${tokensToBurnNow} after ${
           Math.floor((lastBurnTimeDifference / 60 / 60) * 10) / 10
-        }h. `
+        }h. `,
       );
       resolve();
     } catch (e) {

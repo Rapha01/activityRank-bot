@@ -29,8 +29,7 @@ export default async (manager) => {
     shard.changedHealthDate = nowDate;
     shard.readyDate = round(new Date(shard.readyDate).getTime() / 1000);
 
-    if (process.env.NODE_ENV != 'production')
-      shard.shardId = shard.shardId + 1000000;
+    if (process.env.NODE_ENV != 'production') shard.shardId = shard.shardId + 1000000;
   }
 
   const keys = [
@@ -42,14 +41,12 @@ export default async (manager) => {
     'ip',
     'changedHealthDate',
     'commandsTotal',
-    'textMessagesTotal'
+    'textMessagesTotal',
   ];
 
   const updateSqls = keys.map((k) => `${k}=VALUES(${k})`);
 
-  const valueSqls = shards.map(
-    (s) => `(${keys.map((k) => escape(s[k])).join(',')})`
-  );
+  const valueSqls = shards.map((s) => `(${keys.map((k) => escape(s[k])).join(',')})`);
 
   await managerDb.query(`INSERT INTO botShardStat (${keys.join(',')})
     VALUES ${valueSqls.join(',')} ON DUPLICATE KEY UPDATE ${updateSqls.join(',')}`);

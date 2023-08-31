@@ -7,8 +7,7 @@ export const execute = async (i) => {
   await guildMemberModel.cache.load(member);
   if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
     return await i.reply({
-      content:
-        'You need the permission to manage the server in order to use this command.',
+      content: 'You need the permission to manage the server in order to use this command.',
       ephemeral: true,
     });
   }
@@ -22,13 +21,11 @@ export const execute = async (i) => {
   });
 };
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    execute,
-}
+  execute,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-
