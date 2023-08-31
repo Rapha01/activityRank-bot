@@ -56,8 +56,8 @@ export const execute = async (i) => {
   );
 
   const cleanCache = async () => {
-    const state = exports.activeCache.get(id);
-    exports.activeCache.delete(id);
+    const state = activeCache.get(id);
+    activeCache.delete(id);
     if (!i.guild)
       return i.client.logger.debug(
         { i },
@@ -74,7 +74,7 @@ export const execute = async (i) => {
   };
   setTimeout(cleanCache, 5 * 60 * 1_000);
 
-  exports.activeCache.set(id, initialState);
+  activeCache.set(id, initialState);
 };
 
 export const component = async (i) => {
@@ -82,7 +82,7 @@ export const component = async (i) => {
   let payload =
     i.customId.split(' ')[2] ?? i?.channels?.first() ?? i.values[0] ?? null;
 
-  const cachedMessage = exports.activeCache.get(i.message.id);
+  const cachedMessage = activeCache.get(i.message.id);
   if (!cachedMessage) {
     i.client.logger.debug(
       { i, id: i.message.id },
@@ -101,14 +101,14 @@ export const component = async (i) => {
 
   if (action === 'page') payload = parseInt(payload);
 
-  exports.activeCache.set(i.message.id, {
+  activeCache.set(i.message.id, {
     ...cachedMessage,
     [action]: payload,
   });
 
   await i.deferUpdate();
 
-  const state = exports.activeCache.get(i.message.id);
+  const state = activeCache.get(i.message.id);
   await state.interaction.editReply(await generate(state, i.guild, myGuild));
 };
 

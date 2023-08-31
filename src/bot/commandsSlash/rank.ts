@@ -22,7 +22,7 @@ export const data = new SlashCommandBuilder()
   .setName('rank')
   .setDescription("Find your or another member's rank")
   .addUserOption((o) =>
-    o.setName('member').setDescription('The member to check the rank of')
+    o.setName('member').setDescription('The member to check the rank of'),
   );
 
 export const execute = async (i) => {
@@ -48,16 +48,16 @@ export const execute = async (i) => {
   };
 
   const { id } = await i.editReply(
-    await generateCard(initialState, i.guild, myGuild)
+    await generateCard(initialState, i.guild, myGuild),
   );
 
   const cleanCache = async () => {
-    const state = exports.activeCache.get(id);
-    exports.activeCache.delete(id);
+    const state = activeCache.get(id);
+    activeCache.delete(id);
     if (!i.guild)
       return i.client.logger.debug(
         { i },
-        '/rank tried to update uncached guild'
+        '/rank tried to update uncached guild',
       );
     try {
       await i.editReply(await generateCard(state, i.guild, myGuild, true));
@@ -70,18 +70,18 @@ export const execute = async (i) => {
   };
   setTimeout(cleanCache, 5 * 60 * 1_000);
 
-  exports.activeCache.set(id, initialState);
+  che.set(id, initialState);
 };
 
 export const component = async (i) => {
   const action = i.customId.split(' ')[1];
   let payload = i.customId.split(' ')[2] ?? i.values[0];
 
-  const cachedMessage = exports.activeCache.get(i.message.id);
+  const cachedMessage = activeCache.get(i.message.id);
   if (!cachedMessage) {
     i.client.logger.debug(
       { i, id: i.message.id },
-      'Could not find cachedMessage'
+      'Could not find cachedMessage',
     );
     return;
   }
@@ -96,16 +96,16 @@ export const component = async (i) => {
 
   if (action === 'page') payload = parseInt(payload);
 
-  exports.activeCache.set(i.message.id, {
+  activeCache.set(i.message.id, {
     ...cachedMessage,
     [action]: payload,
   });
 
   await i.deferUpdate();
 
-  const state = exports.activeCache.get(i.message.id);
+  const state = activeCache.get(i.message.id);
   await state.interaction.editReply(
-    await generateCard(state, i.guild, myGuild)
+    await generateCard(state, i.guild, myGuild),
   );
 };
 
@@ -129,7 +129,7 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(
     guild,
-    state.targetUser.id
+    state.targetUser.id,
   );
 
   const header = `Channel toplist for ${guildMemberInfo.name} | ${
@@ -148,7 +148,7 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
             guild,
             state.targetUser.id,
             state.time,
-            'textMessage'
+            'textMessage',
           )
         ).slice(0, 1024),
         inline: true,
@@ -161,11 +161,11 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
             guild,
             state.targetUser.id,
             state.time,
-            'voiceMinute'
+            'voiceMinute',
           )
         ).slice(0, 1024),
         inline: true,
-      }
+      },
     );
 
   return {
@@ -197,7 +197,7 @@ function getPaginationComponents(page, disabled) {
       .setEmoji('➡️')
       .setCustomId(`rank page ${page + 1}`)
       .setStyle(ButtonStyle.Secondary)
-      .setDisabled(disabled)
+      .setDisabled(disabled),
   );
 }
 
@@ -208,7 +208,7 @@ async function getTopChannels(page, guild, memberId, time, type) {
     type,
     time,
     page.from,
-    page.to
+    page.to,
   );
 
   if (!guildMemberTopChannels || guildMemberTopChannels.length == 0)
@@ -217,7 +217,7 @@ async function getTopChannels(page, guild, memberId, time, type) {
   const channelMention = (index) =>
     nameUtil.getChannelMention(
       guild.channels.cache,
-      guildMemberTopChannels[index].channelId
+      guildMemberTopChannels[index].channelId,
     );
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
   const channelValue = (index) =>
@@ -228,7 +228,7 @@ async function getTopChannels(page, guild, memberId, time, type) {
   const s = [];
   for (let i = 0; i < guildMemberTopChannels.length; i++)
     s.push(
-      `#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`
+      `#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`,
     );
 
   return s.join('\n');
@@ -240,16 +240,16 @@ async function generateRankCard(state, guild, myGuild, disabled = false) {
     guild,
     state.targetUser.id,
     getTypes(guild.appData),
-    state.time
+    state.time,
   );
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(
     guild,
-    state.targetUser.id
+    state.targetUser.id,
   );
   const levelProgression = fct.getLevelProgression(
     rank.totalScoreAlltime,
-    guild.appData.levelFactor
+    guild.appData.levelFactor,
   );
 
   const embed = new EmbedBuilder()
@@ -260,8 +260,8 @@ async function generateRankCard(state, guild, myGuild, disabled = false) {
   if (myGuild.bonusUntilDate > Date.now() / 1000) {
     embed.setDescription(
       `**!! Bonus XP Active !!** (${Math.round(
-        (((myGuild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10
-      )}h left) \n`
+        (((myGuild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10,
+      )}h left) \n`,
     );
   }
 
@@ -286,9 +286,9 @@ async function generateRankCard(state, guild, myGuild, disabled = false) {
         myGuild,
         rank,
         positions,
-        state.time
+        state.time,
       ),
-    }
+    },
   );
 
   return {
@@ -311,7 +311,7 @@ function getGlobalComponents(window, time, disabled) {
         .setLabel('Stats'),
       ParsedButton(window === 'topChannels', disabled)
         .setCustomId('rank window topChannels')
-        .setLabel('Top Channels')
+        .setLabel('Top Channels'),
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
@@ -337,8 +337,8 @@ function getGlobalComponents(window, time, disabled) {
           new StringSelectMenuOptionBuilder()
             .setLabel('Day')
             .setValue('Day')
-            .setDefault(time === 'Day')
-        )
+            .setDefault(time === 'Day'),
+        ),
     ),
   ];
 }
@@ -353,25 +353,25 @@ function getScoreStrings(appData, myGuild, ranks, positions, time) {
     scoreStrings.push(
       `:writing_hand: ${ranks['textMessage' + time]} (#${
         positions.textMessage
-      })`
+      })`,
     );
   if (appData.voiceXp)
     scoreStrings.push(
       `:microphone2: ${
         Math.round((ranks['voiceMinute' + time] / 60) * 10) / 10
-      } (#${positions.voiceMinute})`
+      } (#${positions.voiceMinute})`,
     );
   if (appData.inviteXp)
     scoreStrings.push(
-      `:envelope: ${ranks['invite' + time]} (#${positions.invite})`
+      `:envelope: ${ranks['invite' + time]} (#${positions.invite})`,
     );
   if (appData.voteXp)
     scoreStrings.push(
-      `${myGuild.voteEmote} ${ranks['vote' + time]} (#${positions.vote})`
+      `${myGuild.voteEmote} ${ranks['vote' + time]} (#${positions.vote})`,
     );
   if (appData.bonusXp)
     scoreStrings.push(
-      `${myGuild.bonusEmote} ${ranks['bonus' + time]} (#${positions.bonus})`
+      `${myGuild.bonusEmote} ${ranks['bonus' + time]} (#${positions.bonus})`,
     );
 
   return scoreStrings.join('\n');
@@ -383,7 +383,7 @@ async function getPositions(guild, memberId, types, time) {
     res[p] = await rankModel.getGuildMemberRankPosition(
       guild,
       memberId,
-      p + time
+      p + time,
     );
   return res;
 }
@@ -399,16 +399,14 @@ function getTypes(appData) {
   ].filter((i) => i !== null);
 }
 
-
 // GENERATED: start of generated content by `exports-to-default`.
 // [GENERATED: exports-to-default:v0]
 
 export default {
-    activeCache,
-    data,
-    execute,
-    component,
-}
+  activeCache,
+  data,
+  execute,
+  component,
+};
 
 // GENERATED: end of generated content by `exports-to-default`.
-
