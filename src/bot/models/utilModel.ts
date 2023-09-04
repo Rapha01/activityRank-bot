@@ -1,68 +1,56 @@
-import fct from '../../util/fct.js';
 import shardDb from '../../models/shardDb/shardDb.js';
+import type { Guild } from 'discord.js';
 
-export const storage = {};
+export interface TimestampedLastActivities {
+  textMessage: null | number;
+  voiceMinute: null | number;
+  invite: null | number;
+  vote: null | number;
+  bonus: null | number;
+}
+export interface StringLastActivities {
+  textMessage: string;
+  voiceMinute: string;
+  invite: string;
+  vote: string;
+  bonus: string;
+}
 
-// Storage
+export const storage = {
+  getLastActivities: async function <T extends boolean = false>(
+    guild: Guild,
+    userId: string,
+    timestamp: T,
+  ) {
+    const keys = ['textMessage', 'voiceMinute', 'invite', 'vote', 'bonus'];
 
-storage.getLastActivities = (guild, userId, timestamp = false) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let lastActivities = {},
-        res;
-      res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT changeDate FROM textMessage WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
-      );
-      if (timestamp) lastActivities.textMessage = res.length > 0 ? res[0].changeDate : null;
-      else
-        lastActivities.textMessage =
-          res.length > 0 ? new Date(res[0].changeDate * 1000).toString().slice(0, 16) : 'n/a';
-      res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT changeDate FROM voiceMinute WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
-      );
-      if (timestamp) lastActivities.voiceMinute = res.length > 0 ? res[0].changeDate : null;
-      else
-        lastActivities.voiceMinute =
-          res.length > 0 ? new Date(res[0].changeDate * 1000).toString().slice(0, 16) : 'n/a';
-      res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT changeDate FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
-      );
-      if (timestamp) lastActivities.invite = res.length > 0 ? res[0].changeDate : null;
-      else
-        lastActivities.invite =
-          res.length > 0 ? new Date(res[0].changeDate * 1000).toString().slice(0, 16) : 'n/a';
-      res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT changeDate FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
-      );
-      if (timestamp) lastActivities.vote = res.length > 0 ? res[0].changeDate : null;
-      else
-        lastActivities.vote =
-          res.length > 0 ? new Date(res[0].changeDate * 1000).toString().slice(0, 16) : 'n/a';
-      res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT changeDate FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate DESC LIMIT 1`,
-      );
-      if (timestamp) lastActivities.bonus = res.length > 0 ? res[0].changeDate : null;
-      else
-        lastActivities.bonus =
-          res.length > 0 ? new Date(res[0].changeDate * 1000).toString().slice(0, 16) : 'n/a';
+    const results = await Promise.all(
+      keys.map(
+        (key) =>
+          shardDb.query(
+            guild.appData.dbHost,
+            `SELECT changeDate FROM ${key} WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate LIMIT 1`,
+          ) as Promise<{ changeDate: number }[]>,
+      ),
+    );
 
-      resolve(lastActivities);
-    } catch (e) {
-      reject(e);
-    }
-  });
+    const lastActivities: TimestampedLastActivities = {
+      textMessage: results[0].length > 0 ? results[0][0].changeDate : null,
+      voiceMinute: results[1].length > 0 ? results[1][0].changeDate : null,
+      invite: results[2].length > 0 ? results[2][0].changeDate : null,
+      vote: results[3].length > 0 ? results[3][0].changeDate : null,
+      bonus: results[4].length > 0 ? results[4][0].changeDate : null,
+    };
+
+    if (timestamp) return lastActivities;
+    else
+      return Object.fromEntries(
+        Object.entries(lastActivities).map(([k, v]) => [
+          k,
+          v ? new Date(v * 1000).toString().slice(0, 16) : 'n/a',
+        ]),
+      );
+  },
 };
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  storage,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+export default { storage };
