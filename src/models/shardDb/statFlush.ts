@@ -1,12 +1,19 @@
 import shardDb from './shardDb.js';
 import logger from '../../util/logger.js';
+import type { ShardingManager } from 'discord.js';
+import type {
+  StatFlushCache,
+  StatFlushCacheChannelEntry,
+  StatFlushCacheGuildEntry,
+  StatFlushCacheType,
+} from 'bot/statFlushCache.js';
 
-export default async function (manager) {
+export default async function (manager: ShardingManager) {
   const hrstart = process.hrtime();
-  const shardCaches = await manager.fetchClientValues('appData.statFlushCache');
-  const res = manager.broadcastEval(function (client) {
-    client.appData.statFlushCache = {};
-  });
+  const shardCaches = (await manager.fetchClientValues('appData.statFlushCache')) as Record<
+    string,
+    StatFlushCache
+  >[];
 
   let statFlushCache = combineShardCaches(shardCaches);
 
@@ -15,7 +22,12 @@ export default async function (manager) {
     count = 0;
   for (let dbHost in statFlushCache)
     for (let type in statFlushCache[dbHost]) {
-      promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])));
+      promises.push(
+        shardDb.query(
+          dbHost,
+          getSql(type as StatFlushCacheType, statFlushCache[dbHost][type as StatFlushCacheType])!,
+        ),
+      );
       count = Object.keys(statFlushCache[dbHost][type]).length;
       counts[type] ? (counts[type] += count) : (counts[type] = count);
     }
@@ -28,54 +40,20 @@ export default async function (manager) {
   );
 }
 
-export default (manager) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const hrstart = process.hrtime();
-      const shardCaches = await manager.fetchClientValues('appData.statFlushCache');
-      const res = manager.broadcastEval(function (client) {
-        client.appData.statFlushCache = {};
-      });
+const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
+  let statFlushCache: Record<string, StatFlushCache> = {};
 
-      let statFlushCache = combineShardCaches(shardCaches);
-
-      let promises = [],
-        counts = {},
-        count = 0;
-      for (let dbHost in statFlushCache)
-        for (let type in statFlushCache[dbHost]) {
-          promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])));
-          count = Object.keys(statFlushCache[dbHost][type]).length;
-          counts[type] ? (counts[type] += count) : (counts[type] = count);
-        }
-
-      await Promise.all(promises);
-
-      const hrend = process.hrtime(hrstart);
-      logger.info(
-        'Stat flush finished after ' + hrend + 's. Saved rows: ' + JSON.stringify(counts) + '',
-      );
-
-      return resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-const combineShardCaches = (shardCaches) => {
-  let statFlushCache = {};
-
-  for (let shard of shardCaches) {
-    for (let dbHost in shard) {
+  for (const shard of shardCaches) {
+    for (const dbHost in shard) {
       if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
 
-      for (let type in shard[dbHost]) {
-        if (!statFlushCache[dbHost][type]) statFlushCache[dbHost][type] = {};
+      for (const type in shard[dbHost]) {
+        if (!statFlushCache[dbHost][type as StatFlushCacheType])
+          statFlushCache[dbHost][type as StatFlushCacheType] = {};
 
-        statFlushCache[dbHost][type] = {
-          ...statFlushCache[dbHost][type],
-          ...shard[dbHost][type],
+        statFlushCache[dbHost][type as StatFlushCacheType] = {
+          ...statFlushCache[dbHost][type as StatFlushCacheType],
+          ...shard[dbHost][type as StatFlushCacheType],
         };
       }
     }
@@ -85,7 +63,10 @@ const combineShardCaches = (shardCaches) => {
 };
 
 const maxValue = 100000000;
-const getSql = (type, entries) => {
+const getSql = (
+  type: StatFlushCacheType,
+  entries: (StatFlushCacheChannelEntry | StatFlushCacheGuildEntry)[],
+) => {
   let sqls = [],
     now = Math.floor(new Date().getTime() / 1000);
 
