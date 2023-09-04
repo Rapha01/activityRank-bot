@@ -9,6 +9,10 @@ interface ClientAppData {
   settings: Record<any, any>;
   texts: any;
   statFlushCache: Record<string, StatFlushCache>;
+  botShardStat: {
+    commandsTotal: number;
+    textMessagesTotal: number;
+  };
 }
 
 declare module 'discord.js' {

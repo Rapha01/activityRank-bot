@@ -1,29 +1,23 @@
-import managerDb from '../models/managerDb/managerDb.js';
+import type { Client, ShardingManager } from 'discord.js';
 import logger from '../util/logger.js';
 
-function _getStats(client) {
+function _getStats(client: Client) {
   const obj = {
-    shardId: client.shard.ids[0],
+    shardId: client.shard!.ids[0],
     commandsTotal: client.appData.botShardStat.commandsTotal,
     textMessagesTotal: client.appData.botShardStat.textMessagesTotal,
   };
   return obj;
 }
 
-function compare(a, b) {
-  if (a.timestamp > b.timestamp) {
-    return -1;
-  }
-  if (a.timestamp < b.timestamp) {
-    return 1;
-  }
-  return 0;
-}
-
 const secondsDead = process.env.NODE_ENV == 'production' ? 3600 : 30;
-let history = [];
+interface HistoryEntry {
+  timestamp: number;
+  shards: ReturnType<typeof _getStats>[];
+}
+let history: HistoryEntry[] = [];
 
-export default async (manager) => {
+export default async (manager: ShardingManager) => {
   const timestamp = Math.round(Date.now() / 1000);
   const shards = await manager.broadcastEval(_getStats);
 
@@ -58,11 +52,9 @@ export default async (manager) => {
   if (deadShardIds.length == 0) return;
 
   logger.debug(
-    'Shard(s) ' +
-      deadShardIds.join(', ') +
-      ' dead (no commands or messages registered for ' +
-      secondsDead / 60 +
-      'm). Restarting..',
+    `Shard(s) ${deadShardIds.join(', ')} dead (no commands or messages registered for ${
+      secondsDead / 60
+    }m). Restarting..`,
   );
 
   for (const shardId of deadShardIds) {
