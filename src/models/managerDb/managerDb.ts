@@ -15,7 +15,7 @@ export async function getConnection() {
 
 export async function getAllDbHosts() {
   const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-  let res = await query(`SELECT ${hostField} AS host FROM dbShard`);
+  let res = (await query(`SELECT ${hostField} AS host FROM dbShard`)) as { host: string }[];
 
   const hosts = [];
   for (let row of res) hosts.push(row.host);
