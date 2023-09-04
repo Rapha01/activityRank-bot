@@ -11,7 +11,7 @@ const localConfig =
     },
   };
 //: {}
-const logger = pino({ ...globalConfig, ...localConfig });
+const logger = pino.default({ ...globalConfig, ...localConfig });
 
 export default logger;
 

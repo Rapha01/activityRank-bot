@@ -3,7 +3,7 @@ import { Routes } from 'discord-api-types/v9';
 import { get as getKeys } from '../const/keys.js';
 const { botId, botAuth } = getKeys();
 
-main = async () => {
+const main = async () => {
   const rest = new REST({ version: '9' }).setToken(botAuth);
   try {
     console.log('');
