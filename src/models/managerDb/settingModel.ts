@@ -1,42 +1,25 @@
+import type { Client } from 'discord.js';
 import managerDb from './managerDb.js';
 
-export const storage = {};
-export const cache = {};
+export const storage = {
+  get: async function () {
+    const res = await managerDb.query('SELECT * from setting');
 
-storage.get = () => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const res = await managerDb.query('SELECT * from setting');
+    const settings: Record<any, any> = {};
 
-      let settings = {};
+    for (const setting of res) settings[setting.id] = setting.value;
 
-      for (setting of res) settings[setting.id] = setting.value;
-
-      resolve(settings);
-    } catch (e) {
-      reject(e);
-    }
-  });
+    return settings;
+  },
 };
 
-cache.load = (client) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      client.appData.settings = await storage.get();
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+export const cache = {
+  load: async function (client: Client) {
+    client.appData.settings = await storage.get();
+  },
 };
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
 
 export default {
   storage,
   cache,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.
