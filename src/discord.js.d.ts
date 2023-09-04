@@ -1,5 +1,6 @@
 import type { CachedGuild } from 'bot/models/guild/guildModel.ts';
 import type { StatFlushCache } from 'bot/statFlushCache.ts';
+import type { pino } from 'pino';
 import 'discord.js';
 
 interface RoleAppData {
@@ -21,6 +22,7 @@ declare module 'discord.js' {
   }
   export interface Client {
     appData: ClientAppData;
+    logger: pino.Logger;
   }
   export interface Guild {
     appData: CachedGuild;
