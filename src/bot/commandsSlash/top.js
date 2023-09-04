@@ -343,7 +343,7 @@ async function generateGuildMembers(state, guild, myGuild, disabled) {
     };
 
     e.addFields({
-      name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
+      name: `**#${page.from + i} ${memberRank.name}** \\🎖 ${Math.floor(
         memberRank.levelProgression
       )}`,
       value: `Total: ${
@@ -583,7 +583,7 @@ exports.sendMembersEmbed = async (i, type) => {
     if (i.guild.appData.bonusXp)
       scoreStrings.push(guild.bonusEmote + ' ' + memberRank['bonus' + time]);
     e.addFields({
-      name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(
+      name: `**#${page.from + iter} ${memberRank.name}** \\🎖 ${Math.floor(
         memberRank.levelProgression
       )}`,
       value: `${memberRank['totalScore' + time]} XP \\⬄ ${scoreStrings.join(
