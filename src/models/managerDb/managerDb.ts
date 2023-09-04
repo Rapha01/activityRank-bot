@@ -1,127 +1,81 @@
-import nativeFetch from 'node-fetch';
 import mysql from 'promise-mysql';
 import { get as getKeys } from '../../const/keys.js';
 let keys = getKeys();
-let dbHost, dbpassword, dbname, dbhost, pool;
+let pool: mysql.Pool | null;
 
-export const query = (sql) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (!pool) await createPool();
+export async function query(sql: string) {
+  if (!pool) await createPool();
+  return await pool!.query(sql);
+}
 
-      resolve(await pool.query(sql));
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+export async function getConnection() {
+  if (!pool) await createPool();
+  return await pool!.getConnection();
+}
 
-export const getConnection = () => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (!pool) await createPool();
+export async function getAllDbHosts() {
+  const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+  let res = await query(`SELECT ${hostField} AS host FROM dbShard`);
 
-      resolve(await pool.getConnection());
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+  const hosts = [];
+  for (let row of res) hosts.push(row.host);
 
-export const getAllDbHosts = () => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-      let res = await query(`SELECT ${hostField} AS host FROM dbShard`);
+  return hosts;
+}
 
-      const hosts = [];
-      for (let row of res) hosts.push(row.host);
+async function createPool() {
+  if (!pool) {
+    pool = await mysql.createPool({
+      host: keys.managerHost,
+      user: keys.managerDb.dbUser,
+      password: keys.managerDb.dbPassword,
+      database: keys.managerDb.dbName,
+      dateStrings: ['DATE'],
+      charset: 'utf8mb4',
+      supportBigNumbers: true,
+      bigNumberStrings: true,
+      connectionLimit: 3,
+    });
 
-      resolve(hosts);
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-const createPool = () => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (!pool) {
-        pool = await mysql.createPool({
-          host: keys.managerHost,
-          user: keys.managerDb.dbUser,
-          password: keys.managerDb.dbPassword,
-          database: keys.managerDb.dbName,
-          dateStrings: 'date',
-          charset: 'utf8mb4',
-          supportBigNumbers: true,
-          bigNumberStrings: true,
-          connectionLimit: 3,
-        });
-
-        pool.on('error', function (err) {
-          console.log('ManagerDb pool error.');
-          if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-            console.log(
-              'PROTOCOL_CONNECTION_LOST for manager @' + dbHost + '. Deleting connection.',
-            );
-            pool = null;
-          } else {
-            throw err;
-          }
-        });
-
-        console.log('Connected to managerDb @' + keys.managerHost + '.');
+    pool.on('error', (err) => {
+      console.log('ManagerDb pool error.');
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        console.log('PROTOCOL_CONNECTION_LOST for manager. Deleting connection.');
+        pool = null;
+      } else {
+        throw err;
       }
+    });
 
-      resolve(pool);
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+    console.log(`Connected to managerDb @${keys.managerHost}.`);
+  }
 
-export const fetch = (body, route, method) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let res;
+  return pool;
+}
 
-      const requestObject = {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: keys.managerApiAuth,
-        },
-        //timeout: 12000,
-      };
+export async function mgrFetch(body: any, route: string, method: string) {
+  try {
+    const requestObject: RequestInit = {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: keys.managerApiAuth,
+      },
+    };
 
-      if (body != null) requestObject.body = JSON.stringify(body);
+    if (body !== null) requestObject.body = JSON.stringify(body);
 
-      res = await nativeFetch(
-        'http://' + keys.managerHost + route,
-        requestObject,
-      );
+    const res = await fetch('http://' + keys.managerHost + route, requestObject);
 
-      res = await res.json();
-      if (res.error != null) return reject('Remote DB Error: ' + res.error);
-
-      if (res.results) resolve(res.results);
-      else resolve(res);
-    } catch (e) {
-      reject('Fetch Error in backup.api.call(): ' + e);
-    }
-  });
-};
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
+    return await res.json();
+  } catch (error) {
+    throw `Fetch Error in backup.api.call(): ${error}`;
+  }
+}
 
 export default {
   query,
   getConnection,
   getAllDbHosts,
-  fetch,
+  fetch: mgrFetch,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.
