@@ -15,5 +15,6 @@
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "files": ["src/discord.js.d.ts"]
 }
