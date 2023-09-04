@@ -6,6 +6,7 @@ import settingModel from '../models/managerDb/settingModel.js';
 import textModel from '../models/managerDb/textModel.js';
 import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
 import checkForDeadShards from './checkForDeadShards.js';
+import type { Client, ShardingManager } from 'discord.js';
 
 const isProd = process.env.NODE_ENV == 'production';
 const settings = {
@@ -19,40 +20,32 @@ const settings = {
   checkForDeadShardsInterval: isProd ? 1200_000 : 10_000,
 };
 
-export const start = (manager) => {
-  return new Promise(async function (resolve, reject) {
+export async function start(manager: ShardingManager) {
+  //startStatFlush(manager);
+  startUpdateSettings(manager);
+  startUpdateTexts(manager);
+  startSaveBotShardHealth(manager);
+  startCheckForDeadShards(manager);
+
+  if (isProd) startCheckQueuedShardRestarts(manager);
+
+  // Periodical Restart
+  setTimeout(() => {
     try {
-      //startStatFlush(manager);
-      startUpdateSettings(manager);
-      startUpdateTexts(manager);
-      startSaveBotShardHealth(manager);
-      startCheckForDeadShards(manager);
-
-      if (isProd) startCheckQueuedShardRestarts(manager);
-
-      // Periodical Restart
-      setTimeout(function () {
-        try {
-          process.exit();
-        } catch (e) {
-          console.log(e);
-        }
-      }, settings.restartDelay);
-
-      cron.schedule(settings.statFlushCacheCronInterval, async function () {
-        try {
-          await statFlush(manager);
-        } catch (e) {
-          console.log(e);
-        }
-      });
-
-      resolve();
+      process.exit();
     } catch (e) {
-      reject(e);
+      console.log(e);
+    }
+  }, settings.restartDelay);
+
+  cron.schedule(settings.statFlushCacheCronInterval, async () => {
+    try {
+      await statFlush(manager);
+    } catch (e) {
+      console.log(e);
     }
   });
-};
+}
 
 /*
 const startStatFlush = async (manager) => {
@@ -62,18 +55,16 @@ const startStatFlush = async (manager) => {
   }
 }*/
 
-function _updateSettings(client, { settings }) {
+function _updateSettings(client: Client, { settings }) {
   client.appData.settings = settings;
 }
 
-const startUpdateSettings = async (manager) => {
+const startUpdateSettings = async (manager: ShardingManager) => {
   while (true) {
     try {
-      let s = await settingModel.storage.get();
-      s = JSON.stringify(s);
-      // await manager.broadcastEval(`this.appData.settings = ${JSON.stringify(settings)}`);
+      const settings = await settingModel.storage.get();
       await manager.broadcastEval(_updateSettings, {
-        context: { settings: s },
+        context: { settings: JSON.stringify(settings) },
       });
     } catch (e) {
       console.log(e);
@@ -83,11 +74,11 @@ const startUpdateSettings = async (manager) => {
   }
 };
 
-function _updateTexts(client, { texts }) {
+function _updateTexts(client: Client, { texts }) {
   client.appData.texts = texts;
 }
 
-const startUpdateTexts = async (manager) => {
+const startUpdateTexts = async (manager: ShardingManager) => {
   while (true) {
     try {
       let t = await textModel.storage.get();
@@ -103,14 +94,14 @@ const startUpdateTexts = async (manager) => {
   }
 };
 
-const startSaveBotShardHealth = async (manager) => {
+const startSaveBotShardHealth = async (manager: ShardingManager) => {
   while (true) {
     await saveBotShardHealth(manager).catch((e) => console.log(e));
     await fct.sleep(settings.saveBotShardHealthInterval).catch((e) => console.log(e));
   }
 };
 
-const startCheckQueuedShardRestarts = async (manager) => {
+const startCheckQueuedShardRestarts = async (manager: ShardingManager) => {
   while (true) {
     await fct.sleep(settings.checkQueuedShardRestartsInterval).catch((e) => console.log(e));
 
@@ -118,7 +109,7 @@ const startCheckQueuedShardRestarts = async (manager) => {
   }
 };
 
-const startCheckForDeadShards = async (manager) => {
+const startCheckForDeadShards = async (manager: ShardingManager) => {
   while (true) {
     await fct.sleep(settings.checkForDeadShardsInterval).catch((e) => console.log(e));
 
@@ -127,11 +118,4 @@ const startCheckForDeadShards = async (manager) => {
   }
 };
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  start,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+export default { start };
