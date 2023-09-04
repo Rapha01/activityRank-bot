@@ -5,7 +5,6 @@ import textModel from '../models/managerDb/textModel.js';
 import load from './util/startup/index.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
-import cronScheduler from './cron/scheduler.js';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -24,7 +23,7 @@ const intents = [
 ];
 
 const sweepers = {
-  ...Options.defaultSweeperSettings,
+  ...Options.DefaultSweeperSettings,
   messages: {
     interval: 300, // 5m
     lifetime: 600, // 10m
@@ -47,7 +46,7 @@ async function start() {
 
     await client.login();
 
-    client.logger = loggerManager.init(client.shard.ids);
+    client.logger = loggerManager.init(client.shard!.ids);
     client.logger.info('Logged in');
 
     try {
@@ -64,15 +63,16 @@ async function start() {
   }
 }
 
-async function initClientCaches(client) {
-  client.appData = {};
-  client.appData.statFlushCache = {};
-  client.appData.botShardStat = {
-    commandsTotal: 0,
-    textMessagesTotal: 0,
+async function initClientCaches(client: Client) {
+  client.appData = {
+    statFlushCache: {},
+    botShardStat: {
+      commandsTotal: 0,
+      textMessagesTotal: 0,
+    },
+    texts: await textModel.storage.get(),
+    settings: await settingModel.storage.get(),
   };
-  await textModel.cache.load(client);
-  await settingModel.cache.load(client);
 }
 
 process.on('SIGINT', () => {
