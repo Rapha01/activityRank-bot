@@ -2,6 +2,7 @@ import shardDb from '../../../models/shardDb/shardDb.js';
 import managerDb from '../../../models/managerDb/managerDb.js';
 import mysql from 'promise-mysql';
 import fct from '../../../util/fct.js';
+import type { Guild } from 'discord.js';
 
 const promises = {};
 export const cache = {};
@@ -77,7 +78,7 @@ cache.load = (guild) => {
   });
 };
 
-storage.set = (guild, field, value) => {
+storage.set = (guild: Guild, field, value) => {
   return new Promise(async function (resolve, reject) {
     try {
       await shardDb.query(
@@ -126,41 +127,105 @@ storage.get = (guild) => {
   });
 };
 
-const buildCache = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const dbHost = await getDbHost(guild.id);
-      let cache = await shardDb.query(
-        dbHost,
-        `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
-      );
+export interface CachedGuildStore {
+  tokens: number;
+  tokensBurned: number;
+  voteTag: string;
+  voteEmote: string;
+  bonusTag: string;
+  bonusEmote: string;
+  entriesPerPage: number;
+  showNicknames: boolean;
+  textXp: boolean;
+  voiceXp: boolean;
+  inviteXp: boolean;
+  voteXp: boolean;
+  bonusXp: boolean;
+  notifyLevelupDm: boolean;
+  notifyLevelupCurrentChannel: boolean;
+  notifyLevelupWithRole: boolean;
+  notifyLevelupOnlyWithRole: boolean;
+  takeAwayAssignedRolesOnLevelDown: boolean;
+  levelFactor: number;
+  voteCooldownSeconds: number;
+  textMessageCooldownSeconds: number;
+  xpPerVoiceMinute: number;
+  xpPerTextMessage: number;
+  xpPerVote: number;
+  xpPerInvite: number;
+  xpPerBonus: number;
+  bonusPerTextMessage: number;
+  bonusPerVoiceMinute: number;
+  bonusPerVote: number;
+  bonusPerInvite: number;
+  bonusUntilDate: string;
+  reactionVote: boolean;
+  allowMutedXp: boolean;
+  allowDeafenedXp: boolean;
+  allowSoloXp: boolean;
+  allowInvisibleXp: boolean;
+  allowDownvotes: boolean;
+  commandOnlyChannel?: string;
+  autopost_levelup?: string;
+  autopost_serverJoin?: string;
+  autopost_serverLeave?: string;
+  autopost_voiceChannelJoin?: string;
+  autopost_voiceChannelLeave?: string;
+  autoname_totalUserCount?: string;
+  autoname_onlineUserCount?: string;
+  autoname_activeUsersLast24h?: string;
+  autoname_serverJoinsLast24h?: string;
+  autoname_serverLeavesLast24h?: string;
+  levelupMessage?: string;
+  serverJoinMessage?: string;
+  serverLeaveMessage?: string;
+  voiceChannelJoinMessage?: string;
+  voiceChannelLeaveMessage?: string;
+  roleAssignMessage?: string;
+  roleDeassignMessage?: string;
+  lastCommandDate?: string;
+  lastTokenBurnDate?: string;
+  resetDay?: number;
+  resetHour?: number;
+  joinedAtDate?: string;
+  leftAtDate?: string;
+  addDate: Date;
+  isBanned?: boolean;
+}
 
-      if (cache.length == 0) {
-        console.log;
-        await shardDb.query(
-          dbHost,
-          `INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${guild.id},${Math.floor(
-            guild.members.me.joinedAt / 1000,
-          )},${Math.floor(Date.now() / 1000)})`,
-        );
-        cache = await shardDb.query(
-          dbHost,
-          `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
-        );
-      }
+export interface CachedGuild extends CachedGuildStore {
+  addDate: number;
+  dbHost: any; //TODO
+}
 
-      cache = cache[0];
+async function buildCache(guild: Guild) {
+  const dbHost = await getDbHost(guild.id);
+  let cache = (await shardDb.query(
+    dbHost,
+    `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
+  )) as CachedGuildStore[];
 
-      cache.addDate = cache.addDate * 1;
-      cache.dbHost = dbHost;
-      guild.appData = cache;
+  if (cache.length == 0) {
+    await shardDb.query(
+      dbHost,
+      `INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${guild.id},${Math.floor(
+        guild.members.me!.joinedAt!.getTime() / 1000,
+      )},${Math.floor(Date.now() / 1000)})`,
+    );
+    cache = (await shardDb.query(
+      dbHost,
+      `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
+    )) as CachedGuildStore[];
+  }
 
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+  const cachedGuildStore = cache[0]!;
+  const cachedGuild: CachedGuild = {
+    ...cachedGuildStore,
+    addDate: cachedGuildStore.addDate * 1,
+    dbHost,
+  };
+  guild.appData = cachedGuild;
+}
 
 const getDbHost = (guildId) => {
   return new Promise(async function (resolve, reject) {
