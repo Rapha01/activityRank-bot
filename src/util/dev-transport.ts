@@ -1,6 +1,6 @@
 import pretty from 'pino-pretty';
-export default (opts) =>
-  pretty({
+export default (opts: pretty.PrettyOptions) =>
+  pretty.default({
     ...opts,
     colorize: true,
     translateTime: 'SYS:mm/dd HH:MM:ss',
@@ -9,5 +9,6 @@ export default (opts) =>
     messageFormat: format,
   });
 
-const format = (log, messageKey) =>
-  ('shards' in log ? `[${log.shards.join(', ')}] ` : '') + log[messageKey];
+const format: pretty.PinoPretty.MessageFormatFunc = (log, messageKey) =>
+  ('shards' in log && Array.isArray(log.shards) ? `[${log.shards.join(', ')}] ` : '') +
+  log[messageKey];
