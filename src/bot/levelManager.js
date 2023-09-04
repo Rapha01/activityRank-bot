@@ -128,7 +128,7 @@ const sendGratulationMessage = (member, roleMessages, level) => {
     gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 
     const levelupEmbed = new Discord.EmbedBuilder()
-      .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
+      .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖 ' + level)
       .setColor('#4fd6c8')
       .setDescription(gratulationMessage)
       .setThumbnail(member.user.avatarURL());
