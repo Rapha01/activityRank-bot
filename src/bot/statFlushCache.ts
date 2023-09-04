@@ -1,66 +1,59 @@
+import type { Client, Guild, GuildMember, TextBasedChannel, VoiceBasedChannel } from 'discord.js';
 import levelManager from './levelManager.js';
 
-export const addTextMessage = (member, channel, count) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      // Add to FlushCache
-      let textMessageCache = buildStatFlushCache(member, 'textMessage');
+export async function addTextMessage(
+  member: GuildMember,
+  channel: TextBasedChannel,
+  count: number,
+) {
+  // Add to FlushCache
+  let textMessageCache = buildStatFlushCache(member, 'textMessage');
 
-      count = count * 1;
+  count = count * 1;
 
-      let entry = textMessageCache[member.id + channel.id];
-      if (!entry)
-        entry = textMessageCache[member.id + channel.id] = {
-          guildId: member.guild.id,
-          userId: member.id,
-          channelId: channel.id,
-          count: count,
-        };
-      else entry.count += count;
+  let entry = textMessageCache[member.id + channel.id];
+  if (!entry)
+    entry = textMessageCache[member.id + channel.id] = {
+      guildId: member.guild.id,
+      userId: member.id,
+      channelId: channel.id,
+      count: count,
+    };
+  else entry.count += count;
 
-      await addTotalXp(member, count * member.guild.appData.xpPerTextMessage);
+  await addTotalXp(member, count * member.guild.appData.xpPerTextMessage);
 
-      if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
-        await addBonus(member, count * member.guild.appData.bonusPerTextMessage);
+  if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
+    await addBonus(member, count * member.guild.appData.bonusPerTextMessage);
+}
 
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+export async function addVoiceMinute(
+  member: GuildMember,
+  channel: VoiceBasedChannel,
+  count: number,
+) {
+  // Add to FlushCache
+  let voiceMinuteCache = buildStatFlushCache(member, 'voiceMinute');
 
-export const addVoiceMinute = (member, channel, count) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      // Add to FlushCache
-      let voiceMinuteCache = buildStatFlushCache(member, 'voiceMinute');
+  count = count * 1;
 
-      count = count * 1;
+  let entry = voiceMinuteCache[member.id + channel.id];
+  if (!entry)
+    entry = voiceMinuteCache[member.id + channel.id] = {
+      guildId: member.guild.id,
+      userId: member.id,
+      channelId: channel.id,
+      count: count,
+    };
+  else entry.count += count;
 
-      let entry = voiceMinuteCache[member.id + channel.id];
-      if (!entry)
-        entry = voiceMinuteCache[member.id + channel.id] = {
-          guildId: member.guild.id,
-          userId: member.id,
-          channelId: channel.id,
-          count: count,
-        };
-      else entry.count += count;
+  await addTotalXp(member, count * member.guild.appData.xpPerVoiceMinute);
 
-      await addTotalXp(member, count * member.guild.appData.xpPerVoiceMinute);
+  if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
+    await addBonus(member, count * member.guild.appData.bonusPerVoiceMinute);
+}
 
-      if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
-        await addBonus(member, count * member.guild.appData.bonusPerVoiceMinute);
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-export const addInvite = (member, count) => {
+export const addInvite = (member: GuildMember, count: number) => {
   return new Promise(async function (resolve, reject) {
     try {
       let inviteCache = buildStatFlushCache(member, 'invite');
@@ -88,7 +81,7 @@ export const addInvite = (member, count) => {
   });
 };
 
-export const addVote = (member, count) => {
+export const addVote = (member: GuildMember, count: number) => {
   return new Promise(async function (resolve, reject) {
     try {
       let voteCache = buildStatFlushCache(member, 'vote');
@@ -116,7 +109,7 @@ export const addVote = (member, count) => {
   });
 };
 
-export const addBonus = (member, count) => {
+export const addBonus = (member: GuildMember, count: number) => {
   return new Promise(async function (resolve, reject) {
     try {
       let bonusCache = buildStatFlushCache(member, 'bonus');
@@ -141,7 +134,7 @@ export const addBonus = (member, count) => {
   });
 };
 
-const addTotalXp = (member, xp) => {
+const addTotalXp = (member: GuildMember, xp: number) => {
   return new Promise(async function (resolve, reject) {
     try {
       const oldTotalXp = member.appData.totalXp;
@@ -158,7 +151,12 @@ const addTotalXp = (member, xp) => {
 };
 
 // beta function
-export const directlyAddBonus = async (userId, guild, client, count) => {
+export const directlyAddBonus = async (
+  userId: string,
+  guild: Guild,
+  client: Client,
+  count: number,
+) => {
   const bonusCache = directlyBuildStatFlushCache(client, guild, 'bonus');
 
   count *= 1; // ?
@@ -167,7 +165,25 @@ export const directlyAddBonus = async (userId, guild, client, count) => {
   else entry.count += count;
 };
 
-const buildStatFlushCache = (member, type) => {
+export type StatFlushCacheType = 'textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus';
+
+export interface StatFlushCacheGuildEntry {
+  guildId: string;
+  userId: string;
+  count: number;
+}
+export interface StatFlushCacheChannelEntry extends StatFlushCacheGuildEntry {
+  channelId: string;
+}
+export interface StatFlushCache {
+  textMessage?: Record<string, StatFlushCacheChannelEntry>;
+  voiceMinute?: Record<string, StatFlushCacheChannelEntry>;
+  invite?: Record<string, StatFlushCacheGuildEntry>;
+  vote?: Record<string, StatFlushCacheGuildEntry>;
+  bonus?: Record<string, StatFlushCacheGuildEntry>;
+}
+
+const buildStatFlushCache = (member: GuildMember, type: StatFlushCacheType) => {
   const statFlushCache = member.client.appData.statFlushCache;
   const dbHost = member.guild.appData.dbHost;
 
@@ -178,7 +194,7 @@ const buildStatFlushCache = (member, type) => {
   return statFlushCache[dbHost][type];
 };
 
-const directlyBuildStatFlushCache = (client, guild, type) => {
+const directlyBuildStatFlushCache = (client: Client, guild: Guild, type: StatFlushCacheType) => {
   const statFlushCache = client.appData.statFlushCache;
   const dbHost = guild.appData.dbHost;
 
@@ -189,9 +205,6 @@ const directlyBuildStatFlushCache = (client, guild, type) => {
   return statFlushCache[dbHost][type];
 };
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
 export default {
   addTextMessage,
   addVoiceMinute,
@@ -200,5 +213,3 @@ export default {
   addBonus,
   directlyAddBonus,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.
