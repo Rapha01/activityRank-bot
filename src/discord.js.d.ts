@@ -3,6 +3,10 @@ import type { StatFlushCache } from 'bot/statFlushCache.ts';
 import type { pino } from 'pino';
 import 'discord.js';
 
+interface UserAppData {
+  isBanned?: boolean;
+  dbHost: string;
+}
 interface RoleAppData {
   noXp: boolean;
 }
@@ -19,6 +23,9 @@ interface ClientAppData {
 declare module 'discord.js' {
   export interface Role {
     appData: RoleAppData;
+  }
+  export interface User {
+    appData: UserAppData;
   }
   export interface Client {
     appData: ClientAppData;
