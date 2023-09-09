@@ -1,148 +1,117 @@
+import type { Guild } from 'discord.js';
 import shardDb from '../../../models/shardDb/shardDb.js';
 import mysql from 'promise-mysql';
-import rankModel from '../rankModel.js';
-import fct from '../../../util/fct.js';
 
-const promises = {};
-export const cache = {};
-export const storage = {};
+const promises: Record<string, Promise<void>> = {};
 
 const cachedFields = ['noXp', 'noCommand'];
 let defaultCache = null;
 let defaultAll = null;
 
-cache.load = (channel) => {
-  if (!channel.appData) {
-    if (promises[channel.id]) {
+export const cache = {
+  load: (channel) => {
+    if (!channel.appData) {
+      if (channel.id in promises) {
+        return promises[channel.id];
+      }
+
+      promises[channel.id] = new Promise(async (resolve, reject) => {
+        try {
+          await buildCache(channel);
+          delete promises[channel.id];
+          resolve();
+        } catch (e) {
+          delete promises[channel.id];
+          reject(e);
+        }
+      });
+
       return promises[channel.id];
     }
 
-    promises[channel.id] = new Promise(async (resolve, reject) => {
-      try {
-        await buildCache(channel);
-        delete promises[channel.id];
-        resolve();
-      } catch (e) {
-        delete promises[channel.id];
-        reject(e);
-      }
+    return new Promise(async (resolve) => {
+      resolve();
     });
+  },
+};
 
-    return promises[channel.id];
+export const storage = {
+  get: async (guild: Guild, channelId: string) => {
+    const res = await shardDb.query(
+      guild.appData.dbHost,
+      `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${mysql.escape(
+        channelId,
+      )}`,
+    );
+
+    if (res.length == 0) {
+      if (!defaultAll)
+        defaultAll = (
+          await shardDb.query(
+            guild.appData.dbHost,
+            `SELECT * FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
+          )
+        )[0];
+      return defaultAll;
+    } else return res[0];
+  },
+
+  set: async (guild: Guild, channelId: string, field, value) => {
+    await shardDb.query(
+      guild.appData.dbHost,
+      `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${mysql.escape(
+        channelId,
+      )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+    );
+
+    const channel = guild.channels.cache.get(channelId);
+    if (channel && channel.appData && cachedFields.indexOf(field) > -1)
+      channel.appData[field] = value;
+  },
+};
+
+export const getRankedChannelIds = async (guild: Guild) => {
+  const textmessageUserIds = await shardDb.query(
+    guild.appData.dbHost,
+    `SELECT DISTINCT channelId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
+  );
+  const voiceMinuteUserIds = await shardDb.query(
+    guild.appData.dbHost,
+    `SELECT DISTINCT channelId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
+  );
+
+  const ids = [...new Set([...textmessageUserIds, ...voiceMinuteUserIds])];
+
+  let channelIds = [];
+  for (let id of ids) {
+    channelIds.push(id.channelId);
   }
 
-  return new Promise(async (resolve) => {
-    resolve();
-  });
+  return channelIds;
 };
 
-storage.get = (guild, channelId) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${mysql.escape(
-          channelId,
-        )}`,
-      );
+export const getNoXpChannelIds = async (guild: Guild) => {
+  const res = await shardDb.query(
+    guild.appData.dbHost,
+    `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noXp = 1`,
+  );
 
-      if (res.length == 0) {
-        if (!defaultAll)
-          defaultAll = (
-            await shardDb.query(
-              guild.appData.dbHost,
-              `SELECT * FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
-            )
-          )[0];
-        return resolve(defaultAll);
-      } else return resolve(res[0]);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  let ids = [];
+  for (let channel of res) ids.push(channel.channelId);
+
+  return ids;
 };
 
-storage.set = (guild, channelId, field, value) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      await shardDb.query(
-        guild.appData.dbHost,
-        `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${mysql.escape(
-          channelId,
-        )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
-      );
+export const getNoCommandChannelIds = async (guild: Guild) => {
+  const res = await shardDb.query(
+    guild.appData.dbHost,
+    `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noCommand = 1`,
+  );
 
-      const channel = guild.channels.cache.get(channelId);
-      if (channel && channel.appData && cachedFields.indexOf(field) > -1)
-        channel.appData[field] = value;
+  let ids = [];
+  for (let channel of res) ids.push(channel.channelId);
 
-      return resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-export const getRankedChannelIds = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const textmessageUserIds = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT DISTINCT channelId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
-      );
-      const voiceMinuteUserIds = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT DISTINCT channelId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
-      );
-
-      const ids = [...new Set([...textmessageUserIds, ...voiceMinuteUserIds])];
-
-      let channelIds = [];
-      for (let id of ids) {
-        channelIds.push(id.channelId);
-      }
-
-      resolve(channelIds);
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-export const getNoXpChannelIds = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noXp = 1`,
-      );
-
-      let ids = [];
-      for (let channel of res) ids.push(channel.channelId);
-
-      resolve(ids);
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-export const getNoCommandChannelIds = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const res = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noCommand = 1`,
-      );
-
-      let ids = [];
-      for (let channel of res) ids.push(channel.channelId);
-
-      resolve(ids);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  return ids;
 };
 
 const buildCache = (channel) => {
@@ -169,35 +138,22 @@ const buildCache = (channel) => {
   });
 };
 
-const loadDefaultCache = (dbHost) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let res = await shardDb.query(
-        dbHost,
-        `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
-      );
+const loadDefaultCache = async (dbHost: string) => {
+  let res = await shardDb.query(
+    dbHost,
+    `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
+  );
 
-      if (res.length == 0)
-        await shardDb.query(
-          dbHost,
-          `INSERT IGNORE INTO guildChannel (guildId,channelId) VALUES (0,0)`,
-        );
+  if (res.length == 0)
+    await shardDb.query(dbHost, `INSERT IGNORE INTO guildChannel (guildId,channelId) VALUES (0,0)`);
 
-      res = await shardDb.query(
-        dbHost,
-        `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
-      );
+  res = await shardDb.query(
+    dbHost,
+    `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
+  );
 
-      defaultCache = res[0];
-      return resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+  defaultCache = res[0];
 };
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
 
 export default {
   cache,
@@ -206,5 +162,3 @@ export default {
   getNoXpChannelIds,
   getNoCommandChannelIds,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.

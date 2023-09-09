@@ -1,95 +1,79 @@
 import fct from '../util/fct.js';
 import nameUtil from './util/nameUtil.js';
 import guildRoleModel from './models/guild/guildRoleModel.js';
-import Discord from 'discord.js';
+import Discord, { GuildMember } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 
-export const checkLevelUp = (member, oldTotalScore, newTotalScore) => {
-  return new Promise(async function (resolve, reject) {
-    let oldLevel, newLevel, roleMessages;
-    try {
-      oldLevel = fct.getLevel(
-        fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor),
-      );
-      newLevel = fct.getLevel(
-        fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor),
-      );
+export async function checkLevelUp(
+  member: GuildMember,
+  oldTotalScore: number,
+  newTotalScore: number,
+) {
+  let oldLevel, newLevel, roleMessages;
 
-      if (oldLevel != newLevel) roleMessages = await checkRoleAssignment(member, newLevel);
-    } catch (e) {
-      return reject(e);
-    }
+  oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor));
+  newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor));
 
-    // Send Message
-    if (oldLevel >= newLevel) return resolve();
+  if (oldLevel != newLevel) roleMessages = await checkRoleAssignment(member, newLevel);
 
-    await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
-      member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
-    );
+  // Send Message
+  if (oldLevel >= newLevel) return;
 
-    resolve();
-  });
-};
+  await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
+    member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
+  );
+}
 
-export const checkRoleAssignment = (member, level) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let roleMessages = [],
-        memberHasRole;
-      const roles = member.guild.roles.cache;
+export async function checkRoleAssignment(member: GuildMember, level: number) {
+  let roleMessages = [],
+    memberHasRole;
+  const roles = member.guild.roles.cache;
 
-      if (
-        roles.size == 0 ||
-        !member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)
-      )
-        return resolve(roleMessages);
+  if (roles.size == 0 || !member.guild.members.me!.permissions.has(PermissionFlagsBits.ManageRoles))
+    return roleMessages;
 
-      for (let role of roles) {
-        role = role[1];
-        await guildRoleModel.cache.load(role);
+  for (const _role of roles) {
+    const role = _role[1];
+    await guildRoleModel.cache.load(role);
 
-        if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0) continue;
-        if (role.comparePositionTo(member.guild.members.me.roles.highest) > 0) continue;
+    if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0) continue;
+    if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
 
-        memberHasRole = member.roles.cache.get(role.id);
+    memberHasRole = member.roles.cache.get(role.id);
 
-        if (role.appData.deassignLevel != 0 && level >= role.appData.deassignLevel) {
-          // User is above role. Deassign or do nothing.
-          if (memberHasRole) {
-            await member.roles.remove(role).catch((e) => {
-              if (e.code !== 50013) throw e; // Missing Permissions
-            });
-            addRoleDeassignMessage(roleMessages, member, role, level);
-          }
-        } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
-          // User is within role. Assign or do nothing.
-          if (!memberHasRole) {
-            await member.roles.add(role).catch((e) => {
-              if (e.code !== 50013) throw e; // Missing Permissions
-            });
-            addRoleAssignMessage(roleMessages, member, role, level);
-          }
-        } else if (
-          member.guild.appData.takeAwayAssignedRolesOnLevelDown &&
-          role.appData.assignLevel != 0 &&
-          level < role.appData.assignLevel
-        ) {
-          // User is below role. Deassign or do nothing.
-          if (memberHasRole) {
-            await member.roles.remove(role).catch((e) => {
-              if (e.code !== 50013) throw e; // Missing Permissions
-            });
-            addRoleDeassignMessage(roleMessages, member, role, level);
-          }
-        }
+    if (role.appData.deassignLevel != 0 && level >= role.appData.deassignLevel) {
+      // User is above role. Deassign or do nothing.
+      if (memberHasRole) {
+        await member.roles.remove(role).catch((e) => {
+          if (e.code !== 50013) throw e; // Missing Permissions
+        });
+        addRoleDeassignMessage(roleMessages, member, role, level);
       }
-
-      return resolve(roleMessages);
-    } catch (e) {
-      return reject(e);
+    } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
+      // User is within role. Assign or do nothing.
+      if (!memberHasRole) {
+        await member.roles.add(role).catch((e) => {
+          if (e.code !== 50013) throw e; // Missing Permissions
+        });
+        addRoleAssignMessage(roleMessages, member, role, level);
+      }
+    } else if (
+      member.guild.appData.takeAwayAssignedRolesOnLevelDown &&
+      role.appData.assignLevel != 0 &&
+      level < role.appData.assignLevel
+    ) {
+      // User is below role. Deassign or do nothing.
+      if (memberHasRole) {
+        await member.roles.remove(role).catch((e) => {
+          if (e.code !== 50013) throw e; // Missing Permissions
+        });
+        addRoleDeassignMessage(roleMessages, member, role, level);
+      }
     }
-  });
-};
+  }
+
+  return roleMessages;
+}
 
 const sendGratulationMessage = (member, roleMessages, level) => {
   return new Promise(async function (resolve, reject) {

@@ -1,4 +1,4 @@
-import resetModel from '../models/resetModel.js';
+import resetModel, { type ResetJob } from '../models/resetModel.js';
 import { logger } from '../util/logger.js';
 let jobIndex = 0;
 
@@ -27,7 +27,7 @@ export default async () => {
   }
 };
 
-const doResetJob = async (resetJob) => {
+const doResetJob = async (resetJob: ResetJob) => {
   try {
     let count = 0;
     if (!resetJob || !resetJob.cmdChannel || !resetJob.cmdChannel.guild) {

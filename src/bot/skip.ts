@@ -1,7 +1,7 @@
 import fct from '../util/fct.js';
 import { logger } from './util/logger.js';
 
-let warmup;
+let warmup: number;
 
 if (process.env.NODE_ENV == 'production') {
   warmup = 60;

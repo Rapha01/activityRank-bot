@@ -1,4 +1,3 @@
-import levelManager from '../levelManager.js';
 import fct from '../../util/fct.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
@@ -6,78 +5,63 @@ import guildModel from '../models/guild/guildModel.js';
 import skip from '../skip.js';
 import statFlushCache from '../statFlushCache.js';
 import noXpUtil from '../util/noXpUtil.js';
-import { ChannelType } from 'discord.js';
+import { ChannelType, type Guild, type Client } from 'discord.js';
 let minutesToAdd = 0,
   leftover = 0,
   round = 0;
 
-export default async (client) => {
-  return new Promise(async function (resolve, reject) {
+export default async (client: Client) => {
+  const roundStart = Date.now() / 1000;
+
+  for (const _guild of client.guilds.cache) {
+    const guild = _guild[1];
+
     try {
-      const roundStart = Date.now() / 1000;
+      await fct.sleep(200);
 
-      for (let guild of client.guilds.cache) {
-        guild = guild[1];
-
-        try {
-          await fct.sleep(200);
-
-          if (!skip(guild.id)) await rankVoiceGuild(guild);
-        } catch (err) {
-          client.logger.warn({ err, guild }, 'Error in voiceXpRound');
-        }
-      }
-
-      await fct.sleep(2000);
-
-      const roundEnd = Date.now() / 1000;
-      const secondsToAdd = roundEnd - roundStart + leftover;
-      minutesToAdd = Math.floor(secondsToAdd / 60);
-      leftover = Math.round(secondsToAdd % 60);
-
-      if (round % 5 == 0)
-        client.logger.debug(
-          `[Rank Voice] #${round.toString().padEnd(4)}: ${minutesToAdd} (${leftover
-            .toString()
-            .padEnd(2)})`,
-        );
-
-      round++;
-      resolve();
-    } catch (e) {
-      reject(e);
+      if (!skip(guild.id)) await rankVoiceGuild(guild);
+    } catch (err) {
+      client.logger.warn({ err, guild }, 'Error in voiceXpRound');
     }
-  });
+  }
+
+  await fct.sleep(2000);
+
+  const roundEnd = Date.now() / 1000;
+  const secondsToAdd = roundEnd - roundStart + leftover;
+  minutesToAdd = Math.floor(secondsToAdd / 60);
+  leftover = Math.round(secondsToAdd % 60);
+
+  if (round % 5 == 0)
+    client.logger.debug(
+      `[Rank Voice] #${round.toString().padEnd(4)}: ${minutesToAdd} (${leftover
+        .toString()
+        .padEnd(2)})`,
+    );
+
+  round++;
 };
 
 // existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1
-const rankVoiceGuild = (guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      await guildModel.cache.load(guild);
+const rankVoiceGuild = async (guild: Guild) => {
+  await guildModel.cache.load(guild);
 
-      if (!guild.appData.voiceXp) return resolve();
+  if (!guild.appData.voiceXp) return;
 
-      const voiceChannels = guild.channels.cache.filter(
-        (channel) => channel.type == ChannelType.GuildVoice,
-      );
+  const voiceChannels = guild.channels.cache.filter(
+    (channel) => channel.type == ChannelType.GuildVoice,
+  );
 
-      for (let channel of voiceChannels) {
-        channel = channel[1];
-        await guildChannelModel.cache.load(channel);
+  for (const _channel of voiceChannels) {
+    const channel = _channel[1];
+    await guildChannelModel.cache.load(channel);
 
-        if (
-          (await givesXp(channel)) &&
-          (guild.appData.allowSoloXp || existMultipleMembers(channel.members))
-        )
-          await rankVoiceChannel(channel);
-      }
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+    if (
+      (await givesXp(channel)) &&
+      (guild.appData.allowSoloXp || existMultipleMembers(channel.members))
+    )
+      await rankVoiceChannel(channel);
+  }
 };
 
 async function givesXp(channel) {

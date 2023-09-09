@@ -5,6 +5,7 @@ import resetJob from './resetJob.js';
 import fct from '../../util/fct.js';
 import config from '../../const/config.js';
 import util from 'util';
+import type { Client } from 'discord.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -13,10 +14,10 @@ const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
 const autoAssignPatreonRolesInterval = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
 const resetJobInterval = 3_000;
 
-export const start = (client) => {
+export const start = (client: Client) => {
   // Loops
   startVoiceXp(client);
-  startResetJob();
+  startResetJob(client);
 
   /*
   cron.schedule(logHighestGuildsInterval, async () => {
@@ -39,25 +40,33 @@ export const start = (client) => {
   cron.schedule(logShardDiagnostics, async () => {
     try {
       let str = '';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.options.presence.status + ' ';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.options.ws.presence.status + ' ';
       str += client.ws.status + ' ';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.ws.destroyed + ' ';
 
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.rest.requestManager.globalRemaining + ' ';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.rest.requestManager.hashTimer._destroyed + ' ';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.rest.requestManager.handlerTimer._destroyed + ' ';
 
       str += client.guilds.cache.size + ' ';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.presence.status + ' ';
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.presence.clientStatus + ' ';
 
+      // @ts-ignore FIXME: debug & works for now - fix later
       str += JSON.stringify(util.inspect(client.sweepers.threads)) + ' ';
 
       str += client.appData.botShardStat.commandsTotal + ' ';
       str += client.appData.botShardStat.textMessagesTotal + ' ';
 
-      //console.log(client);
       client.logger.debug('logShardDiagnostics: ' + str);
     } catch (e) {
       client.logger.warn(e, 'Error in logShardDiagnostics');
@@ -78,13 +87,13 @@ export const start = (client) => {
   }
 };
 
-const startVoiceXp = async (client) => {
+const startVoiceXp = async (client: Client) => {
   while (true) {
     await voiceXpRound(client).catch((e) => client.logger.warn(e, 'Error in voiceXpRound'));
   }
 };
 
-const startResetJob = async () => {
+const startResetJob = async (client: Client) => {
   while (true) {
     await resetJob().catch((e) => client.logger.warn(e, 'Error in resetJob'));
     await fct
@@ -93,11 +102,4 @@ const startResetJob = async () => {
   }
 };
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  start,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+export default { start };
