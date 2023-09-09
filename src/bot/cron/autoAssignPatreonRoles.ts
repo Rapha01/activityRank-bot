@@ -8,10 +8,9 @@ export default async (supportGuild) => {
   );
   const members = await supportGuild.members.fetch({ cache: false });
 
-  let myUser;
   for (let member of members) {
     member = member[1];
-    myUser = myUsers.find((u) => u.userId == member.user.id);
+    const myUser = myUsers.find((u) => u.userId == member.user.id);
 
     for (let patreonRole of config.supportServerPatreonRoles) {
       // Remove role, if user has role but no active tier was found
