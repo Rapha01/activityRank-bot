@@ -1,13 +1,8 @@
+import { ChannelType, type ThreadChannel } from 'discord.js';
+
 export default {
   name: 'threadCreate',
-  execute(thread) {
-    return new Promise(async function (resolve, reject) {
-      try {
-        if (thread.type == 'GUILD_PUBLIC_THREAD') thread.join();
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
-    });
+  async execute(thread: ThreadChannel) {
+    if (thread.type == ChannelType.PublicThread) thread.join();
   },
 };

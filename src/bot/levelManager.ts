@@ -25,7 +25,7 @@ export async function checkLevelUp(
 }
 
 export async function checkRoleAssignment(member: GuildMember, level: number) {
-  let roleMessages = [],
+  let roleMessages: string[] = [],
     memberHasRole;
   const roles = member.guild.roles.cache;
 
@@ -75,7 +75,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   return roleMessages;
 }
 
-const sendGratulationMessage = (member, roleMessages, level) => {
+const sendGratulationMessage = (member: GuildMember, roleMessages: string[], level: number) => {
   return new Promise(async function (resolve, reject) {
     let gratulationMessage = '';
 
