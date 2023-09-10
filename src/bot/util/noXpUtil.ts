@@ -1,40 +1,30 @@
+import type { GuildMember, VoiceBasedChannel } from 'discord.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 
-export const noVoiceXp = (member, channel) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      if (member.user.bot) return resolve(true);
+export const noVoiceXp = async (member: GuildMember, channel: VoiceBasedChannel) => {
+  if (member.user.bot) return true;
 
-      if (!member.guild.appData.allowMutedXp && member.voice.mute) return resolve(true);
+  if (!member.guild.appData.allowMutedXp && member.voice.mute) return true;
 
-      if (!member.guild.appData.allowDeafenedXp && member.voice.deaf) return resolve(true);
+  if (!member.guild.appData.allowDeafenedXp && member.voice.deaf) return true;
 
-      //console.log(member.voice.mute, member.voice.deaf);
+  //console.log(member.voice.mute, member.voice.deaf);
 
-      if (!member.guild.appData.allowSoloXp && channel.members.size < 2) return resolve(true);
+  if (!member.guild.appData.allowSoloXp && channel.members.size < 2) return true;
 
-      //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
-      //return resolve(true);
+  //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
+  //return resolve(true);
 
-      for (let role of member.roles.cache) {
-        role = role[1];
-        await guildRoleModel.cache.load(role);
+  for (const _role of member.roles.cache) {
+    const role = _role[1];
+    await guildRoleModel.cache.load(role);
 
-        if (role.appData.noXp) return resolve(true);
-      }
+    if (role.appData.noXp) return true;
+  }
 
-      return resolve(false);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  return false;
 };
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
 
 export default {
   noVoiceXp,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.

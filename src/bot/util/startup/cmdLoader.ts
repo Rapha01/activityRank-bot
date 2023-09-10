@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Collection } from 'discord.js';
+import { type Client, Collection } from 'discord.js';
 
-let files = [];
+let files: string[] = [];
 
 const botDir = fileURLToPath(new URL('../..', import.meta.url));
 const contextDir = path.join(botDir, 'contextMenus');
@@ -22,7 +22,7 @@ getRecursive(commandsDir);
 
 files = files.map((fileName) => fileName.replace(commandsDir + '/', ''));
 
-export default async (client) => {
+export default async (client: Client) => {
   client.commands = new Collection();
   client.adminCommands = new Collection();
 

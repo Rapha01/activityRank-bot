@@ -1,3 +1,4 @@
+import type { Client } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,7 +8,7 @@ const eventDir = path.join(botDir, 'events');
 
 const files = fs.readdirSync(eventDir).filter((file) => file.endsWith('.js'));
 
-export default async (client) => {
+export default async (client: Client) => {
   for (const file of files) {
     const { default: event } = await import(path.join(eventDir, file));
 
@@ -18,8 +19,8 @@ export default async (client) => {
     }
   }
 
-  function genHandler(name, execute) {
-    return async (...args) => {
+  function genHandler(name: string, execute: (...args: unknown[]) => unknown) {
+    return async (...args: any[]) => {
       try {
         await execute(...args);
       } catch (err) {

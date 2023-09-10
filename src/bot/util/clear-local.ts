@@ -1,10 +1,10 @@
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { Client, IntentsBitField } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { get as getKeys } from '../../const/keys.js';
 const { botId, botAuth } = getKeys();
 
-const client = new Client({ intents: [IntentsBitField.GUILDS] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 const main = async () => {
   await client.login(botAuth);
@@ -21,6 +21,8 @@ const main = async () => {
     console.log('');
   } catch (error) {
     console.error(error);
+  } finally {
+    client.destroy();
   }
 };
 main();
