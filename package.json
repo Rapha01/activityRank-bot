@@ -43,6 +43,7 @@
     "@swc/core": "^1.3.81",
     "@types/common-tags": "^1.8.2",
     "@types/node-cron": "^3.0.8",
+    "@types/node-emoji": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
     "eslint-config-prettier": "^8.10.0",

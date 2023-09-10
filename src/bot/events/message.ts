@@ -4,7 +4,7 @@ import guildRoleModel from '../models/guild/guildRoleModel.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
-import { MessageType, ChannelType } from 'discord.js';
+import { MessageType, ChannelType, Message } from 'discord.js';
 
 const acceptedChannelTypes = [
   ChannelType.GuildText,
@@ -15,13 +15,13 @@ const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
 export default {
   name: 'messageCreate',
-  async execute(msg) {
+  async execute(msg: Message) {
     if (
       msg.author.bot == true ||
       msg.system == true ||
       skip(msg.guildId) ||
       !acceptedMessageTypes.includes(msg.type) ||
-      !msg.guild
+      !msg.inGuild()
     )
       return;
 
@@ -36,7 +36,7 @@ export default {
   },
 };
 
-async function rankMessage(msg) {
+async function rankMessage(msg: Message<true>) {
   if (!msg.channel) return;
 
   const channel = msg.channel.type === ChannelType.PublicThread ? msg.channel.parent : msg.channel;
@@ -53,15 +53,15 @@ async function rankMessage(msg) {
 
   if (channel.appData.noXp) return;
 
-  const category = channel.parent;
+  const category = channel?.parent;
   if (category) {
     await guildChannelModel.cache.load(category);
     if (category.appData.noXp) return;
   }
 
   // Check noxp role
-  for (let role of msg.member.roles.cache) {
-    role = role[1];
+  for (const _role of msg.member.roles.cache) {
+    const role = _role[1];
     await guildRoleModel.cache.load(role);
 
     if (role.appData.noXp) return;
