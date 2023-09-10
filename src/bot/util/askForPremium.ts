@@ -1,19 +1,15 @@
 import userModel from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import cooldownUtil from './cooldownUtil.js';
-import { EmbedBuilder } from 'discord.js';
+import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
 
-let askForPremiumCdGuild, askForPremiumCdUser;
-if (process.env.NODE_ENV == 'production') {
-  askForPremiumCdGuild = 3600 * 0.4;
-  askForPremiumCdUser = 3600 * 6;
-} else {
-  askForPremiumCdGuild = 3600 * 0.4; // 20
-  askForPremiumCdUser = 3600 * 6; // 60
-}
+const isDev = process.env.NODE_ENV !== 'production';
 
-export default async function (interaction) {
+const askForPremiumCdGuild = isDev ? 3600 * 0.4 : 3600 * 0.4;
+const askForPremiumCdUser = isDev ? 3600 * 6 : 3600 * 6;
+
+export default async function (interaction: CommandInteraction<'cached'>) {
   if (
     cooldownUtil.getCachedCooldown(
       interaction.guild.appData,
@@ -43,7 +39,7 @@ export default async function (interaction) {
   );*/
 }
 
-async function sendAskForPremiumEmbed(interaction) {
+async function sendAskForPremiumEmbed(interaction: CommandInteraction<'cached'>) {
   const e = new EmbedBuilder()
     .setTitle('Thank you for using ActivityRank!')
     .setColor(0x00ae86)
@@ -52,9 +48,9 @@ async function sendAskForPremiumEmbed(interaction) {
   e.addFields({
     name: 'The maintenance and development of this bot depend on your support!',
     value: oneLine`${interaction.user}, please consider helping us by becoming a Patron. 
-      The Bot is mostly free! Activating Premium for you or your server can unlock some new 
+      The bot is mostly free! Activating Premium for you or your server can unlock some new 
       features and gives you quality of life upgrades, like reduced cooldowns on commands. 
-      Simply go to https://patreon.com/rapha01/ select your suiting tier and become a Patron **Thank you!**`,
+      Simply go to https://patreon.com/rapha01/ select your preferred tier and become a Patron. **Thank you!**`,
   });
 
   await interaction.followUp({ embeds: [e], ephemeral: true });
