@@ -2,7 +2,7 @@ import guildMemberModel from '../models/guild/guildMemberModel.js';
 import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
-import emoji from 'node-emoji';
+import { get as getEmoji } from 'node-emoji';
 import cooldownUtil from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
@@ -24,7 +24,7 @@ export default {
 
     if (!reaction.emoji.id) {
       if (
-        reaction._emoji.name != emoji.get(guild.appData.voteEmote) &&
+        reaction._emoji.name != getEmoji(guild.appData.voteEmote) &&
         reaction._emoji.name != guild.appData.voteEmote
       )
         return;
