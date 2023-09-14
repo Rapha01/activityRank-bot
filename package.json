@@ -26,6 +26,7 @@
     "@discordjs/rest": "^2.0.1",
     "@sapphire/duration": "^1.1.0",
     "@sapphire/snowflake": "^3.5.1",
+    "callsites": "^4.1.0",
     "common-tags": "^1.8.2",
     "discord.js": "^14.13.0",
     "kysely": "^0.26.3",
