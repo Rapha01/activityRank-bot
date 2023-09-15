@@ -2,7 +2,6 @@ FROM node:18 as base
 WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
 RUN npm ci
-# COPY src/ .swcrc ./
 COPY .swcrc ./
 
 FROM base as builder

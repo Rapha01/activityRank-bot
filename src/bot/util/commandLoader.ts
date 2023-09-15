@@ -231,7 +231,7 @@ export function registerContextMenu(meta: {
 
   contextMap.set(meta.data.name, meta.execute);
 
-  logger.debug(`Loaded admin command /${meta.data.name}`);
+  logger.debug(`Loaded context command [${meta.data.name}]`);
 }
 
 const botDir = fileURLToPath(new URL('..', import.meta.url));
