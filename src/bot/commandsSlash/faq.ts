@@ -1,20 +1,21 @@
+import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-export default {
+registerSlashCommand({
   data: new SlashCommandBuilder()
     .setName('faq')
     .setDescription('Displays the FAQ')
     .addIntegerOption((o) =>
       o.setName('number').setDescription('The specific FAQ to show').setAutocomplete(true),
     ),
-  async execute(i) {
-    const faq = i.options.getInteger('number');
-    const faqs = i.client.appData.texts.faqs;
+  execute: async function (interaction) {
+    const faq = interaction.options.getInteger('number');
+    const faqs = interaction.client.appData.texts.faqs;
 
-    if (!faq) return await i.reply({ embeds: [faqReducedEmbed(faqs)] });
+    if (!faq) return await interaction.reply({ embeds: [faqReducedEmbed(faqs)] });
 
     if (faq < 1 || faq > 100)
-      return await i.reply({
+      return await interaction.reply({
         content: 'The FAQ must be within 1 and 100.',
         ephemeral: true,
       });
@@ -37,19 +38,19 @@ export default {
       });
     }
 
-    await i.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   },
-  async autocomplete(i) {
-    let faqs = i.client.appData.texts.faqs;
-    const focused = i.options.getFocused();
+  executeAutocomplete: async function (interaction) {
+    let faqs = interaction.client.appData.texts.faqs;
+    const focused = interaction.options.getFocused();
     faqs = faqs.filter((faq) => faq.title.includes(focused) || focused.includes(faq.id));
 
     faqs = faqs.map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id }));
-    i.respond(faqs.slice(0, 20));
+    interaction.respond(faqs.slice(0, 20));
   },
-};
+});
 
-function faqReducedEmbed(faqs) {
+function faqReducedEmbed(faqs: { id: string; title: string }[]) {
   const embed = new EmbedBuilder().setTitle('**ActivityRank FAQ**').setColor(0x00ae86);
 
   if (faqs.length == 0) embed.setDescription('No FAQs to show!');

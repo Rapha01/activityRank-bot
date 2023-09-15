@@ -1,6 +1,3 @@
-// GENERATED: this file has been altered by `relative-named-imports`.
-// [GENERATED: relative-named-imports:v0]
-
 import {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -8,31 +5,30 @@ import {
   EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ComponentType,
+  MessageComponentInteraction,
 } from 'discord.js';
-
 import { stripIndent } from 'common-tags';
-// GENERATED: added extension to relative import
-// import { supportServerInviteLink } from '../../const/config';
 import { supportServerInviteLink } from '../../const/config.js';
+import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 
-export default {
+registerSlashCommand({
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Shows information for operating the bot'),
-  async execute(i) {
-    const helpEmbed = helpMainEmbed(i.guild, i.client.appData.texts.commands);
-    await i.reply({
+  execute: async function (interaction) {
+    const helpEmbed = helpMainEmbed(interaction.client.appData.texts.commands);
+    await interaction.reply({
       embeds: [helpEmbed],
       components: [
-        new ActionRowBuilder().addComponents(
+        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
           new StringSelectMenuBuilder()
-            .setCustomId(`help select ${i.user.id}`)
+            .setCustomId(`help select ${interaction.user.id}`)
             .setPlaceholder('Nothing selected')
             .addOptions(
               { label: 'Server Statistics', value: 'stats' },
               { label: 'Voting and Inviting', value: 'voting' },
               { label: 'Configuration Info', value: 'info' },
-              //{ label: 'Tokens', value: 'token' },
               { label: 'Personal Settings', value: 'mysettings' },
               { label: 'FAQ and Patchnotes', value: 'other' },
               { label: 'Server Settings', value: 'serverSettings' },
@@ -42,34 +38,59 @@ export default {
               { label: 'Resets', value: 'reset' },
             ),
         ),
-        new ActionRowBuilder().addComponents(
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId(`help closeMenu ${i.user.id}`)
+            .setCustomId(`help closeMenu ${interaction.user.id}`)
             .setLabel('Close')
             .setStyle(ButtonStyle.Danger),
         ),
       ],
     });
   },
-  async component(i) {
-    const [, type, memberId] = i.customId.split(' ');
-    if (memberId !== i.member.id)
-      return await i.reply({
-        content: "Sorry, this menu isn't for you.",
-        ephemeral: true,
-      });
-    if (type === 'closeMenu') {
-      await i.deferUpdate();
-      return await i.deleteReply();
-    } else if (type === 'select') {
-      let e = i.message.embeds[0];
-      e = helpFeatureEmbed(i.guild, i.client.appData.texts.commands[i.values[0]]);
-      i.update({ embeds: [e] });
-    }
-  },
-};
+});
 
-function helpMainEmbed(guild, sections) {
+async function checkUserId(id: string | undefined, interaction: MessageComponentInteraction) {
+  if (id !== interaction.user.id) {
+    await interaction.reply({
+      content: "Sorry, this menu isn't for you.",
+      ephemeral: true,
+    });
+    return true;
+  }
+  return false;
+}
+
+registerComponent({
+  identifier: 'help.sel',
+  type: ComponentType.StringSelect,
+  callback: async function (interaction, memberId) {
+    if (await checkUserId(memberId, interaction)) return;
+
+    let e = interaction.message.embeds[0].toJSON();
+    e = helpFeatureEmbed(interaction.client.appData.texts.commands[interaction.values[0]]).toJSON();
+    interaction.update({ embeds: [e] });
+  },
+});
+
+registerComponent({
+  identifier: 'help.cls',
+  type: ComponentType.Button,
+  callback: async function (interaction, memberId) {
+    if (await checkUserId(memberId, interaction)) return;
+
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+  },
+});
+
+interface HelpSection {
+  title: string;
+  desc: string;
+  subdesc: string;
+  subcommands: { title: string; example: string; desc: string; command: string }[];
+}
+
+function helpMainEmbed(sections: HelpSection[]) {
   const embed = new EmbedBuilder().setAuthor({ name: 'ActivityRank Manual' }).setColor(0x00ae86)
     .setDescription(stripIndent`
       **[Website](https://activityrank.me/commands)**
@@ -85,7 +106,7 @@ function helpMainEmbed(guild, sections) {
   return embed;
 }
 
-function helpFeatureEmbed(guild, section) {
+function helpFeatureEmbed(section: HelpSection) {
   const embed = new EmbedBuilder()
     .setColor(0x00ae86)
     .setTitle(`**Manual - ${section.title}**`)
