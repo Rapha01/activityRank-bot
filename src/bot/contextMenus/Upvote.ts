@@ -5,44 +5,43 @@ import guildMemberModel from '../models/guild/guildMemberModel.js';
 import userModel from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import cooldownUtil from '../util/cooldownUtil.js';
+import { registerContextMenu } from 'bot/util/commandLoader.js';
+import { ApplicationCommandType } from 'discord.js';
 
-export default {
-  data: new ContextMenuCommandBuilder()
-    .setName('Upvote')
-    // User
-    .setType(2),
-  async execute(i) {
-    if (!i.guild.appData.voteXp)
-      return await i.reply({
+registerContextMenu({
+  data: new ContextMenuCommandBuilder().setName('Upvote').setType(ApplicationCommandType.User),
+  execute: async function (interaction) {
+    if (!interaction.guild.appData.voteXp)
+      return await interaction.reply({
         content: 'Voting is disabled on this server.',
         ephemeral: true,
       });
 
-    const targetMember = await i.guild.members.fetch(i.targetId);
+    const targetMember = await interaction.guild.members.fetch(interaction.targetId);
 
     if (!targetMember)
-      return await i.reply({
+      return await interaction.reply({
         content: 'Could not find member.',
         ephemeral: true,
       });
 
-    await guildMemberModel.cache.load(i.member);
+    await guildMemberModel.cache.load(interaction.member);
     await guildMemberModel.cache.load(targetMember);
 
     if (targetMember.user.bot)
-      return await i.reply({
+      return await interaction.reply({
         content: 'You cannot upvote bots.',
         ephemeral: true,
       });
 
-    if (i.targetId == i.member.id)
-      return await i.reply({
+    if (interaction.targetId == interaction.member.id)
+      return await interaction.reply({
         content: 'You cannot upvote yourself.',
         ephemeral: true,
       });
 
     if (await fct.hasNoXpRole(targetMember)) {
-      return await i.reply({
+      return await interaction.reply({
         content:
           'The member you are trying to upvote cannot be upvoted, because of an assigned noxp role.',
         ephemeral: true,
@@ -50,19 +49,19 @@ export default {
     }
 
     // Get author multiplier
-    await userModel.cache.load(i.user);
-    const myUser = await userModel.storage.get(i.user);
+    await userModel.cache.load(interaction.user);
+    const myUser = await userModel.storage.get(interaction.user);
     const value = fct.getVoteMultiplier(myUser);
 
     // Check Command cooldown
     const toWait = cooldownUtil.getCachedCooldown(
-      i.member.appData,
+      interaction.member.appData,
       'lastVoteDate',
-      i.guild.appData.voteCooldownSeconds,
+      interaction.guild.appData.voteCooldownSeconds,
     );
 
     if (toWait > 0) {
-      return await i.reply({
+      return await interaction.reply({
         content: `You already voted recently. You will be able to vote again <t:${Math.ceil(
           toWait + Date.now() / 1000,
         )}:R>.`,
@@ -70,17 +69,17 @@ export default {
       });
     }
 
-    i.member.appData.lastVoteDate = Date.now() / 1000;
+    interaction.member.appData.lastVoteDate = Date.now() / 1000;
 
     await statFlushCache.addVote(targetMember, value);
 
     if (value > 1) {
-      await i.reply(
+      await interaction.reply(
         `You have successfully voted for ${targetMember}. Your vote counts \`${value}x\`.`,
       );
     } else {
-      await i.reply(oneLine`You have successfully voted for ${targetMember}. 
+      await interaction.reply(oneLine`You have successfully voted for ${targetMember}. 
         Upvote the bot on top.gg or subscribe on https://www.patreon.com/rapha01 to increase your voting power!`);
     }
   },
-};
+});
