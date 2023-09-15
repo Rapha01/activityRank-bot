@@ -2,9 +2,10 @@ import { Client, Options, GatewayIntentBits } from 'discord.js';
 import fct from '../util/fct.js';
 import settingModel from '../models/managerDb/settingModel.js';
 import textModel from '../models/managerDb/textModel.js';
-import load from './util/startup/index.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
+import loadEvents from './util/startup/eventLoader.js';
+import { loadCommandFiles } from './util/commandLoader.js';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -50,7 +51,8 @@ async function start() {
     client.logger.info('Logged in');
 
     try {
-      await load(client);
+      await loadCommandFiles();
+      await loadEvents(client);
     } catch (e) {
       client.logger.warn(e, 'Error while loading in shard');
       await fct.waitAndReboot(3_000);
