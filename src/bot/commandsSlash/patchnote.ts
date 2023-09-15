@@ -1,42 +1,41 @@
+import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-export const data = new SlashCommandBuilder()
-  .setName('patchnote')
-  .setDescription('Show patchnotes. Omit the version parameter to see a generalized list.')
-  .addStringOption((o) =>
-    o
-      .setName('version')
-      .setDescription('The specific version to show. Defaults to the latest version.')
-      .setAutocomplete(true),
-  );
+registerSlashCommand({
+  data: new SlashCommandBuilder()
+    .setName('patchnote')
+    .setDescription('Show patchnotes. Omit the version parameter to see a generalized list.')
+    .addStringOption((o) =>
+      o
+        .setName('version')
+        .setDescription('The specific version to show. Defaults to the latest version.')
+        .setAutocomplete(true),
+    ),
+  execute: async (interaction) => {
+    const version = interaction.options.getString('version');
+    const patchnotes = interaction.client.appData.texts.patchnotes;
+    const applicableVersions = patchnotes.map((o) => o.version);
+    applicableVersions.push('latest');
+    let e;
 
-export const execute = async (i) => {
-  const version = i.options.getString('version');
-  const patchnotes = i.client.appData.texts.patchnotes;
-  const applicableVersions = patchnotes.map((o) => o.version);
-  applicableVersions.push('latest');
-  let e;
+    if (!applicableVersions.includes(version) || !version) e = patchnotesMainEmbed(patchnotes);
+    else if (version == 'latest') e = patchnotesVersionEmbed(patchnotes[0]);
+    else e = patchnotesVersionEmbed(patchnotes.find((o) => o.version == version.toLowerCase()));
 
-  if (!applicableVersions.includes(version) || !version) e = patchnotesMainEmbed(patchnotes);
-  else if (version == 'latest') e = patchnotesVersionEmbed(patchnotes[0]);
-  else e = patchnotesVersionEmbed(patchnotes.find((o) => o.version == version.toLowerCase()));
+    await interaction.reply({ embeds: [e] });
+  },
+  executeAutocomplete: async (interaction) => {
+    let patchnoteVersions = interaction.client.appData.texts.patchnotes.map((o) => o.version);
+    const focused = interaction.options.getFocused().replace('v', '').replace('.', '');
 
-  await i.reply({
-    embeds: [e],
-  });
-};
+    patchnoteVersions = patchnoteVersions.filter((o) => o.replace('.', '').includes(focused));
 
-export const autocomplete = async (i) => {
-  let patchnoteVersions = i.client.appData.texts.patchnotes.map((o) => o.version);
-  const focused = i.options.getFocused().replace('v', '').replace('.', '');
+    patchnoteVersions.push('latest');
+    patchnoteVersions = patchnoteVersions.map((o) => ({ name: o, value: o }));
 
-  patchnoteVersions = patchnoteVersions.filter((o) => o.replace('.', '').includes(focused));
-
-  patchnoteVersions.push('latest');
-  patchnoteVersions = patchnoteVersions.map((o) => ({ name: o, value: o }));
-
-  i.respond(patchnoteVersions);
-};
+    interaction.respond(patchnoteVersions);
+  },
+});
 
 function patchnotesMainEmbed(patchnotes) {
   const embed = new EmbedBuilder()
@@ -65,14 +64,3 @@ function patchnotesVersionEmbed(patchnote) {
 
   return embed;
 }
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  data,
-  execute,
-  autocomplete,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.

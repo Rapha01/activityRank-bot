@@ -81,7 +81,9 @@ export default {
       }
 
       if (interaction.isMessageComponent()) {
-        const ref = componentMap.get(interaction.customId.split(' ')[0]);
+        const key = interaction.customId.split(' ')[0];
+        if (key === '__null__') return;
+        const ref = componentMap.get(key);
         if (ref) {
           // Typescript is weird and hard :(
           // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172

@@ -1,63 +1,54 @@
-// GENERATED: this file has been altered by `relative-named-imports`.
-// [GENERATED: relative-named-imports:v0]
-
+import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-// GENERATED: added extension to relative import
-// import commands from '../temp/const/commands';
 import { createRequire } from 'node:module';
-const commands = createRequire(import.meta.url)('../temp/const/commands.json');
+const commands: { old: string; desc: string; new: string }[] = createRequire(import.meta.url)(
+  '../temp/const/commands.json',
+);
 
-export const data = new SlashCommandBuilder()
-  .setName('migrate')
-  .setDescription('Look up the new equivalent of a command!')
-  .addStringOption((o) =>
-    o
-      .setName('command')
-      .setDescription('The command to look up')
-      .setRequired(true)
-      .setAutocomplete(true),
-  );
+registerSlashCommand({
+  data: new SlashCommandBuilder()
+    .setName('migrate')
+    .setDescription('Look up the new equivalent of a command!')
+    .addStringOption((o) =>
+      o
+        .setName('command')
+        .setDescription('The command to look up')
+        .setRequired(true)
+        .setAutocomplete(true),
+    ),
+  execute: async function (i) {
+    const opt = i.options.getString('command')!.trim();
+    let cmd = null;
+    cmd = commands.find((o) => o.old === opt);
 
-export const execute = async function (i) {
-  const opt = i.options.getString('command').trim();
-  let cmd = null;
-  cmd = commands.find((o) => o.old === opt);
-
-  if (!cmd) {
-    return await i.reply({
-      content:
-        "Could not find this command! Be sure you've selected one of the autocomplete options.",
-      ephemeral: true,
+    if (!cmd) {
+      return await i.reply({
+        content:
+          "Could not find this command! Be sure you've selected one of the autocomplete options.",
+        ephemeral: true,
+      });
+    }
+    await i.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setAuthor({ name: 'ar!' + cmd.old })
+          .addFields(
+            { name: 'Description', value: cmd.desc },
+            { name: 'Replacement', value: cmd.new },
+          )
+          .setColor(0x00ae86),
+      ],
     });
-  }
-  await i.reply({
-    embeds: [
-      new EmbedBuilder()
-        .setAuthor({ name: 'ar!' + cmd.old })
-        .addFields(
-          { name: 'Description', value: cmd.desc },
-          { name: 'Replacement', value: cmd.new },
-        )
-        .setColor(0x00ae86),
-    ],
-  });
-};
+  },
+  executeAutocomplete: async function (i) {
+    let cmds = commands.map((o) => o.old.trim());
+    const focused = i.options.getFocused().trim().replace('ar!', '');
 
-export const autocomplete = async function (i) {
-  let cmds = commands.map((o) => o.old.trim());
-  const focused = i.options.getFocused().trim().replace('ar!', '');
-  cmds = cmds.filter((o) => o.includes(focused));
-  cmds = cmds.map((o) => ({ name: 'ar!' + o, value: o }));
-  i.respond(cmds.slice(0, 25));
-};
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  data,
-  execute,
-  autocomplete,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+    i.respond(
+      cmds
+        .filter((o) => o.includes(focused))
+        .map((o) => ({ name: `ar!${o}`, value: o }))
+        .slice(0, 25),
+    );
+  },
+});
