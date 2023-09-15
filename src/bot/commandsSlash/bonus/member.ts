@@ -1,31 +1,29 @@
 import { PermissionFlagsBits } from 'discord.js';
 import guildMemberModel from '../../models/guild/guildMemberModel.js';
 import statFlushCache from '../../statFlushCache.js';
+import { registerSubCommand } from 'bot/util/commandLoader.js';
 
-export const execute = async (i) => {
-  const member = i.options.getMember('member');
-  await guildMemberModel.cache.load(member);
-  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
-    return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
-      ephemeral: true,
+registerSubCommand({
+  name: 'member',
+  execute: async (interaction) => {
+    const member = interaction.options.getMember('member')!;
+    await guildMemberModel.cache.load(member);
+    if (
+      !interaction.channel ||
+      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
+    ) {
+      return await interaction.reply({
+        content: 'You need the permission to manage the server in order to use this command.',
+        ephemeral: true,
+      });
+    }
+
+    const change = interaction.options.getInteger('change', true);
+
+    await statFlushCache.addBonus(member, change);
+    await interaction.reply({
+      content: `Successfully gave \`${change}\` bonus XP to ${member}!`,
+      allowedMentions: { parse: [] },
     });
-  }
-
-  const change = i.options.getInteger('change', true);
-
-  await statFlushCache.addBonus(member, change);
-  await i.reply({
-    content: `Successfully gave \`${change}\` bonus XP to ${member}!`,
-    allowedMentions: { parse: [] },
-  });
-};
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  execute,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+  },
+});
