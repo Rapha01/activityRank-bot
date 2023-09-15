@@ -82,15 +82,17 @@ export default {
 
       if (interaction.isMessageComponent()) {
         const ref = componentMap.get(interaction.customId.split(' ')[0]);
-        // Typescript is weird and hard :(
-        // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172
-        // @ts-expect-error
-        if (ref) await ref.callback(interaction);
-        else
+        if (ref) {
+          // Typescript is weird and hard :(
+          // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172
+          // @ts-expect-error
+          await ref.callback(interaction, interaction.customId.split(' ').slice(1).join(' '));
+        } else {
           logger.warn(
             interaction,
             `No component found in map for interaction with customId ${interaction.customId}`,
           );
+        }
       } else if (interaction.isModalSubmit()) {
         const ref = modalMap.get(interaction.customId.split(' ')[0]);
         if (ref) await ref.callback(interaction);

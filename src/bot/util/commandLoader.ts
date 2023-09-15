@@ -13,17 +13,18 @@ import type {
   ChannelSelectMenuInteraction,
   UserSelectMenuInteraction,
   MentionableSelectMenuInteraction,
+  Interaction,
 } from 'discord.js';
 import {
   SlashCommandBuilder,
   ContextMenuCommandBuilder,
   ApplicationCommandOptionType,
 } from 'discord.js';
-import { readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import logger from '../../util/logger.js';
 import type { PrivilegeLevel } from 'const/privilegeLevels.js';
+import { glob } from 'glob';
 
 interface CommandExecutables {
   execute?: CommandFunc;
@@ -36,19 +37,23 @@ export const componentMap = new Map<string, Omit<ComponentRegisterData, 'identif
 export const contextMap = new Map<string, ContextFunc>();
 
 export type CommandFunc = (interaction: ChatInputCommandInteraction<'cached'>) => Promise<unknown>;
-export type ContextFunc = (interaction: ContextMenuCommandInteraction) => Promise<unknown>;
+export type ContextFunc = (
+  interaction: ContextMenuCommandInteraction<'cached'>,
+) => Promise<unknown>;
 export type AutocompleteFunc = (interaction: AutocompleteInteraction<'cached'>) => Promise<unknown>;
 
 export function registerSubCommand(
   meta: {
-    name: string;
-    group?: string; // the subcommandGroup it belongs to, if any
+    name?: string; // the subcommand's name. Inferred from file path if possible.
+    group?: string; // the subcommandGroup it belongs to, if any. cannot be inferred atm.
     command?: string; // the command it belongs to. Inferred from file path if possible.
   } & Omit<CommandExecutables, 'executeAutocomplete'>,
 ) {
   let originFile = callsites()?.[1]?.getFileName();
   if (originFile) originFile = fileURLToPath(originFile);
+
   const command = meta.command || (originFile && path.basename(path.dirname(originFile)));
+  const name = meta.name || (originFile && path.basename(originFile, '.js'));
 
   if (!command) {
     logger.warn(
@@ -57,8 +62,15 @@ export function registerSubCommand(
     );
     return;
   }
+  if (!name) {
+    logger.warn(
+      { stack: callsites().map((i) => i.getFileName) },
+      `Cannot find subcommand name for subcommand imported from ${originFile}`,
+    );
+    return;
+  }
 
-  const commandId = [command, meta.group, meta.name].filter(Boolean);
+  const commandId = [command, meta.group, name].filter(Boolean);
   commandMap.set(commandId.join('.'), { execute: meta.execute });
   logger.debug(`Loaded subcommand /${commandId.join(' ')}`);
 }
@@ -136,43 +148,25 @@ export function registerSlashCommand(
   logger.debug(`Loaded command /${meta.data.name}`);
 }
 
-type ComponentCallback<T> = (interaction: T) => Promise<void> | void;
+type ComponentCallback<T> = (interaction: T, data?: string) => Promise<void> | void;
 
-interface BaseComponent {
+interface Component<I extends Interaction<'cached'>> {
   identifier: string;
+  callback: ComponentCallback<I>;
 }
 
-interface ButtonComponent extends BaseComponent {
-  type: ComponentType.Button;
-  callback: ComponentCallback<ButtonInteraction<'cached'>>;
+interface NonModalComponent<T extends ComponentType, I extends Interaction<'cached'>>
+  extends Component<I> {
+  type: T;
 }
-interface StringSelectComponent extends BaseComponent {
-  type: ComponentType.StringSelect;
-  callback: ComponentCallback<StringSelectMenuInteraction<'cached'>>;
-}
-interface RoleSelectComponent extends BaseComponent {
-  type: ComponentType.RoleSelect;
-  callback: ComponentCallback<RoleSelectMenuInteraction<'cached'>>;
-}
-interface ChannelSelectComponent extends BaseComponent {
-  type: ComponentType.ChannelSelect;
-  callback: ComponentCallback<ChannelSelectMenuInteraction<'cached'>>;
-}
-interface UserSelectComponent extends BaseComponent {
-  type: ComponentType.UserSelect;
-  callback: ComponentCallback<UserSelectMenuInteraction<'cached'>>;
-}
-interface MentionableSelectComponent extends BaseComponent {
-  type: ComponentType.MentionableSelect;
-  callback: ComponentCallback<MentionableSelectMenuInteraction<'cached'>>;
-}
+
 type ComponentRegisterData =
-  | ButtonComponent
-  | StringSelectComponent
-  | RoleSelectComponent
-  | ChannelSelectComponent
-  | UserSelectComponent
-  | MentionableSelectComponent;
+  | NonModalComponent<ComponentType.Button, ButtonInteraction<'cached'>>
+  | NonModalComponent<ComponentType.StringSelect, StringSelectMenuInteraction<'cached'>>
+  | NonModalComponent<ComponentType.RoleSelect, RoleSelectMenuInteraction<'cached'>>
+  | NonModalComponent<ComponentType.ChannelSelect, ChannelSelectMenuInteraction<'cached'>>
+  | NonModalComponent<ComponentType.UserSelect, UserSelectMenuInteraction<'cached'>>
+  | NonModalComponent<ComponentType.MentionableSelect, MentionableSelectMenuInteraction<'cached'>>;
 
 function customIdBuilder(identifier: string) {
   function makeCustomId(data: string) {
@@ -187,16 +181,17 @@ function customIdBuilder(identifier: string) {
 export function registerComponent(meta: ComponentRegisterData) {
   if (meta.identifier.includes(' ')) throw new Error('Component IDs cannot contain spaces.');
 
-  componentMap.set(meta.identifier, { callback: meta.callback, type: meta.type });
+  componentMap.set(meta.identifier, {
+    callback: meta.callback,
+    type: meta.type,
+  });
 
   logger.debug(`Loaded component ${meta.identifier}`);
 
   return customIdBuilder(meta.identifier);
 }
 
-interface ModalRegisterData extends BaseComponent {
-  callback: ComponentCallback<ModalSubmitInteraction<'cached'>>;
-}
+type ModalRegisterData = Component<ModalSubmitInteraction<'cached'>>;
 
 export function registerModal(meta: ModalRegisterData) {
   if (meta.identifier.includes(' ')) throw new Error('Modal Component IDs cannot contain spaces.');
@@ -244,38 +239,19 @@ const commandsDir = path.join(botDir, 'commandsSlash');
 const adminDir = path.join(botDir, 'commandsAdmin');
 const contextDir = path.join(botDir, 'contextMenus');
 
-async function loadCommandFiles() {
-  const commandFiles = await readdir(commandsDir, { withFileTypes: true });
+export async function loadCommandFiles() {
+  const commandFiles = await glob(`${commandsDir}/*.js`);
 
-  const subcommandFiles = (
-    await Promise.all(
-      commandFiles.filter((file) => file.isDirectory).map((dir) => readdir(dir.path)),
-    )
-  ).flat();
+  // all files nested at least one folder below commandsdir
+  const subcommandFiles = await glob(`${commandsDir}/*/**/*.js`);
 
-  await Promise.all(
-    subcommandFiles
-      .filter((file) => file.endsWith('.js'))
-      .map(async (file) => await import(path.join(commandsDir, file))),
-  );
+  await Promise.all(subcommandFiles.map(async (file) => await import(file)));
 
-  await Promise.all(
-    commandFiles
-      .filter((file) => file.isFile() && file.name.endsWith('.js'))
-      .map(async (file) => await import(path.join(commandsDir, file.name))),
-  );
+  await Promise.all(commandFiles.map(async (file) => await import(file)));
 
-  const contextMenuFiles = await readdir(contextDir);
-  await Promise.all(
-    contextMenuFiles
-      .filter((file) => file.endsWith('.js'))
-      .map(async (file) => await import(path.join(contextDir, file))),
-  );
+  const contextMenuFiles = await glob(`${contextDir}/*.js`);
+  await Promise.all(contextMenuFiles.map(async (file) => await import(file)));
 
-  const adminFiles = await readdir(adminDir);
-  await Promise.all(
-    adminFiles
-      .filter((file) => file.endsWith('.js'))
-      .map(async (file) => await import(path.join(adminDir, file))),
-  );
+  const adminFiles = await glob(`${adminDir}/*.js`);
+  await Promise.all(adminFiles.map(async (file) => await import(file)));
 }
