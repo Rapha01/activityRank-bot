@@ -184,7 +184,9 @@ function customIdBuilder<D>(identifier: string) {
   return makeCustomId;
 }
 
-export function registerComponent<D = string | undefined | void>(meta: ComponentRegisterData<D>) {
+export function registerComponent<D = string | undefined | null | void>(
+  meta: ComponentRegisterData<D>,
+) {
   if (meta.identifier.includes(' ')) throw new Error('Component IDs cannot contain spaces.');
 
   componentMap.set(meta.identifier, {

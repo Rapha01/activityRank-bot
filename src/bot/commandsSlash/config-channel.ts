@@ -1,6 +1,3 @@
-// GENERATED: this file has been altered by `relative-named-imports`.
-// [GENERATED: relative-named-imports:v0]
-
 import {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -9,28 +6,68 @@ import {
   ButtonStyle,
   ChannelType,
   PermissionFlagsBits,
+  ComponentType,
+  type Interaction,
 } from 'discord.js';
 
 import { oneLine, stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildModel from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
-// GENERATED: added extension to relative import
-// import { parseChannel } from '../util/parser';
 import { parseChannel } from '../util/parser.js';
+import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 
-export const data = new SlashCommandBuilder()
-  .setName('config-channel')
-  .setDescription("Change a channel's settings!")
-  .addChannelOption((o) =>
-    o
-      .setName('channel')
-      .setDescription('The channel to modify')
-      .addChannelTypes(ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildForum),
-  )
-  .addStringOption((o) => o.setName('id').setDescription('The ID of the channel to modify'));
+type Setting =
+  | 'noXp'
+  | 'noCommand'
+  | 'commandOnlyChannel'
+  | 'autopost_serverJoin'
+  | 'autopost_levelup';
 
-const generateRow = (i, id, type, myChannel) => {
+const componentId = registerComponent<{
+  channelId: string;
+  type: ChannelType | null;
+  setting: Setting;
+}>({
+  identifier: 'config-channel.set',
+  type: ComponentType.Button,
+  callback: async function (interaction, data) {
+    const { channelId, type, setting } = data;
+
+    // const [, memberId, channelId, channelType, type] = interaction.customId.split(' ');
+
+    let myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
+
+    if (setting === 'noXp' || setting === 'noCommand') {
+      if (myChannel[setting])
+        await guildChannelModel.storage.set(interaction.guild, channelId, setting, 0);
+      else await guildChannelModel.storage.set(interaction.guild, channelId, setting, 1);
+
+      myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
+    } else {
+      if (interaction.guild.appData[setting] == channelId)
+        await guildModel.storage.set(interaction.guild, setting, 0);
+      else await guildModel.storage.set(interaction.guild, setting, channelId);
+    }
+
+    await interaction.update({
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          generateRow(interaction, channelId, type, myChannel),
+        ),
+        _close(interaction.user.id),
+      ],
+    });
+  },
+});
+
+const generateRow = (
+  interaction: Interaction<'cached'>,
+  channelId: string,
+  type: ChannelType | null,
+  myChannel,
+) => {
+  const ownerId = interaction.user.id;
   const r = [
     new ButtonBuilder().setLabel('No XP'),
     new ButtonBuilder().setLabel('No Commands'),
@@ -38,144 +75,142 @@ const generateRow = (i, id, type, myChannel) => {
     new ButtonBuilder().setLabel('Server Join Channel'),
     new ButtonBuilder().setLabel('Levelup Channel'),
   ];
-  r[0].setCustomId(`config-channel ${i.member.id} ${id} ${type} noXp`);
+  // r[0].setCustomId(`config-channel ${i.member.id} ${id} ${type} noXp`);
+  function disableIfNotText(builder: ButtonBuilder) {
+    if (type !== ChannelType.GuildText) {
+      builder.setDisabled(true);
+      builder.setStyle(ButtonStyle.Secondary);
+    }
+  }
+
+  function getStyleFromEquivalence(check?: string) {
+    return check === channelId ? ButtonStyle.Success : ButtonStyle.Danger;
+  }
+
+  r[0].setCustomId(componentId({ channelId, type, setting: 'noXp' }, { ownerId }));
   r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  r[1].setCustomId(`config-channel ${i.member.id} ${id} ${type} noCommand`);
-  r[1].setDisabled(Boolean(parseInt(i.guild.appData.commandOnlyChannel)));
+  r[1].setCustomId(componentId({ channelId, type, setting: 'noCommand' }, { ownerId }));
+  r[1].setDisabled(Boolean(parseInt(interaction.guild.appData.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
-  r[1].setDisabled(parseInt(type) !== ChannelType.GuildText);
-  if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
+  // r[1].setDisabled(type !== ChannelType.GuildText);
+  // if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
-  r[2].setCustomId(`config-channel ${i.member.id} ${id} ${type} commandOnlyChannel`);
-  r[2].setDisabled(parseInt(type) !== ChannelType.GuildText);
-  r[2].setStyle(
-    i.guild.appData.commandOnlyChannel == id ? ButtonStyle.Success : ButtonStyle.Danger,
-  );
-  if (r[2].disabled) r[2].setStyle(ButtonStyle.Secondary);
+  r[2].setCustomId(componentId({ channelId, type, setting: 'commandOnlyChannel' }, { ownerId }));
+  r[2].setStyle(getStyleFromEquivalence(interaction.guild.appData.commandOnlyChannel));
+  // r[2].setStyle(i.guild.appData.commandOnlyChannel === channelId ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  r[3].setCustomId(`config-channel ${i.member.id} ${id} ${type} autopost_serverJoin`);
-  r[3].setDisabled(parseInt(type) !== ChannelType.GuildText);
-  r[3].setStyle(
-    i.guild.appData.autopost_serverJoin == id ? ButtonStyle.Success : ButtonStyle.Danger,
-  );
-  if (r[3].disabled) r[3].setStyle(ButtonStyle.Secondary);
+  r[3].setCustomId(componentId({ channelId, type, setting: 'autopost_serverJoin' }, { ownerId }));
+  r[3].setStyle(getStyleFromEquivalence(interaction.guild.appData.autopost_serverJoin));
 
-  r[4].setCustomId(`config-channel ${i.member.id} ${id} ${type} autopost_levelup`);
-  r[4].setDisabled(parseInt(type) !== ChannelType.GuildText);
-  r[4].setStyle(i.guild.appData.autopost_levelup == id ? ButtonStyle.Success : ButtonStyle.Danger);
-  if (r[4].disabled) r[4].setStyle(ButtonStyle.Secondary);
+  r[4].setCustomId(componentId({ channelId, type, setting: 'autopost_levelup' }, { ownerId }));
+  r[4].setStyle(getStyleFromEquivalence(interaction.guild.appData.autopost_levelup));
+
+  disableIfNotText(r[1]);
+  disableIfNotText(r[2]);
+  disableIfNotText(r[3]);
+  disableIfNotText(r[4]);
 
   return r;
 };
 
-const _close = (i) =>
-  new ActionRowBuilder().addComponents(
+const closeId = registerComponent({
+  identifier: 'config-channel.cls',
+  type: ComponentType.Button,
+  callback: async function (interaction) {
+    await interaction.deferUpdate();
+    return await interaction.deleteReply();
+  },
+});
+
+const _close = (ownerId: string) =>
+  new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-channel ${i.member.id} - - closeMenu`),
+      .setCustomId(closeId(null, { ownerId })),
   );
 
-export const execute = async (i) => {
-  const resolvedChannel = await parseChannel(i);
+registerSlashCommand({
+  data: new SlashCommandBuilder()
+    .setName('config-channel')
+    .setDescription("Change a channel's settings!")
+    .addChannelOption((o) =>
+      o
+        .setName('channel')
+        .setDescription('The channel to modify')
+        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildForum),
+    )
+    .addStringOption((o) => o.setName('id').setDescription('The ID of the channel to modify')),
+  execute: async function (interaction) {
+    const resolvedChannel = await parseChannel(interaction);
 
-  if (!resolvedChannel) {
-    return await i.reply({
-      content: "You need to specify either a channel or a channel's ID!",
-      ephemeral: true,
-    });
-  }
+    if (!resolvedChannel) {
+      return await interaction.reply({
+        content: "You need to specify either a channel or a channel's ID!",
+        ephemeral: true,
+      });
+    }
 
-  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
-    return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
-      ephemeral: true,
-    });
-  }
+    if (
+      !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
+    ) {
+      return await interaction.reply({
+        content: 'You need the permission to manage the server in order to use this command.',
+        ephemeral: true,
+      });
+    }
 
-  const myChannel = await guildChannelModel.storage.get(i.guild, resolvedChannel.id);
+    const myChannel = await guildChannelModel.storage.get(interaction.guild, resolvedChannel.id);
 
-  const e = new EmbedBuilder()
-    .setAuthor({ name: 'Channel Settings' })
-    .setDescription(nameUtil.getChannelMention(i.guild.channels.cache, resolvedChannel.id))
-    .setColor(0x00ae86)
-    .addFields({
-      name: 'No XP',
-      value: 'If this is enabled, no xp will be given in this channel.',
-    });
+    const e = new EmbedBuilder()
+      .setAuthor({ name: 'Channel Settings' })
+      .setDescription(
+        nameUtil.getChannelMention(interaction.guild.channels.cache, resolvedChannel.id),
+      )
+      .setColor(0x00ae86)
+      .addFields({
+        name: 'No XP',
+        value: 'If this is enabled, no xp will be given in this channel.',
+      });
 
-  if (
-    !resolvedChannel.channel ||
-    [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.channel.type)
-  ) {
-    e.addFields({
-      name: 'No Commands',
-      value: stripIndent`If this is enabled, commands will not work in this channel.
-    **Note:** It is recommended to use the Discord native system in \`Server Settings -> Integrations -> ActivityRank\`.`,
-    });
-    e.addFields({
-      name: 'Command Only',
-      value: oneLine`If this is enabled, this will be the **only channel commands will work in**,
-        unless you have the \`manage server\` permission.`,
-    });
-    e.addFields({
-      name: 'Server Join Channel',
-      value: 'If this is enabled, server join messages will be sent to this channel.',
-    });
-    e.addFields({
-      name: 'Levelup Channel',
-      value: 'If this is enabled, levelup messages will be sent to this channel.',
-    });
-  }
+    if (
+      !resolvedChannel.channel ||
+      [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.channel.type)
+    ) {
+      e.addFields({
+        name: 'No Commands',
+        value: stripIndent`If this is enabled, commands will not work in this channel.
+      **Note:** It is recommended to use the Discord native system in \`Server Settings -> Integrations -> ActivityRank\`.`,
+      });
+      e.addFields({
+        name: 'Command Only',
+        value: oneLine`If this is enabled, this will be the **only channel commands will work in**,
+          unless you have the \`manage server\` permission.`,
+      });
+      e.addFields({
+        name: 'Server Join Channel',
+        value: 'If this is enabled, server join messages will be sent to this channel.',
+      });
+      e.addFields({
+        name: 'Levelup Channel',
+        value: 'If this is enabled, levelup messages will be sent to this channel.',
+      });
+    }
 
-  await i.reply({
-    embeds: [e],
-    components: [
-      new ActionRowBuilder().addComponents(
-        generateRow(
-          i,
-          resolvedChannel.id,
-          resolvedChannel.channel ? resolvedChannel.channel.type.toString() : '0',
-          myChannel,
+    await interaction.reply({
+      embeds: [e],
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          generateRow(
+            interaction,
+            resolvedChannel.id,
+            resolvedChannel.channel ? resolvedChannel.channel.type : null,
+            myChannel,
+          ),
         ),
-      ),
-      _close(i),
-    ],
-  });
-};
-
-export const component = async (i) => {
-  const [, memberId, channelId, channelType, type] = i.customId.split(' ');
-
-  if (memberId !== i.member.id)
-    return await i.reply({
-      content: "Sorry, this menu isn't for you.",
-      ephemeral: true,
+        _close(interaction.user.id),
+      ],
     });
-
-  if (type === 'closeMenu') {
-    await i.deferUpdate();
-    return await i.deleteReply();
-  }
-
-  let myChannel = await guildChannelModel.storage.get(i.guild, channelId);
-
-  if (['noXp', 'noCommand'].includes(type)) {
-    if (myChannel[type]) await guildChannelModel.storage.set(i.guild, channelId, type, 0);
-    else await guildChannelModel.storage.set(i.guild, channelId, type, 1);
-
-    myChannel = await guildChannelModel.storage.get(i.guild, channelId);
-  } else {
-    // eslint-disable-next-line no-lonely-if
-    if (i.guild.appData[type] == channelId) await guildModel.storage.set(i.guild, type, 0);
-    else await guildModel.storage.set(i.guild, type, channelId);
-  }
-
-  await i.update({
-    components: [
-      new ActionRowBuilder().addComponents(generateRow(i, channelId, channelType, myChannel)),
-      _close(i),
-    ],
-  });
-};
+  },
+});
