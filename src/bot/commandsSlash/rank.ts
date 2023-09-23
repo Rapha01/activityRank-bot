@@ -6,97 +6,150 @@ import {
   ButtonStyle,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  RESTJSONErrorCodes,
+  ComponentType,
+  type Guild,
+  type User,
+  type ChatInputCommandInteraction,
+  type DiscordAPIError,
+  type MessageComponentInteraction,
 } from 'discord.js';
 
 import cooldownUtil from '../util/cooldownUtil.js';
-import guildModel from '../models/guild/guildModel.js';
+import guildModel, { type CachedGuildStore } from '../models/guild/guildModel.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import rankModel from '../models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import userModel from '../models/userModel.js';
+import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
+
+type MyGuild = CachedGuildStore; // temp
+
+type TimeInterval = 'Alltime' | 'Year' | 'Month' | 'Week' | 'Day';
+
+interface CacheInstance {
+  window: 'rank' | 'topChannels';
+  time: TimeInterval;
+  owner: string;
+  targetUser: User;
+  page: number;
+  interaction: ChatInputCommandInteraction<'cached'>;
+}
 
 export const activeCache = new Map();
 
-export const data = new SlashCommandBuilder()
-  .setName('rank')
-  .setDescription("Find your or another member's rank")
-  .addUserOption((o) => o.setName('member').setDescription('The member to check the rank of'));
+registerSlashCommand({
+  data: new SlashCommandBuilder()
+    .setName('rank')
+    .setDescription("Find your or another member's rank")
+    .addUserOption((o) => o.setName('member').setDescription('The member to check the rank of')),
+  execute: async function (i) {
+    await i.deferReply();
 
-export const execute = async (i) => {
-  await i.deferReply();
+    await guildMemberModel.cache.load(i.member);
 
-  await guildMemberModel.cache.load(i.member);
+    if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
-  if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
+    const myGuild = await guildModel.storage.get(i.guild);
 
-  const myGuild = await guildModel.storage.get(i.guild);
+    const targetUser = i.options.getUser('member') ?? i.user;
 
-  const targetUser = i.options.getUser('member') ?? i.user;
+    await userModel.cache.load(targetUser);
 
-  await userModel.cache.load(targetUser);
+    const initialState: CacheInstance = {
+      window: 'rank',
+      time: 'Alltime',
+      owner: i.member.id,
+      targetUser,
+      page: 1,
+      interaction: i,
+    };
 
-  const initialState = {
-    window: 'rank',
-    time: 'Alltime',
-    owner: i.member.id,
-    targetUser,
-    page: 1,
-    interaction: i,
-  };
+    const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild));
 
-  const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild));
+    const cleanCache = async () => {
+      const state = activeCache.get(id);
+      activeCache.delete(id);
+      if (!i.guild) return i.client.logger.debug({ i }, '/rank tried to update uncached guild');
+      try {
+        await i.editReply(await generateCard(state, i.guild, myGuild, true));
+      } catch (_err) {
+        const err = _err as DiscordAPIError;
+        if (err.code === RESTJSONErrorCodes.UnknownMessage)
+          i.client.logger.debug({ i }, '/rank tried to update Unknown message');
+        else throw err;
+      }
+    };
+    setTimeout(cleanCache, 5 * 60 * 1_000);
 
-  const cleanCache = async () => {
-    const state = activeCache.get(id);
-    activeCache.delete(id);
-    if (!i.guild) return i.client.logger.debug({ i }, '/rank tried to update uncached guild');
-    try {
-      await i.editReply(await generateCard(state, i.guild, myGuild, true));
-    } catch (err) {
-      if (err.code === 10008)
-        // Unknown Message
-        i.client.logger.debug({ i }, '/rank tried to update Unknown message');
-      else throw err;
-    }
-  };
-  setTimeout(cleanCache, 5 * 60 * 1_000);
+    activeCache.set(id, initialState);
+  },
+});
 
-  che.set(id, initialState);
-};
+const pageId = registerComponent<{ page: number }>({
+  identifier: 'rank.page',
+  type: ComponentType.Button,
+  async callback(interaction, data) {
+    await execCacheSet(interaction, 'page', data.page);
+  },
+});
 
-export const component = async (i) => {
-  const action = i.customId.split(' ')[1];
-  let payload = i.customId.split(' ')[2] ?? i.values[0];
+const windowId = registerComponent<CacheInstance['window']>({
+  identifier: 'rank.window',
+  type: ComponentType.Button,
+  async callback(interaction, window) {
+    await execCacheSet(interaction, 'window', window);
+  },
+});
 
-  const cachedMessage = activeCache.get(i.message.id);
+const timeId = registerComponent({
+  identifier: 'rank.time',
+  type: ComponentType.StringSelect,
+  async callback(interaction) {
+    const time = interaction.values[0];
+    await execCacheSet(interaction, 'time', time as TimeInterval);
+  },
+});
+
+async function execCacheSet<T extends keyof CacheInstance>(
+  interaction: MessageComponentInteraction<'cached'>,
+  key: T,
+  value: CacheInstance[T],
+) {
+  const cachedMessage = activeCache.get(interaction.message.id);
   if (!cachedMessage) {
-    i.client.logger.debug({ i, id: i.message.id }, 'Could not find cachedMessage');
+    interaction.client.logger.debug(
+      { interaction, id: interaction.message.id },
+      'Could not find cachedMessage',
+    );
     return;
   }
 
-  if (cachedMessage.owner !== i.user.id)
-    return await i.reply({
+  if (cachedMessage.owner !== interaction.user.id) {
+    await interaction.reply({
       content: "Sorry, this menu isn't for you.",
       ephemeral: true,
     });
+    return;
+  }
 
-  const myGuild = await guildModel.storage.get(i.guild);
+  const myGuild = await guildModel.storage.get(interaction.guild);
 
-  if (action === 'page') payload = parseInt(payload);
+  activeCache.set(interaction.message.id, { ...cachedMessage, [key]: value });
 
-  activeCache.set(i.message.id, {
-    ...cachedMessage,
-    [action]: payload,
-  });
+  await interaction.deferUpdate();
 
-  await i.deferUpdate();
+  const state = activeCache.get(interaction.message.id);
+  await state.interaction.editReply(await generateCard(state, interaction.guild, myGuild));
+}
 
-  const state = activeCache.get(i.message.id);
-  await state.interaction.editReply(await generateCard(state, i.guild, myGuild));
-};
-
-async function generateCard(cache, guild, myGuild, disabled = false) {
+async function generateCard(
+  cache: CacheInstance,
+  guild: Guild,
+  myGuild: MyGuild,
+  disabled = false,
+) {
   if (cache.window === 'rank') return await generateRankCard(cache, guild, myGuild, disabled);
   if (cache.window === 'topChannels')
     return await generateChannelCard(cache, guild, myGuild, disabled);
@@ -110,7 +163,12 @@ const _prettifyTime = {
   Alltime: 'Forever',
 };
 
-async function generateChannelCard(state, guild, myGuild, disabled) {
+async function generateChannelCard(
+  state: CacheInstance,
+  guild: Guild,
+  myGuild: MyGuild,
+  disabled: boolean,
+) {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
@@ -143,34 +201,42 @@ async function generateChannelCard(state, guild, myGuild, disabled) {
   };
 }
 
-function getChannelComponents(state, disabled) {
+function getChannelComponents(state: CacheInstance, disabled: boolean) {
   return [
     ...getGlobalComponents(state.window, state.time, disabled),
     getPaginationComponents(state.page, disabled),
   ];
 }
 
-function getPaginationComponents(page, disabled) {
+function getPaginationComponents(page: number, disabled: boolean) {
   return new ActionRowBuilder().setComponents(
     new ButtonBuilder()
       .setEmoji('⬅')
-      .setCustomId(`rank page ${page - 1}`)
+      // TODO: use ownerId here
+      .setCustomId(pageId({ page: page - 1 }))
+      // .setCustomId(`rank page ${page - 1}`)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page <= 1 || disabled),
     new ButtonBuilder()
       .setLabel(page.toString())
-      .setCustomId('rank shouldNeverCall')
+      .setCustomId('__THROW__')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true),
     new ButtonBuilder()
       .setEmoji('➡️')
-      .setCustomId(`rank page ${page + 1}`)
+      .setCustomId(pageId({ page: page + 1 }))
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(disabled),
   );
 }
 
-async function getTopChannels(page, guild, memberId, time, type) {
+async function getTopChannels(
+  page: { from: number; to: number },
+  guild: Guild,
+  memberId: string,
+  time: TimeInterval,
+  type,
+) {
   const guildMemberTopChannels = await rankModel.getGuildMemberTopChannels(
     guild,
     memberId,
@@ -198,7 +264,12 @@ async function getTopChannels(page, guild, memberId, time, type) {
   return s.join('\n');
 }
 
-async function generateRankCard(state, guild, myGuild, disabled = false) {
+async function generateRankCard(
+  state: CacheInstance,
+  guild: Guild,
+  myGuild: MyGuild,
+  disabled = false,
+) {
   const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);
   const positions = await getPositions(
     guild,
@@ -250,25 +321,30 @@ async function generateRankCard(state, guild, myGuild, disabled = false) {
   };
 }
 
-function ParsedButton(selected, disabled) {
+function ParsedButton(selected: boolean, disabled: boolean) {
   return new ButtonBuilder()
     .setStyle(selected ? ButtonStyle.Primary : ButtonStyle.Secondary)
-    .setDisabled(disabled ? true : selected);
+    .setDisabled(disabled || selected);
 }
 
-function getGlobalComponents(window, time, disabled) {
+function getGlobalComponents(
+  window: CacheInstance['window'],
+  time: TimeInterval,
+  disabled: boolean,
+) {
   return [
     new ActionRowBuilder().setComponents(
       ParsedButton(window === 'rank', disabled)
-        .setCustomId('rank window rank')
+        // .setCustomId('rank window rank')
+        .setCustomId(windowId('rank'))
         .setLabel('Stats'),
       ParsedButton(window === 'topChannels', disabled)
-        .setCustomId('rank window topChannels')
+        .setCustomId(windowId('topChannels'))
         .setLabel('Top Channels'),
     ),
     new ActionRowBuilder().setComponents(
       new StringSelectMenuBuilder()
-        .setCustomId('rank time')
+        .setCustomId(timeId())
         .setDisabled(disabled)
         .setOptions(
           new StringSelectMenuOptionBuilder()
@@ -296,11 +372,11 @@ function getGlobalComponents(window, time, disabled) {
   ];
 }
 
-function getRankComponents(state, disabled) {
+function getRankComponents(state: CacheInstance, disabled: boolean) {
   return [...getGlobalComponents(state.window, state.time, disabled)];
 }
 
-function getScoreStrings(appData, myGuild, ranks, positions, time) {
+function getScoreStrings(appData, myGuild: MyGuild, ranks, positions, time: TimeInterval) {
   const scoreStrings = [];
   if (appData.textXp)
     scoreStrings.push(`:writing_hand: ${ranks['textMessage' + time]} (#${positions.textMessage})`);
@@ -320,7 +396,7 @@ function getScoreStrings(appData, myGuild, ranks, positions, time) {
   return scoreStrings.join('\n');
 }
 
-async function getPositions(guild, memberId, types, time) {
+async function getPositions(guild: Guild, memberId: string, types, time: TimeInterval) {
   const res = {};
   for (const p of types)
     res[p] = await rankModel.getGuildMemberRankPosition(guild, memberId, p + time);
@@ -338,14 +414,4 @@ function getTypes(appData) {
   ].filter((i) => i !== null);
 }
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  activeCache,
-  data,
-  execute,
-  component,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+export default { activeCache };
