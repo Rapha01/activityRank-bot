@@ -32,8 +32,8 @@ interface CommandExecutables {
 }
 
 export const commandMap = new Map<string, CommandExecutables & { privilege?: PrivilegeLevel }>();
-export const modalMap = new Map<string, Omit<ModalRegisterData, 'identifier'>>();
-export const componentMap = new Map<string, Omit<ComponentRegisterData, 'identifier'>>();
+export const modalMap = new Map<string, Omit<ModalRegisterData<any>, 'identifier'>>();
+export const componentMap = new Map<string, Omit<ComponentRegisterData<any>, 'identifier'>>();
 export const contextMap = new Map<string, ContextFunc>();
 
 export type CommandFunc = (interaction: ChatInputCommandInteraction<'cached'>) => Promise<unknown>;
@@ -148,29 +148,35 @@ export function registerSlashCommand(
   logger.debug(`Loaded command /${meta.data.name}`);
 }
 
-type ComponentCallback<T> = (interaction: T, data?: string) => Promise<void> | void;
+type ComponentCallback<T, D> = (interaction: T, data: D) => Promise<void> | void;
 
-interface Component<I extends Interaction<'cached'>> {
+interface Component<I extends Interaction<'cached'>, D> {
   identifier: string;
-  callback: ComponentCallback<I>;
+  callback: ComponentCallback<I, D>;
 }
 
-interface NonModalComponent<T extends ComponentType, I extends Interaction<'cached'>>
-  extends Component<I> {
+interface NonModalComponent<T extends ComponentType, I extends Interaction<'cached'>, D = void>
+  extends Component<I, D> {
   type: T;
 }
 
-type ComponentRegisterData =
-  | NonModalComponent<ComponentType.Button, ButtonInteraction<'cached'>>
+type ComponentRegisterData<D> =
+  | NonModalComponent<ComponentType.Button, ButtonInteraction<'cached'>, D>
   | NonModalComponent<ComponentType.StringSelect, StringSelectMenuInteraction<'cached'>>
   | NonModalComponent<ComponentType.RoleSelect, RoleSelectMenuInteraction<'cached'>>
   | NonModalComponent<ComponentType.ChannelSelect, ChannelSelectMenuInteraction<'cached'>>
   | NonModalComponent<ComponentType.UserSelect, UserSelectMenuInteraction<'cached'>>
   | NonModalComponent<ComponentType.MentionableSelect, MentionableSelectMenuInteraction<'cached'>>;
 
-function customIdBuilder(identifier: string) {
-  function makeCustomId(data: string) {
-    const res = `${identifier} ${data}`;
+/* 
+if options.ownerId is provided, 
+only a user with id ownerId may use the component. 
+All others will get an error message.
+*/
+// TODO refactor to clean up typings
+function customIdBuilder<D>(identifier: string) {
+  function makeCustomId(data: D, options?: { ownerId?: string }) {
+    const res = `${identifier} ${JSON.stringify(data)} ${JSON.stringify(options)}`;
     // TODO compress?
     if (res.length > 100) logger.warn(res, 'too long');
     return res;
@@ -178,7 +184,7 @@ function customIdBuilder(identifier: string) {
   return makeCustomId;
 }
 
-export function registerComponent(meta: ComponentRegisterData) {
+export function registerComponent<D = string | undefined | void>(meta: ComponentRegisterData<D>) {
   if (meta.identifier.includes(' ')) throw new Error('Component IDs cannot contain spaces.');
 
   componentMap.set(meta.identifier, {
@@ -188,19 +194,19 @@ export function registerComponent(meta: ComponentRegisterData) {
 
   logger.debug(`Loaded component ${meta.identifier}`);
 
-  return customIdBuilder(meta.identifier);
+  return customIdBuilder<D>(meta.identifier);
 }
 
-type ModalRegisterData = Component<ModalSubmitInteraction<'cached'>>;
+type ModalRegisterData<D> = Component<ModalSubmitInteraction<'cached'>, D>;
 
-export function registerModal(meta: ModalRegisterData) {
+export function registerModal<D>(meta: ModalRegisterData<D>) {
   if (meta.identifier.includes(' ')) throw new Error('Modal Component IDs cannot contain spaces.');
 
   modalMap.set(meta.identifier, { callback: meta.callback });
 
   logger.debug(`Loaded modal ${meta.identifier}`);
 
-  return customIdBuilder(meta.identifier);
+  return customIdBuilder<D>(meta.identifier);
 }
 
 export function registerAdminCommand(meta: {
