@@ -1,107 +1,92 @@
-// GENERATED: this file has been altered by `relative-named-imports`.
-// [GENERATED: relative-named-imports:v0]
-
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-// GENERATED: added extension to relative import
-// import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers';
-import { PRIVILEGE_LEVELS } from '../../const/privilegedUsers.js';
-import guildModel from '../models/guild/guildModel';
-import userModel from '../models/userModel';
+import guildModel from '../models/guild/guildModel.js';
+import userModel from '../models/userModel.js';
+import { registerAdminCommand } from 'bot/util/commandLoader.js';
+import { PrivilegeLevel } from 'const/privilegeLevels.js';
 
-export const requiredPrivileges = PRIVILEGE_LEVELS.Developer;
+registerAdminCommand({
+  data: new SlashCommandBuilder()
+    .setName('blacklist')
+    .setDescription('Blacklist a user or server from the bot.')
+    .addSubcommand((sc) =>
+      sc
+        .setName('user')
+        .setDescription('Blacklist a user from the bot')
+        .addUserOption((o) =>
+          o.setName('user').setDescription('The user to blacklist').setRequired(true),
+        ),
+    )
+    .addSubcommand((sc) =>
+      sc
+        .setName('server')
+        .setDescription('Blacklist a server from the bot')
+        .addStringOption((o) =>
+          o
+            .setName('server')
+            .setDescription('The ID of the server to blacklist')
+            .setMinLength(17)
+            .setMaxLength(19)
+            .setRequired(true),
+        ),
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+  requiredPrivilege: PrivilegeLevel.Developer,
+  execute: async function (interaction) {
+    const sc = await interaction.options.getSubcommand();
+    if (sc === 'user') {
+      const user = await interaction.client.users.fetch(interaction.options.getUser('user')!);
+      if (!user) {
+        return await interaction.reply({
+          content: 'This user does not exist.',
+          ephemeral: true,
+        });
+      }
 
-export const data = new SlashCommandBuilder()
-  .setName('blacklist')
-  .setDescription('Blacklist a user or server from the bot.')
-  .addSubcommand((sc) =>
-    sc
-      .setName('user')
-      .setDescription('Blacklist a user from the bot')
-      .addUserOption((o) =>
-        o.setName('user').setDescription('The user to blacklist').setRequired(true),
-      ),
-  )
-  .addSubcommand((sc) =>
-    sc
-      .setName('server')
-      .setDescription('Blacklist a server from the bot')
-      .addStringOption((o) =>
-        o
-          .setName('server')
-          .setDescription('The ID of the server to blacklist')
-          .setMinLength(17)
-          .setMaxLength(19)
-          .setRequired(true),
-      ),
-  )
-  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
+      await userModel.cache.load(user);
+      const targetUser = await userModel.storage.get(user);
 
-export const execute = async function (i) {
-  const sc = await i.options.getSubcommand();
-  if (sc === 'user') {
-    const user = await i.client.users.fetch(i.options.getUser('user'));
-    if (!user) {
-      return await i.reply({
-        content: 'This user does not exist.',
-        ephemeral: true,
-      });
+      if (targetUser.isBanned) {
+        await userModel.storage.set(user, 'isBanned', 0);
+        return await interaction.reply({
+          content: `Unblacklisted user ${user} (\`${user.id}\`)`,
+          ephemeral: true,
+        });
+      } else {
+        await userModel.storage.set(user, 'isBanned', 1);
+        return await interaction.reply({
+          content: `Blacklisted user ${user} (\`${user.id}\`)`,
+          ephemeral: true,
+        });
+      }
     }
 
-    await userModel.cache.load(user);
-    const targetUser = await userModel.storage.get(user);
+    if (sc === 'guild') {
+      const guild = await interaction.client.guilds.fetch({
+        guild: interaction.options.getString('guild')!,
+        withCounts: false,
+      });
+      if (!guild) {
+        return await interaction.reply({
+          content: 'This guild does not exist.',
+          ephemeral: true,
+        });
+      }
 
-    if (targetUser.isBanned) {
-      await userModel.storage.set(user, 'isBanned', 0);
-      return await i.reply({
-        content: `Unblacklisted user ${user} (\`${user.id}\`)`,
-        ephemeral: true,
-      });
-    } else {
-      await userModel.storage.set(user, 'isBanned', 1);
-      return await i.reply({
-        content: `Blacklisted user ${user} (\`${user.id}\`)`,
-        ephemeral: true,
-      });
+      await guildModel.cache.load(guild);
+      const targetGuild = await guildModel.storage.get(guild);
+      if (targetGuild.isBanned) {
+        await guildModel.storage.set(guild, 'isBanned', 0);
+        return await interaction.reply({
+          content: `Unblacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
+          ephemeral: true,
+        });
+      } else {
+        await guildModel.storage.set(guild, 'isBanned', 1);
+        return await interaction.reply({
+          content: `Blacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
+          ephemeral: true,
+        });
+      }
     }
-  }
-
-  if (sc === 'guild') {
-    const guild = await i.client.guilds.fetch({
-      guild: i.options.getString('guild'),
-      withCounts: false,
-    });
-    if (!guild) {
-      return await i.reply({
-        content: 'This guild does not exist.',
-        ephemeral: true,
-      });
-    }
-
-    await guildModel.cache.load(guild);
-    const targetGuild = await guildModel.storage.get(guild);
-    if (targetGuild.isBanned) {
-      await guildModel.storage.set(guild, 'isBanned', 0);
-      return await i.reply({
-        content: `Unblacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
-        ephemeral: true,
-      });
-    } else {
-      await guildModel.storage.set(guild, 'isBanned', 1);
-      return await i.reply({
-        content: `Blacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
-        ephemeral: true,
-      });
-    }
-  }
-};
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  requiredPrivileges,
-  data,
-  execute,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+  },
+});
