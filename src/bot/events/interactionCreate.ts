@@ -81,14 +81,24 @@ export default {
       }
 
       if (interaction.isMessageComponent()) {
-        const key = interaction.customId.split(' ')[0];
+        const parts = interaction.customId.split(' ');
+        const key = parts[0];
         if (key === '__null__') return;
+        if (key === '__THROW__') throw new Error('should never occur');
         const ref = componentMap.get(key);
         if (ref) {
-          // Typescript is weird and hard :(
-          // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172
-          // @ts-expect-error
-          await ref.callback(interaction, interaction.customId.split(' ').slice(1).join(' '));
+          const opts = JSON.parse(parts[2]);
+          if (opts && opts.ownerId && interaction.user.id !== opts.ownerId) {
+            await interaction.reply({
+              content: "Sorry, this menu isn't for you.",
+              ephemeral: true,
+            });
+          } else {
+            // Typescript is weird and hard :(
+            // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172
+            // @ts-expect-error
+            await ref.callback(interaction, JSON.parse(parts[1]));
+          }
         } else {
           logger.warn(
             interaction,
@@ -97,7 +107,11 @@ export default {
         }
       } else if (interaction.isModalSubmit()) {
         const ref = modalMap.get(interaction.customId.split(' ')[0]);
-        if (ref) await ref.callback(interaction);
+        if (ref)
+          await ref.callback(
+            interaction,
+            JSON.parse(interaction.customId.split(' ').slice(1).join(' ')),
+          );
         else
           logger.warn(
             interaction,

@@ -23,7 +23,7 @@ registerSlashCommand({
       components: [
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
           new StringSelectMenuBuilder()
-            .setCustomId(`help select ${interaction.user.id}`)
+            .setCustomId(selectId(interaction.user.id))
             .setPlaceholder('Nothing selected')
             .addOptions(
               { label: 'Server Statistics', value: 'stats' },
@@ -40,7 +40,7 @@ registerSlashCommand({
         ),
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId(`help closeMenu ${interaction.user.id}`)
+            .setCustomId(closeId(interaction.user.id))
             .setLabel('Close')
             .setStyle(ButtonStyle.Danger),
         ),
@@ -60,7 +60,7 @@ async function checkUserId(id: string | undefined, interaction: MessageComponent
   return false;
 }
 
-registerComponent({
+const selectId = registerComponent({
   identifier: 'help.sel',
   type: ComponentType.StringSelect,
   callback: async function (interaction, memberId) {
@@ -72,7 +72,7 @@ registerComponent({
   },
 });
 
-registerComponent({
+const closeId = registerComponent({
   identifier: 'help.cls',
   type: ComponentType.Button,
   callback: async function (interaction, memberId) {
