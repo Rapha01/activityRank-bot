@@ -5,8 +5,8 @@ import type {
   StatFlushCache,
   StatFlushCacheChannelEntry,
   StatFlushCacheGuildEntry,
-  StatFlushCacheType,
 } from 'bot/statFlushCache.js';
+import type { StatFlushCacheType } from 'models/types/enums.js';
 
 export default async function (manager: ShardingManager) {
   const hrstart = process.hrtime();

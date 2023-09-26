@@ -1,5 +1,6 @@
 import type { Client, Guild, GuildMember, TextBasedChannel, VoiceBasedChannel } from 'discord.js';
 import levelManager from './levelManager.js';
+import type { StatFlushCacheType } from 'models/types/enums.js';
 
 export async function addTextMessage(
   member: GuildMember,
@@ -164,8 +165,6 @@ export const directlyAddBonus = async (
   if (!entry) entry = bonusCache[userId] = { guildId: guild.id, userId, count };
   else entry.count += count;
 };
-
-export type StatFlushCacheType = 'textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus';
 
 export interface StatFlushCacheGuildEntry {
   guildId: string;
