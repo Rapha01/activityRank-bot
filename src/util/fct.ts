@@ -1,6 +1,6 @@
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import userModel from '../bot/models/userModel.js';
-import type { CacheType, CommandInteraction, GuildMember } from 'discord.js';
+import type { CommandInteraction, GuildMember, User } from 'discord.js';
 
 export const maxBigInt = 9223372036854775807;
 export const minIdInt = 1000000000000;
@@ -76,7 +76,7 @@ export const getPatreonTiers = async (interaction: CommandInteraction<'cached'>)
   return { userTier, ownerTier };
 };
 
-export const getVoteMultiplier = (myUser) => {
+export const getVoteMultiplier = (myUser: User['appData']) => {
   let multiplier = 1;
 
   if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;

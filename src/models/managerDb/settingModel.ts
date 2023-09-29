@@ -1,15 +1,12 @@
 import type { Client } from 'discord.js';
 import managerDb from './managerDb.js';
+import type { setting } from 'models/types/manager.js';
 
 export const storage = {
   get: async function () {
-    const res = await managerDb.query('SELECT * from setting');
+    const res = await managerDb.query<setting[]>('SELECT * from setting');
 
-    const settings: Record<any, any> = {};
-
-    for (const setting of res) settings[setting.id] = setting.value;
-
-    return settings;
+    return Object.fromEntries(res.map((i) => [i.id, i.value]));
   },
 };
 

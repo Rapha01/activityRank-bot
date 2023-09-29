@@ -25,12 +25,11 @@ export const storage = {
     const keys = ['textMessage', 'voiceMinute', 'invite', 'vote', 'bonus'];
 
     const results = await Promise.all(
-      keys.map(
-        (key) =>
-          shardDb.query(
-            guild.appData.dbHost,
-            `SELECT changeDate FROM ${key} WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate LIMIT 1`,
-          ) as Promise<{ changeDate: number }[]>,
+      keys.map((key) =>
+        shardDb.query<{ changeDate: number }[]>(
+          guild.appData.dbHost,
+          `SELECT changeDate FROM ${key} WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate LIMIT 1`,
+        ),
       ),
     );
 

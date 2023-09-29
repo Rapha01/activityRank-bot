@@ -6,8 +6,8 @@ export interface bonus {
   month: number;
   week: number;
   day: number;
-  changeDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  changeDate: number; // BIGINT;
+  addDate: number; // BIGINT;
 }
 
 export interface guild {
@@ -68,13 +68,13 @@ export interface guild {
   voiceChanneleaveMessage: string;
   roleAssignMessage: string;
   roleDeassignMessage: string;
-  lastCommandDate: string; // BIGINT;
-  lastTokenBurnDate: string; // BIGINT;
+  lastCommandDate: number; // BIGINT;
+  lastTokenBurnDate: number; // BIGINT;
   resetDay: number;
   resetHour: number;
-  joinedAtDate: string; // BIGINT;
-  leftAtDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  joinedAtDate: number; // BIGINT;
+  leftAtDate: number; // BIGINT;
+  addDate: number; // BIGINT;
   isBanned: number;
 }
 
@@ -112,8 +112,8 @@ export interface invite {
   month: number;
   week: number;
   day: number;
-  changeDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  changeDate: number; // BIGINT;
+  addDate: number; // BIGINT;
 }
 
 export interface textMessage {
@@ -125,8 +125,8 @@ export interface textMessage {
   month: number;
   week: number;
   day: number;
-  changeDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  changeDate: number; // BIGINT;
+  addDate: number; // BIGINT;
 }
 
 export interface user {
@@ -135,13 +135,13 @@ export interface user {
   tokensBought: number;
   tokensGifted: number;
   voteMultiplier: number;
-  voteMultiplierUntil: string; // BIGINT;
-  lastAskForPremiumDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  voteMultiplierUntil: number; // BIGINT;
+  lastAskForPremiumDate: number; // BIGINT;
+  addDate: number; // BIGINT;
   isBanned: number;
   patreonTier: number;
-  patreonTierUntilDate: string; // BIGINT;
-  lastTopggUpvoteDate: string; // BIGINT;
+  patreonTierUntilDate: number; // BIGINT;
+  lastTopggUpvoteDate: number; // BIGINT;
 }
 
 export interface voiceMinute {
@@ -153,8 +153,8 @@ export interface voiceMinute {
   month: number;
   week: number;
   day: number;
-  changeDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  changeDate: number; // BIGINT;
+  addDate: number; // BIGINT;
 }
 
 export interface vote {
@@ -165,6 +165,6 @@ export interface vote {
   month: number;
   week: number;
   day: number;
-  changeDate: string; // BIGINT;
-  addDate: string; // BIGINT;
+  changeDate: number; // BIGINT;
+  addDate: number; // BIGINT;
 }
