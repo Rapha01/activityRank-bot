@@ -5,7 +5,15 @@ import guildModel from '../models/guild/guildModel.js';
 import skip from '../skip.js';
 import statFlushCache from '../statFlushCache.js';
 import noXpUtil from '../util/noXpUtil.js';
-import { ChannelType, type Guild, type Client } from 'discord.js';
+import type {
+  Guild,
+  Client,
+  GuildChannel,
+  VoiceBasedChannel,
+  Collection,
+  GuildMember,
+} from 'discord.js';
+
 let minutesToAdd = 0,
   leftover = 0,
   round = 0;
@@ -13,9 +21,7 @@ let minutesToAdd = 0,
 export default async (client: Client) => {
   const roundStart = Date.now() / 1000;
 
-  for (const _guild of client.guilds.cache) {
-    const guild = _guild[1];
-
+  for (const guild of client.guilds.cache.values()) {
     try {
       await fct.sleep(200);
 
@@ -48,12 +54,11 @@ const rankVoiceGuild = async (guild: Guild) => {
 
   if (!guild.appData.voiceXp) return;
 
-  const voiceChannels = guild.channels.cache.filter(
-    (channel) => channel.type == ChannelType.GuildVoice,
+  const voiceChannels = guild.channels.cache.filter<VoiceBasedChannel>(
+    (channel): channel is VoiceBasedChannel => channel.isVoiceBased(),
   );
 
-  for (const _channel of voiceChannels) {
-    const channel = _channel[1];
+  for (const channel of voiceChannels.values()) {
     await guildChannelModel.cache.load(channel);
 
     if (
@@ -64,7 +69,7 @@ const rankVoiceGuild = async (guild: Guild) => {
   }
 };
 
-async function givesXp(channel) {
+async function givesXp(channel: GuildChannel) {
   if (channel.appData.noXp) return false;
 
   const parent = channel.parent;
@@ -76,39 +81,29 @@ async function givesXp(channel) {
   return true;
 }
 
-const rankVoiceChannel = (channel) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      for (let member of channel.members) {
-        member = member[1];
+const rankVoiceChannel = async (channel: VoiceBasedChannel) => {
+  for (const member of channel.members.values()) {
+    await guildMemberModel.cache.load(member);
 
-        await guildMemberModel.cache.load(member);
+    if (await noXpUtil.noVoiceXp(member, channel)) continue;
 
-        if (await noXpUtil.noVoiceXp(member, channel)) continue;
-
-        if (minutesToAdd > 0) {
-          await statFlushCache.addVoiceMinute(member, channel, minutesToAdd);
-          await fct.sleep(200);
-        }
-      }
-
-      return resolve();
-    } catch (e) {
-      reject(e);
+    if (minutesToAdd > 0) {
+      await statFlushCache.addVoiceMinute(member, channel, minutesToAdd);
+      await fct.sleep(200);
     }
-  });
+  }
 };
 
-function existMultipleMembers(members) {
+function existMultipleMembers(members: Collection<string, GuildMember>) {
   if (members.size < 2) return false;
 
   let activeMembers = 0;
-  for (let member of members) {
-    member = member[1];
+  for (let member of members.values()) {
     if (!member.user.bot) activeMembers++;
+    if (activeMembers >= 2) return true;
   }
-  if (activeMembers >= 2) return true;
-  else return false;
+
+  return false;
 }
 /*
 function existTwoUnmutedMembers(members) {

@@ -2,16 +2,10 @@ import type { CachedGuild } from 'bot/models/guild/guildModel.ts';
 import type { StatFlushCache } from 'bot/statFlushCache.ts';
 import type { pino } from 'pino';
 import 'discord.js';
+import type { guildChannel, guild, guildRole, user } from 'models/types/shard.js';
 
-interface UserAppData {
-  isBanned?: boolean;
-  dbHost: string;
-}
-interface RoleAppData {
-  noXp: boolean;
-}
 interface ClientAppData {
-  settings: Record<any, any>;
+  settings: Record<string, string>;
   texts: any;
   statFlushCache: Record<string, StatFlushCache>;
   botShardStat: {
@@ -22,16 +16,19 @@ interface ClientAppData {
 
 declare module 'discord.js' {
   export interface Role {
-    appData: RoleAppData;
+    appData: guildRole;
   }
   export interface User {
-    appData: UserAppData;
+    appData: user;
   }
   export interface Client {
     appData: ClientAppData;
     logger: pino.Logger;
   }
   export interface Guild {
-    appData: CachedGuild;
+    appData: guild;
+  }
+  export interface GuildChannel {
+    appData: guildChannel;
   }
 }

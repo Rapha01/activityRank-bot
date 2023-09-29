@@ -2,6 +2,7 @@ import shardDb from '../../models/shardDb/shardDb.js';
 import managerDb from '../../models/managerDb/managerDb.js';
 import mysql from 'promise-mysql';
 import type { User } from 'discord.js';
+import type { user } from 'models/types/shard.js';
 
 const promises: Record<string, Promise<void>> = {};
 let defaultCache: any = null;
@@ -31,18 +32,26 @@ export const cache = {
     return promises[user.id];
   },
 };
-export const storage = {
-  set: async function (user: User, field: string, value: string) {
+
+const storage = {
+  set: async function <K extends keyof user>(user: User, field: K, value: user[K]) {
     await shardDb.query(
       user.appData.dbHost,
-      `INSERT INTO user (userId,${field}) VALUES (${user.id},${mysql.escape(
-        value,
-      )}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+      `INSERT INTO user 
+      (userId,${field}) 
+      VALUES 
+      (${user.id},${mysql.escape(value)})
+      ON DUPLICATE KEY UPDATE 
+      ${field} = ${mysql.escape(value)}`,
     );
 
     if (cachedFieldSet.has(field)) user.appData[field] = value;
   },
-  increment: async function (user: User, field: string, value: number) {
+  increment: async function <K extends Exclude<keyof user, 'userId'>>(
+    user: User,
+    field: K,
+    value: user[K],
+  ) {
     await shardDb.query(
       user.appData.dbHost,
       `INSERT INTO user (userId,${field}) VALUES (${user.id},DEFAULT(${field}) + ${mysql.escape(
@@ -50,17 +59,17 @@ export const storage = {
       )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(value)}`,
     );
 
-    if (cachedFieldSet.has(field)) user.appData[field] += value;
+    if (cachedFieldSet.has(field)) user.appData[field]! += value;
   },
   get: async function (user: User) {
-    const res = await shardDb.query(
+    const res = await shardDb.query<user[]>(
       user.appData.dbHost,
       `SELECT * FROM user WHERE userId = ${user.id}`,
     );
     if (res.length == 0) {
       if (!defaultAll)
         defaultAll = (
-          await shardDb.query(user.appData.dbHost, `SELECT * FROM user WHERE userId = 0`)
+          await shardDb.query<user[]>(user.appData.dbHost, `SELECT * FROM user WHERE userId = 0`)
         )[0];
       return defaultAll;
     } else return res[0];
@@ -68,8 +77,8 @@ export const storage = {
 };
 
 async function buildCache(user: User) {
-  let dbHost = await getDbHost(user.id);
-  let cache = await shardDb.query(
+  const dbHost = await getDbHost(user.id);
+  let cache = await shardDb.query<user[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM user WHERE userId = ${user.id}`,
   );

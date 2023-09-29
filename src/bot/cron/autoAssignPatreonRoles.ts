@@ -1,10 +1,11 @@
 import shardDb from '../../models/shardDb/shardDb.js';
 import config from '../../const/config.js';
 import type { Guild } from 'discord.js';
+import type { user } from 'models/types/shard.js';
 
 export default async (supportGuild: Guild) => {
   // Get active Patrons and support server members
-  const myUsers = await shardDb.queryAllHosts(
+  const myUsers = await shardDb.queryAllHosts<user>(
     `SELECT * FROM user WHERE patreonTier > 0 && patreonTierUntilDate > ${Date.now() / 1000}`,
   );
   const members = await supportGuild.members.fetch();

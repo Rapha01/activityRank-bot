@@ -2,6 +2,8 @@ import shardDb from '../../models/shardDb/shardDb.js';
 import guildMemberModel from './guild/guildMemberModel.js';
 import guildChannelModel from './guild/guildChannelModel.js';
 import type { CommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
+import type { guild } from 'models/types/shard.js';
+import type { DBDelete, DBUpdate } from 'models/types/enums.js';
 
 interface BaseResetJob {
   ref: CommandInteraction;
@@ -50,7 +52,7 @@ export const storage = {
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
-          await shardDb.query(
+          await shardDb.query<DBDelete>(
             guild.appData.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`,
           )
@@ -61,7 +63,7 @@ export const storage = {
     if (affectedRows < batchsize) {
       const keys = Object.keys(
         (
-          await shardDb.query(
+          await shardDb.query<guild[]>(
             guild.appData.dbHost,
             `SELECT * FROM guild WHERE guildId = ${guild.id}`,
           )
@@ -71,7 +73,7 @@ export const storage = {
       for (const key of keys) {
         if (noResetGuildFields.indexOf(key) == -1) keySqls.push(key + '=DEFAULT(' + key + ')');
       }
-      await shardDb.query(
+      await shardDb.query<DBUpdate>(
         guild.appData.dbHost,
         `UPDATE guild SET ${keySqls.join(',')} WHERE guildId = ${guild.id}`,
       );
@@ -91,7 +93,7 @@ export const storage = {
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
-          await shardDb.query(
+          await shardDb.query<DBDelete>(
             guild.appData.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`,
           )
@@ -101,7 +103,7 @@ export const storage = {
 
     if (affectedRows < batchsize) {
       affectedRows += (
-        await shardDb.query(
+        await shardDb.query<DBUpdate>(
           guild.appData.dbHost,
           `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${
             batchsize - affectedRows
@@ -122,7 +124,7 @@ export const storage = {
     let affectedRows = 0;
 
     affectedRows += (
-      await shardDb.query(
+      await shardDb.query<DBDelete>(
         guild.appData.dbHost,
         `DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`,
       )
@@ -130,7 +132,7 @@ export const storage = {
 
     if (type == 'invite' && affectedRows < batchsize) {
       affectedRows += (
-        await shardDb.query(
+        await shardDb.query<DBUpdate>(
           guild.appData.dbHost,
           `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${
             batchsize - affectedRows
@@ -151,7 +153,7 @@ export const storage = {
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
-          await shardDb.query(
+          await shardDb.query<DBDelete>(
             guild.appData.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} AND userId in (${userIds.join(
               ',',
@@ -163,7 +165,7 @@ export const storage = {
 
     if (affectedRows < batchsize) {
       affectedRows += (
-        await shardDb.query(
+        await shardDb.query<DBUpdate>(
           guild.appData.dbHost,
           `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
             guild.id
@@ -184,7 +186,7 @@ export const storage = {
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
-          await shardDb.query(
+          await shardDb.query<DBDelete>(
             guild.appData.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} AND channelId IN (${channelIds.join(
               ',',
@@ -249,17 +251,18 @@ export const cache = {
     return;
   },
   resetGuildMembersAll: (guild: Guild) => {
-    for (const member of guild.members.cache) if (member[1].appData) delete member[1].appData;
+    for (const member of guild.members.cache.values()) if (member.appData) delete member.appData;
 
     return;
   },
   resetGuildChannelsAll: (guild: Guild) => {
-    for (const channel of guild.channels.cache) if (channel[1].appData) delete channel[1].appData;
+    for (const channel of guild.channels.cache.values())
+      if (channel.appData) delete channel.appData;
 
     return;
   },
   resetGuildRolesAll: (guild: Guild) => {
-    for (const role of guild.roles.cache) if (role[1].appData) delete role[1].appData;
+    for (const role of guild.roles.cache.values()) if (role.appData) delete role.appData;
 
     return;
   },

@@ -3,9 +3,9 @@ import { get as getKeys } from '../../const/keys.js';
 let keys = getKeys();
 let pool: mysql.Pool | null;
 
-export async function query(sql: string) {
+export async function query<T>(sql: string) {
   if (!pool) await createPool();
-  return await pool!.query(sql);
+  return await pool!.query<T>(sql);
 }
 
 export async function getConnection() {

@@ -5,17 +5,17 @@ import { get as getKeys } from '../../const/keys.js';
 let keys = getKeys();
 const pools: Record<string, mysql.Pool> = {};
 
-export async function query(dbHost: string, sql: string) {
+export async function query<T>(dbHost: string, sql: string) {
   if (!pools[dbHost]) await createPool(dbHost);
-  return await pools[dbHost]!.query(sql);
+  return await pools[dbHost]!.query<T>(sql);
 }
 
-export async function queryAllHosts(sql: string) {
+export async function queryAllHosts<T>(sql: string) {
   const hosts = await managerDb.getAllDbHosts();
 
-  let aggregate: unknown[] = [];
+  let aggregate: T[] = [];
   for (let host of hosts) {
-    aggregate = aggregate.concat(await query(host, sql));
+    aggregate = aggregate.concat(await query<T>(host, sql));
   }
 
   return aggregate;
