@@ -162,11 +162,15 @@ interface NonModalComponent<T extends ComponentType, I extends Interaction<'cach
 
 type ComponentRegisterData<D> =
   | NonModalComponent<ComponentType.Button, ButtonInteraction<'cached'>, D>
-  | NonModalComponent<ComponentType.StringSelect, StringSelectMenuInteraction<'cached'>>
-  | NonModalComponent<ComponentType.RoleSelect, RoleSelectMenuInteraction<'cached'>>
-  | NonModalComponent<ComponentType.ChannelSelect, ChannelSelectMenuInteraction<'cached'>>
-  | NonModalComponent<ComponentType.UserSelect, UserSelectMenuInteraction<'cached'>>
-  | NonModalComponent<ComponentType.MentionableSelect, MentionableSelectMenuInteraction<'cached'>>;
+  | NonModalComponent<ComponentType.StringSelect, StringSelectMenuInteraction<'cached'>, D>
+  | NonModalComponent<ComponentType.RoleSelect, RoleSelectMenuInteraction<'cached'>, D>
+  | NonModalComponent<ComponentType.ChannelSelect, ChannelSelectMenuInteraction<'cached'>, D>
+  | NonModalComponent<ComponentType.UserSelect, UserSelectMenuInteraction<'cached'>, D>
+  | NonModalComponent<
+      ComponentType.MentionableSelect,
+      MentionableSelectMenuInteraction<'cached'>,
+      D
+    >;
 
 /* 
 if options.ownerId is provided, 
@@ -262,4 +266,9 @@ export async function loadCommandFiles() {
 
   const adminFiles = await glob(`${adminDir}/*.js`);
   await Promise.all(adminFiles.map(async (file) => await import(file)));
+}
+
+export enum ComponentKey {
+  Throw = '__THROW__',
+  Ignore = '__IGNORE__',
 }

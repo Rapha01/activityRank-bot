@@ -23,7 +23,7 @@ registerSlashCommand({
       components: [
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
           new StringSelectMenuBuilder()
-            .setCustomId(selectId(interaction.user.id))
+            .setCustomId(selectId(null, { ownerId: interaction.user.id }))
             .setPlaceholder('Nothing selected')
             .addOptions(
               { label: 'Server Statistics', value: 'stats' },
@@ -40,7 +40,7 @@ registerSlashCommand({
         ),
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId(closeId(interaction.user.id))
+            .setCustomId(closeId(null, { ownerId: interaction.user.id }))
             .setLabel('Close')
             .setStyle(ButtonStyle.Danger),
         ),
@@ -49,23 +49,10 @@ registerSlashCommand({
   },
 });
 
-async function checkUserId(id: string | undefined, interaction: MessageComponentInteraction) {
-  if (id !== interaction.user.id) {
-    await interaction.reply({
-      content: "Sorry, this menu isn't for you.",
-      ephemeral: true,
-    });
-    return true;
-  }
-  return false;
-}
-
 const selectId = registerComponent({
   identifier: 'help.sel',
   type: ComponentType.StringSelect,
-  callback: async function (interaction, memberId) {
-    if (await checkUserId(memberId, interaction)) return;
-
+  callback: async function (interaction) {
     let e = interaction.message.embeds[0].toJSON();
     e = helpFeatureEmbed(interaction.client.appData.texts.commands[interaction.values[0]]).toJSON();
     interaction.update({ embeds: [e] });
@@ -75,9 +62,7 @@ const selectId = registerComponent({
 const closeId = registerComponent({
   identifier: 'help.cls',
   type: ComponentType.Button,
-  callback: async function (interaction, memberId) {
-    if (await checkUserId(memberId, interaction)) return;
-
+  callback: async function (interaction) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
   },

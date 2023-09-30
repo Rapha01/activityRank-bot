@@ -1,15 +1,16 @@
-import type { Guild } from 'discord.js';
+import type { Guild, GuildChannel } from 'discord.js';
 import shardDb from '../../../models/shardDb/shardDb.js';
 import mysql from 'promise-mysql';
+import type { guildChannel, textMessage, voiceMinute } from 'models/types/shard.js';
 
 const promises: Record<string, Promise<void>> = {};
 
 const cachedFields = ['noXp', 'noCommand'];
-let defaultCache = null;
-let defaultAll = null;
+let defaultCache: any = null;
+let defaultAll: any = null;
 
 export const cache = {
-  load: (channel) => {
+  load: (channel: GuildChannel) => {
     if (!channel.appData) {
       if (channel.id in promises) {
         return promises[channel.id];
@@ -36,8 +37,8 @@ export const cache = {
 };
 
 export const storage = {
-  get: async (guild: Guild, channelId: string) => {
-    const res = await shardDb.query(
+  get: async (guild: Guild, channelId: string): Promise<guildChannel> => {
+    const res = await shardDb.query<guildChannel[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${mysql.escape(
         channelId,
@@ -47,7 +48,7 @@ export const storage = {
     if (res.length == 0) {
       if (!defaultAll)
         defaultAll = (
-          await shardDb.query(
+          await shardDb.query<guildChannel[]>(
             guild.appData.dbHost,
             `SELECT * FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
           )
@@ -56,7 +57,12 @@ export const storage = {
     } else return res[0];
   },
 
-  set: async (guild: Guild, channelId: string, field, value) => {
+  set: async <K extends keyof guildChannel>(
+    guild: Guild,
+    channelId: string,
+    field: K,
+    value: guildChannel[K],
+  ) => {
     await shardDb.query(
       guild.appData.dbHost,
       `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${mysql.escape(
@@ -71,11 +77,11 @@ export const storage = {
 };
 
 export const getRankedChannelIds = async (guild: Guild) => {
-  const textmessageUserIds = await shardDb.query(
+  const textmessageUserIds = await shardDb.query<textMessage[]>(
     guild.appData.dbHost,
     `SELECT DISTINCT channelId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
   );
-  const voiceMinuteUserIds = await shardDb.query(
+  const voiceMinuteUserIds = await shardDb.query<voiceMinute[]>(
     guild.appData.dbHost,
     `SELECT DISTINCT channelId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
   );
@@ -91,30 +97,24 @@ export const getRankedChannelIds = async (guild: Guild) => {
 };
 
 export const getNoXpChannelIds = async (guild: Guild) => {
-  const res = await shardDb.query(
+  const res = await shardDb.query<guildChannel[]>(
     guild.appData.dbHost,
     `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noXp = 1`,
   );
 
-  let ids = [];
-  for (let channel of res) ids.push(channel.channelId);
-
-  return ids;
+  return res.map((i) => i.channelId);
 };
 
 export const getNoCommandChannelIds = async (guild: Guild) => {
-  const res = await shardDb.query(
+  const res = await shardDb.query<guildChannel[]>(
     guild.appData.dbHost,
     `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noCommand = 1`,
   );
 
-  let ids = [];
-  for (let channel of res) ids.push(channel.channelId);
-
-  return ids;
+  return res.map((i) => i.channelId);
 };
 
-const buildCache = (channel) => {
+const buildCache = (channel: GuildChannel) => {
   return new Promise(async function (resolve, reject) {
     try {
       let cache = await shardDb.query(
@@ -139,7 +139,7 @@ const buildCache = (channel) => {
 };
 
 const loadDefaultCache = async (dbHost: string) => {
-  let res = await shardDb.query(
+  let res = await shardDb.query<guildChannel[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
   );
