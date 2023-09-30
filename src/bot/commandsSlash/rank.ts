@@ -22,7 +22,7 @@ import rankModel from '../models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import userModel from '../models/userModel.js';
-import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
+import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 
 type MyGuild = CachedGuildStore; // temp
 
@@ -219,7 +219,7 @@ function getPaginationComponents(page: number, disabled: boolean) {
       .setDisabled(page <= 1 || disabled),
     new ButtonBuilder()
       .setLabel(page.toString())
-      .setCustomId('__THROW__')
+      .setCustomId(ComponentKey.Throw)
       .setStyle(ButtonStyle.Primary)
       .setDisabled(true),
     new ButtonBuilder()

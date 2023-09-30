@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, time } from 'discord.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
@@ -29,37 +29,44 @@ registerSlashCommand({
     const myTargetMember = await guildMemberModel.storage.get(i.guild, member.id);
     const targetMemberInfo = await nameUtil.getGuildMemberInfo(i.guild, member.id);
 
-    const lastActivities = await utilModel.storage.getLastActivities(i.guild, member.id, true);
-    for (const act in lastActivities) {
-      if (!lastActivities[act]) lastActivities[act] = 'n/a';
-      else lastActivities[act] = `<t:${lastActivities[act]}>, <t:${lastActivities[act]}:R>`;
-    }
+    const lastActivities = await utilModel.storage.getLastActivities(i.guild, member.id);
+
     const inviterInfo = await nameUtil.getGuildMemberInfo(i.guild, myTargetMember.inviter);
     if (inviterInfo.name == 'User left [0]')
       inviterInfo.name = 'No inviter set. Use `/inviter` to set one!';
 
-    let lastActivityStr = '';
-    if (i.guild.appData.textXp)
-      lastActivityStr += `Last textmessage: ${lastActivities.textMessage}\n`;
-    if (i.guild.appData.voiceXp)
-      lastActivityStr += `Last voiceminute: ${lastActivities.voiceMinute}\n`;
-    if (i.guild.appData.inviteXp) lastActivityStr += `Last invite: ${lastActivities.invite}\n`;
-    if (i.guild.appData.voteXp) lastActivityStr += `Last vote: ${lastActivities.vote}\n`;
-    if (i.guild.appData.bonusXp) lastActivityStr += `Last bonus: ${lastActivities.bonus}\n`;
+    const fmtActivity = (act: number | null) => (act ? `${time(act)}, ${time(act, 'R')}` : 'n/a');
 
-    targetMemberInfo.joinedAt = Math.ceil(targetMemberInfo.joinedAt / 1000);
+    const lastActivityStr = [
+      i.guild.appData.textXp
+        ? `Last textmessage: ${fmtActivity(lastActivities.textMessage)}`
+        : null,
+      i.guild.appData.voiceXp
+        ? `Last voiceminute: ${fmtActivity(lastActivities.voiceMinute)}`
+        : null,
+      i.guild.appData.inviteXp ? `Last invite: ${fmtActivity(lastActivities.invite)}` : null,
+      i.guild.appData.voteXp ? `Last vote: ${fmtActivity(lastActivities.vote)}` : null,
+      i.guild.appData.bonusXp ? `Last bonus: ${fmtActivity(lastActivities.bonus)}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
 
-    if (myTargetUser.patreonTierUntilDate > Date.now() / 1000 && myTargetUser.patreonTier > 0) {
-      targetMemberInfo.patreonText = stripIndent`
+    targetMemberInfo.joinedAt =
+      typeof targetMemberInfo.joinedAt === 'string'
+        ? targetMemberInfo.joinedAt
+        : Math.ceil(targetMemberInfo.joinedAt / 1000);
+
+    const patreonText =
+      myTargetUser.patreonTierUntilDate > Date.now() / 1000 && myTargetUser.patreonTier > 0
+        ? stripIndent`
           Active Tier: ${myTargetUser.patreonTier} (${fct.getPatreonTierName(
             myTargetUser.patreonTier,
           )})
-          Valid until: <t:${myTargetUser.patreonTierUntilDate}:D>, <t:${
-            myTargetUser.patreonTierUntilDate
-          }:R>`;
-    } else {
-      targetMemberInfo.patreonText = stripIndent`No active Tier`;
-    }
+          Valid until: ${time(myTargetUser.patreonTierUntilDate, 'D')}, ${time(
+            myTargetMember.patreonTierUntilDate,
+            'R',
+          )}`
+        : 'No active Tier';
 
     const embed = new EmbedBuilder()
       .setAuthor({
@@ -76,7 +83,7 @@ registerSlashCommand({
         },
         {
           name: 'Patreon',
-          value: targetMemberInfo.patreonText,
+          value: patreonText,
         },
         {
           name: 'Settings',

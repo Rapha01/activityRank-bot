@@ -1,4 +1,4 @@
-import { ChannelType } from 'discord.js';
+import { ChannelType, Guild } from 'discord.js';
 
 export const getChannelName = (channels, channelId) => {
   const channel = channels.get(channelId);
@@ -53,68 +53,59 @@ export const getChannelTypeIcon = (channels, channelId) => {
   }
 };
 
-export const getGuildMemberInfos = (guild, userIds) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let member,
-        userIdsToFetch = [],
-        infos = {};
-      // Add cached
-      for (const userId of userIds) {
-        member = guild.members.cache.get(userId);
+export const getGuildMemberInfos = async (guild: Guild, userIds: string[]) => {
+  const userIdsToFetch: string[] = [];
+  const infos: Record<
+    string,
+    { name: string; avatarUrl: string | null; joinedAt: number | string }
+  > = {};
 
-        if (member) {
-          infos[userId] = {};
-          infos[userId].name = getGuildMemberAlias(member);
-          infos[userId].avatarUrl = member.user.avatarURL();
-          infos[userId].joinedAt = member.joinedAt;
-        } else {
-          userIdsToFetch.push(userId);
-        }
-      }
+  // Add cached
+  for (const userId of userIds) {
+    const member = guild.members.cache.get(userId);
 
-      // Add fetched
-      if (userIdsToFetch.length > 0) {
-        const fetchedMembers = await guild.members.fetch({
-          user: userIdsToFetch,
-          withPresences: false,
-          cache: false,
-        }); // #discordapi
-        for (const fetchedMember of fetchedMembers) {
-          member = fetchedMember[1];
-          infos[member.id] = {};
-          infos[member.id].name = getGuildMemberAlias(member);
-          infos[member.id].avatarUrl = member.user.avatarURL();
-          infos[member.id].joinedAt = member.joinedAt;
-        }
-      }
-
-      // Add deleted
-      for (const userId of userIds) {
-        if (!infos[userId]) {
-          infos[userId] = {};
-          infos[userId].name = 'User left [' + userId + ']';
-          infos[userId].avatarUrl = '';
-          infos[userId].joinedAt = 'n/a';
-        }
-      }
-
-      resolve(infos);
-    } catch (e) {
-      return reject(e);
+    if (member) {
+      infos[userId] = {
+        name: getGuildMemberAlias(member),
+        avatarUrl: member.user.avatarURL(),
+        joinedAt: member.joinedAt?.getTime() ?? 'n/a',
+      };
+    } else {
+      userIdsToFetch.push(userId);
     }
-  });
+  }
+
+  // Add fetched
+  if (userIdsToFetch.length > 0) {
+    const fetchedMembers = await guild.members.fetch({
+      user: userIdsToFetch,
+      withPresences: false,
+    });
+    for (const member of fetchedMembers.values()) {
+      infos[member.id] = {
+        name: getGuildMemberAlias(member),
+        avatarUrl: member.user.avatarURL(),
+        joinedAt: member.joinedAt?.getTime() ?? 'n/a',
+      };
+    }
+  }
+
+  // Add deleted
+  for (const userId of userIds) {
+    if (!infos[userId]) {
+      infos[userId] = {
+        name: `User left [${userId}]`,
+        avatarUrl: '',
+        joinedAt: 'n/a',
+      };
+    }
+  }
+
+  return infos;
 };
 
-export const getGuildMemberInfo = (guild, userId) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const guildMemberName = (await getGuildMemberInfos(guild, [userId]))[userId];
-      resolve(guildMemberName);
-    } catch (e) {
-      return reject(e);
-    }
-  });
+export const getGuildMemberInfo = async (guild: Guild, userId: string) => {
+  return (await getGuildMemberInfos(guild, [userId]))[userId];
 };
 
 export const getGuildMemberMention = (members, memberId) => {

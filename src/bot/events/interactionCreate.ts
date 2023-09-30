@@ -19,7 +19,13 @@ import {
 import { supportServerInviteLink } from '../../const/config.js';
 import { stripIndent } from 'common-tags';
 import { userLevels } from '../../const/privilegedUsers.js';
-import { commandMap, componentMap, contextMap, modalMap } from 'bot/util/commandLoader.js';
+import {
+  ComponentKey,
+  commandMap,
+  componentMap,
+  contextMap,
+  modalMap,
+} from 'bot/util/commandLoader.js';
 import { logger } from 'bot/util/logger.js';
 import { hasPrivilege } from 'const/privilegeLevels.js';
 
@@ -69,6 +75,7 @@ export default {
         });
       }
 
+      // TODO: deprecate in favor of native Discord slash command configs
       if (
         interaction.guild.appData.commandOnlyChannel != 0 &&
         interaction.guild.appData.commandOnlyChannel != interaction.channel.id &&
@@ -83,8 +90,8 @@ export default {
       if (interaction.isMessageComponent()) {
         const parts = interaction.customId.split(' ');
         const key = parts[0];
-        if (key === '__null__') return;
-        if (key === '__THROW__') throw new Error('should never occur');
+        if (key === ComponentKey.Ignore) return;
+        if (key === ComponentKey.Throw) throw new Error('should never occur');
         const ref = componentMap.get(key);
         if (ref) {
           const opts = JSON.parse(parts[2]);
