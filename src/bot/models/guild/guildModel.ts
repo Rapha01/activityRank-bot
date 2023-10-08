@@ -2,6 +2,7 @@ import shardDb from '../../../models/shardDb/shardDb.js';
 import managerDb from '../../../models/managerDb/managerDb.js';
 import mysql from 'promise-mysql';
 import type { Guild } from 'discord.js';
+import type { guild } from 'models/types/shard.js';
 
 const promises: Record<string, Promise<void>> = {};
 
@@ -96,7 +97,7 @@ export const storage = {
   },
 
   get: async (guild: Guild) => {
-    const res = await shardDb.query(
+    const res = await shardDb.query<guild[]>(
       guild.appData.dbHost,
       `SELECT * FROM guild WHERE guildId = ${guild.id}`,
     );
@@ -105,7 +106,7 @@ export const storage = {
   },
 };
 
-export interface CachedGuildStore {
+/* export interface CachedGuildStore {
   tokens: number;
   tokensBurned: number;
   voteTag: string;
@@ -174,14 +175,16 @@ export interface CachedGuildStore {
 export interface CachedGuild extends CachedGuildStore {
   addDate: number;
   dbHost: any; //TODO
-}
+} */
+
+export type CachedGuild = Pick<guild, (typeof cachedFields)[number]>;
 
 async function buildCache(guild: Guild) {
   const dbHost = await getDbHost(guild.id);
-  let cache = (await shardDb.query(
+  let cache = await shardDb.query<CachedGuild[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
-  )) as CachedGuildStore[];
+  );
 
   if (cache.length == 0) {
     await shardDb.query(
@@ -190,18 +193,13 @@ async function buildCache(guild: Guild) {
         guild.members.me!.joinedAt!.getTime() / 1000,
       )},${Math.floor(Date.now() / 1000)})`,
     );
-    cache = (await shardDb.query(
+    cache = await shardDb.query<CachedGuild[]>(
       dbHost,
       `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
-    )) as CachedGuildStore[];
+    );
   }
 
-  const cachedGuildStore = cache[0]!;
-  const cachedGuild: CachedGuild = {
-    ...cachedGuildStore,
-    addDate: cachedGuildStore.addDate.getTime(),
-    dbHost,
-  };
+  const cachedGuild = cache[0]!;
   guild.appData = cachedGuild;
 }
 

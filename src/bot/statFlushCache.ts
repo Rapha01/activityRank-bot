@@ -1,6 +1,6 @@
 import type { Client, Guild, GuildMember, TextBasedChannel, VoiceBasedChannel } from 'discord.js';
 import levelManager from './levelManager.js';
-import type { StatFlushCacheType } from 'models/types/enums.js';
+import type { StatType } from 'models/types/enums.js';
 
 export async function addTextMessage(
   member: GuildMember,
@@ -182,7 +182,7 @@ export interface StatFlushCache {
   bonus?: Record<string, StatFlushCacheGuildEntry>;
 }
 
-const buildStatFlushCache = (member: GuildMember, type: StatFlushCacheType) => {
+const buildStatFlushCache = (member: GuildMember, type: StatType) => {
   const statFlushCache = member.client.appData.statFlushCache;
   const dbHost = member.guild.appData.dbHost;
 
@@ -193,7 +193,7 @@ const buildStatFlushCache = (member: GuildMember, type: StatFlushCacheType) => {
   return statFlushCache[dbHost][type];
 };
 
-const directlyBuildStatFlushCache = (client: Client, guild: Guild, type: StatFlushCacheType) => {
+const directlyBuildStatFlushCache = (client: Client, guild: Guild, type: StatType) => {
   const statFlushCache = client.appData.statFlushCache;
   const dbHost = guild.appData.dbHost;
 
