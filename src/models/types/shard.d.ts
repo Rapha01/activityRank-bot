@@ -26,11 +26,11 @@ export interface guild {
   inviteXp: number;
   voteXp: number;
   bonusXp: number;
-  notifyevelupDm: number;
-  notifyevelupCurrentChannel: number;
-  notifyevelupWithRole: number;
-  notifyevelupOnlyWithRole: number;
-  takeAwayAssignedRolesOnevelDown: number;
+  notifyLevelupDm: number;
+  notifyLevelupCurrentChannel: number;
+  notifyLevelupWithRole: number;
+  notifyLevelupOnlyWithRole: number;
+  takeAwayAssignedRolesOnLevelDown: number;
   levelFactor: number;
   voteCooldownSeconds: number;
   textMessageCooldownSeconds: number;
@@ -43,7 +43,7 @@ export interface guild {
   bonusPerVoiceMinute: number;
   bonusPerVote: number;
   bonusPerInvite: number;
-  bonusUntilDate: string; // BIGINT;
+  bonusUntilDate: number; // BIGINT;
   reactionVote: number;
   allowMutedXp: number;
   allowDeafenedXp: number;
@@ -88,7 +88,7 @@ export interface guildChannel {
 export interface guildMember {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
-  notifyevelupDm: number;
+  notifyLevelupDm: number;
   tokensBurned: number;
   reactionVote: number;
   inviter: string; // BIGINT;
@@ -97,8 +97,8 @@ export interface guildMember {
 export interface guildRole {
   guildId: string; // BIGINT;
   roleId: string; // BIGINT;
-  assignevel: number;
-  deassignevel: number;
+  assignLevel: number;
+  deassignLevel: number;
   assignMessage: string;
   deassignMessage: string;
   noXp: number;
