@@ -26,7 +26,7 @@ declare module 'discord.js' {
     logger: pino.Logger;
   }
   export interface Guild {
-    appData: guild;
+    appData: CachedGuild;
   }
   export interface GuildChannel {
     appData: guildChannel;

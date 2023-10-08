@@ -6,7 +6,7 @@ import type {
   StatFlushCacheChannelEntry,
   StatFlushCacheGuildEntry,
 } from 'bot/statFlushCache.js';
-import type { StatFlushCacheType } from 'models/types/enums.js';
+import type { StatType } from 'models/types/enums.js';
 
 export default async function (manager: ShardingManager) {
   const hrstart = process.hrtime();
@@ -23,10 +23,7 @@ export default async function (manager: ShardingManager) {
   for (let dbHost in statFlushCache)
     for (let type in statFlushCache[dbHost]) {
       promises.push(
-        shardDb.query(
-          dbHost,
-          getSql(type as StatFlushCacheType, statFlushCache[dbHost][type as StatFlushCacheType])!,
-        ),
+        shardDb.query(dbHost, getSql(type as StatType, statFlushCache[dbHost][type as StatType])!),
       );
       count = Object.keys(statFlushCache[dbHost][type]).length;
       counts[type] ? (counts[type] += count) : (counts[type] = count);
@@ -48,12 +45,12 @@ const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
       if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
 
       for (const type in shard[dbHost]) {
-        if (!statFlushCache[dbHost][type as StatFlushCacheType])
-          statFlushCache[dbHost][type as StatFlushCacheType] = {};
+        if (!statFlushCache[dbHost][type as StatType])
+          statFlushCache[dbHost][type as StatType] = {};
 
-        statFlushCache[dbHost][type as StatFlushCacheType] = {
-          ...statFlushCache[dbHost][type as StatFlushCacheType],
-          ...shard[dbHost][type as StatFlushCacheType],
+        statFlushCache[dbHost][type as StatType] = {
+          ...statFlushCache[dbHost][type as StatType],
+          ...shard[dbHost][type as StatType],
         };
       }
     }
@@ -64,7 +61,7 @@ const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
 
 const maxValue = 100000000;
 const getSql = (
-  type: StatFlushCacheType,
+  type: StatType,
   entries: (StatFlushCacheChannelEntry | StatFlushCacheGuildEntry)[],
 ) => {
   let sqls = [],

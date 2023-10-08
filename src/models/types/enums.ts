@@ -1,4 +1,7 @@
-export type StatFlushCacheType = 'textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus';
+export type StatType = 'textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus';
+export const statTimeIntervals = ['Alltime', 'Year', 'Month', 'Week', 'Day'] as const;
+export type StatTimeInterval = (typeof statTimeIntervals)[number];
+
 export interface DBDelete {
   affectedRows: number;
 }

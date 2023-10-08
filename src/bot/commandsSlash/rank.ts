@@ -1,11 +1,7 @@
 import {
   SlashCommandBuilder,
   EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
   ButtonStyle,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
   RESTJSONErrorCodes,
   ComponentType,
   type Guild,
@@ -13,24 +9,25 @@ import {
   type ChatInputCommandInteraction,
   type DiscordAPIError,
   type MessageComponentInteraction,
+  type InteractionEditReplyOptions,
+  type ActionRowData,
+  type MessageActionRowComponentData,
 } from 'discord.js';
 
 import cooldownUtil from '../util/cooldownUtil.js';
-import guildModel, { type CachedGuildStore } from '../models/guild/guildModel.js';
+import guildModel, { type CachedGuild } from '../models/guild/guildModel.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import rankModel from '../models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import userModel from '../models/userModel.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
-
-type MyGuild = CachedGuildStore; // temp
-
-type TimeInterval = 'Alltime' | 'Year' | 'Month' | 'Week' | 'Day';
+import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
+import type { guild } from 'models/types/shard.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
-  time: TimeInterval;
+  time: StatTimeInterval;
   owner: string;
   targetUser: User;
   page: number;
@@ -66,14 +63,14 @@ registerSlashCommand({
       interaction: i,
     };
 
-    const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild));
+    const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild!));
 
     const cleanCache = async () => {
       const state = activeCache.get(id);
       activeCache.delete(id);
       if (!i.guild) return i.client.logger.debug({ i }, '/rank tried to update uncached guild');
       try {
-        await i.editReply(await generateCard(state, i.guild, myGuild, true));
+        await i.editReply(await generateCard(state, i.guild, myGuild!, true));
       } catch (_err) {
         const err = _err as DiscordAPIError;
         if (err.code === RESTJSONErrorCodes.UnknownMessage)
@@ -108,7 +105,7 @@ const timeId = registerComponent({
   type: ComponentType.StringSelect,
   async callback(interaction) {
     const time = interaction.values[0];
-    await execCacheSet(interaction, 'time', time as TimeInterval);
+    await execCacheSet(interaction, 'time', time as StatTimeInterval);
   },
 });
 
@@ -126,14 +123,6 @@ async function execCacheSet<T extends keyof CacheInstance>(
     return;
   }
 
-  if (cachedMessage.owner !== interaction.user.id) {
-    await interaction.reply({
-      content: "Sorry, this menu isn't for you.",
-      ephemeral: true,
-    });
-    return;
-  }
-
   const myGuild = await guildModel.storage.get(interaction.guild);
 
   activeCache.set(interaction.message.id, { ...cachedMessage, [key]: value });
@@ -141,21 +130,22 @@ async function execCacheSet<T extends keyof CacheInstance>(
   await interaction.deferUpdate();
 
   const state = activeCache.get(interaction.message.id);
-  await state.interaction.editReply(await generateCard(state, interaction.guild, myGuild));
+  await interaction.editReply(await generateCard(state, interaction.guild, myGuild!));
 }
 
 async function generateCard(
   cache: CacheInstance,
   guild: Guild,
-  myGuild: MyGuild,
+  myGuild: guild,
   disabled = false,
-) {
+): Promise<InteractionEditReplyOptions> {
   if (cache.window === 'rank') return await generateRankCard(cache, guild, myGuild, disabled);
-  if (cache.window === 'topChannels')
+  else if (cache.window === 'topChannels')
     return await generateChannelCard(cache, guild, myGuild, disabled);
+  else throw new Error();
 }
 
-const _prettifyTime = {
+const _prettifyTime: { [k in StatTimeInterval]: string } = {
   Day: 'Today',
   Week: 'This week',
   Month: 'This month',
@@ -166,9 +156,9 @@ const _prettifyTime = {
 async function generateChannelCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: MyGuild,
+  myGuild: guild,
   disabled: boolean,
-) {
+): Promise<InteractionEditReplyOptions> {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
@@ -201,41 +191,51 @@ async function generateChannelCard(
   };
 }
 
-function getChannelComponents(state: CacheInstance, disabled: boolean) {
-  return [
-    ...getGlobalComponents(state.window, state.time, disabled),
-    getPaginationComponents(state.page, disabled),
-  ];
+function getChannelComponents(
+  state: CacheInstance,
+  disabled: boolean,
+): ActionRowData<MessageActionRowComponentData>[] {
+  return [...getGlobalComponents(state, disabled), getPaginationComponents(state, disabled)];
 }
 
-function getPaginationComponents(page: number, disabled: boolean) {
-  return new ActionRowBuilder().setComponents(
-    new ButtonBuilder()
-      .setEmoji('⬅')
-      // TODO: use ownerId here
-      .setCustomId(pageId({ page: page - 1 }))
-      // .setCustomId(`rank page ${page - 1}`)
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(page <= 1 || disabled),
-    new ButtonBuilder()
-      .setLabel(page.toString())
-      .setCustomId(ComponentKey.Throw)
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(true),
-    new ButtonBuilder()
-      .setEmoji('➡️')
-      .setCustomId(pageId({ page: page + 1 }))
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(disabled),
-  );
+function getPaginationComponents(
+  state: CacheInstance,
+  disabled: boolean,
+): ActionRowData<MessageActionRowComponentData> {
+  return {
+    type: ComponentType.ActionRow,
+    components: [
+      {
+        type: ComponentType.Button,
+        emoji: '⬅',
+        customId: pageId({ page: state.page - 1 }, { ownerId: state.owner }),
+        style: ButtonStyle.Secondary,
+        disabled: state.page <= 1 || disabled,
+      },
+      {
+        type: ComponentType.Button,
+        label: state.page.toString(),
+        customId: ComponentKey.Throw,
+        style: ButtonStyle.Primary,
+        disabled: true,
+      },
+      {
+        type: ComponentType.Button,
+        emoji: '➡️',
+        customId: pageId({ page: state.page + 1 }, { ownerId: state.owner }),
+        style: ButtonStyle.Secondary,
+        disabled: disabled,
+      },
+    ],
+  };
 }
 
 async function getTopChannels(
   page: { from: number; to: number },
   guild: Guild,
   memberId: string,
-  time: TimeInterval,
-  type,
+  time: StatTimeInterval,
+  type: StatType,
 ) {
   const guildMemberTopChannels = await rankModel.getGuildMemberTopChannels(
     guild,
@@ -249,10 +249,10 @@ async function getTopChannels(
   if (!guildMemberTopChannels || guildMemberTopChannels.length == 0)
     return 'No entries found for this page.';
 
-  const channelMention = (index) =>
+  const channelMention = (index: number) =>
     nameUtil.getChannelMention(guild.channels.cache, guildMemberTopChannels[index].channelId);
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
-  const channelValue = (index) =>
+  const channelValue = (index: number) =>
     type === 'voiceMinute'
       ? Math.round((guildMemberTopChannels[index][time] / 60) * 10) / 10
       : guildMemberTopChannels[index][time];
@@ -267,10 +267,12 @@ async function getTopChannels(
 async function generateRankCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: MyGuild,
+  myGuild: guild,
   disabled = false,
-) {
+): Promise<InteractionEditReplyOptions> {
   const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);
+  if (!rank) throw new Error();
+
   const positions = await getPositions(
     guild,
     state.targetUser.id,
@@ -287,7 +289,7 @@ async function generateRankCard(
   const embed = new EmbedBuilder()
     .setAuthor({ name: `${state.time} stats on server ${guild.name}` })
     .setColor('#4fd6c8')
-    .setThumbnail(state.targetUser.avatarURL({ dynamic: true }));
+    .setThumbnail(state.targetUser.avatarURL());
 
   if (myGuild.bonusUntilDate > Date.now() / 1000) {
     embed.setDescription(
@@ -298,7 +300,7 @@ async function generateRankCard(
   }
 
   const infoStrings = [
-    `Total XP: ${Math.round(rank['totalScore' + state.time])} (#${positions.totalScore})`,
+    `Total XP: ${Math.round(rank[`totalScore${state.time}`])} (#${positions.totalScore})`,
     `Next Level: ${Math.floor((levelProgression % 1) * 100)}%`,
   ].join('\n');
 
@@ -311,7 +313,7 @@ async function generateRankCard(
     },
     {
       name: 'Stats',
-      value: getScoreStrings(guild.appData, myGuild, rank, positions, state.time),
+      value: getScoreStrings(guild.appData, rank, positions, state.time),
     },
   );
 
@@ -321,97 +323,116 @@ async function generateRankCard(
   };
 }
 
-function ParsedButton(selected: boolean, disabled: boolean) {
-  return new ButtonBuilder()
-    .setStyle(selected ? ButtonStyle.Primary : ButtonStyle.Secondary)
-    .setDisabled(disabled || selected);
-}
-
 function getGlobalComponents(
-  window: CacheInstance['window'],
-  time: TimeInterval,
+  state: CacheInstance,
   disabled: boolean,
-) {
+): ActionRowData<MessageActionRowComponentData>[] {
   return [
-    new ActionRowBuilder().setComponents(
-      ParsedButton(window === 'rank', disabled)
-        // .setCustomId('rank window rank')
-        .setCustomId(windowId('rank'))
-        .setLabel('Stats'),
-      ParsedButton(window === 'topChannels', disabled)
-        .setCustomId(windowId('topChannels'))
-        .setLabel('Top Channels'),
-    ),
-    new ActionRowBuilder().setComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId(timeId())
-        .setDisabled(disabled)
-        .setOptions(
-          new StringSelectMenuOptionBuilder()
-            .setLabel('Alltime')
-            .setValue('Alltime')
-            .setDefault(time === 'Alltime'),
-          new StringSelectMenuOptionBuilder()
-            .setLabel('Year')
-            .setValue('Year')
-            .setDefault(time === 'Year'),
-          new StringSelectMenuOptionBuilder()
-            .setLabel('Month')
-            .setValue('Month')
-            .setDefault(time === 'Month'),
-          new StringSelectMenuOptionBuilder()
-            .setLabel('Week')
-            .setValue('Week')
-            .setDefault(time === 'Week'),
-          new StringSelectMenuOptionBuilder()
-            .setLabel('Day')
-            .setValue('Day')
-            .setDefault(time === 'Day'),
-        ),
-    ),
+    {
+      type: ComponentType.ActionRow,
+      components: [
+        {
+          type: ComponentType.Button,
+          style: state.window === 'rank' ? ButtonStyle.Primary : ButtonStyle.Secondary,
+          disabled: disabled || state.window === 'rank',
+          customId: windowId('rank', { ownerId: state.owner }),
+          label: 'Stats',
+        },
+        {
+          type: ComponentType.Button,
+          style: state.window === 'topChannels' ? ButtonStyle.Primary : ButtonStyle.Secondary,
+          disabled: disabled || state.window === 'topChannels',
+          customId: windowId('topChannels', { ownerId: state.owner }),
+          label: 'Top Channels',
+        },
+      ],
+    },
+    {
+      type: ComponentType.ActionRow,
+      components: [
+        {
+          type: ComponentType.StringSelect,
+          customId: timeId(null, { ownerId: state.owner }),
+          disabled,
+          options: statTimeIntervals.map((i) => ({
+            label: i,
+            value: i,
+            default: state.time === i,
+          })),
+        },
+      ],
+    },
   ];
 }
 
-function getRankComponents(state: CacheInstance, disabled: boolean) {
-  return [...getGlobalComponents(state.window, state.time, disabled)];
+function getRankComponents(
+  state: CacheInstance,
+  disabled: boolean,
+): ActionRowData<MessageActionRowComponentData>[] {
+  return [...getGlobalComponents(state, disabled)];
 }
 
-function getScoreStrings(appData, myGuild: MyGuild, ranks, positions, time: TimeInterval) {
+function getScoreStrings(
+  myGuild: CachedGuild,
+  ranks: NonNullable<Awaited<ReturnType<typeof rankModel.getGuildMemberRank>>>,
+  positions: Record<string, number | null>,
+  time: StatTimeInterval,
+) {
   const scoreStrings = [];
-  if (appData.textXp)
-    scoreStrings.push(`:writing_hand: ${ranks['textMessage' + time]} (#${positions.textMessage})`);
-  if (appData.voiceXp)
+  if (myGuild.textXp)
+    scoreStrings.push(`:writing_hand: ${ranks[`textMessage${time}`]} (#${positions.textMessage})`);
+  if (myGuild.voiceXp)
     scoreStrings.push(
-      `:microphone2: ${Math.round((ranks['voiceMinute' + time] / 60) * 10) / 10} (#${
+      `:microphone2: ${Math.round((ranks[`voiceMinute${time}`] / 60) * 10) / 10} (#${
         positions.voiceMinute
       })`,
     );
-  if (appData.inviteXp)
-    scoreStrings.push(`:envelope: ${ranks['invite' + time]} (#${positions.invite})`);
-  if (appData.voteXp)
-    scoreStrings.push(`${myGuild.voteEmote} ${ranks['vote' + time]} (#${positions.vote})`);
-  if (appData.bonusXp)
-    scoreStrings.push(`${myGuild.bonusEmote} ${ranks['bonus' + time]} (#${positions.bonus})`);
+  if (myGuild.inviteXp)
+    scoreStrings.push(`:envelope: ${ranks[`invite${time}`]} (#${positions.invite})`);
+  if (myGuild.voteXp)
+    scoreStrings.push(`${myGuild.voteEmote} ${ranks[`vote${time}`]} (#${positions.vote})`);
+  if (myGuild.bonusXp)
+    scoreStrings.push(`${myGuild.bonusEmote} ${ranks[`bonus${time}`]} (#${positions.bonus})`);
 
   return scoreStrings.join('\n');
 }
 
-async function getPositions(guild: Guild, memberId: string, types, time: TimeInterval) {
-  const res = {};
-  for (const p of types)
-    res[p] = await rankModel.getGuildMemberRankPosition(guild, memberId, p + time);
+async function getPositions<T extends string>(
+  guild: Guild,
+  memberId: string,
+  types: T[],
+  time: StatTimeInterval,
+) {
+  const res = Object.fromEntries(
+    await Promise.all(
+      types.map(async (t) => [
+        t,
+        await rankModel.getGuildMemberRankPosition(guild, memberId, t + time),
+      ]) as Promise<[T, number | null]>[],
+    ),
+  ) as Record<T, number | null>;
+
   return res;
 }
 
-function getTypes(appData) {
+function getTypes(
+  myGuild: CachedGuild,
+): ('textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus' | 'totalScore')[] {
   return [
-    appData.textXp ? 'textMessage' : null,
-    appData.voiceXp ? 'voiceMinute' : null,
-    appData.inviteXp ? 'invite' : null,
-    appData.voteXp ? 'vote' : null,
-    appData.bonusXp ? 'bonus' : null,
+    myGuild.textXp ? 'textMessage' : null,
+    myGuild.voiceXp ? 'voiceMinute' : null,
+    myGuild.inviteXp ? 'invite' : null,
+    myGuild.voteXp ? 'vote' : null,
+    myGuild.bonusXp ? 'bonus' : null,
     'totalScore',
-  ].filter((i) => i !== null);
+  ].filter((i) => i !== null) as (
+    | 'textMessage'
+    | 'voiceMinute'
+    | 'invite'
+    | 'vote'
+    | 'bonus'
+    | 'totalScore'
+  )[];
 }
 
 export default { activeCache };
