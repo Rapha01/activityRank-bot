@@ -1,6 +1,7 @@
 import type { Guild, Role } from 'discord.js';
 import shardDb from '../../../models/shardDb/shardDb.js';
 import mysql from 'promise-mysql';
+import type { guildRole } from 'models/types/shard.js';
 
 const promises: Record<string, Promise<void>> = {};
 
@@ -71,7 +72,7 @@ export const storage = {
     if (role && role.appData && cachedFields.indexOf(field) > -1) role.appData[field] = value;
   },
   getRoleAssignments: async (guild: Guild) => {
-    const res = await shardDb.query(
+    const res = await shardDb.query<guildRole[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND (assignLevel != 0 OR deassignLevel != 0) ORDER BY assignLevel ASC`,
     );
@@ -79,7 +80,7 @@ export const storage = {
     return res;
   },
   getRoleAssignmentsByLevel: async (guild: Guild, type, level) => {
-    const res = await shardDb.query(
+    const res = await shardDb.query<guildRole[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${mysql.escape(level)}`,
     );
@@ -87,7 +88,7 @@ export const storage = {
     return res;
   },
   getRoleAssignmentsByRole: async (guild: Guild, roleId: string) => {
-    const res = await shardDb.query(
+    const res = await shardDb.query<guildRole[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND roleId = ${roleId}`,
     );
