@@ -15,6 +15,14 @@ const activeResetServerCommandCooldown = (cd: number, toWait: number) =>
     toWait,
   )} more seconds.`;
 
+export function getWaitTime(lastDate: Date | number | undefined | null, cooldown: number) {
+  const now = Date.now();
+  const then = lastDate instanceof Date ? lastDate.getTime() : lastDate ?? 0;
+  const remaining = cooldown - (now - then);
+  return { remaining, next: new Date(now + remaining) };
+}
+
+// * deprecated: prefer `getWaitTime`
 export const getCachedCooldown = (cache, field, cd) => {
   const nowDate = Date.now() / 1000;
 
