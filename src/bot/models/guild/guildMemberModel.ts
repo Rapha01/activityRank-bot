@@ -2,33 +2,44 @@ import shardDb from '../../../models/shardDb/shardDb.js';
 import mysql from 'promise-mysql';
 import rankModel from '../rankModel.js';
 import type { Guild, GuildMember } from 'discord.js';
+import type { guildMember } from 'models/types/shard.js';
 
-const promises: Record<string, Promise<void>> = {};
-// export const storage = {};
+// const promises: Record<string, Promise<void>> = {};
+const promises = new Map<string, Promise<void>>();
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const;
-let defaultCache = null;
-let defaultAll = null;
+let defaultCache: CachedGuildMember | null = null;
+let defaultAll: guildMember | null = null;
+
+export type CachedGuildMember = Pick<guildMember, (typeof cachedFields)[number]> & {
+  totalXp: number;
+  lastVoteDate: Date | null;
+  lastTextMessageDate: Date | null;
+};
 
 export const cache = {
   load: (member: GuildMember) => {
     if (!member.appData) {
-      if (promises[member.guild.id + member.id]) {
-        return promises[member.guild.id + member.id];
+      const promiseKey = `${member.guild.id}.${member.id}`;
+      if (promises.has(promiseKey)) {
+        return promises.get(promiseKey)!;
       }
 
-      promises[member.guild.id + member.id] = new Promise(async (resolve, reject) => {
-        try {
-          await buildCache(member);
-          delete promises[member.guild.id + member.id];
-          resolve();
-        } catch (e) {
-          delete promises[member.guild.id + member.id];
-          reject(e);
-        }
-      });
+      promises.set(
+        `${member.guild.id}.${member.id}`,
+        new Promise(async (resolve, reject) => {
+          try {
+            await buildCache(member);
+            promises.delete(promiseKey);
+            resolve();
+          } catch (e) {
+            promises.delete(promiseKey);
+            reject(e);
+          }
+        }),
+      );
 
-      return promises[member.guild.id + member.id];
+      return promises.get(promiseKey)!;
     }
 
     return new Promise(async (resolve) => {
@@ -39,7 +50,7 @@ export const cache = {
 
 export const storage = {
   get: async (guild: Guild, userId: string) => {
-    const res = await shardDb.query(
+    const res = await shardDb.query<guildMember[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildMember WHERE guildId = ${guild.id} && userId = ${mysql.escape(userId)}`,
     );
@@ -47,7 +58,7 @@ export const storage = {
     if (res.length == 0) {
       if (!defaultAll)
         defaultAll = (
-          await shardDb.query(
+          await shardDb.query<guildMember[]>(
             guild.appData.dbHost,
             `SELECT * FROM guildMember WHERE guildId = 0 AND userId = 0`,
           )
@@ -84,64 +95,60 @@ export const storage = {
   },
 };
 
-export const getRankedUserIds = (guild: Guild) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const textmessageUserIds = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
-      );
-      const voiceMinuteUserIds = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
-      );
-      const voteUserIds = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0`,
-      );
-      const bonusUserIds = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT DISTINCT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0`,
-      );
+export async function getRankedUserIds(guild: Guild) {
+  const textmessageUserIds = await shardDb.query<{ userId: string }[]>(
+    guild.appData.dbHost,
+    `SELECT DISTINCT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
+  );
+  const voiceMinuteUserIds = await shardDb.query<{ userId: string }[]>(
+    guild.appData.dbHost,
+    `SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
+  );
+  const voteUserIds = await shardDb.query<{ userId: string }[]>(
+    guild.appData.dbHost,
+    `SELECT DISTINCT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0`,
+  );
+  const bonusUserIds = await shardDb.query<{ userId: string }[]>(
+    guild.appData.dbHost,
+    `SELECT DISTINCT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0`,
+  );
 
-      const ids = [
-        ...new Set([...textmessageUserIds, ...voiceMinuteUserIds, ...voteUserIds, ...bonusUserIds]),
-      ];
+  const ids = [
+    ...new Set([...textmessageUserIds, ...voiceMinuteUserIds, ...voteUserIds, ...bonusUserIds]),
+  ];
 
-      let userIds = [];
-      for (let id of ids) {
-        userIds.push(id.userId);
-      }
+  let userIds = [];
+  for (let id of ids) {
+    userIds.push(id.userId);
+  }
 
-      resolve(userIds);
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+  return userIds;
+}
 
 const buildCache = async (member: GuildMember) => {
-  let cache = await shardDb.query(
+  let foundCache = await shardDb.query<CachedGuildMember[]>(
     member.guild.appData.dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = ${
       member.guild.id
     } AND userId = ${member.id}`,
   );
 
-  if (cache.length > 0) cache = cache[0];
+  let cache;
+
+  if (foundCache.length > 0) cache = foundCache[0];
   else {
     if (!defaultCache) await loadDefaultCache(member.guild.appData.dbHost);
     cache = Object.assign({}, defaultCache);
   }
 
-  cache.totalXp = parseInt(await rankModel.getGuildMemberTotalScore(member.guild, member.id));
-  cache.lastTextMessageDate = 0;
+  cache.totalXp = (await rankModel.getGuildMemberTotalScore(member.guild, member.id)) ?? 0;
+  cache.lastTextMessageDate = null;
 
   member.appData = cache;
 };
 
 const loadDefaultCache = async (dbHost: string) => {
-  let res = await shardDb.query(
+  let res = await shardDb.query<CachedGuildMember[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = 0 AND userId = 0`,
   );

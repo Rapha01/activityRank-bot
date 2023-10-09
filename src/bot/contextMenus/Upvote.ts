@@ -4,9 +4,9 @@ import statFlushCache from '../statFlushCache.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import userModel from '../models/userModel.js';
 import fct from '../../util/fct.js';
-import cooldownUtil from '../util/cooldownUtil.js';
+import { getWaitTime } from '../util/cooldownUtil.js';
 import { registerContextMenu } from 'bot/util/commandLoader.js';
-import { ApplicationCommandType } from 'discord.js';
+import { ApplicationCommandType, time } from 'discord.js';
 
 registerContextMenu({
   data: new ContextMenuCommandBuilder().setName('Upvote').setType(ApplicationCommandType.User),
@@ -54,22 +54,22 @@ registerContextMenu({
     const value = fct.getVoteMultiplier(myUser);
 
     // Check Command cooldown
-    const toWait = cooldownUtil.getCachedCooldown(
-      interaction.member.appData,
-      'lastVoteDate',
-      interaction.guild.appData.voteCooldownSeconds,
+    const toWait = getWaitTime(
+      interaction.member.appData.lastVoteDate,
+      interaction.guild.appData.voteCooldownSeconds * 1000,
     );
 
-    if (toWait > 0) {
+    if (toWait.remaining > 0) {
       return await interaction.reply({
-        content: `You already voted recently. You will be able to vote again <t:${Math.ceil(
-          toWait + Date.now() / 1000,
-        )}:R>.`,
+        content: `You already voted recently. You will be able to vote again ${time(
+          toWait.next,
+          'R',
+        )}.`,
         ephemeral: true,
       });
     }
 
-    interaction.member.appData.lastVoteDate = Date.now() / 1000;
+    interaction.member.appData.lastVoteDate = new Date();
 
     await statFlushCache.addVote(targetMember, value);
 

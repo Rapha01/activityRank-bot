@@ -82,73 +82,49 @@ export const addInvite = (member: GuildMember, count: number) => {
   });
 };
 
-export const addVote = (member: GuildMember, count: number) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let voteCache = buildStatFlushCache(member, 'vote');
+export const addVote = async (member: GuildMember, count: number) => {
+  let voteCache = buildStatFlushCache(member, 'vote');
 
-      count = count * 1;
+  count = count * 1;
 
-      let entry = voteCache[member.id];
-      if (!entry)
-        entry = voteCache[member.id] = {
-          guildId: member.guild.id,
-          userId: member.id,
-          count: count,
-        };
-      else entry.count += count;
+  let entry = voteCache[member.id];
+  if (!entry)
+    entry = voteCache[member.id] = {
+      guildId: member.guild.id,
+      userId: member.id,
+      count: count,
+    };
+  else entry.count += count;
 
-      await addTotalXp(member, count * member.guild.appData.xpPerVote);
+  await addTotalXp(member, count * member.guild.appData.xpPerVote);
 
-      if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
-        await addBonus(member, count * member.guild.appData.bonusPerVote);
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+  if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
+    await addBonus(member, count * member.guild.appData.bonusPerVote);
 };
 
-export const addBonus = (member: GuildMember, count: number) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let bonusCache = buildStatFlushCache(member, 'bonus');
+export const addBonus = async (member: GuildMember, count: number) => {
+  let bonusCache = buildStatFlushCache(member, 'bonus');
 
-      count = count * 1;
+  count = count * 1;
 
-      let entry = bonusCache[member.id];
-      if (!entry)
-        entry = bonusCache[member.id] = {
-          guildId: member.guild.id,
-          userId: member.id,
-          count: count,
-        };
-      else entry.count += count;
+  let entry = bonusCache[member.id];
+  if (!entry)
+    entry = bonusCache[member.id] = {
+      guildId: member.guild.id,
+      userId: member.id,
+      count: count,
+    };
+  else entry.count += count;
 
-      if (member.appData) await addTotalXp(member, count * member.guild.appData.xpPerBonus);
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+  if (member.appData) await addTotalXp(member, count * member.guild.appData.xpPerBonus);
 };
 
-const addTotalXp = (member: GuildMember, xp: number) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const oldTotalXp = member.appData.totalXp;
-      member.appData.totalXp += xp;
-      const newTotalXp = member.appData.totalXp;
+const addTotalXp = async (member: GuildMember, xp: number) => {
+  const oldTotalXp = member.appData.totalXp;
+  member.appData.totalXp += xp;
+  const newTotalXp = member.appData.totalXp;
 
-      await levelManager.checkLevelUp(member, oldTotalXp, newTotalXp);
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+  await levelManager.checkLevelUp(member, oldTotalXp, newTotalXp);
 };
 
 // beta function

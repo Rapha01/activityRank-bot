@@ -137,21 +137,15 @@ export const countGuildRanks = async function (guild: Guild) {
   return res[0].count;
 };
 
-export const getGuildMemberTotalScore = function (guild: Guild, userId: string) {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const res = await shardDb.query(
-        guild.appData.dbHost,
-        `${getGuildMemberTotalScoreSql(guild, userId)}`,
-      );
+export const getGuildMemberTotalScore = async function (guild: Guild, userId: string) {
+  const res = await shardDb.query<{ totalScoreAlltime: number }[]>(
+    guild.appData.dbHost,
+    `${getGuildMemberTotalScoreSql(guild, userId)}`,
+  );
 
-      if (res.length == 0) return resolve(null);
+  if (res.length == 0) return null;
 
-      return resolve(res[0].totalScoreAlltime);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  return res[0].totalScoreAlltime;
 };
 
 /* exports.getRankedGuildMemberIds = function(guildId) {
