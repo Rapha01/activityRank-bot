@@ -1,6 +1,6 @@
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import userModel from '../bot/models/userModel.js';
-import type { CommandInteraction, GuildMember, User } from 'discord.js';
+import type { GuildMember, Interaction, User } from 'discord.js';
 
 export const maxBigInt = 9223372036854775807;
 export const minIdInt = 1000000000000;
@@ -52,7 +52,7 @@ function solve(a: number, b: number, c: number) {
   else return null;
 }
 
-export const getPatreonTiers = async (interaction: CommandInteraction<'cached'>) => {
+export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   const ownerUser = (
     await interaction.guild.members.fetch({ user: interaction.guild.ownerId, cache: true })
   ).user;
