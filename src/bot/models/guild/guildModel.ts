@@ -106,78 +106,7 @@ export const storage = {
   },
 };
 
-/* export interface CachedGuildStore {
-  tokens: number;
-  tokensBurned: number;
-  voteTag: string;
-  voteEmote: string;
-  bonusTag: string;
-  bonusEmote: string;
-  entriesPerPage: number;
-  showNicknames: boolean;
-  textXp: boolean;
-  voiceXp: boolean;
-  inviteXp: boolean;
-  voteXp: boolean;
-  bonusXp: boolean;
-  notifyLevelupDm: boolean;
-  notifyLevelupCurrentChannel: boolean;
-  notifyLevelupWithRole: boolean;
-  notifyLevelupOnlyWithRole: boolean;
-  takeAwayAssignedRolesOnLevelDown: boolean;
-  levelFactor: number;
-  voteCooldownSeconds: number;
-  textMessageCooldownSeconds: number;
-  xpPerVoiceMinute: number;
-  xpPerTextMessage: number;
-  xpPerVote: number;
-  xpPerInvite: number;
-  xpPerBonus: number;
-  bonusPerTextMessage: number;
-  bonusPerVoiceMinute: number;
-  bonusPerVote: number;
-  bonusPerInvite: number;
-  bonusUntilDate: string;
-  reactionVote: boolean;
-  allowMutedXp: boolean;
-  allowDeafenedXp: boolean;
-  allowSoloXp: boolean;
-  allowInvisibleXp: boolean;
-  allowDownvotes: boolean;
-  commandOnlyChannel?: string;
-  autopost_levelup?: string;
-  autopost_serverJoin?: string;
-  autopost_serverLeave?: string;
-  autopost_voiceChannelJoin?: string;
-  autopost_voiceChannelLeave?: string;
-  autoname_totalUserCount?: string;
-  autoname_onlineUserCount?: string;
-  autoname_activeUsersLast24h?: string;
-  autoname_serverJoinsLast24h?: string;
-  autoname_serverLeavesLast24h?: string;
-  levelupMessage?: string;
-  serverJoinMessage?: string;
-  serverLeaveMessage?: string;
-  voiceChannelJoinMessage?: string;
-  voiceChannelLeaveMessage?: string;
-  roleAssignMessage?: string;
-  roleDeassignMessage?: string;
-  lastCommandDate?: string;
-  lastTokenBurnDate?: string;
-  resetDay?: number;
-  resetHour?: number;
-  joinedAtDate?: string;
-  leftAtDate?: string;
-  addDate: Date;
-  isBanned?: boolean;
-}
-
-export interface CachedGuild extends CachedGuildStore {
-  addDate: number;
-  dbHost: any; //TODO
-} */
-
-export type CachedGuild = Pick<guild, (typeof cachedFields)[number]>;
+export type CachedGuild = Pick<guild, (typeof cachedFields)[number]> & { dbHost: string };
 
 async function buildCache(guild: Guild) {
   const dbHost = await getDbHost(guild.id);
@@ -200,6 +129,7 @@ async function buildCache(guild: Guild) {
   }
 
   const cachedGuild = cache[0]!;
+  cachedGuild.dbHost = dbHost;
   guild.appData = cachedGuild;
 }
 
