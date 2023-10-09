@@ -1,10 +1,11 @@
 import {
-  StringSelectMenuBuilder,
   ButtonStyle,
   SlashCommandBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
   EmbedBuilder,
+  ComponentType,
+  type Interaction,
+  type ActionRowData,
+  type MessageActionRowComponentData,
 } from 'discord.js';
 
 import guildModel from '../models/guild/guildModel.js';
@@ -13,130 +14,169 @@ import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
-import { botInviteLink } from '../../const/config.js';
+import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
+import type { guild, guildRole } from 'models/types/shard.js';
 
-export const data = new SlashCommandBuilder()
-  .setName('serverinfo')
-  .setDescription('Information about your server!');
+registerSlashCommand({
+  data: new SlashCommandBuilder()
+    .setName('serverinfo')
+    .setDescription('Information about your server!'),
+  execute: async function (interaction) {
+    const myGuild = await guildModel.storage.get(interaction.guild);
+    const page = fct.extractPageSimple(
+      interaction.options.getInteger('page') ?? 1,
+      myGuild!.entriesPerPage,
+    );
 
-const embeds = {
-  general: info,
-  levels: levels,
-  roles: roles,
-  nocommandchannels: noCommandChannels,
-  noxpchannels: noXpChannels,
-  noxproles: noXpRoles,
-  messages: messages,
-};
+    const embed = await embeds['general']({
+      interaction,
+      myGuild: myGuild!,
+      from: page.from,
+      to: page.to,
+    });
 
-const rows = (type, page, memberId) => {
-  const paginationDisabled = ['general', 'messages'].includes(type);
-  page = Number(page);
+    await interaction.reply({
+      embeds: [embed],
+      components: rows('general', 1, interaction.member.id),
+    });
+  },
+});
+
+type WindowFn = (args: {
+  interaction: Interaction<'cached'>;
+  myGuild: guild;
+  from: number;
+  to: number;
+}) => Promise<EmbedBuilder>;
+
+const setWindow = registerComponent<{ window: string; page: number }>({
+  identifier: 'serverinfo.window',
+  type: ComponentType.StringSelect,
+  async callback(interaction, data) {
+    const myGuild = await guildModel.storage.get(interaction.guild);
+    const page = fct.extractPageSimple(data.page, myGuild!.entriesPerPage);
+
+    const embed = await embeds[interaction.values[0]]({
+      interaction,
+      myGuild: myGuild!,
+      from: page.from,
+      to: page.to,
+    });
+
+    await interaction.update({
+      embeds: [embed],
+      components: rows(interaction.values[0], data.page, interaction.user.id),
+    });
+  },
+});
+
+const setPage = registerComponent<{ window: string; page: number }>({
+  identifier: 'serverinfo.page',
+  type: ComponentType.Button,
+  async callback(interaction, data) {
+    const myGuild = await guildModel.storage.get(interaction.guild);
+    const page = fct.extractPageSimple(data.page, myGuild!.entriesPerPage);
+
+    const embed = await embeds[data.window]({
+      interaction,
+      myGuild: myGuild!,
+      from: page.from,
+      to: page.to,
+    });
+
+    await interaction.update({
+      embeds: [embed],
+      components: rows(data.window, data.page, interaction.user.id),
+    });
+  },
+});
+
+const closeMsg = registerComponent({
+  identifier: 'serverinfo.close',
+  type: ComponentType.Button,
+  async callback(interaction) {
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+  },
+});
+
+const rows = (
+  window: string,
+  page: number,
+  ownerId: string,
+): ActionRowData<MessageActionRowComponentData>[] => {
+  const paginationDisabled = ['general', 'messages'].includes(window);
   return [
-    new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId(`serverinfo ${type} ${page}`)
-        .addOptions(
-          { label: 'General', value: 'general' },
-          { label: 'Levels', value: 'levels' },
-          { label: 'Roles', value: 'roles' },
-          { label: 'No Command Channels', value: 'nocommandchannels' },
-          { label: 'Noxp Channels', value: 'noxpchannels' },
-          { label: 'Noxp Roles', value: 'noxproles' },
-          { label: 'Autosend Messages', value: 'messages' },
-        ),
-    ),
-    new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setEmoji('⬅')
-        .setCustomId('serverinfo -1')
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(paginationDisabled || page < 2),
-      new ButtonBuilder()
-        .setLabel(paginationDisabled ? '-' : page.toString())
-        .setCustomId('serverinfo')
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(true),
-      new ButtonBuilder()
-        .setEmoji('➡️')
-        .setCustomId('serverinfo 1')
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(paginationDisabled || page > 100),
-    ),
-    new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setLabel('Close')
-        .setStyle(ButtonStyle.Danger)
-        .setCustomId(`serverinfo ${memberId} closeMenu`),
-    ),
+    {
+      type: ComponentType.ActionRow,
+      components: [
+        {
+          type: ComponentType.StringSelect,
+          customId: setWindow({ window, page }, { ownerId }),
+          options: [
+            { label: 'General', value: 'general' },
+            { label: 'Levels', value: 'levels' },
+            { label: 'Roles', value: 'roles' },
+            { label: 'No Command Channels', value: 'nocommandchannels' },
+            { label: 'Noxp Channels', value: 'noxpchannels' },
+            { label: 'Noxp Roles', value: 'noxproles' },
+            { label: 'Autosend Messages', value: 'messages' },
+          ],
+        },
+      ],
+    },
+    {
+      type: ComponentType.ActionRow,
+      components: [
+        {
+          type: ComponentType.Button,
+          customId: setPage({ window, page: page - 1 }, { ownerId }),
+          style: ButtonStyle.Primary,
+          emoji: '⬅',
+          disabled: paginationDisabled || page < 2,
+        },
+        {
+          type: ComponentType.Button,
+          customId: ComponentKey.Throw,
+          style: ButtonStyle.Secondary,
+          label: page.toString(),
+          disabled: true,
+        },
+        {
+          type: ComponentType.Button,
+          customId: setPage({ window, page: page + 1 }, { ownerId }),
+          style: ButtonStyle.Primary,
+          emoji: '➡️',
+          disabled: paginationDisabled || page > 100,
+        },
+      ],
+    },
+    {
+      type: ComponentType.ActionRow,
+      components: [
+        {
+          type: ComponentType.Button,
+          customId: closeMsg(null, { ownerId }),
+          style: ButtonStyle.Danger,
+          label: 'Close',
+        },
+      ],
+    },
   ];
 };
 
-export const execute = async (i) => {
-  const myGuild = await guildModel.storage.get(i.guild);
-  const page = fct.extractPageSimple(i.options.getInteger('page') ?? 1, myGuild.entriesPerPage);
-
-  const embed = await embeds['general'](i, myGuild, page.from, page.to);
-
-  await i.reply({
-    embeds: [embed],
-    components: rows('general', '1', i.member.id),
-  });
-};
-
-export const component = async function (i) {
-  const [, memberId] = i.message.components[2].components[0].customId.split(' ');
-  if (memberId !== i.member.id)
-    return await i.reply({
-      content: "Sorry, this menu isn't for you.",
-      ephemeral: true,
-    });
-
-  if (i.isStringSelectMenu()) {
-    const [, , p] = i.customId.split(' ');
-
-    const myGuild = await guildModel.storage.get(i.guild);
-    const page = fct.extractPageSimple(Number(p), myGuild.entriesPerPage);
-
-    const embed = await embeds[i.values[0]](i, myGuild, page.from, page.to);
-
-    return await i.update({
-      embeds: [embed],
-      components: rows(i.values[0], p, memberId),
-    });
-  }
-  let [, inc, close] = i.customId.split(' ');
-  const [, type, p] = i.message.components[0].components[0].customId.split(' ');
-
-  if (close === 'closeMenu') {
-    await i.deferUpdate();
-    return await i.deleteReply();
-  }
-
-  inc = Number(inc);
-
-  const myGuild = await guildModel.storage.get(i.guild);
-  const page = fct.extractPageSimple(Number(p) + inc, myGuild.entriesPerPage);
-
-  const embed = await embeds[type](i, myGuild, page.from, page.to);
-  return await i.update({
-    embeds: [embed],
-    components: rows(type, Number(p) + inc, memberId),
-  });
-};
-
-async function info(i, myGuild) {
+const info: WindowFn = async ({ interaction, myGuild }) => {
   const e = new EmbedBuilder()
-    .setAuthor({ name: `Info for server ${i.guild.name}` })
+    .setAuthor({ name: `Info for server ${interaction.guild.name}` })
     .setColor('#4fd6c8')
-    .setThumbnail(i.guild.iconURL());
+    .setThumbnail(interaction.guild.iconURL());
 
   const notifyLevelupType = myGuild.notifyLevelupDm
     ? 'DM'
     : myGuild.notifyLevelupCurrentChannel
     ? 'Current Channel'
     : myGuild.autopost_levelup
-    ? '#' + nameUtil.getChannelName(i.guild.channels.cache, myGuild.autopost_levelup)
+    ? '#' + nameUtil.getChannelName(interaction.guild.channels.cache, myGuild.autopost_levelup)
     : 'None';
 
   e.addFields({
@@ -154,23 +194,8 @@ async function info(i, myGuild) {
   Include levelup message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
   Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
   List entries per page: ${myGuild.entriesPerPage}
-  Status: ${(await fct.getPatreonTiers(i)).ownerTier == 3 ? 'Premium' : 'Not Premium'}`,
+  Status: ${(await fct.getPatreonTiers(interaction)).ownerTier == 3 ? 'Premium' : 'Not Premium'}`,
   });
-
-  /*
-  e.addFields({
-    name: '**Tokens**',
-    value: stripIndent`
-    Available: ${i.guild.appData.tokens} (burning ${Math.floor(
-      fct.getTokensToBurn24h(i.guild.memberCount)
-    )} / 24h)
-    Expected end date: <t:${Math.floor(
-      (i.guild.appData.tokens / fct.getTokensToBurn24h(i.guild.memberCount)) *
-        86400 +
-        Date.now() / 1000
-    )}>
-    Burned: ${myGuild.tokensBurned}`,
-  });*/
 
   let bonusTimeString = '';
   if (myGuild.bonusUntilDate > Date.now() / 1000) {
@@ -181,15 +206,18 @@ async function info(i, myGuild) {
   }
 
   let xpPerString = '';
-  if (i.guild.appData.textXp) xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
-  if (i.guild.appData.voiceXp) xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
-  if (i.guild.appData.voteXp) xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
-  if (i.guild.appData.inviteXp) xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
+  if (interaction.guild.appData.textXp)
+    xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
+  if (interaction.guild.appData.voiceXp)
+    xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
+  if (interaction.guild.appData.voteXp)
+    xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
+  if (interaction.guild.appData.inviteXp) xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
 
-  // eslint-disable-next-line max-len
   const textmessageCooldownString = myGuild.textMessageCooldownSeconds
     ? `max every ${myGuild.textMessageCooldownSeconds} seconds`
     : ' without any cooldown';
+
   e.addFields({
     name: '**Points**',
     value: stripIndent`
@@ -205,9 +233,9 @@ async function info(i, myGuild) {
   });
 
   return e;
-}
+};
 
-async function levels(i, myGuild, from, to) {
+const levels: WindowFn = async ({ interaction, myGuild, from, to }) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
@@ -234,55 +262,59 @@ async function levels(i, myGuild, from, to) {
     });
 
   return e;
-}
+};
 
-async function roles(i, myGuild, from, to) {
+const roles: WindowFn = async ({ interaction, from, to }) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Roles info' })
     .setDescription("This server's activity roles and their respective levels.")
     .setColor('#4fd6c8');
 
-  let roleAssignments = await guildRoleModel.storage.getRoleAssignments(i.guild);
+  let roleAssignments = await guildRoleModel.storage.getRoleAssignments(interaction.guild);
   roleAssignments = roleAssignments.slice(from - 1, to);
 
   for (const myRole of roleAssignments)
     e.addFields({
-      name: nameUtil.getRoleName(i.guild.roles.cache, myRole.roleId),
-      value: getlevelString(myRole),
+      name: nameUtil.getRoleName(interaction.guild.roles.cache, myRole.roleId),
+      value: getlevelString(myRole)!,
       inline: true,
     });
 
   if (roleAssignments.length == 0) e.setDescription('No roles to show here.');
 
   return e;
-}
+};
 
-function getlevelString(myRole) {
+function getlevelString(myRole: guildRole) {
   if (myRole.assignLevel != 0 && myRole.deassignLevel != 0)
     return 'From ' + myRole.assignLevel + ' to ' + myRole.deassignLevel;
   else if (myRole.assignLevel != 0) return 'From ' + myRole.assignLevel;
   else if (myRole.deassignLevel != 0) return 'Until ' + myRole.deassignLevel;
 }
 
-async function noCommandChannels(i, myGuild, from, to) {
+// TODO: deprecate noCommandChannels in favour of Discord's native Integrations
+const noCommandChannels: WindowFn = async ({ interaction, from, to }) => {
   let description = '';
-  if (i.guild.appData.commandOnlyChannel != 0) {
+  if (interaction.guild.appData.commandOnlyChannel !== '0') {
     description +=
       ':warning: The commandOnly channel is set. The bot will respond only in channel ' +
-      nameUtil.getChannelName(i.guild.channels.cache, i.guild.appData.commandOnlyChannel) +
+      nameUtil.getChannelName(
+        interaction.guild.channels.cache,
+        interaction.guild.appData.commandOnlyChannel,
+      ) +
       '. \n \n';
   }
 
   description += 'NoCommand channels (does not affect users with manage server permission): \n';
   const e = new EmbedBuilder().setAuthor({ name: 'NoCommand channels info' }).setColor('#4fd6c8');
 
-  let noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(i.guild);
+  let noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(interaction.guild);
   noCommandChannelIds = noCommandChannelIds.slice(from - 1, to);
 
   for (const channelId of noCommandChannelIds) {
     e.addFields({
-      name: nameUtil.getChannelTypeIcon(i.guild.channels.cache, channelId),
-      value: nameUtil.getChannelName(i.guild.channels.cache, channelId),
+      name: nameUtil.getChannelTypeIcon(interaction.guild.channels.cache, channelId),
+      value: nameUtil.getChannelName(interaction.guild.channels.cache, channelId),
       inline: true,
     });
   }
@@ -292,21 +324,21 @@ async function noCommandChannels(i, myGuild, from, to) {
   e.setDescription(description);
 
   return e;
-}
+};
 
-async function noXpChannels(i, myGuild, from, to) {
+const noXpChannels: WindowFn = async ({ interaction, from, to }) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP channels info' })
     .setColor('#4fd6c8')
     .setDescription('Activity in these channels will not give xp.');
 
-  let noXpChannelIds = await guildChannelModel.getNoXpChannelIds(i.guild);
+  let noXpChannelIds = await guildChannelModel.getNoXpChannelIds(interaction.guild);
   noXpChannelIds = noXpChannelIds.slice(from - 1, to);
 
   for (const channelId of noXpChannelIds) {
     e.addFields({
-      name: nameUtil.getChannelTypeIcon(i.guild.channels.cache, channelId),
-      value: nameUtil.getChannelName(i.guild.channels.cache, channelId),
+      name: nameUtil.getChannelTypeIcon(interaction.guild.channels.cache, channelId),
+      value: nameUtil.getChannelName(interaction.guild.channels.cache, channelId),
       inline: true,
     });
   }
@@ -314,30 +346,30 @@ async function noXpChannels(i, myGuild, from, to) {
   if (noXpChannelIds.length == 0) e.setDescription('No channels to show here.');
 
   return e;
-}
+};
 
-async function noXpRoles(i, myGuild, from, to) {
+const noXpRoles: WindowFn = async ({ interaction, from, to }) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP roles info' })
     .setColor('#4fd6c8')
     .setDescription('Activity from users with these roles will not give xp.');
 
-  let noXpRoleIds = await guildRoleModel.getNoXpRoleIds(i.guild);
+  let noXpRoleIds = await guildRoleModel.getNoXpRoleIds(interaction.guild);
   noXpRoleIds = noXpRoleIds.slice(from - 1, to);
 
   for (const roleId of noXpRoleIds)
     e.addFields({
       name: '⛔️',
-      value: nameUtil.getRoleName(i.guild.roles.cache, roleId),
+      value: nameUtil.getRoleName(interaction.guild.roles.cache, roleId),
       inline: true,
     });
 
   if (noXpRoleIds.length == 0) e.setDescription('No roles to show here.');
 
   return e;
-}
+};
 
-async function messages(i, myGuild, from, to) {
+const messages: WindowFn = async ({ interaction, myGuild, from, to }) => {
   let entries = [];
 
   entries.push({ title: 'levelupMessage', desc: myGuild.levelupMessage });
@@ -348,8 +380,7 @@ async function messages(i, myGuild, from, to) {
     desc: myGuild.roleDeassignMessage,
   });
 
-  for (let role of i.guild.roles.cache) {
-    role = role[1];
+  for (const role of interaction.guild.roles.cache.values()) {
     await guildRoleModel.cache.load(role);
 
     if (role.appData.assignMessage.trim() != '')
@@ -377,15 +408,14 @@ async function messages(i, myGuild, from, to) {
     });
 
   return e;
-}
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  data,
-  execute,
-  component,
 };
 
-// GENERATED: end of generated content by `exports-to-default`.
+const embeds: Record<string, WindowFn> = {
+  general: info,
+  levels: levels,
+  roles: roles,
+  nocommandchannels: noCommandChannels,
+  noxpchannels: noXpChannels,
+  noxproles: noXpRoles,
+  messages: messages,
+};
