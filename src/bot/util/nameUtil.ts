@@ -1,4 +1,6 @@
+import type { getGuildMemberRanks } from 'bot/models/rankModel.js';
 import { ChannelType, Guild } from 'discord.js';
+import { deprecate } from 'node:util';
 
 export const getChannelName = (channels, channelId) => {
   const channel = channels.get(channelId);
@@ -115,7 +117,18 @@ export const getGuildMemberMention = (members, memberId) => {
   else return `Deleted [${memberId}]`;
 };
 
-export const addGuildMemberNamesToRanks = (guild, memberRanks) => {
+export const getGuildMemberNamesWithRanks = async (
+  guild: Guild,
+  memberRanks: Awaited<ReturnType<typeof getGuildMemberRanks>>,
+) => {
+  const userIds = memberRanks.map((r) => r.userId);
+  const memberInfos = await getGuildMemberInfos(guild, userIds);
+
+  return memberRanks.map((i) => ({ ...i, name: memberInfos[i.userId].name }));
+};
+
+// @ts-ignore deprecated function is kept intact
+export const addGuildMemberNamesToRanks = deprecate((guild, memberRanks) => {
   return new Promise(async function (resolve, reject) {
     try {
       let userIds = [],
@@ -125,12 +138,13 @@ export const addGuildMemberNamesToRanks = (guild, memberRanks) => {
 
       for (memberRank of memberRanks) memberRank.name = memberInfos[memberRank.userId].name;
 
+      // @ts-ignore deprecated function is kept intact
       resolve();
     } catch (e) {
       return reject(e);
     }
   });
-};
+}, "addGuildMemberNamesToRanks() is deprecated due to TypeScript's inability to change variable types. Use getGuildMemberNamesWithRanks() instead.");
 
 export const getGuildMemberAlias = (member) => {
   if (member.guild.appData.showNicknames) {
