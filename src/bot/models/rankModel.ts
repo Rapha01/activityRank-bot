@@ -4,29 +4,28 @@ import type { Guild } from 'discord.js';
 import type { StatTimeInterval, StatType } from 'models/types/enums.js';
 
 // Toplist
-export const getGuildMemberRanks = (guild, type, time, from, to) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const memberRanksSql =
-        `SELECT * FROM ${getGuildMemberRanksSql(guild)} AS memberranks
-          ORDER BY ${type + time} DESC LIMIT ` +
-        (from - 1) +
-        `,` +
-        (to - (from - 1));
+export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
+  guild: Guild,
+  type: StatType | 'totalScore',
+  time: T,
+  from: number,
+  to: number,
+) {
+  const memberRanksSql = `
+    SELECT * FROM ${getGuildMemberRanksSql(guild)} AS memberranks
+    ORDER BY ${type + time} DESC 
+    LIMIT ${from - 1},${to - (from - 1)}`;
 
-      const ranks = await shardDb.query(guild.appData.dbHost, `${memberRanksSql}`);
+  type RankResult = Record<`${StatType | 'totalScore'}${StatTimeInterval}`, number> & {
+    userId: string;
+  };
 
-      for (let rank of ranks)
-        rank.levelProgression = fct.getLevelProgression(
-          rank['totalScoreAlltime'],
-          guild.appData.levelFactor,
-        );
+  const ranks = await shardDb.query<RankResult[]>(guild.appData.dbHost, memberRanksSql);
 
-      return resolve(ranks);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  return ranks.map((r) => ({
+    ...r,
+    levelProgression: fct.getLevelProgression(r.totalScoreAlltime, guild.appData.levelFactor),
+  }));
 };
 
 // All scores for one member
@@ -34,15 +33,6 @@ export const getGuildMemberRank = async function (guild: Guild, userId: string) 
   const res = await shardDb.query<
     Record<`${StatType | 'totalScore'}${StatTimeInterval}`, number>[]
   >(guild.appData.dbHost, `SELECT * FROM ${getGuildMemberRankSql(guild, userId)} AS memberrank`);
-  /* const res = await shardDb.query<
-    {
-      totalScoreAlltime: number;
-      totalScoreYear: number;
-      totalScoreMonth: number;
-      totalScoreWeek: number;
-      totalScoreDay: number;
-    }[]
-  >(guild.appData.dbHost, `SELECT * FROM ${getGuildMemberRankSql(guild, userId)} AS memberrank`); */
 
   if (res.length == 0) return null;
 
@@ -68,24 +58,21 @@ export const getGuildMemberRankPosition = async function (
 };
 
 // Most active channels within a guild
-export const getChannelRanks = (guild, type, time, from, to) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      const ranks = await shardDb.query(
-        guild.appData.dbHost,
-        `SELECT channelId,
-          SUM(${time}) AS ${time} FROM ${type}
-          WHERE guildId = ${guild.id} AND alltime != 0 GROUP BY channelId
-          ORDER BY ${time} DESC LIMIT ` +
-          (from - 1) +
-          `,` +
-          (to - (from - 1)),
-      );
-      resolve(ranks);
-    } catch (e) {
-      reject(e);
-    }
-  });
+export const getChannelRanks = async function <T extends StatTimeInterval>(
+  guild: Guild,
+  type: 'voiceMinute' | 'textMessage',
+  time: T,
+  from: number,
+  to: number,
+) {
+  const ranks = await shardDb.query<({ channelId: string } & Record<T, number>)[]>(
+    guild.appData.dbHost,
+    `SELECT channelId,
+    SUM(${time}) AS ${time} FROM ${type}
+    WHERE guildId = ${guild.id} AND alltime != 0 GROUP BY channelId
+    ORDER BY ${time} DESC LIMIT ${from - 1},${to - (from - 1)}`,
+  );
+  return ranks;
 };
 
 // Most active Members of a specific channel
@@ -201,7 +188,7 @@ function getGuildMemberTotalScoreSql(guild: Guild, userId: string) {
   return memberTotalScoreAlltimeSql;
 }
 
-function getGuildMemberRanksSql(guild) {
+function getGuildMemberRanksSql(guild: Guild) {
   const voiceranksSql = `(SELECT userId,
       SUM(alltime) AS voiceMinuteAlltime,
       SUM(year) AS voiceMinuteYear,

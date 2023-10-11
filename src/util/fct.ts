@@ -29,7 +29,9 @@ export const hasNoXpRole = async (member: GuildMember) => {
   return false;
 };
 
-export const extractPageSimple = (page: number, entriesPerPage: number) => {
+export type Pagination = { page: number; from: number; to: number };
+
+export const extractPageSimple = (page: number, entriesPerPage: number): Pagination => {
   const from = Math.max((page - 1) * entriesPerPage + 1);
   const to = page * entriesPerPage;
   return { page, from, to };
