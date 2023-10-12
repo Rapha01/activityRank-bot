@@ -90,7 +90,7 @@ export default {
       if (interaction.isMessageComponent()) {
         const parts = interaction.customId.split(' ');
         const key = parts[0];
-        if (key === ComponentKey.Ignore) return;
+        if (key.startsWith(ComponentKey.Ignore)) return;
         if (key === ComponentKey.Throw) throw new Error('should never occur');
         const ref = componentMap.get(key);
         if (ref) {

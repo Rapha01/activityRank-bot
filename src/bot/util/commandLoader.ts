@@ -47,7 +47,8 @@ export function registerSubCommand(
     name?: string; // the subcommand's name. Inferred from file path if possible.
     group?: string; // the subcommandGroup it belongs to, if any. cannot be inferred atm.
     command?: string; // the command it belongs to. Inferred from file path if possible.
-  } & Omit<CommandExecutables, 'executeAutocomplete'>,
+  } & Required<Pick<CommandExecutables, 'execute'>>,
+  // Omit<CommandExecutables, 'executeAutocomplete'>,
 ) {
   let originFile = callsites()?.[1]?.getFileName();
   if (originFile) originFile = fileURLToPath(originFile);

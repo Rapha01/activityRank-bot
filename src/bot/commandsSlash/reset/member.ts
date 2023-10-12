@@ -1,90 +1,92 @@
-// GENERATED: this file has been altered by `relative-named-imports`.
-// [GENERATED: relative-named-imports:v0]
-
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  DiscordjsErrorCodes,
+  PermissionFlagsBits,
+  type DiscordjsError,
+  type Interaction,
+} from 'discord.js';
 import resetModel from '../../models/resetModel.js';
 import nameUtil from '../../util/nameUtil.js';
-// GENERATED: added extension to relative import
-// import { parseMember } from '../../util/parser';
 import { parseMember } from '../../util/parser.js';
+import { ComponentKey, registerSubCommand } from 'bot/util/commandLoader.js';
 
-export const execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
-    return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
-      ephemeral: true,
-    });
-  }
-
-  const resolvedMember = await parseMember(i);
-
-  if (!resolvedMember) {
-    return await i.reply({
-      content: "You need to specify either a member or a member's ID!",
-      ephemeral: true,
-    });
-  }
-
-  const confirmRow = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId('ignore confirm')
-      .setLabel('Reset')
-      .setEmoji('✅')
-      .setStyle(ButtonStyle.Danger),
-    new ButtonBuilder()
-      .setCustomId('ignore cancel')
-      .setLabel('Cancel')
-      .setEmoji('❎')
-      .setStyle(ButtonStyle.Secondary),
-  );
-  const msg = await i.reply({
-    content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(
-      i.guild.members.cache,
-      resolvedMember.id,
-    )}?`,
-    ephemeral: true,
-    fetchReply: true,
-    components: [confirmRow],
-  });
-  const filter = (interaction) => interaction.user.id === i.user.id;
-  try {
-    const interaction = await msg.awaitMessageComponent({
-      filter,
-      time: 15_000,
-    });
-    if (interaction.customId.split(' ')[1] === 'confirm') {
-      resetModel.resetJobs[i.guild.id] = {
-        type: 'guildMembersStats',
-        ref: i,
-        cmdChannel: i.channel,
-        userIds: [resolvedMember.id],
-      };
-      return interaction.reply({
-        content: 'Resetting, please wait...',
+registerSubCommand({
+  async execute(interaction) {
+    if (
+      !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
+    ) {
+      return await interaction.reply({
+        content: 'You need the permission to manage the server in order to use this command.',
         ephemeral: true,
       });
     }
-    await interaction.reply({
-      content: 'Reset cancelled.',
-      ephemeral: true,
-    });
-  } catch (e) {
-    if (e.name === 'Error [INTERACTION_COLLECTOR_ERROR]') {
-      await i.followUp({
-        content: 'Action timed out.',
+
+    const resolvedMember = await parseMember(interaction);
+
+    if (!resolvedMember) {
+      return await interaction.reply({
+        content: "You need to specify either a member or a member's ID!",
         ephemeral: true,
       });
-    } else {
-      throw e;
     }
-  }
-};
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
+    const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`${ComponentKey.Ignore} confirm`)
+        .setLabel('Reset')
+        .setEmoji('✅')
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId(`${ComponentKey.Ignore} cancel`)
+        .setLabel('Cancel')
+        .setEmoji('❎')
+        .setStyle(ButtonStyle.Secondary),
+    );
 
-export default {
-  execute,
-};
+    const msg = await interaction.reply({
+      content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(
+        interaction.guild.members.cache,
+        resolvedMember.id,
+      )}?`,
+      ephemeral: true,
+      fetchReply: true,
+      components: [confirmRow],
+    });
 
-// GENERATED: end of generated content by `exports-to-default`.
+    const filter = (filterInteraction: Interaction<'cached'>) =>
+      filterInteraction.user.id === interaction.user.id;
+
+    try {
+      const buttonInteraction = await msg.awaitMessageComponent({
+        filter,
+        time: 15_000,
+      });
+      if (buttonInteraction.customId.split(' ')[1] === 'confirm') {
+        resetModel.resetJobs[interaction.guild.id] = {
+          type: 'guildMembersStats',
+          ref: interaction,
+          cmdChannel: interaction.channel!,
+          userIds: [resolvedMember.id],
+        };
+        return buttonInteraction.reply({
+          content: 'Resetting, please wait...',
+          ephemeral: true,
+        });
+      }
+      await buttonInteraction.reply({
+        content: 'Reset cancelled.',
+        ephemeral: true,
+      });
+    } catch (_err) {
+      const err = _err as DiscordjsError;
+      if (err.code === DiscordjsErrorCodes.InteractionCollectorError) {
+        await interaction.followUp({
+          content: 'Action timed out.',
+          ephemeral: true,
+        });
+      } else throw _err;
+    }
+  },
+});
