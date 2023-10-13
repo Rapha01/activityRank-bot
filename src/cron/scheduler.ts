@@ -7,6 +7,7 @@ import textModel from '../models/managerDb/textModel.js';
 import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
 import checkForDeadShards from './checkForDeadShards.js';
 import type { Client, ShardingManager } from 'discord.js';
+import type { TextsData } from 'models/types/external.js';
 
 const isProd = process.env.NODE_ENV == 'production';
 const settings = {
@@ -55,8 +56,8 @@ const startStatFlush = async (manager) => {
   }
 }*/
 
-function _updateSettings(client: Client, { settings }) {
-  client.appData.settings = settings;
+function _updateSettings(client: Client, ctx: { settings: string }) {
+  client.appData.settings = JSON.parse(ctx.settings);
 }
 
 const startUpdateSettings = async (manager: ShardingManager) => {
@@ -74,8 +75,8 @@ const startUpdateSettings = async (manager: ShardingManager) => {
   }
 };
 
-function _updateTexts(client: Client, { texts }) {
-  client.appData.texts = texts;
+function _updateTexts(client: Client, ctx: { texts: TextsData }) {
+  client.appData.texts = ctx.texts;
 }
 
 const startUpdateTexts = async (manager: ShardingManager) => {

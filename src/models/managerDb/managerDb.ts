@@ -53,7 +53,7 @@ async function createPool() {
   return pool;
 }
 
-export async function mgrFetch(body: any, route: string, method: string) {
+export async function mgrFetch<T extends any>(body: any, route: string, method: string) {
   try {
     const requestObject: RequestInit = {
       method: method,
@@ -70,7 +70,7 @@ export async function mgrFetch(body: any, route: string, method: string) {
 
     const res = await fetch(fetchURL, requestObject);
 
-    return await res.json();
+    return (await res.json()) as T;
   } catch (error) {
     throw `Fetch Error in backup.api.call(): ${error}`;
   }

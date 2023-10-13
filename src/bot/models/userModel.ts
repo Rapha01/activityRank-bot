@@ -3,38 +3,36 @@ import managerDb from '../../models/managerDb/managerDb.js';
 import mysql from 'promise-mysql';
 import type { User } from 'discord.js';
 import type { user } from 'models/types/shard.js';
+import type { PropertiesOfType } from 'models/types/generics.js';
 
-const promises: Record<string, Promise<void>> = {};
-let defaultCache: any = null;
-let defaultAll: any = null;
-const cachedFields = ['userId', 'isBanned'];
-const cachedFieldSet = new Set(cachedFields);
+const promises = new Map<string, Promise<void>>();
+
+let defaultCache: CachedUser | null = null;
+let defaultAll: user | null = null;
+const cachedFields = ['userId', 'isBanned'] as const;
+const cachedFieldSet: Set<string> = new Set(cachedFields);
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+
+export type CachedUser = Pick<user, (typeof cachedFields)[number]> & {
+  dbHost: string;
+};
 
 export const cache = {
   load: async function (user: User) {
     if (user.appData) return;
-    if (user.id in promises) {
-      return promises[user.id];
-    }
+    if (promises.has(user.id)) return promises.get(user.id)!;
 
-    promises[user.id] = new Promise(async (resolve, reject) => {
-      try {
-        await buildCache(user);
-        delete promises[user.id];
-        resolve();
-      } catch (e) {
-        delete promises[user.id];
-        reject(e);
-      }
-    });
+    promises.set(
+      user.id,
+      buildCache(user).finally(() => promises.delete(user.id)),
+    );
 
-    return promises[user.id];
+    return promises.get(user.id)!;
   },
 };
 
 const storage = {
-  set: async function <K extends keyof user>(user: User, field: K, value: user[K]) {
+  set: async function <K extends keyof CachedUser>(user: User, field: K, value: CachedUser[K]) {
     await shardDb.query(
       user.appData.dbHost,
       `INSERT INTO user 
@@ -47,10 +45,10 @@ const storage = {
 
     if (cachedFieldSet.has(field)) user.appData[field] = value;
   },
-  increment: async function <K extends Exclude<keyof user, 'userId'>>(
+  increment: async function <K extends keyof PropertiesOfType<CachedUser, number>>(
     user: User,
     field: K,
-    value: user[K],
+    value: CachedUser[K],
   ) {
     await shardDb.query(
       user.appData.dbHost,
@@ -66,6 +64,7 @@ const storage = {
       user.appData.dbHost,
       `SELECT * FROM user WHERE userId = ${user.id}`,
     );
+
     if (res.length == 0) {
       if (!defaultAll)
         defaultAll = (
@@ -78,12 +77,14 @@ const storage = {
 
 async function buildCache(user: User) {
   const dbHost = await getDbHost(user.id);
-  let cache = await shardDb.query<user[]>(
+  let foundCache = await shardDb.query<CachedUser[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM user WHERE userId = ${user.id}`,
   );
 
-  if (cache.length > 0) cache = cache[0];
+  let cache;
+
+  if (foundCache.length > 0) cache = foundCache[0];
   else {
     if (!defaultCache) await loadDefaultCache(dbHost);
     cache = Object.assign({}, defaultCache);
@@ -94,7 +95,7 @@ async function buildCache(user: User) {
 }
 
 async function getDbHost(userId: string): Promise<string> {
-  let res = await managerDb.query(
+  let res = await managerDb.query<{ host: string }[]>(
     `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`,
   );
 
@@ -109,7 +110,7 @@ async function getDbHost(userId: string): Promise<string> {
 }
 
 async function loadDefaultCache(dbHost: string) {
-  let res = await shardDb.query(
+  let res = await shardDb.query<CachedUser[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`,
   );
