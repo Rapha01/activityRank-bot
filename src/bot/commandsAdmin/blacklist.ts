@@ -74,7 +74,7 @@ registerAdminCommand({
 
       await guildModel.cache.load(guild);
       const targetGuild = await guildModel.storage.get(guild);
-      if (targetGuild.isBanned) {
+      if (targetGuild!.isBanned) {
         await guildModel.storage.set(guild, 'isBanned', 0);
         return await interaction.reply({
           content: `Unblacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,

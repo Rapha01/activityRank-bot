@@ -8,7 +8,8 @@ if (process.env.NODE_ENV == 'production') {
   decrementWarmup();
 } else warmup = 0;
 
-export default () => warmup != 0 && Math.floor(Math.random() * warmup) != 0;
+// TODO remove legacy optional parameter
+export default (_guildId?: string) => warmup != 0 && Math.floor(Math.random() * warmup) != 0;
 
 async function decrementWarmup() {
   try {
