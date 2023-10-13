@@ -3,7 +3,7 @@ import shardDb from '../../../models/shardDb/shardDb.js';
 import mysql from 'promise-mysql';
 import type { guildRole } from 'models/types/shard.js';
 
-const promises: Record<string, Promise<void>> = {};
+const promises = new Map<string, Promise<void>>();
 
 const cachedFields = [
   'noXp',
@@ -12,31 +12,35 @@ const cachedFields = [
   'assignMessage',
   'deassignMessage',
 ] as const;
-let defaultCache = null;
-let defaultAll = null;
+
+export type CachedRole = Pick<guildRole, (typeof cachedFields)[number]>;
+
+let defaultCache: CachedRole | null = null;
+let defaultAll: guildRole | null = null;
 
 export const cache = {
   load: (role: Role) => {
     if (!role.appData) {
-      if (role.id in promises) {
-        return promises[role.id];
-      }
+      if (promises.has(role.id)) return promises.get(role.id)!;
 
-      promises[role.id] = new Promise(async (resolve, reject) => {
-        try {
-          await buildCache(role);
-          delete promises[role.id];
-          resolve();
-        } catch (e) {
-          delete promises[role.id];
-          reject(e);
-        }
-      });
+      promises.set(
+        role.id,
+        new Promise(async (resolve, reject) => {
+          try {
+            await buildCache(role);
+            promises.delete(role.id);
+            resolve();
+          } catch (e) {
+            promises.delete(role.id);
+            reject(e);
+          }
+        }),
+      );
 
-      return promises[role.id];
+      return promises.get(role.id)!;
     }
 
-    return new Promise(async (resolve) => {
+    return new Promise<void>(async (resolve) => {
       resolve();
     });
   },
@@ -44,7 +48,7 @@ export const cache = {
 
 export const storage = {
   get: async (guild: Guild, roleId: string) => {
-    const res = await shardDb.query(
+    const res = await shardDb.query<guildRole[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildRole WHERE guildId = ${guild.id} && roleId = ${mysql.escape(roleId)}`,
     );
@@ -52,7 +56,7 @@ export const storage = {
     if (res.length == 0) {
       if (!defaultAll)
         defaultAll = (
-          await shardDb.query(
+          await shardDb.query<guildRole[]>(
             guild.appData.dbHost,
             `SELECT * FROM guildRole WHERE guildId = 0 AND roleId = 0`,
           )
@@ -60,7 +64,12 @@ export const storage = {
       return defaultAll;
     } else return res[0];
   },
-  set: async (guild: Guild, roleId: string, field: string, value: string) => {
+  set: async <K extends Exclude<keyof guildRole, 'guildId' | 'roleId'>>(
+    guild: Guild,
+    roleId: string,
+    field: K,
+    value: guildRole[K],
+  ) => {
     await shardDb.query(
       guild.appData.dbHost,
       `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${guild.id},${mysql.escape(
@@ -79,7 +88,11 @@ export const storage = {
 
     return res;
   },
-  getRoleAssignmentsByLevel: async (guild: Guild, type, level) => {
+  getRoleAssignmentsByLevel: async (
+    guild: Guild,
+    type: 'assignLevel' | 'deassignLevel',
+    level: number | null,
+  ) => {
     const res = await shardDb.query<guildRole[]>(
       guild.appData.dbHost,
       `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${mysql.escape(level)}`,
@@ -98,26 +111,25 @@ export const storage = {
 };
 
 export const getNoXpRoleIds = async (guild: Guild) => {
-  const res = await shardDb.query(
+  const res = await shardDb.query<{ roleId: string }[]>(
     guild.appData.dbHost,
     `SELECT roleId FROM guildRole WHERE guildId = ${guild.id} AND noXp = 1`,
   );
 
-  let ids = [];
-  for (let role of res) ids.push(role.roleId);
-
-  return ids;
+  return res.map((role) => role.roleId);
 };
 
 const buildCache = async (role: Role) => {
-  let cache = await shardDb.query(
+  const foundCache = await shardDb.query<CachedRole[]>(
     role.guild.appData.dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = ${
       role.guild.id
     } AND roleId = ${role.id}`,
   );
 
-  if (cache.length > 0) cache = cache[0];
+  let cache;
+
+  if (foundCache.length > 0) cache = foundCache[0];
   else {
     if (!defaultCache) await loadDefaultCache(role.guild.appData.dbHost);
     cache = Object.assign({}, defaultCache);
@@ -127,7 +139,7 @@ const buildCache = async (role: Role) => {
 };
 
 const loadDefaultCache = async (dbHost: string) => {
-  let res = await shardDb.query(
+  let res = await shardDb.query<CachedRole[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
   );
