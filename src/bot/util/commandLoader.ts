@@ -47,8 +47,8 @@ export function registerSubCommand(
     name?: string; // the subcommand's name. Inferred from file path if possible.
     group?: string; // the subcommandGroup it belongs to, if any. cannot be inferred atm.
     command?: string; // the command it belongs to. Inferred from file path if possible.
-  } & Required<Pick<CommandExecutables, 'execute'>>,
-  // Omit<CommandExecutables, 'executeAutocomplete'>,
+  } & Required<Pick<CommandExecutables, 'execute'>> &
+    Pick<CommandExecutables, 'executeAutocomplete'>,
 ) {
   let originFile = callsites()?.[1]?.getFileName();
   if (originFile) originFile = fileURLToPath(originFile);
@@ -72,7 +72,10 @@ export function registerSubCommand(
   }
 
   const commandId = [command, meta.group, name].filter(Boolean);
-  commandMap.set(commandId.join('.'), { execute: meta.execute });
+  commandMap.set(commandId.join('.'), {
+    execute: meta.execute,
+    executeAutocomplete: meta.executeAutocomplete,
+  });
   logger.debug(`Loaded subcommand /${commandId.join(' ')}`);
 }
 
