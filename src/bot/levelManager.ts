@@ -1,7 +1,7 @@
 import fct from '../util/fct.js';
 import nameUtil from './util/nameUtil.js';
 import guildRoleModel from './models/guild/guildRoleModel.js';
-import Discord, { GuildMember } from 'discord.js';
+import Discord, { DiscordAPIError, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 
 export async function checkLevelUp(
@@ -19,7 +19,7 @@ export async function checkLevelUp(
   // Send Message
   if (oldLevel >= newLevel) return;
 
-  await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
+  await sendGratulationMessage(member, roleMessages!, newLevel).catch((e) =>
     member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
   );
 }
@@ -47,7 +47,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
         await member.roles.remove(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
-        addRoleDeassignMessage(roleMessages, member, role, level);
+        addRoleDeassignMessage(roleMessages, member, role);
       }
     } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
       // User is within role. Assign or do nothing.
@@ -55,7 +55,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
         await member.roles.add(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
-        addRoleAssignMessage(roleMessages, member, role, level);
+        addRoleAssignMessage(roleMessages, member, role);
       }
     } else if (
       member.guild.appData.takeAwayAssignedRolesOnLevelDown &&
@@ -67,7 +67,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
         await member.roles.remove(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
-        addRoleDeassignMessage(roleMessages, member, role, level);
+        addRoleDeassignMessage(roleMessages, member, role);
       }
     }
   }
@@ -75,63 +75,49 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   return roleMessages;
 }
 
-const sendGratulationMessage = (member: GuildMember, roleMessages: string[], level: number) => {
-  return new Promise(async function (resolve, reject) {
-    let gratulationMessage = '';
+async function sendGratulationMessage(member: GuildMember, roleMessages: string[], level: number) {
+  let gratulationMessage = '';
 
-    if (
-      member.guild.appData.levelupMessage != '' &&
-      (member.guild.appData.notifyLevelupWithRole || roleMessages.length == 0)
-    )
-      gratulationMessage = member.guild.appData.levelupMessage + '\n';
+  if (
+    member.guild.appData.levelupMessage != '' &&
+    (member.guild.appData.notifyLevelupWithRole || roleMessages.length == 0)
+  )
+    gratulationMessage = member.guild.appData.levelupMessage + '\n';
 
-    if (roleMessages.length > 0) gratulationMessage += roleMessages.join('\n') + '\n';
+  if (roleMessages.length > 0) gratulationMessage += roleMessages.join('\n') + '\n';
 
-    if (gratulationMessage == '') return resolve();
+  if (gratulationMessage == '') return;
 
-    const ping = gratulationMessage.indexOf('<mention>') > -1 ? '<@' + member.id + '>' : '';
+  const ping = gratulationMessage.indexOf('<mention>') > -1 ? '<@' + member.id + '>' : '';
 
-    gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
+  gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 
-    const levelupEmbed = new Discord.EmbedBuilder()
-      .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
-      .setColor('#4fd6c8')
-      .setDescription(gratulationMessage)
-      .setThumbnail(member.user.avatarURL());
+  const levelupEmbed = new Discord.EmbedBuilder()
+    .setTitle(nameUtil.getGuildMemberAlias(member) + ' 🎖' + level)
+    .setColor('#4fd6c8')
+    .setDescription(gratulationMessage)
+    .setThumbnail(member.user.avatarURL());
 
-    function handleGratulationMessageError(err) {
-      if (err.code === 50001)
-        // Missing Access
-        member.client.logger.debug(
-          `Missing access to send gratulationMessage in guild ${member.guild.id}`,
-        );
-      else member.client.logger.warn(err, 'Error while sending gratulationMessage');
-    }
+  function handleGratulationMessageError(_err: unknown) {
+    const err = _err as DiscordAPIError;
+    if (err.code === RESTJSONErrorCodes.MissingAccess)
+      member.client.logger.debug(
+        `Missing access to send gratulationMessage in guild ${member.guild.id}`,
+      );
+    else member.client.logger.warn(err, 'Error while sending gratulationMessage');
+  }
 
-    // Active Channel
-    let notified = false;
-    if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
-      if (member.appData.lastMessageChannelId) {
-        const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
-        if (channel) {
-          const msg = { embeds: [levelupEmbed] };
-          if (ping) msg['content'] = ping;
-
-          await channel
-            .send(msg)
-            .then(() => (notified = true))
-            .catch(handleGratulationMessageError);
+  // Active Channel
+  let notified = false;
+  if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
+    if (member.appData.lastMessageChannelId) {
+      const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
+      if (channel) {
+        if (!channel.isTextBased()) {
+          member.client.logger.warn(`lastMessageChannel ${channel.id} is not text-based`);
+          return;
         }
-      }
-    }
-
-    // Post_ Channel
-    if (!notified && member.guild.appData.autopost_levelup != 0) {
-      const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
-
-      if (channel && channel.send) {
-        const msg = { embeds: [levelupEmbed] };
-        if (ping) msg['content'] = ping;
+        const msg = { embeds: [levelupEmbed], content: ping };
 
         await channel
           .send(msg)
@@ -139,66 +125,82 @@ const sendGratulationMessage = (member: GuildMember, roleMessages: string[], lev
           .catch(handleGratulationMessageError);
       }
     }
+  }
 
-    // Direct Message
-    if (
-      !notified &&
-      member.appData.notifyLevelupDm == true &&
-      member.guild.appData.notifyLevelupDm == true
-    ) {
-      levelupEmbed.setFooter({
-        text: 'To disable direct messages from me, type `/config-member` in the server.',
-      });
-      const msg = { embeds: [levelupEmbed] };
-      if (ping) msg['content'] = ping;
+  // Post_ Channel
+  if (!notified && member.guild.appData.autopost_levelup != '0') {
+    const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
 
-      await member
+    if (channel) {
+      if (!channel.isTextBased()) {
+        member.client.logger.warn(`autopost channel ${channel.id} is not text-based`);
+        return;
+      }
+
+      const msg = { embeds: [levelupEmbed], content: ping };
+
+      await channel
         .send(msg)
         .then(() => (notified = true))
         .catch(handleGratulationMessageError);
     }
+  }
 
-    resolve();
-  });
-};
+  // Direct Message
+  if (
+    !notified &&
+    member.appData.notifyLevelupDm == 1 &&
+    member.guild.appData.notifyLevelupDm == 1
+  ) {
+    levelupEmbed.setFooter({
+      text: 'To disable direct messages from me, type `/config-member` in the server.',
+    });
+    const msg = { embeds: [levelupEmbed], content: ping };
 
-const addRoleDeassignMessage = (roleMessages, member, role, level) => {
+    await member
+      .send(msg)
+      .then(() => (notified = true))
+      .catch(handleGratulationMessageError);
+  }
+}
+
+const addRoleDeassignMessage = (roleMessages: string[], member: GuildMember, role: Role) => {
   let message = '';
 
   if (role.appData.deassignMessage != '') message = role.appData.deassignMessage;
   else if (member.guild.appData.roleDeassignMessage != '')
     message = member.guild.appData.roleDeassignMessage;
 
-  if (message != '') roleMessages.push(replaceTagsRole(message, member, role, level));
+  if (message != '') roleMessages.push(replaceTagsRole(message, role));
 
   return roleMessages;
 };
 
-const addRoleAssignMessage = (roleMessages, member, role, level) => {
+const addRoleAssignMessage = (roleMessages: string[], member: GuildMember, role: Role) => {
   let message = '';
 
   if (role.appData.assignMessage != '') message = role.appData.assignMessage;
   else if (member.guild.appData.roleAssignMessage != '')
     message = member.guild.appData.roleAssignMessage;
 
-  if (message != '') roleMessages.push(replaceTagsRole(message, member, role, level));
+  if (message != '') roleMessages.push(replaceTagsRole(message, role));
 
   return roleMessages;
 };
 
-const replaceTagsRole = (text, member, role, level) => {
+const replaceTagsRole = (text: string, role: Role) => {
   return text
     .replace(/<rolename>/g, role.name)
     .replace(/<role>/g, role.name)
     .replace(/<rolemention>/g, role.toString());
 };
 
-const replaceTagsLevelup = (text, member, level) => {
+const replaceTagsLevelup = (text: string, member: GuildMember, level: number) => {
   return (
     text
       .replace(/<mention>/g, '<@' + member.id + '>')
       .replace(/<name>/g, member.user.username)
-      .replace(/<level>/g, level)
+      .replace(/<level>/g, level.toString())
       .replace(/<servername>/g, member.guild.name) + '\n'
   );
 };

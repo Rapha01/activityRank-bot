@@ -78,7 +78,11 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   return { userTier, ownerTier };
 };
 
-export const getVoteMultiplier = (myUser: User['appData']) => {
+export const getVoteMultiplier = (myUser: {
+  lastTopggUpvoteDate: number;
+  patreonTierUntilDate: number;
+  patreonTier: number;
+}) => {
   let multiplier = 1;
 
   if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;
@@ -87,6 +91,24 @@ export const getVoteMultiplier = (myUser: User['appData']) => {
     if (myUser.patreonTier == 1) multiplier = 2;
     else if (myUser.patreonTier == 2) multiplier = 3;
     else if (myUser.patreonTier == 3) multiplier = 4;
+  }
+
+  return multiplier;
+};
+
+export const getRawVoteMultiplier = (
+  lastTopggUpvoteDate: number,
+  patreonTierUntilDate: number,
+  patreonTier: number,
+) => {
+  let multiplier = 1;
+
+  if (lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;
+
+  if (patreonTierUntilDate > Date.now() / 1000 && patreonTier > 0) {
+    if (patreonTier == 1) multiplier = 2;
+    else if (patreonTier == 2) multiplier = 3;
+    else if (patreonTier == 3) multiplier = 4;
   }
 
   return multiplier;

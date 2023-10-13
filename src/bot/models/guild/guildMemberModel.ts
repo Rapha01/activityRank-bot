@@ -15,6 +15,7 @@ export type CachedGuildMember = Pick<guildMember, (typeof cachedFields)[number]>
   totalXp: number;
   lastVoteDate: Date | null;
   lastTextMessageDate: Date | null;
+  lastMessageChannelId: string | null;
 };
 
 export const cache = {

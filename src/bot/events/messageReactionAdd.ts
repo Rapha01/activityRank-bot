@@ -6,7 +6,7 @@ import { get as getEmoji } from 'node-emoji';
 import cooldownUtil from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
-import fct from '../../util/fct.js';
+import fct, { getRawVoteMultiplier } from '../../util/fct.js';
 import type { MessageReaction } from 'discord.js';
 
 export default {
@@ -15,7 +15,7 @@ export default {
     if (!reaction.message.guild) return;
     const guild = reaction.message.guild;
 
-    if (skip(reaction.message.guild)) return;
+    if (skip(reaction.message.guild.id)) return;
     if (reaction.message.author?.bot) return;
 
     await guildModel.cache.load(guild);
@@ -24,17 +24,16 @@ export default {
 
     if (!reaction.emoji.id) {
       if (
-        reaction._emoji.name != getEmoji(guild.appData.voteEmote) &&
-        reaction._emoji.name != guild.appData.voteEmote
+        reaction.emoji.name != getEmoji(guild.appData.voteEmote) &&
+        reaction.emoji.name != guild.appData.voteEmote
       )
         return;
     } else {
-      if ('<:' + reaction._emoji.name + ':' + reaction._emoji.id + '>' != guild.appData.voteEmote)
-        return;
+      if (`<:${reaction.emoji.name}:${reaction.emoji.id}>` != guild.appData.voteEmote) return;
     }
 
-    let targetMember = await guild.members.fetch(reaction.message.author.id);
-    let member = await guild.members.fetch(reaction.users.cache.last().id);
+    let targetMember = await guild.members.fetch(reaction.message.author!.id);
+    let member = await guild.members.fetch(reaction.users.cache.last()!.id);
 
     if (!targetMember || !member || member.user.bot || targetMember.id == member.id) return;
 
@@ -47,7 +46,7 @@ export default {
       const role = _role[1];
       await guildRoleModel.cache.load(role);
 
-      if (role.appData.noXp) return resolve();
+      if (role.appData.noXp) return;
     }
 
     // Get author multiplier
@@ -62,7 +61,7 @@ export default {
     );
     if (toWait > 0) return;
 
-    member.appData.lastVoteDate = Date.now() / 1000;
+    member.appData.lastVoteDate = new Date();
 
     await statFlushCache.addVote(targetMember, value);
   },
