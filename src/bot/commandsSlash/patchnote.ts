@@ -1,5 +1,6 @@
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import type { PatchnotesEntry, TextsPatchnotes } from 'models/types/external.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -18,9 +19,9 @@ registerSlashCommand({
     applicableVersions.push('latest');
     let e;
 
-    if (!applicableVersions.includes(version) || !version) e = patchnotesMainEmbed(patchnotes);
+    if (!version || !applicableVersions.includes(version)) e = patchnotesMainEmbed(patchnotes);
     else if (version == 'latest') e = patchnotesVersionEmbed(patchnotes[0]);
-    else e = patchnotesVersionEmbed(patchnotes.find((o) => o.version == version.toLowerCase()));
+    else e = patchnotesVersionEmbed(patchnotes.find((o) => o.version == version.toLowerCase())!);
 
     await interaction.reply({ embeds: [e] });
   },
@@ -31,13 +32,12 @@ registerSlashCommand({
     patchnoteVersions = patchnoteVersions.filter((o) => o.replace('.', '').includes(focused));
 
     patchnoteVersions.push('latest');
-    patchnoteVersions = patchnoteVersions.map((o) => ({ name: o, value: o }));
 
-    interaction.respond(patchnoteVersions);
+    interaction.respond(patchnoteVersions.map((o) => ({ name: o, value: o })));
   },
 });
 
-function patchnotesMainEmbed(patchnotes) {
+function patchnotesMainEmbed(patchnotes: TextsPatchnotes) {
   const embed = new EmbedBuilder()
     .setTitle('**ActivityRank Patchnotes**')
     .setColor(0x00ae86)
@@ -52,15 +52,15 @@ function patchnotesMainEmbed(patchnotes) {
   return embed;
 }
 
-function patchnotesVersionEmbed(patchnote) {
+function patchnotesVersionEmbed(patchnote: PatchnotesEntry) {
   const embed = new EmbedBuilder()
     .setColor(0x00ae86)
     .setTitle(`**Patch ${patchnote.version} - ${patchnote.title} (${patchnote.date})**`);
 
   for (const feature of patchnote.features)
-    embed.addFields({ name: feature.title, value: feature.desc });
+    embed.addFields({ name: feature.title, value: feature.description });
 
-  for (const fix of patchnote.fixes) embed.addFields({ name: fix.title, value: fix.desc });
+  for (const fix of patchnote.fixes) embed.addFields({ name: fix.title, value: fix.description });
 
   return embed;
 }

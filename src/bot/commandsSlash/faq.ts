@@ -1,5 +1,6 @@
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import type { TextsFaqs } from 'models/types/external.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -43,22 +44,22 @@ registerSlashCommand({
   executeAutocomplete: async function (interaction) {
     let faqs = interaction.client.appData.texts.faqs;
     const focused = interaction.options.getFocused();
-    faqs = faqs.filter((faq) => faq.title.includes(focused) || focused.includes(faq.id));
+    faqs = faqs.filter((faq) => faq.title.includes(focused) || focused.includes(faq.id.toString()));
 
-    faqs = faqs.map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id }));
-    interaction.respond(faqs.slice(0, 20));
+    interaction.respond(
+      faqs.map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id })).slice(0, 20),
+    );
   },
 });
 
-function faqReducedEmbed(faqs: { id: string; title: string }[]) {
+function faqReducedEmbed(faqs: TextsFaqs) {
   const embed = new EmbedBuilder().setTitle('**ActivityRank FAQ**').setColor(0x00ae86);
 
   if (faqs.length == 0) embed.setDescription('No FAQs to show!');
 
   const titles = faqs.map((faq) => `**${faq.id}.** ${faq.title} \n`);
   embed.setDescription(
-    'Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.' +
-      '\n\n' +
+    'Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.\n\n' +
       titles.join(''),
   );
 
