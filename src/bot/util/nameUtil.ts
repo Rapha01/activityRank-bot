@@ -1,43 +1,51 @@
 import type { getGuildMemberRanks } from 'bot/models/rankModel.js';
-import { ChannelType, Guild } from 'discord.js';
+import {
+  ChannelType,
+  type Guild,
+  type GuildMember,
+  type Channel,
+  type Collection,
+  type Role,
+  type GuildChannel,
+} from 'discord.js';
 import { deprecate } from 'node:util';
 
-export const getChannelName = (channels, channelId) => {
+export const getChannelName = (channels: Collection<string, GuildChannel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (channel) return cutName(channel.name);
   else return 'Deleted [' + channelId + ']';
 };
 
-export const getChannelMention = (channels, channelId) => {
+export const getChannelMention = (channels: Collection<string, Channel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.toString();
   else return `Deleted [${channelId}]`;
 };
 
-export const getChannelType = (channels, channelId) => {
+export const getChannelType = (channels: Collection<string, Channel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.type;
   else return null;
 };
 
-export const getRoleName = (roles, roleId) => {
+export const getRoleName = (roles: Collection<string, Role>, roleId: string) => {
   const role = roles.get(roleId);
 
   if (role) return cutName(role.name);
   else return 'Deleted [' + roleId + ']\n';
 };
 
-export const getRoleMention = (roles, roleId) => {
+export const getRoleMention = (roles: Collection<string, Role>, roleId: string) => {
   const role = roles.get(roleId);
 
   if (role) return role.toString();
   else return `Deleted [${roleId}]`;
 };
 
-export const getChannelTypeIcon = (channels, channelId) => {
+export const getChannelTypeIcon = (channels: Collection<string, Channel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (!channel) return ':grey_question:';
@@ -110,7 +118,10 @@ export const getGuildMemberInfo = async (guild: Guild, userId: string) => {
   return (await getGuildMemberInfos(guild, [userId]))[userId];
 };
 
-export const getGuildMemberMention = (members, memberId) => {
+export const getGuildMemberMention = (
+  members: Collection<string, GuildMember>,
+  memberId: string,
+) => {
   const role = members.get(memberId);
 
   if (role) return role.toString();
@@ -146,17 +157,13 @@ export const addGuildMemberNamesToRanks = deprecate((guild, memberRanks) => {
   });
 }, "addGuildMemberNamesToRanks() is deprecated due to TypeScript's inability to change variable types. Use getGuildMemberNamesWithRanks() instead.");
 
-export const getGuildMemberAlias = (member) => {
-  if (member.guild.appData.showNicknames) {
-    if (member.nickname) return cutName(member.nickname);
-    else return cutName(member.user.username);
-  } else {
-    return cutName(member.user.username);
-  }
+export const getGuildMemberAlias = (member: GuildMember) => {
+  if (member.guild.appData.showNicknames && member.nickname) return cutName(member.nickname);
+  return cutName(member.user.username);
 };
 
-export const cutName = (name) => {
-  if (name.length > 32) name = name.substr(0, 32) + '..';
+export const cutName = (name: string) => {
+  if (name.length > 32) name = name.slice(0, 30) + '..';
 
   return name;
 };

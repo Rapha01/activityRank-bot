@@ -54,32 +54,24 @@ export async function addVoiceMinute(
     await addBonus(member, count * member.guild.appData.bonusPerVoiceMinute);
 }
 
-export const addInvite = (member: GuildMember, count: number) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let inviteCache = buildStatFlushCache(member, 'invite');
+export const addInvite = async (member: GuildMember, count: number) => {
+  let inviteCache = buildStatFlushCache(member, 'invite');
 
-      count = count * 1;
+  count = count * 1;
 
-      let entry = inviteCache[member.id];
-      if (!entry)
-        entry = inviteCache[member.id] = {
-          guildId: member.guild.id,
-          userId: member.id,
-          count: count,
-        };
-      else entry.count += count;
+  let entry = inviteCache[member.id];
+  if (!entry)
+    entry = inviteCache[member.id] = {
+      guildId: member.guild.id,
+      userId: member.id,
+      count: count,
+    };
+  else entry.count += count;
 
-      await addTotalXp(member, count * member.guild.appData.xpPerInvite);
+  await addTotalXp(member, count * member.guild.appData.xpPerInvite);
 
-      if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
-        await addBonus(member, count * member.guild.appData.bonusPerInvite);
-
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+  if (member.guild.appData.bonusUntilDate > Date.now() / 1000)
+    await addBonus(member, count * member.guild.appData.bonusPerInvite);
 };
 
 export const addVote = async (member: GuildMember, count: number) => {
@@ -134,7 +126,7 @@ export const directlyAddBonus = async (
   client: Client,
   count: number,
 ) => {
-  const bonusCache = directlyBuildStatFlushCache(client, guild, 'bonus');
+  const bonusCache = directlyBuildStatFlushCache(client, guild, 'bonus')!;
 
   count *= 1; // ?
   let entry = bonusCache[userId];
@@ -166,7 +158,7 @@ const buildStatFlushCache = (member: GuildMember, type: StatType) => {
 
   if (!statFlushCache[dbHost][type]) statFlushCache[dbHost][type] = {};
 
-  return statFlushCache[dbHost][type];
+  return statFlushCache[dbHost][type]!;
 };
 
 const directlyBuildStatFlushCache = (client: Client, guild: Guild, type: StatType) => {

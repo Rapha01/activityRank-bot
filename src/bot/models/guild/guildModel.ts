@@ -106,7 +106,10 @@ export const storage = {
   },
 };
 
-export type CachedGuild = Pick<guild, (typeof cachedFields)[number]> & { dbHost: string };
+export type CachedGuild = Pick<guild, (typeof cachedFields)[number]> & {
+  dbHost: string;
+  lastAskForPremiumDate: number;
+};
 
 async function buildCache(guild: Guild) {
   const dbHost = await getDbHost(guild.id);

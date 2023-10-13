@@ -1,7 +1,7 @@
 import userModel from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import cooldownUtil from './cooldownUtil.js';
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, CommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -9,7 +9,7 @@ const isDev = process.env.NODE_ENV !== 'production';
 const askForPremiumCdGuild = isDev ? 3600 * 0.4 : 3600 * 0.4;
 const askForPremiumCdUser = isDev ? 3600 * 6 : 3600 * 6;
 
-export default async function (interaction: CommandInteraction<'cached'>) {
+export default async function (interaction: ChatInputCommandInteraction<'cached'>) {
   if (
     cooldownUtil.getCachedCooldown(
       interaction.guild.appData,
