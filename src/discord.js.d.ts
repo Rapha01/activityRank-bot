@@ -1,9 +1,10 @@
 import type { StatFlushCache } from 'bot/statFlushCache.ts';
 import type { pino } from 'pino';
 import 'discord.js';
-import type { guildChannel, guild, guildRole, user, guildMember } from 'models/types/shard.js';
+import type { guildChannel, user } from 'models/types/shard.js';
 import type { CachedGuild } from 'bot/models/guild/guildModel.ts';
 import type { CachedGuildMember } from 'bot/models/guild/guildMemberModel.ts';
+import type { CachedRole } from 'bot/models/guild/guildRoleModel.ts';
 
 interface ClientAppData {
   settings: Record<string, string>;
@@ -17,7 +18,7 @@ interface ClientAppData {
 
 declare module 'discord.js' {
   export interface Role {
-    appData: guildRole;
+    appData: CachedRole;
   }
   export interface User {
     appData: user;

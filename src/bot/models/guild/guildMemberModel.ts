@@ -3,6 +3,7 @@ import mysql from 'promise-mysql';
 import rankModel from '../rankModel.js';
 import type { Guild, GuildMember } from 'discord.js';
 import type { guildMember } from 'models/types/shard.js';
+import type { PropertiesOfType } from 'models/types/generics.js';
 
 // const promises: Record<string, Promise<void>> = {};
 const promises = new Map<string, Promise<void>>();
@@ -42,9 +43,7 @@ export const cache = {
       return promises.get(promiseKey)!;
     }
 
-    return new Promise(async (resolve) => {
-      resolve();
-    });
+    return new Promise<void>(async (resolve) => resolve());
   },
 };
 
@@ -67,7 +66,12 @@ export const storage = {
     } else return res[0];
   },
 
-  set: async (guild: Guild, userId: string, field: string, value: string) => {
+  set: async <K extends Exclude<keyof CachedGuildMember, 'guildId' | 'userId'>>(
+    guild: Guild,
+    userId: string,
+    field: K,
+    value: CachedGuildMember[K],
+  ) => {
     await shardDb.query(
       guild.appData.dbHost,
       `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${mysql.escape(
@@ -76,10 +80,16 @@ export const storage = {
     );
 
     const member = guild.members.cache.get(userId);
-    if (member && member.appData && cachedFields.indexOf(field) > -1) member.appData[field] = value;
+    if (member && member.appData && (cachedFields as readonly string[]).indexOf(field) > -1)
+      member.appData[field] = value;
   },
 
-  increment: async (guild: Guild, userId: string, field: string, value: string) => {
+  increment: async <K extends keyof PropertiesOfType<CachedGuildMember, number>>(
+    guild: Guild,
+    userId: string,
+    field: K,
+    value: number,
+  ) => {
     await shardDb.query(
       guild.appData.dbHost,
       `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${mysql.escape(
@@ -90,7 +100,7 @@ export const storage = {
     );
 
     const member = guild.members.cache.get(userId);
-    if (member && member.appData && cachedFields.indexOf(field) > -1)
+    if (member && member.appData && (cachedFields as readonly string[]).indexOf(field) > -1)
       member.appData[field] += value * 1;
   },
 };
