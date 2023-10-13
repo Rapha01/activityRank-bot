@@ -246,22 +246,27 @@ const noResetGuildFields = [
 
 export const cache = {
   resetGuild: (guild: Guild) => {
+    // @ts-expect-error allow delete required prop
     if (guild.appData) delete guild.appData;
 
     return;
   },
   resetGuildMembersAll: (guild: Guild) => {
+    // @ts-expect-error allow delete required prop
     for (const member of guild.members.cache.values()) if (member.appData) delete member.appData;
 
     return;
   },
   resetGuildChannelsAll: (guild: Guild) => {
-    for (const channel of guild.channels.cache.values())
+    for (const channel of guild.channels.cache.values()) {
+      // @ts-expect-error allow delete required prop
       if (channel.appData) delete channel.appData;
+    }
 
     return;
   },
   resetGuildRolesAll: (guild: Guild) => {
+    // @ts-expect-error allow delete required prop
     for (const role of guild.roles.cache.values()) if (role.appData) delete role.appData;
 
     return;
@@ -270,6 +275,7 @@ export const cache = {
     let member;
     for (const userId of userIds) {
       member = guild.members.cache.get(userId);
+      // @ts-expect-error allow delete required prop
       if (member && member.appData) delete member.appData;
     }
     return;
@@ -278,6 +284,7 @@ export const cache = {
     let channel;
     for (const channelId of channelIds) {
       channel = guild.channels.cache.get(channelId);
+      // @ts-expect-error allow delete required prop
       if (channel && channel.appData) delete channel.appData;
     }
     return;
