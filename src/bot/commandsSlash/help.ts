@@ -6,11 +6,11 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
-  MessageComponentInteraction,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { supportServerInviteLink } from '../../const/config.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
+import type { TextsCommands, TextsEntry } from 'models/types/external.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -54,7 +54,9 @@ const selectId = registerComponent({
   type: ComponentType.StringSelect,
   callback: async function (interaction) {
     let e = interaction.message.embeds[0].toJSON();
-    e = helpFeatureEmbed(interaction.client.appData.texts.commands[interaction.values[0]]).toJSON();
+    e = helpFeatureEmbed(
+      interaction.client.appData.texts.commands[interaction.values[0] as keyof TextsCommands],
+    ).toJSON();
     interaction.update({ embeds: [e] });
   },
 });
@@ -75,23 +77,25 @@ interface HelpSection {
   subcommands: { title: string; example: string; desc: string; command: string }[];
 }
 
-function helpMainEmbed(sections: HelpSection[]) {
+function helpMainEmbed(sections: TextsCommands) {
   const embed = new EmbedBuilder().setAuthor({ name: 'ActivityRank Manual' }).setColor(0x00ae86)
     .setDescription(stripIndent`
       **[Website](https://activityrank.me/commands)**
       **[Support Server](${supportServerInviteLink})**
       By using this bot you accept the **[terms and conditions](https://activityrank.me/termsandconditions)**.`);
 
-  for (const command in sections)
+  for (const _command in sections) {
+    const command = _command as keyof TextsCommands;
     embed.addFields({
       name: `***${sections[command].title}***`,
       value: sections[command].desc,
     });
+  }
 
   return embed;
 }
 
-function helpFeatureEmbed(section: HelpSection) {
+function helpFeatureEmbed(section: TextsEntry) {
   const embed = new EmbedBuilder()
     .setColor(0x00ae86)
     .setTitle(`**Manual - ${section.title}**`)
