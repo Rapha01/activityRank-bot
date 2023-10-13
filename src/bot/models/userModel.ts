@@ -15,6 +15,9 @@ const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExt
 
 export type CachedUser = Pick<user, (typeof cachedFields)[number]> & {
   dbHost: string;
+  patreonTier?: number;
+  patreonTierUntilDate?: number;
+  lastTopggUpvoteDate?: number;
 };
 
 export const cache = {
