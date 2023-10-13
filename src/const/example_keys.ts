@@ -4,6 +4,7 @@ const keys = {
     botId: '',
     managerApiAuth: '',
     managerHost: '',
+    managerPort: null,
     managerDb: {
       dbUser: '',
       dbPassword: '',
@@ -20,6 +21,7 @@ const keys = {
     botId: '',
     managerApiAuth: '',
     managerHost: '',
+    managerPort: null,
     managerDb: {
       dbUser: '',
       dbPassword: '',
