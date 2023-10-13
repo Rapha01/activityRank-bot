@@ -4,93 +4,101 @@ import {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  ComponentType,
+  type Interaction,
 } from 'discord.js';
 
 import { oneLine } from 'common-tags';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
+import type { guildMember } from 'models/types/shard.js';
+import type { PropertiesOfType } from 'models/types/generics.js';
 
-const generateRow = (i, myGuildMember) => {
-  const r = [
-    new ButtonBuilder().setLabel('Notify levelup via DM'),
-    new ButtonBuilder().setLabel('Reaction voting'),
+const generateRow = (i: Interaction<'cached'>, myGuildMember: guildMember) => {
+  return [
+    new ButtonBuilder()
+      .setLabel('Notify levelup via DM')
+      .setCustomId(toggleId({ type: 'notifyLevelupDm' }, { ownerId: i.member.id }))
+      .setStyle(myGuildMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger),
+    new ButtonBuilder()
+      .setLabel('Reaction voting')
+      .setCustomId(toggleId({ type: 'reactionVote' }, { ownerId: i.member.id }))
+      .setDisabled(!i.guild.appData.voteXp || !i.guild.appData.reactionVote)
+      .setStyle(myGuildMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger),
   ];
-  r[0].setCustomId(`config-member ${i.member.id} notifyLevelupDm`);
-  r[0].setStyle(myGuildMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger);
-
-  r[1].setCustomId(`config-member ${i.member.id} reactionVote`);
-  r[1].setDisabled(!i.guild.appData.voteXp || !i.guild.appData.reactionVote);
-  r[1].setStyle(myGuildMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger);
-  return r;
 };
 
-const _close = (i) =>
-  new ActionRowBuilder().addComponents(
+const _close = (interaction: Interaction<'cached'>) =>
+  new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setLabel('Close')
       .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-member ${i.member.id} closeMenu`),
+      .setCustomId(closeId(null, { ownerId: interaction.member.id })),
   );
 
-export const data = new SlashCommandBuilder()
-  .setName('config-member')
-  .setDescription('Change your personal settings');
+registerSlashCommand({
+  data: new SlashCommandBuilder()
+    .setName('config-member')
+    .setDescription('Change your personal settings'),
+  async execute(i) {
+    await guildMemberModel.cache.load(i.member);
+    const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
-export const execute = async (i) => {
-  await guildMemberModel.cache.load(i.member);
-  const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
-
-  await i.reply({
-    embeds: [
-      new EmbedBuilder().setAuthor({ name: 'Personal Settings' }).addFields(
-        {
-          name: 'Notify Levelup via DM',
-          value: 'If this is enabled, the bot will send you a DM when you level up.',
-        },
-        {
-          name: 'Reaction Voting',
-          value: oneLine`
-        If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
-        will give an upvote to the member that sent the message.`,
-        },
-      ),
-    ],
-    components: [new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)), _close(i)],
-  });
-};
-
-export const component = async (i) => {
-  const [, memberId, type] = i.customId.split(' ');
-
-  if (memberId !== i.member.id)
-    return await i.reply({
-      content: "Sorry, this menu isn't for you.",
-      ephemeral: true,
+    await i.reply({
+      embeds: [
+        new EmbedBuilder().setAuthor({ name: 'Personal Settings' }).addFields(
+          {
+            name: 'Notify Levelup via DM',
+            value: 'If this is enabled, the bot will send you a DM when you level up.',
+          },
+          {
+            name: 'Reaction Voting',
+            value: oneLine`
+              If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
+              will give an upvote to the member that sent the message.`,
+          },
+        ),
+      ],
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(generateRow(i, myGuildMember)),
+        _close(i),
+      ],
     });
+  },
+});
 
-  if (type === 'closeMenu') {
-    await i.deferUpdate();
-    return await i.deleteReply();
-  }
+const closeId = registerComponent({
+  type: ComponentType.Button,
+  identifier: 'config-member.close',
+  async callback(interaction) {
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+  },
+});
 
-  await guildMemberModel.cache.load(i.member);
-  let myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
+const toggleId = registerComponent<{
+  type: Exclude<keyof PropertiesOfType<guildMember, number>, 'tokensBurned'>;
+}>({
+  type: ComponentType.Button,
+  identifier: 'config-member.toggle',
+  async callback(interaction, data) {
+    await guildMemberModel.cache.load(interaction.member);
+    const myGuildMember = await guildMemberModel.storage.get(
+      interaction.guild,
+      interaction.member.id,
+    );
+    const { type } = data;
 
-  if (myGuildMember[type]) await guildMemberModel.storage.set(i.guild, memberId, type, 0);
-  else await guildMemberModel.storage.set(i.guild, memberId, type, 1);
+    if (myGuildMember[type])
+      await guildMemberModel.storage.set(interaction.guild, interaction.user.id, type, 0);
+    else await guildMemberModel.storage.set(interaction.guild, interaction.user.id, type, 1);
 
-  myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
-  await i.update({
-    components: [new ActionRowBuilder().addComponents(generateRow(i, myGuildMember)), _close(i)],
-  });
-};
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  data,
-  execute,
-  component,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+    const newMember = await guildMemberModel.storage.get(interaction.guild, interaction.member.id);
+    await interaction.update({
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(generateRow(interaction, newMember)),
+        _close(interaction),
+      ],
+    });
+  },
+});
