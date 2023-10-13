@@ -3,7 +3,9 @@ import logger from '../util/logger.js';
 import type { ShardingManager } from 'discord.js';
 
 export default async (manager: ShardingManager) => {
-  const res = await managerDb.query(`SELECT shardId from botShardStat WHERE restartQueued = 1`);
+  const res = await managerDb.query<{ shardId: number }[]>(
+    `SELECT shardId from botShardStat WHERE restartQueued = 1`,
+  );
 
   const shardIdsToRestart: number[] = [];
   for (let row of res) {
