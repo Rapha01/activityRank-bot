@@ -1,18 +1,46 @@
-/* eslint-disable max-len */
 import {
-  ButtonBuilder,
   ButtonStyle,
-  ActionRowBuilder,
   EmbedBuilder,
   PermissionFlagsBits,
+  ComponentType,
+  type Interaction,
+  type ButtonComponentData,
+  type ActionRowData,
 } from 'discord.js';
 
 import { stripIndent } from 'common-tags';
 import guildModel from '../../models/guild/guildModel.js';
+import { registerComponent, registerSubCommand } from 'bot/util/commandLoader.js';
+import type { guild } from 'models/types/shard.js';
+import type { PropertiesOfType } from 'models/types/generics.js';
 
-const generateRows = async (i) => {
-  const myGuild = await guildModel.storage.get(i.guild);
-  const r1 = [
+const generateRows = async (
+  interaction: Interaction<'cached'>,
+): Promise<ActionRowData<ButtonComponentData>[]> => {
+  // TODO: test this
+  const myGuild = await guildModel.storage.get(interaction.guild);
+  const rows: { label?: string; emoji?: string; key: keyof PropertiesOfType<guild, number> }[][] = [
+    [
+      { label: 'Use Nicknames', key: 'showNicknames' },
+      { label: 'Reaction Voting', key: 'reactionVote' },
+      { label: 'Allow Muted XP', key: 'allowMutedXp' },
+      { label: 'Allow Deafened XP', key: 'allowDeafenedXp' },
+      { label: 'Allow Solo XP', key: 'allowSoloXp' },
+    ],
+    [
+      { label: 'TAAROLD', key: 'takeAwayAssignedRolesOnLevelDown' },
+      { label: 'Notify Via DM', key: 'notifyLevelupDm' },
+      { label: 'Notify in Last Active Channel', key: 'notifyLevelupCurrentChannel' },
+      { label: 'Include Levelup Message', key: 'notifyLevelupWithRole' },
+    ],
+    [
+      { emoji: '✍️', key: 'textXp' },
+      { emoji: '🎙️', key: 'voiceXp' },
+      { emoji: '✉️', key: 'inviteXp' },
+      { emoji: '❤️', key: 'voteXp' },
+    ],
+  ];
+  /* const r1 = [
     new ButtonBuilder()
       .setLabel('Use Nicknames')
       .setCustomId(`config-server/set ${i.member.id} showNicknames`),
@@ -63,129 +91,161 @@ const generateRows = async (i) => {
     o.setStyle(
       myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
     ),
+  ); */
+
+  const items = rows.map((group) =>
+    group.map(
+      (item): ButtonComponentData => ({
+        type: ComponentType.Button,
+        style: myGuild![item.key] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
+        label: item.label,
+        emoji: item.emoji,
+        customId: setId({ key: item.key }, { ownerId: interaction.user.id }),
+      }),
+    ),
   );
-  if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
+
+  // special cases
+  if (myGuild!.notifyLevelupCurrentChannel) {
+    items[1][1].disabled = true;
+    items[1][1].style = ButtonStyle.Danger;
+  }
+
+  if (parseInt(myGuild!.autopost_levelup)) {
+    items[1][1].disabled = true;
+    items[1][1].style = ButtonStyle.Danger;
+    items[1][2].disabled = true;
+    items[1][2].style = ButtonStyle.Danger;
+  }
+
+  return [
+    ...items.map(
+      (row): ActionRowData<ButtonComponentData> => ({
+        type: ComponentType.ActionRow,
+        components: row,
+      }),
+    ),
+    {
+      type: ComponentType.ActionRow,
+      components: [
+        {
+          type: ComponentType.Button,
+          style: ButtonStyle.Danger,
+          label: 'Close',
+          customId: closeId(null, { ownerId: interaction.user.id }),
+        },
+      ],
+    },
+  ];
+
+  /* if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
   if (parseInt(myGuild.autopost_levelup)) {
     r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
     r2[2].setDisabled(true).setStyle(ButtonStyle.Danger);
   }
   return [
-    new ActionRowBuilder().addComponents(r1),
-    new ActionRowBuilder().addComponents(r2),
-    new ActionRowBuilder().addComponents(r3),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(r1),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(r2),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(r3),
     _close(i),
-  ];
+  ]; */
 };
 
-const _close = (i) =>
-  new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setLabel('Close')
-      .setStyle(ButtonStyle.Danger)
-      .setCustomId(`config-server/set ${i.member.id} closeMenu`),
-  );
+registerSubCommand({
+  async execute(interaction) {
+    if (
+      !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
+    ) {
+      return await interaction.reply({
+        content: 'You need the permission to manage the server in order to use this command.',
+        ephemeral: true,
+      });
+    }
 
-export const execute = async (i) => {
-  if (!i.member.permissionsIn(i.channel).has(PermissionFlagsBits.ManageGuild)) {
-    return await i.reply({
-      content: 'You need the permission to manage the server in order to use this command.',
-      ephemeral: true,
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: 'Server Settings' })
+      .setColor(0x00ae86)
+      .addFields(
+        {
+          name: 'Use Nicknames',
+          value:
+            'If this is enabled, nicknames will be used to represent members instead of their Discord usernames',
+        },
+        {
+          name: 'Reaction Voting',
+          value: `If this is enabled, members will be permitted to vote using the server's voteEmote, ${interaction.guild.appData.voteEmote}`,
+        },
+        {
+          name: 'Allow Muted XP',
+          value:
+            'If this is enabled, members will be permitted to gain XP in VCs, even when they are muted.',
+        },
+        {
+          name: 'Allow Deafened XP',
+          value:
+            'If this is enabled, members will be permitted to gain XP in VCs, even when they are deafened.',
+        },
+        {
+          name: 'Allow Solo XP',
+          value:
+            'If this is enabled, members will be permitted to gain XP in VCs, even when they are alone. Bots do not count.',
+        },
+        {
+          name: 'TAAROLD (Take Away Assigned Roles On Level Down)',
+          value:
+            'If this is enabled, the bot will remove roles when the member falls below their assignLevel.',
+        },
+        {
+          name: 'Notify Via DM',
+          value: stripIndent`
+          If this is enabled, the bot will allow members to recieve levelup notifications via DM.
+          You cannot select this if either of the below two options are enabled, because they will take priority.`,
+        },
+        {
+          name: 'Notify in Last Active Channel',
+          value: stripIndent`
+          If this is enabled, the bot will notify members of their levelups in their last used text channel.
+          You cannot select this if the below option is enabled, because it will take priority.`,
+        },
+        {
+          name: 'Include Levelup Message',
+          value: stripIndent`
+          If this is enabled, when a role has a custom roleAssign message, the bot will also send the default levelup message.
+          Otherwise, it will only send the roleAssign message.`,
+        },
+        {
+          name: '✍️, 🎙️, ✉️, ❤️',
+          value: stripIndent`
+          These will enable or disable text, voice, invite, and upvoteXP respectively.
+          You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`,
+        },
+      );
+
+    await interaction.reply({
+      embeds: [embed],
+      components: await generateRows(interaction),
     });
-  }
+  },
+});
 
-  const e = new EmbedBuilder()
-    .setAuthor({ name: 'Server Settings' })
-    .setColor(0x00ae86)
-    .addFields(
-      {
-        name: 'Use Nicknames',
-        value:
-          'If this is enabled, nicknames will be used to represent members instead of their Discord usernames',
-      },
-      {
-        name: 'Reaction Voting',
-        value: `If this is enabled, members will be permitted to vote using the server's voteEmote, ${i.guild.appData.voteEmote}`,
-      },
-      {
-        name: 'Allow Muted XP',
-        value:
-          'If this is enabled, members will be permitted to gain XP in VCs, even when they are muted.',
-      },
-      {
-        name: 'Allow Deafened XP',
-        value:
-          'If this is enabled, members will be permitted to gain XP in VCs, even when they are deafened.',
-      },
-      {
-        name: 'Allow Solo XP',
-        value:
-          'If this is enabled, members will be permitted to gain XP in VCs, even when they are alone. Bots do not count.',
-      },
-      {
-        name: 'TAAROLD (Take Away Assigned Roles On Level Down)',
-        value:
-          'If this is enabled, the bot will remove roles when the member falls below their assignLevel.',
-      },
-      {
-        name: 'Notify Via DM',
-        value: stripIndent`
-        If this is enabled, the bot will allow members to recieve levelup notifications via DM.
-        You cannot select this if either of the below two options are enabled, because they will take priority.`,
-      },
-      {
-        name: 'Notify in Last Active Channel',
-        value: stripIndent`
-        If this is enabled, the bot will notify members of their levelups in their last used text channel.
-        You cannot select this if the below option is enabled, because it will take priority.`,
-      },
-      {
-        name: 'Include Levelup Message',
-        value: stripIndent`
-        If this is enabled, when a role has a custom roleAssign message, the bot will also send the default levelup message.
-        Otherwise, it will only send the roleAssign message.`,
-      },
-      {
-        name: '✍️, 🎙️, ✉️, ❤️',
-        value: stripIndent`
-        These will enable or disable text, voice, invite, and upvoteXP respectively.
-        You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`,
-      },
-    );
+const setId = registerComponent<{ key: keyof PropertiesOfType<guild, number> }>({
+  identifier: 'config-server.set',
+  type: ComponentType.Button,
+  async callback(interaction, data) {
+    const myGuild = await guildModel.storage.get(interaction.guild);
 
-  await i.reply({
-    embeds: [e],
-    components: await generateRows(i),
-  });
-};
+    if (myGuild![data.key]) await guildModel.storage.set(interaction.guild, data.key, 0);
+    else await guildModel.storage.set(interaction.guild, data.key, 1);
 
-export const component = async (i) => {
-  const [, memberId, type] = i.customId.split(' ');
+    await interaction.update({ components: await generateRows(interaction) });
+  },
+});
 
-  if (memberId !== i.member.id)
-    return await i.reply({
-      content: "Sorry, this menu isn't for you.",
-      ephemeral: true,
-    });
-
-  if (type === 'closeMenu') {
-    await i.deferUpdate();
-    return await i.deleteReply();
-  }
-
-  const myGuild = await guildModel.storage.get(i.guild);
-
-  if (myGuild[type]) await guildModel.storage.set(i.guild, type, 0);
-  else await guildModel.storage.set(i.guild, type, 1);
-
-  await i.update({ components: await generateRows(i) });
-};
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
-export default {
-  execute,
-  component,
-};
-
-// GENERATED: end of generated content by `exports-to-default`.
+const closeId = registerComponent({
+  identifier: 'config-server.close',
+  type: ComponentType.Button,
+  async callback(interaction) {
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+  },
+});
