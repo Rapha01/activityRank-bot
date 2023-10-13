@@ -3,6 +3,7 @@ import managerDb from '../../../models/managerDb/managerDb.js';
 import mysql from 'promise-mysql';
 import type { Guild } from 'discord.js';
 import type { guild } from 'models/types/shard.js';
+import type { PropertiesOfType } from 'models/types/generics.js';
 
 const promises: Record<string, Promise<void>> = {};
 
@@ -72,28 +73,34 @@ export const cache = {
       return promises[guild.id];
     }
 
-    return new Promise(async (resolve) => {
-      resolve();
-    });
+    return new Promise<void>(async (resolve) => resolve());
   },
 };
 
 export const storage = {
-  set: async (guild: Guild, field: string, value) => {
+  set: async <K extends Exclude<keyof CachedGuild, 'guildId'>>(
+    guild: Guild,
+    field: K,
+    value: CachedGuild[K],
+  ) => {
     await shardDb.query(
       guild.appData.dbHost,
       `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
     );
 
-    if (cachedFields.indexOf(field) > -1) guild.appData[field] = value;
+    if ((cachedFields as readonly string[]).includes(field)) guild.appData[field] = value;
   },
-  increment: async (guild: Guild, field: string, value) => {
+  increment: async <K extends keyof PropertiesOfType<CachedGuild, number>>(
+    guild: Guild,
+    field: K,
+    value: CachedGuild[K],
+  ) => {
     await shardDb.query(
       guild.appData.dbHost,
       `UPDATE guild SET ${field} = ${field} + ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
     );
 
-    if (cachedFields.indexOf(field) > -1) guild.appData[field] += value * 1;
+    if ((cachedFields as readonly string[]).includes(field)) guild.appData[field] += value * 1;
   },
 
   get: async (guild: Guild) => {
@@ -109,6 +116,7 @@ export const storage = {
 export type CachedGuild = Pick<guild, (typeof cachedFields)[number]> & {
   dbHost: string;
   lastAskForPremiumDate: number;
+  lastResetServer: number;
 };
 
 async function buildCache(guild: Guild) {
@@ -137,7 +145,7 @@ async function buildCache(guild: Guild) {
 }
 
 const getDbHost = async (guildId: string): Promise<string> => {
-  let res = await managerDb.query(
+  let res = await managerDb.query<{ host: string }[]>(
     `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
   );
 

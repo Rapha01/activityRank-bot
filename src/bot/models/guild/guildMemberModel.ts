@@ -5,7 +5,6 @@ import type { Guild, GuildMember } from 'discord.js';
 import type { guildMember } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
 
-// const promises: Record<string, Promise<void>> = {};
 const promises = new Map<string, Promise<void>>();
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const;
