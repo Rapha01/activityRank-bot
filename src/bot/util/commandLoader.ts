@@ -25,6 +25,7 @@ import path from 'node:path';
 import logger from '../../util/logger.js';
 import type { PrivilegeLevel } from 'const/privilegeLevels.js';
 import { glob } from 'glob';
+import { adminDir, commandsDir, contextDir } from './paths.js';
 
 interface CommandExecutables {
   execute?: CommandFunc;
@@ -249,11 +250,6 @@ export function registerContextMenu(meta: {
 
   logger.debug(`Loaded context command [${meta.data.name}]`);
 }
-
-const botDir = fileURLToPath(new URL('..', import.meta.url));
-const commandsDir = path.join(botDir, 'commandsSlash');
-const adminDir = path.join(botDir, 'commandsAdmin');
-const contextDir = path.join(botDir, 'contextMenus');
 
 export async function loadCommandFiles() {
   const commandFiles = await glob(`${commandsDir}/*.js`);
