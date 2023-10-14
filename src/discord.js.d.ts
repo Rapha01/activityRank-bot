@@ -32,9 +32,32 @@ declare module 'discord.js' {
   export interface Guild {
     appData: CachedGuild;
   }
-  export interface GuildChannel {
-    appData: guildChannel;
+  // yes, it seems like we need to set these all individually :(
+  export interface CategoryChannel {
+    appData: CachedGuildChannel;
   }
+  export interface NewsChannel {
+    appData: CachedGuildChannel;
+  }
+  export interface StageChannel {
+    appData: CachedGuildChannel;
+  }
+  export interface TextChannel {
+    appData: CachedGuildChannel;
+  }
+  export interface PrivateThreadChannel {
+    appData: CachedGuildChannel;
+  }
+  export interface PublicThreadChannel {
+    appData: CachedGuildChannel;
+  }
+  export interface VoiceChannel {
+    appData: CachedGuildChannel;
+  }
+  export interface ForumChannel {
+    appData: CachedGuildChannel;
+  }
+  // the channels end here
   export interface GuildMember {
     appData: CachedGuildMember;
   }
