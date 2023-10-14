@@ -23,7 +23,7 @@ export const cache = {
         buildCache(channel).finally(() => promises.delete(channel.id)),
       );
 
-      return promises.delete(channel.id);
+      return promises.get(channel.id);
     }
 
     return new Promise<void>(async (resolve) => resolve());

@@ -1,19 +1,17 @@
-import type { Client } from 'discord.js';
-import cronScheduler from '../cron/scheduler.js';
+import { registerEvent } from 'bot/util/eventLoader.js';
+import { Events } from 'discord.js';
 import localDeploy from '../util/deploy-local.js';
+import cronScheduler from '../cron/scheduler.js';
 
-export default {
-  name: 'ready',
-  async execute(client: Client) {
-    try {
-      if (!(process.env.NODE_ENV == 'production')) await localDeploy(client);
+registerEvent(
+  Events.ClientReady,
+  async function (client) {
+    // TODO make a better deployment process
+    if (!(process.env.NODE_ENV == 'production')) await localDeploy(client);
 
-      client.logger.info(`Logged in as ${client.user!.tag}!`);
+    client.logger.info(`Logged in as ${client.user!.tag}!`);
 
-      client.user!.setActivity('Calculating..');
-      await cronScheduler.start(client);
-    } catch (e) {
-      console.error(e);
-    }
+    cronScheduler.start(client);
   },
-};
+  { once: true },
+);

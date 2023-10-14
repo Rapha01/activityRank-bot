@@ -4,7 +4,8 @@ import guildRoleModel from '../models/guild/guildRoleModel.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
-import { MessageType, ChannelType, Message } from 'discord.js';
+import { MessageType, ChannelType, Message, Events } from 'discord.js';
+import { registerEvent } from 'bot/util/eventLoader.js';
 
 const acceptedChannelTypes = [
   ChannelType.GuildText,
@@ -13,33 +14,31 @@ const acceptedChannelTypes = [
 ];
 const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
-export default {
-  name: 'messageCreate',
-  async execute(msg: Message) {
-    if (
-      msg.author.bot == true ||
-      msg.system == true ||
-      skip(msg.guildId) ||
-      !acceptedMessageTypes.includes(msg.type) ||
-      !msg.inGuild()
-    )
-      return;
+registerEvent(Events.MessageCreate, async function (message) {
+  if (
+    message.author.bot == true ||
+    message.system == true ||
+    skip(message.guildId!) ||
+    !acceptedMessageTypes.includes(message.type) ||
+    !message.inGuild()
+  )
+    return;
 
-    await guildModel.cache.load(msg.guild);
+  await guildModel.cache.load(message.guild);
 
-    const mentionRegex = new RegExp(`^(<@!?${msg.client.user.id}>)\\s*test\\s*$`);
-    if (msg.content && mentionRegex.test(msg.content))
-      await msg.reply('This test is successful. The bot is up and running.');
+  const mentionRegex = new RegExp(`^(<@!?${message.client.user.id}>)\\s*test\\s*$`);
+  if (message.content && mentionRegex.test(message.content))
+    await message.reply('This test is successful. The bot is up and running.');
 
-    if (msg.guild.appData.textXp && acceptedChannelTypes.includes(msg.channel.type))
-      await rankMessage(msg);
-  },
-};
+  if (message.guild.appData.textXp && acceptedChannelTypes.includes(message.channel.type))
+    await rankMessage(message);
+});
 
 async function rankMessage(msg: Message<true>) {
   if (!msg.channel) return;
 
   const channel = msg.channel.type === ChannelType.PublicThread ? msg.channel.parent : msg.channel;
+  if (!channel) throw new Error('no channel defined in rankMessage second stage');
 
   await msg.guild.members.fetch(msg.author.id);
 
@@ -68,15 +67,14 @@ async function rankMessage(msg: Message<true>) {
   }
 
   // Check textmessage cooldown
-  const nowSec = Date.now() / 1000;
-
+  const lastMessage = msg.member.appData.lastTextMessageDate;
   if (typeof msg.guild.appData.textMessageCooldownSeconds !== 'undefined') {
     if (
-      nowSec - msg.member.appData.lastTextMessageDate <
-      msg.guild.appData.textMessageCooldownSeconds
+      lastMessage &&
+      Date.now() - lastMessage.getTime() < msg.guild.appData.textMessageCooldownSeconds * 1000
     )
       return;
-    msg.member.appData.lastTextMessageDate = nowSec;
+    msg.member.appData.lastTextMessageDate = new Date();
   }
 
   msg.client.appData.botShardStat.textMessagesTotal++;
