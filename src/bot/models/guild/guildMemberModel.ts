@@ -13,6 +13,7 @@ let defaultAll: guildMember | null = null;
 
 export type CachedGuildMember = Pick<guildMember, (typeof cachedFields)[number]> & {
   totalXp: number;
+  totalScore: number;
   lastVoteDate: Date | null;
   lastTextMessageDate: Date | null;
   lastMessageChannelId: string | null;

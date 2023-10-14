@@ -1,8 +1,7 @@
-import type { GuildMember } from 'discord.js';
+import { registerEvent } from 'bot/util/eventLoader.js';
+import { handleMemberJoin } from 'bot/util/memberJoin.js';
+import { Events } from 'discord.js';
 
-export default {
-  name: 'guildMemberAdd',
-  execute(member: GuildMember) {
-    if (!member.pending) member.client.emit('_guildMemberJoin', member);
-  },
-};
+registerEvent(Events.GuildMemberAdd, async function (member) {
+  if (!member.pending) await handleMemberJoin(member);
+});

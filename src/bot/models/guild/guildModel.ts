@@ -78,10 +78,10 @@ export const cache = {
 };
 
 export const storage = {
-  set: async <K extends Exclude<keyof CachedGuild, 'guildId'>>(
+  set: async <K extends Exclude<keyof guild, 'guildId'>>(
     guild: Guild,
     field: K,
-    value: CachedGuild[K],
+    value: guild[K],
   ) => {
     await shardDb.query(
       guild.appData.dbHost,

@@ -4,8 +4,10 @@ import settingModel from '../models/managerDb/settingModel.js';
 import textModel from '../models/managerDb/textModel.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
-import loadEvents from './util/startup/eventLoader.js';
+// import loadEvents from './util/startup/eventLoader.js';
 import { loadCommandFiles } from './util/commandLoader.js';
+import { loadEventFiles, loadEvents } from './util/eventLoader.js';
+import { ActivityType } from 'discord.js';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -35,7 +37,20 @@ const sweepers = {
   },
 };
 
-const client = new Client({ intents });
+const client = new Client({
+  intents,
+  presence: {
+    activities: [
+      {
+        type: ActivityType.Custom,
+        // `state` is what actually gets displayed;
+        // `name` is still required but not shown
+        state: 'Calculating..',
+        name: 'Calculating..',
+      },
+    ],
+  },
+});
 
 process.env.UV_THREADPOOL_SIZE = 50;
 
@@ -52,6 +67,8 @@ async function start() {
 
     try {
       await loadCommandFiles();
+      await loadEventFiles();
+      await fct.sleep(1000);
       await loadEvents(client);
     } catch (e) {
       client.logger.warn(e, 'Error while loading in shard');

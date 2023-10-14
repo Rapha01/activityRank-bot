@@ -1,10 +1,11 @@
-import type { Client, Guild, GuildMember, TextBasedChannel, VoiceBasedChannel } from 'discord.js';
+import type { Client, Guild, GuildBasedChannel, GuildMember, VoiceBasedChannel } from 'discord.js';
 import levelManager from './levelManager.js';
 import type { StatType } from 'models/types/enums.js';
 
 export async function addTextMessage(
   member: GuildMember,
-  channel: TextBasedChannel,
+  // not textBased because forums can be ranked
+  channel: GuildBasedChannel,
   count: number,
 ) {
   // Add to FlushCache

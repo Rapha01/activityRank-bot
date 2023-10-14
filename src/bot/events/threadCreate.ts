@@ -1,8 +1,6 @@
-import { ChannelType, type ThreadChannel } from 'discord.js';
+import { registerEvent } from 'bot/util/eventLoader.js';
+import { ChannelType, Events } from 'discord.js';
 
-export default {
-  name: 'threadCreate',
-  async execute(thread: ThreadChannel) {
-    if (thread.type == ChannelType.PublicThread) thread.join();
-  },
-};
+registerEvent(Events.ThreadCreate, async function (thread) {
+  if (thread.type == ChannelType.PublicThread) await thread.join();
+});

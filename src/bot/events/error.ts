@@ -1,8 +1,6 @@
-import cronScheduler from '../cron/scheduler.js';
+import { registerEvent } from 'bot/util/eventLoader.js';
+import { Events } from 'discord.js';
 
-export default {
-  name: 'error',
-  execute(err) {
-    console.log('client.onError: ', err);
-  },
-};
+registerEvent(Events.Error, function (error) {
+  console.log('Client registered an error', error);
+});
