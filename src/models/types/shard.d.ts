@@ -1,4 +1,4 @@
-export interface bonus {
+export interface BonusSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
   alltime: number;
@@ -10,7 +10,7 @@ export interface bonus {
   addDate: number; // BIGINT;
 }
 
-export interface guild {
+export interface GuildSchema {
   guildId: string; // BIGINT;
   prefix: string;
   tokens: number;
@@ -78,14 +78,14 @@ export interface guild {
   isBanned: number;
 }
 
-export interface guildChannel {
+export interface GuildChannelSchema {
   guildId: string; // BIGINT;
   channelId: string; // BIGINT;
   noXp: number;
   noCommand: number;
 }
 
-export interface guildMember {
+export interface GuildMemberSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
   notifyLevelupDm: number;
@@ -94,7 +94,7 @@ export interface guildMember {
   inviter: string; // BIGINT;
 }
 
-export interface guildRole {
+export interface GuildRoleSchema {
   guildId: string; // BIGINT;
   roleId: string; // BIGINT;
   assignLevel: number;
@@ -104,7 +104,7 @@ export interface guildRole {
   noXp: number;
 }
 
-export interface invite {
+export interface InviteSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
   alltime: number;
@@ -116,7 +116,7 @@ export interface invite {
   addDate: number; // BIGINT;
 }
 
-export interface textMessage {
+export interface TextMessageSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
   channelId: string; // BIGINT;
@@ -129,7 +129,7 @@ export interface textMessage {
   addDate: number; // BIGINT;
 }
 
-export interface user {
+export interface UserSchema {
   userId: string; // BIGINT;
   tokens: number;
   tokensBought: number;
@@ -144,7 +144,7 @@ export interface user {
   lastTopggUpvoteDate: number; // BIGINT;
 }
 
-export interface voiceMinute {
+export interface VoiceMinuteSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
   channelId: string; // BIGINT;
@@ -157,7 +157,7 @@ export interface voiceMinute {
   addDate: number; // BIGINT;
 }
 
-export interface vote {
+export interface VoteSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
   alltime: number;
