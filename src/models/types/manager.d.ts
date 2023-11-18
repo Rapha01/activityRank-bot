@@ -1,4 +1,4 @@
-export interface botShardStat {
+export interface BotShardStatSchema {
   shardId: number;
   status: number;
   serverCount: number;
@@ -19,7 +19,7 @@ export interface botShardStat {
   textMessagesTotal: number;
 }
 
-export interface botStat {
+export interface BotStatSchema {
   commands1h: number;
   botInvites1h: number;
   botKicks1h: number;
@@ -31,18 +31,18 @@ export interface botStat {
   addDate: number;
 }
 
-export interface dbShard {
+export interface DbShardSchema {
   id: string;
   hostExtern: string;
   hostIntern: string;
 }
 
-export interface guildRoute {
+export interface GuildRouteSchema {
   guildId: string;
   dbShardId: number;
 }
 
-export interface productKey {
+export interface ProductKeySchema {
   key: string;
   type: string;
   userId: string;
@@ -50,12 +50,12 @@ export interface productKey {
   addDate: number;
 }
 
-export interface setting {
+export interface SettingSchema {
   id: string;
   value: string;
 }
 
-export interface userRoute {
+export interface UserRouteSchema {
   userId: string;
   dbShardId: number;
 }
