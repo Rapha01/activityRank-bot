@@ -5,7 +5,7 @@ import type { Guild } from 'discord.js';
 import type { guild } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
 
-const promises: Record<string, Promise<void>> = {};
+const promises = new Map<string, Promise<void>>();
 
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
@@ -57,20 +57,14 @@ const cachedFields = [
 export const cache = {
   load: (guild: Guild) => {
     if (!guild.appData) {
-      if (guild.id in promises) return promises[guild.id];
+      if (promises.has(guild.id)) return promises.get(guild.id)!;
 
-      promises[guild.id] = new Promise(async (resolve, reject) => {
-        try {
-          await buildCache(guild);
-          delete promises[guild.id];
-          resolve();
-        } catch (e) {
-          delete promises[guild.id];
-          reject(e);
-        }
-      });
+      promises.set(
+        guild.id,
+        buildCache(guild).finally(() => promises.delete(guild.id)),
+      );
 
-      return promises[guild.id];
+      return promises.get(guild.id)!;
     }
 
     return new Promise<void>(async (resolve) => resolve());
