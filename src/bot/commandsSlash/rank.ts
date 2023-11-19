@@ -44,15 +44,11 @@ registerSlashCommand({
   execute: async function (i) {
     await i.deferReply();
 
-    await guildMemberModel.cache.load(i.member);
-
     if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
     const myGuild = await guildModel.storage.get(i.guild);
 
     const targetUser = i.options.getUser('member') ?? i.user;
-
-    await userModel.cache.load(targetUser);
 
     const initialState: CacheInstance = {
       window: 'rank',
@@ -272,18 +268,19 @@ async function generateRankCard(
 ): Promise<InteractionEditReplyOptions> {
   const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);
   if (!rank) throw new Error();
+  const guildCache = await guildModel.cache.get(guild);
 
   const positions = await getPositions(
     guild,
     state.targetUser.id,
-    getTypes(guild.appData),
+    getTypes(guildCache),
     state.time,
   );
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
   const levelProgression = fct.getLevelProgression(
     rank.totalScoreAlltime,
-    guild.appData.levelFactor,
+    guildCache.db.levelFactor,
   );
 
   const embed = new EmbedBuilder()
@@ -313,7 +310,7 @@ async function generateRankCard(
     },
     {
       name: 'Stats',
-      value: getScoreStrings(guild.appData, rank, positions, state.time),
+      value: getScoreStrings(guildCache, rank, positions, state.time),
     },
   );
 
@@ -379,20 +376,20 @@ function getScoreStrings(
   time: StatTimeInterval,
 ) {
   const scoreStrings = [];
-  if (myGuild.textXp)
+  if (myGuild.db.textXp)
     scoreStrings.push(`:writing_hand: ${ranks[`textMessage${time}`]} (#${positions.textMessage})`);
-  if (myGuild.voiceXp)
+  if (myGuild.db.voiceXp)
     scoreStrings.push(
       `:microphone2: ${Math.round((ranks[`voiceMinute${time}`] / 60) * 10) / 10} (#${
         positions.voiceMinute
       })`,
     );
-  if (myGuild.inviteXp)
+  if (myGuild.db.inviteXp)
     scoreStrings.push(`:envelope: ${ranks[`invite${time}`]} (#${positions.invite})`);
-  if (myGuild.voteXp)
-    scoreStrings.push(`${myGuild.voteEmote} ${ranks[`vote${time}`]} (#${positions.vote})`);
-  if (myGuild.bonusXp)
-    scoreStrings.push(`${myGuild.bonusEmote} ${ranks[`bonus${time}`]} (#${positions.bonus})`);
+  if (myGuild.db.voteXp)
+    scoreStrings.push(`${myGuild.db.voteEmote} ${ranks[`vote${time}`]} (#${positions.vote})`);
+  if (myGuild.db.bonusXp)
+    scoreStrings.push(`${myGuild.db.bonusEmote} ${ranks[`bonus${time}`]} (#${positions.bonus})`);
 
   return scoreStrings.join('\n');
 }
@@ -419,11 +416,11 @@ function getTypes(
   myGuild: CachedGuild,
 ): ('textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus' | 'totalScore')[] {
   return [
-    myGuild.textXp ? 'textMessage' : null,
-    myGuild.voiceXp ? 'voiceMinute' : null,
-    myGuild.inviteXp ? 'invite' : null,
-    myGuild.voteXp ? 'vote' : null,
-    myGuild.bonusXp ? 'bonus' : null,
+    myGuild.db.textXp ? 'textMessage' : null,
+    myGuild.db.voiceXp ? 'voiceMinute' : null,
+    myGuild.db.inviteXp ? 'invite' : null,
+    myGuild.db.voteXp ? 'vote' : null,
+    myGuild.db.bonusXp ? 'bonus' : null,
     'totalScore',
   ].filter((i) => i !== null) as (
     | 'textMessage'

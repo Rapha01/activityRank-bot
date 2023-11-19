@@ -63,10 +63,11 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
       return;
     }
 
-    await guildChannelModel.cache.load(interaction.channel);
+    const cachedChannel = await guildChannelModel.cache.get(interaction.channel);
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
 
     if (
-      interaction.channel.appData.noCommand &&
+      cachedChannel.db.noCommand &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
       return await interaction.reply({
@@ -77,12 +78,12 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
 
     // TODO: deprecate in favor of native Discord slash command configs
     if (
-      interaction.guild.appData.commandOnlyChannel != '0' &&
-      interaction.guild.appData.commandOnlyChannel != interaction.channel.id &&
+      cachedGuild.db.commandOnlyChannel !== '0' &&
+      cachedGuild.db.commandOnlyChannel !== interaction.channel.id &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
       return await interaction.reply({
-        content: `Commands can only be used in <#${interaction.guild.appData.commandOnlyChannel}> unless you are an admin.`,
+        content: `Commands can only be used in <#${cachedGuild.db.commandOnlyChannel}> unless you are an admin.`,
         ephemeral: true,
       });
     }
@@ -219,9 +220,9 @@ function getCommandId(interaction: CommandInteraction | AutocompleteInteraction)
 async function executeBans(
   interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction<'cached'>>,
 ): Promise<boolean> {
-  await guildModel.cache.load(interaction.guild);
+  const cachedGuild = await guildModel.cache.get(interaction.guild);
 
-  if (interaction.guild.appData.isBanned) {
+  if (cachedGuild.db.isBanned) {
     interaction.client.logger.debug(`Banned guild ${interaction.guild.id} used interaction.`);
     await interaction.reply({
       embeds: [
@@ -242,9 +243,9 @@ async function executeBans(
     return true;
   }
 
-  await userModel.cache.load(interaction.user);
+  const cachedUser = await userModel.cache.get(interaction.user);
 
-  if (interaction.user.appData.isBanned) {
+  if (cachedUser.db.isBanned) {
     interaction.client.logger.debug(`Banned user ${interaction.user.id} used interaction.`);
     await interaction.reply({
       embeds: [

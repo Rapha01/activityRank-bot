@@ -24,13 +24,13 @@ registerEvent(Events.MessageCreate, async function (message) {
   )
     return;
 
-  await guildModel.cache.load(message.guild);
+  const cachedGuild = await guildModel.cache.get(message.guild);
 
   const mentionRegex = new RegExp(`^(<@!?${message.client.user.id}>)\\s*test\\s*$`);
   if (message.content && mentionRegex.test(message.content))
     await message.reply('This test is successful. The bot is up and running.');
 
-  if (message.guild.appData.textXp && acceptedChannelTypes.includes(message.channel.type))
+  if (cachedGuild.db.textXp && acceptedChannelTypes.includes(message.channel.type))
     await rankMessage(message);
 });
 
@@ -44,37 +44,39 @@ async function rankMessage(msg: Message<true>) {
 
   if (!msg.member) return;
 
-  await guildMemberModel.cache.load(msg.member);
-  msg.member.appData.lastMessageChannelId = msg.channel.id;
+  const cachedMember = await guildMemberModel.cache.get(msg.member);
+  cachedMember.cache.lastMessageChannelId = msg.channel.id;
 
   // Check noxp channel
-  await guildChannelModel.cache.load(channel);
+  const cachedChannel = await guildChannelModel.cache.get(channel);
 
-  if (channel.appData.noXp) return;
+  if (cachedChannel.db.noXp) return;
 
   const category = channel?.parent;
   if (category) {
-    await guildChannelModel.cache.load(category);
-    if (category.appData.noXp) return;
+    const cachedParent = await guildChannelModel.cache.get(category);
+    if (cachedParent.db.noXp) return;
   }
 
   // Check noxp role
   for (const _role of msg.member.roles.cache) {
     const role = _role[1];
-    await guildRoleModel.cache.load(role);
+    const cachedRole = await guildRoleModel.cache.get(role);
 
-    if (role.appData.noXp) return;
+    if (cachedRole.db.noXp) return;
   }
 
+  const cachedGuild = await guildModel.cache.get(msg.guild);
+
   // Check textmessage cooldown
-  const lastMessage = msg.member.appData.lastTextMessageDate;
-  if (typeof msg.guild.appData.textMessageCooldownSeconds !== 'undefined') {
+  const lastMessage = cachedMember.cache.lastTextMessageDate;
+  if (typeof cachedGuild.db.textMessageCooldownSeconds !== 'undefined') {
     if (
       lastMessage &&
-      Date.now() - lastMessage.getTime() < msg.guild.appData.textMessageCooldownSeconds * 1000
+      Date.now() - lastMessage.getTime() < cachedGuild.db.textMessageCooldownSeconds * 1000
     )
       return;
-    msg.member.appData.lastTextMessageDate = new Date();
+    cachedMember.cache.lastTextMessageDate = new Date();
   }
 
   msg.client.appData.botShardStat.textMessagesTotal++;

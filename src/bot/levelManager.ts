@@ -3,16 +3,19 @@ import nameUtil from './util/nameUtil.js';
 import guildRoleModel from './models/guild/guildRoleModel.js';
 import Discord, { DiscordAPIError, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
+import guildModel from './models/guild/guildModel.js';
+import guildMemberModel from './models/guild/guildMemberModel.js';
 
 export async function checkLevelUp(
   member: GuildMember,
   oldTotalScore: number,
   newTotalScore: number,
 ) {
-  let oldLevel, newLevel, roleMessages;
+  let roleMessages;
+  const cachedGuild = await guildModel.cache.get(member.guild);
 
-  oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, member.guild.appData.levelFactor));
-  newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, member.guild.appData.levelFactor));
+  const oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, cachedGuild.db.levelFactor));
+  const newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, cachedGuild.db.levelFactor));
 
   if (oldLevel != newLevel) roleMessages = await checkRoleAssignment(member, newLevel);
 
@@ -32,42 +35,44 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   if (roles.size == 0 || !member.guild.members.me!.permissions.has(PermissionFlagsBits.ManageRoles))
     return roleMessages;
 
+  const cachedGuild = await guildModel.cache.get(member.guild);
+
   for (const _role of roles) {
     const role = _role[1];
-    await guildRoleModel.cache.load(role);
+    const cachedRole = await guildRoleModel.cache.get(role);
 
-    if (role.appData.assignLevel == 0 && role.appData.deassignLevel == 0) continue;
+    if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
 
     memberHasRole = member.roles.cache.get(role.id);
 
-    if (role.appData.deassignLevel != 0 && level >= role.appData.deassignLevel) {
+    if (cachedRole.db.deassignLevel != 0 && level >= cachedRole.db.deassignLevel) {
       // User is above role. Deassign or do nothing.
       if (memberHasRole) {
         await member.roles.remove(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
-        addRoleDeassignMessage(roleMessages, member, role);
+        await addRoleDeassignMessage(roleMessages, member, role);
       }
-    } else if (role.appData.assignLevel != 0 && level >= role.appData.assignLevel) {
+    } else if (cachedRole.db.assignLevel != 0 && level >= cachedRole.db.assignLevel) {
       // User is within role. Assign or do nothing.
       if (!memberHasRole) {
         await member.roles.add(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
-        addRoleAssignMessage(roleMessages, member, role);
+        await addRoleAssignMessage(roleMessages, member, role);
       }
     } else if (
-      member.guild.appData.takeAwayAssignedRolesOnLevelDown &&
-      role.appData.assignLevel != 0 &&
-      level < role.appData.assignLevel
+      cachedGuild.db.takeAwayAssignedRolesOnLevelDown &&
+      cachedRole.db.assignLevel != 0 &&
+      level < cachedRole.db.assignLevel
     ) {
       // User is below role. Deassign or do nothing.
       if (memberHasRole) {
         await member.roles.remove(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
-        addRoleDeassignMessage(roleMessages, member, role);
+        await addRoleDeassignMessage(roleMessages, member, role);
       }
     }
   }
@@ -78,11 +83,14 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 async function sendGratulationMessage(member: GuildMember, roleMessages: string[], level: number) {
   let gratulationMessage = '';
 
+  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedMember = await guildMemberModel.cache.get(member);
+
   if (
-    member.guild.appData.levelupMessage != '' &&
-    (member.guild.appData.notifyLevelupWithRole || roleMessages.length == 0)
+    cachedGuild.db.levelupMessage != '' &&
+    (cachedGuild.db.notifyLevelupWithRole || roleMessages.length == 0)
   )
-    gratulationMessage = member.guild.appData.levelupMessage + '\n';
+    gratulationMessage = cachedGuild.db.levelupMessage + '\n';
 
   if (roleMessages.length > 0) gratulationMessage += roleMessages.join('\n') + '\n';
 
@@ -109,9 +117,9 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
   // Active Channel
   let notified = false;
-  if (!notified && member.guild.appData.notifyLevelupCurrentChannel) {
-    if (member.appData.lastMessageChannelId) {
-      const channel = member.guild.channels.cache.get(member.appData.lastMessageChannelId);
+  if (!notified && cachedGuild.db.notifyLevelupCurrentChannel) {
+    if (cachedMember.cache.lastMessageChannelId) {
+      const channel = member.guild.channels.cache.get(cachedMember.cache.lastMessageChannelId);
       if (channel) {
         if (!channel.isTextBased()) {
           member.client.logger.warn(`lastMessageChannel ${channel.id} is not text-based`);
@@ -128,8 +136,8 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   }
 
   // Post_ Channel
-  if (!notified && member.guild.appData.autopost_levelup != '0') {
-    const channel = member.guild.channels.cache.get(member.guild.appData.autopost_levelup);
+  if (!notified && cachedGuild.db.autopost_levelup != '0') {
+    const channel = member.guild.channels.cache.get(cachedGuild.db.autopost_levelup);
 
     if (channel) {
       if (!channel.isTextBased()) {
@@ -147,11 +155,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   }
 
   // Direct Message
-  if (
-    !notified &&
-    member.appData.notifyLevelupDm == 1 &&
-    member.guild.appData.notifyLevelupDm == 1
-  ) {
+  if (!notified && cachedMember.db.notifyLevelupDm == 1 && cachedGuild.db.notifyLevelupDm == 1) {
     levelupEmbed.setFooter({
       text: 'To disable direct messages from me, type `/config-member` in the server.',
     });
@@ -164,24 +168,28 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   }
 }
 
-const addRoleDeassignMessage = (roleMessages: string[], member: GuildMember, role: Role) => {
+const addRoleDeassignMessage = async (roleMessages: string[], member: GuildMember, role: Role) => {
   let message = '';
 
-  if (role.appData.deassignMessage != '') message = role.appData.deassignMessage;
-  else if (member.guild.appData.roleDeassignMessage != '')
-    message = member.guild.appData.roleDeassignMessage;
+  const cachedRole = await guildRoleModel.cache.get(role);
+  const cachedGuild = await guildModel.cache.get(member.guild);
+
+  if (cachedRole.db.deassignMessage != '') message = cachedRole.db.deassignMessage;
+  else if (cachedGuild.db.roleDeassignMessage != '') message = cachedGuild.db.roleDeassignMessage;
 
   if (message != '') roleMessages.push(replaceTagsRole(message, role));
 
   return roleMessages;
 };
 
-const addRoleAssignMessage = (roleMessages: string[], member: GuildMember, role: Role) => {
+const addRoleAssignMessage = async (roleMessages: string[], member: GuildMember, role: Role) => {
   let message = '';
 
-  if (role.appData.assignMessage != '') message = role.appData.assignMessage;
-  else if (member.guild.appData.roleAssignMessage != '')
-    message = member.guild.appData.roleAssignMessage;
+  const cachedRole = await guildRoleModel.cache.get(role);
+  const cachedGuild = await guildModel.cache.get(member.guild);
+
+  if (cachedRole.db.assignMessage != '') message = cachedRole.db.assignMessage;
+  else if (cachedGuild.db.roleAssignMessage != '') message = cachedGuild.db.roleAssignMessage;
 
   if (message != '') roleMessages.push(replaceTagsRole(message, role));
 
@@ -205,12 +213,7 @@ const replaceTagsLevelup = (text: string, member: GuildMember, level: number) =>
   );
 };
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
 export default {
   checkLevelUp,
   checkRoleAssignment,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.

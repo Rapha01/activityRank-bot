@@ -6,6 +6,9 @@ import {
   type Interaction,
   type ActionRowData,
   type MessageActionRowComponentData,
+  ChatInputCommandInteraction,
+  ButtonInteraction,
+  StringSelectMenuInteraction,
 } from 'discord.js';
 
 import guildModel from '../models/guild/guildModel.js';
@@ -43,7 +46,10 @@ registerSlashCommand({
 });
 
 type WindowFn = (args: {
-  interaction: Interaction<'cached'>;
+  interaction:
+    | ChatInputCommandInteraction<'cached'>
+    | ButtonInteraction<'cached'>
+    | StringSelectMenuInteraction<'cached'>;
   myGuild: GuildSchema;
   from: number;
   to: number;
@@ -206,13 +212,10 @@ const info: WindowFn = async ({ interaction, myGuild }) => {
   }
 
   let xpPerString = '';
-  if (interaction.guild.appData.textXp)
-    xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
-  if (interaction.guild.appData.voiceXp)
-    xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
-  if (interaction.guild.appData.voteXp)
-    xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
-  if (interaction.guild.appData.inviteXp) xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
+  if (myGuild.textXp) xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
+  if (myGuild.voiceXp) xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
+  if (myGuild.voteXp) xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
+  if (myGuild.inviteXp) xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
 
   const textmessageCooldownString = myGuild.textMessageCooldownSeconds
     ? `max every ${myGuild.textMessageCooldownSeconds} seconds`
@@ -294,14 +297,13 @@ function getlevelString(myRole: GuildRoleSchema) {
 
 // TODO: deprecate noCommandChannels in favour of Discord's native Integrations
 const noCommandChannels: WindowFn = async ({ interaction, from, to }) => {
+  const cachedGuild = await guildModel.cache.get(interaction.guild);
+
   let description = '';
-  if (interaction.guild.appData.commandOnlyChannel !== '0') {
+  if (cachedGuild.db.commandOnlyChannel !== '0') {
     description +=
       ':warning: The commandOnly channel is set. The bot will respond only in channel ' +
-      nameUtil.getChannelName(
-        interaction.guild.channels.cache,
-        interaction.guild.appData.commandOnlyChannel,
-      ) +
+      nameUtil.getChannelName(interaction.guild.channels.cache, cachedGuild.db.commandOnlyChannel) +
       '. \n \n';
   }
 
@@ -381,17 +383,17 @@ const messages: WindowFn = async ({ interaction, myGuild, from, to }) => {
   });
 
   for (const role of interaction.guild.roles.cache.values()) {
-    await guildRoleModel.cache.load(role);
+    const cachedRole = await guildRoleModel.cache.get(role);
 
-    if (role.appData.assignMessage.trim() != '')
+    if (cachedRole.db.assignMessage.trim() != '')
       entries.push({
         title: 'Assignment of ' + role.name,
-        desc: role.appData.assignMessage,
+        desc: cachedRole.db.assignMessage,
       });
-    if (role.appData.deassignMessage.trim() != '')
+    if (cachedRole.db.deassignMessage.trim() != '')
       entries.push({
         title: 'Deassignment of ' + role.name,
-        desc: role.appData.deassignMessage,
+        desc: cachedRole.db.deassignMessage,
       });
   }
 

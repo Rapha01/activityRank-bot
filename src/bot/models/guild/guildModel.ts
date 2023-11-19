@@ -56,8 +56,8 @@ type CachedDbFields = Pick<GuildSchema, (typeof cachedFields)[number]>;
 
 // TODO convert to dates
 interface GuildCacheStorage {
-  lastAskForPremiumDate?: number;
-  lastResetServer?: number;
+  lastAskForPremiumDate?: Date;
+  lastResetServer?: Date;
 }
 export interface CachedGuild {
   db: CachedDbFields;

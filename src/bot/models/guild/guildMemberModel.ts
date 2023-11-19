@@ -16,6 +16,7 @@ interface MemberCacheStorage {
   totalScore?: number;
   lastVoteDate?: Date | null;
   lastTextMessageDate?: Date | null;
+  lastStatCommandDate?: Date | null;
   lastMessageChannelId?: string | null;
 }
 

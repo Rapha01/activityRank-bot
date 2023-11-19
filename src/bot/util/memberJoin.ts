@@ -8,27 +8,29 @@ import { EmbedBuilder } from 'discord.js';
 export async function handleMemberJoin(member: GuildMember) {
   member.client.logger.debug(member.id, `Handling member join`);
   if (member.user.bot) return;
-  await guildModel.cache.load(member.guild);
-  await guildMemberModel.cache.load(member);
+
+  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedMember = await guildMemberModel.cache.get(member);
 
   // Roleassignments
   const level = fct.getLevel(
-    fct.getLevelProgression(member.appData.totalScore, member.guild.appData.levelFactor),
+    fct.getLevelProgression(cachedMember.cache.totalScore!, cachedGuild.db.levelFactor),
   );
   const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
 
   // AutoPost serverjoin
-  if (member.guild.appData.autopost_serverJoin != '0')
+  if (cachedGuild.db.autopost_serverJoin !== '0')
     await autoPostServerJoin(member, roleAssignmentString);
 }
 
 async function autoPostServerJoin(member: GuildMember, roleAssignmentString: string[]) {
-  const channel = member.guild.channels.cache.get(member.guild.appData.autopost_serverJoin);
+  const cachedGuild = await guildModel.cache.get(member.guild);
+
+  const channel = member.guild.channels.cache.get(cachedGuild.db.autopost_serverJoin);
   if (!channel || !channel.viewable || !channel.isTextBased()) return;
 
   let welcomeMessage;
-  if (member.guild.appData.serverJoinMessage != '')
-    welcomeMessage = member.guild.appData.serverJoinMessage;
+  if (cachedGuild.db.serverJoinMessage != '') welcomeMessage = cachedGuild.db.serverJoinMessage;
   else welcomeMessage = 'Welcome <mention>. Have a good time here!';
 
   welcomeMessage = welcomeMessage + '\n' + roleAssignmentString;

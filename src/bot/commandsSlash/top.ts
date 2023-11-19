@@ -24,6 +24,7 @@ import {
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
 import type { GuildSchema } from 'models/types/shard.js';
+import { getSettings } from 'models/managerDb/settingModel.js';
 
 const _prettifyTime = {
   Day: 'Today',
@@ -62,9 +63,6 @@ registerSlashCommand({
     .setDMPermission(false),
   async execute(interaction) {
     await interaction.deferReply();
-
-    await guildModel.cache.load(interaction.guild);
-    await guildMemberModel.cache.load(interaction.member);
 
     const myGuild = await guildModel.storage.get(interaction.guild);
 
@@ -290,8 +288,8 @@ async function generateChannelMembers(
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (guild.appData.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.appData.bonusUntilDate}:R>)`);
+  if (myGuild.bonusUntilDate > Date.now() / 1000)
+    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${myGuild.bonusUntilDate}:R>)`);
 
   let str = '',
     guildMemberName;
@@ -357,23 +355,22 @@ async function generateGuildMembers(
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (guild.appData.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild.appData.bonusUntilDate}:R>)`);
+  if (myGuild.bonusUntilDate > Date.now() / 1000)
+    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${myGuild.bonusUntilDate}:R>)`);
 
   let i = 0;
   while (memberRanksWithNames.length > 0) {
     const memberRank = memberRanksWithNames.shift()!;
 
     const getScoreString = (type: StatType, time: StatTimeInterval) => {
-      if (type === 'textMessage' && guild.appData.textXp)
+      if (type === 'textMessage' && myGuild.textXp)
         return `:writing_hand: ${memberRank[`textMessage${time}`]}`;
-      if (type === 'voiceMinute' && guild.appData.voiceXp)
+      if (type === 'voiceMinute' && myGuild.voiceXp)
         return `:microphone2: ${Math.round((memberRank[`voiceMinute${time}`] / 60) * 10) / 10}`;
-      if (type === 'invite' && guild.appData.inviteXp)
-        return `:envelope: ${memberRank[`invite${time}`]}`;
-      if (type === 'vote' && guild.appData.voteXp)
+      if (type === 'invite' && myGuild.inviteXp) return `:envelope: ${memberRank[`invite${time}`]}`;
+      if (type === 'vote' && myGuild.voteXp)
         return `${myGuild.voteEmote} ${memberRank[`vote${time}`]}`;
-      if (type === 'bonus' && guild.appData.bonusXp)
+      if (type === 'bonus' && myGuild.bonusXp)
         return `${myGuild.bonusEmote} ${memberRank[`bonus${time}`]}`;
       return null;
     };
@@ -581,8 +578,8 @@ export const sendMembersEmbed = async (
   type: StatType,
 ) => {
   await i.deferReply();
-  await guildMemberModel.cache.load(i.member);
   const guild = await guildModel.storage.get(i.guild);
+  if (!guild) throw new Error('TODO: actually fix');
 
   if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
@@ -610,24 +607,22 @@ export const sendMembersEmbed = async (
   if (guild!.bonusUntilDate > Date.now() / 1000)
     e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild!.bonusUntilDate}:R> \n`);
 
-  if (i.client.appData.settings.footer) e.setFooter({ text: i.client.appData.settings.footer });
+  const settings = await getSettings();
+  if (settings.footer) e.setFooter({ text: settings.footer });
 
   let iter = 0;
   while (memberRanksWithNames.length > 0) {
     const scoreStrings = [];
     const memberRank = memberRanksWithNames.shift()!;
 
-    if (i.guild.appData.textXp)
-      scoreStrings.push(`:writing_hand: ${memberRank[`textMessage${time}`]}`);
-    if (i.guild.appData.voiceXp)
+    if (guild.textXp) scoreStrings.push(`:writing_hand: ${memberRank[`textMessage${time}`]}`);
+    if (guild.voiceXp)
       scoreStrings.push(
         `:microphone2: ${Math.round((memberRank[`voiceMinute${time}`] / 60) * 10) / 10}`,
       );
-    if (i.guild.appData.inviteXp) scoreStrings.push(`:envelope: ${memberRank[`invite${time}`]}`);
-    if (i.guild.appData.voteXp)
-      scoreStrings.push(guild!.voteEmote + ' ' + memberRank[`vote${time}`]);
-    if (i.guild.appData.bonusXp)
-      scoreStrings.push(guild!.bonusEmote + ' ' + memberRank[`bonus${time}`]);
+    if (guild.inviteXp) scoreStrings.push(`:envelope: ${memberRank[`invite${time}`]}`);
+    if (guild.voteXp) scoreStrings.push(guild!.voteEmote + ' ' + memberRank[`vote${time}`]);
+    if (guild.bonusXp) scoreStrings.push(guild!.bonusEmote + ' ' + memberRank[`bonus${time}`]);
     e.addFields({
       name: `**#${page.from + iter} ${memberRank.name}** \\🎖 ${Math.floor(
         memberRank.levelProgression,

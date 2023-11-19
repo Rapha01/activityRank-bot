@@ -18,12 +18,11 @@ registerSlashCommand({
     ),
   execute: async function (i) {
     const member = i.options.getMember('member') ?? i.member;
-    await guildMemberModel.cache.load(i.member);
-    const myGuild = await guildModel.storage.get(i.guild);
+
+    const cachedGuild = await guildModel.cache.get(i.guild);
 
     if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
-    await userModel.cache.load(member.user);
     const myTargetUser = await userModel.storage.get(member.user);
 
     const myTargetMember = await guildMemberModel.storage.get(i.guild, member.id);
@@ -38,15 +37,13 @@ registerSlashCommand({
     const fmtActivity = (act: number | null) => (act ? `${time(act)}, ${time(act, 'R')}` : 'n/a');
 
     const lastActivityStr = [
-      i.guild.appData.textXp
-        ? `Last textmessage: ${fmtActivity(lastActivities.textMessage)}`
-        : null,
-      i.guild.appData.voiceXp
+      cachedGuild.db.textXp ? `Last textmessage: ${fmtActivity(lastActivities.textMessage)}` : null,
+      cachedGuild.db.voiceXp
         ? `Last voiceminute: ${fmtActivity(lastActivities.voiceMinute)}`
         : null,
-      i.guild.appData.inviteXp ? `Last invite: ${fmtActivity(lastActivities.invite)}` : null,
-      i.guild.appData.voteXp ? `Last vote: ${fmtActivity(lastActivities.vote)}` : null,
-      i.guild.appData.bonusXp ? `Last bonus: ${fmtActivity(lastActivities.bonus)}` : null,
+      cachedGuild.db.inviteXp ? `Last invite: ${fmtActivity(lastActivities.invite)}` : null,
+      cachedGuild.db.voteXp ? `Last vote: ${fmtActivity(lastActivities.vote)}` : null,
+      cachedGuild.db.bonusXp ? `Last bonus: ${fmtActivity(lastActivities.bonus)}` : null,
     ]
       .filter(Boolean)
       .join('\n');
@@ -63,7 +60,7 @@ registerSlashCommand({
             myTargetUser.patreonTier,
           )})
           Valid until: ${time(myTargetUser.patreonTierUntilDate, 'D')}, ${time(
-            myTargetMember.patreonTierUntilDate,
+            myTargetUser.patreonTierUntilDate,
             'R',
           )}`
         : 'No active Tier';
@@ -88,8 +85,8 @@ registerSlashCommand({
         {
           name: 'Settings',
           value: stripIndent`
-          Notify levelup via Direct Message: ${myGuild.notifyLevelupDm ? 'Yes' : 'No'}
-          Reaction Vote: ${myGuild.reactionVote ? 'Yes' : 'No'}`,
+          Notify levelup via Direct Message: ${cachedGuild.db.notifyLevelupDm ? 'Yes' : 'No'}
+          Reaction Vote: ${cachedGuild.db.reactionVote ? 'Yes' : 'No'}`,
         },
         { name: 'Recent Activity', value: lastActivityStr },
       );

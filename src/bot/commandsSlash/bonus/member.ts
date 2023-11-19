@@ -7,7 +7,7 @@ registerSubCommand({
   name: 'member',
   execute: async (interaction) => {
     const member = interaction.options.getMember('member')!;
-    await guildMemberModel.cache.load(member);
+
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)

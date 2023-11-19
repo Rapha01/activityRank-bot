@@ -13,18 +13,23 @@ import guildMemberModel from '../models/guild/guildMemberModel.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { GuildMemberSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
+import guildModel, { type CachedGuild } from 'bot/models/guild/guildModel.js';
 
-const generateRow = (i: Interaction<'cached'>, myGuildMember: GuildMemberSchema) => {
+const generateRow = (
+  i: Interaction<'cached'>,
+  myMember: GuildMemberSchema,
+  myGuild: CachedGuild,
+) => {
   return [
     new ButtonBuilder()
       .setLabel('Notify levelup via DM')
       .setCustomId(toggleId({ type: 'notifyLevelupDm' }, { ownerId: i.member.id }))
-      .setStyle(myGuildMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger),
+      .setStyle(myMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger),
     new ButtonBuilder()
       .setLabel('Reaction voting')
       .setCustomId(toggleId({ type: 'reactionVote' }, { ownerId: i.member.id }))
-      .setDisabled(!i.guild.appData.voteXp || !i.guild.appData.reactionVote)
-      .setStyle(myGuildMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger),
+      .setDisabled(!myGuild.db.voteXp || !myGuild.db.reactionVote)
+      .setStyle(myMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger),
   ];
 };
 
@@ -41,7 +46,7 @@ registerSlashCommand({
     .setName('config-member')
     .setDescription('Change your personal settings'),
   async execute(i) {
-    await guildMemberModel.cache.load(i.member);
+    const cachedGuild = await guildModel.cache.get(i.member.guild);
     const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
     await i.reply({
@@ -54,13 +59,15 @@ registerSlashCommand({
           {
             name: 'Reaction Voting',
             value: oneLine`
-              If this is enabled, reacting with the server's voteEmote, ${i.guild.appData.voteEmote},
+              If this is enabled, reacting with the server's voteEmote, ${cachedGuild.db.voteEmote},
               will give an upvote to the member that sent the message.`,
           },
         ),
       ],
       components: [
-        new ActionRowBuilder<ButtonBuilder>().addComponents(generateRow(i, myGuildMember)),
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          generateRow(i, myGuildMember, cachedGuild),
+        ),
         _close(i),
       ],
     });
@@ -82,7 +89,7 @@ const toggleId = registerComponent<{
   type: ComponentType.Button,
   identifier: 'config-member.toggle',
   async callback(interaction, data) {
-    await guildMemberModel.cache.load(interaction.member);
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
     const myGuildMember = await guildMemberModel.storage.get(
       interaction.guild,
       interaction.member.id,
@@ -96,7 +103,9 @@ const toggleId = registerComponent<{
     const newMember = await guildMemberModel.storage.get(interaction.guild, interaction.member.id);
     await interaction.update({
       components: [
-        new ActionRowBuilder<ButtonBuilder>().addComponents(generateRow(interaction, newMember)),
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          generateRow(interaction, newMember, cachedGuild),
+        ),
         _close(interaction),
       ],
     });

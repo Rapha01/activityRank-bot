@@ -1,8 +1,9 @@
 import userModel from '../models/userModel.js';
 import fct from '../../util/fct.js';
-import cooldownUtil from './cooldownUtil.js';
+import cooldownUtil, { getWaitTime } from './cooldownUtil.js';
 import { ChatInputCommandInteraction, CommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
+import guildModel from 'bot/models/guild/guildModel.js';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -10,33 +11,24 @@ const askForPremiumCdGuild = isDev ? 3600 * 0.4 : 3600 * 0.4;
 const askForPremiumCdUser = isDev ? 3600 * 6 : 3600 * 6;
 
 export default async function (interaction: ChatInputCommandInteraction<'cached'>) {
-  if (
-    cooldownUtil.getCachedCooldown(
-      interaction.guild.appData,
-      'lastAskForPremiumDate',
-      askForPremiumCdGuild,
-    ) > 0
-  )
-    return;
+  const cachedGuild = await guildModel.cache.get(interaction.guild);
+  const onGuildCooldown =
+    getWaitTime(cachedGuild.cache.lastAskForPremiumDate, askForPremiumCdGuild).remaining > 0;
 
-  //if (fct.isPremiumGuild(interaction.guild)) return;
+  if (onGuildCooldown) return;
+
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
   if (userTier > 0 || ownerTier > 0) return;
 
-  await userModel.cache.load(interaction.user);
   const myUser = await userModel.storage.get(interaction.user);
 
   const now = Date.now() / 1000;
   if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser) return;
 
   await userModel.storage.set(interaction.user, 'lastAskForPremiumDate', now);
-  interaction.guild.appData.lastAskForPremiumDate = now;
+  cachedGuild.cache.lastAskForPremiumDate = new Date();
 
   await sendAskForPremiumEmbed(interaction);
-  /*interaction.client.logger.debug(
-    { guildId: interaction.guild.id },
-    `Sent askForPremium in ${interaction.guild.name}`
-  );*/
 }
 
 async function sendAskForPremiumEmbed(interaction: CommandInteraction<'cached'>) {
