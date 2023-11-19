@@ -29,7 +29,6 @@ import {
 import { logger } from 'bot/util/logger.js';
 import { hasPrivilege } from 'const/privilegeLevels.js';
 import { registerEvent } from 'bot/util/eventLoader.js';
-import { incrementShardStat } from 'bot/models/shardStatModel.js';
 
 registerEvent(Events.InteractionCreate, async function (interaction) {
   try {
@@ -128,7 +127,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
     } else if (interaction.isContextMenuCommand()) {
       const ref = contextMap.get(getCommandId(interaction));
 
-      incrementShardStat('commandsTotal');
+      interaction.client.botShardStat.commandsTotal++;
 
       interaction.client.logger.debug(
         `Context command ${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
@@ -145,7 +144,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
     } else if (interaction.isChatInputCommand()) {
       const ref = commandMap.get(getCommandId(interaction));
 
-      incrementShardStat('commandsTotal');
+      interaction.client.botShardStat.commandsTotal++;
 
       interaction.client.logger.debug(
         `/${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,

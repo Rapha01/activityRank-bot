@@ -10,7 +10,7 @@ import type { StatType } from 'models/types/enums.js';
 
 export default async function (manager: ShardingManager) {
   const hrstart = process.hrtime();
-  const shardCaches = (await manager.fetchClientValues('appData.statFlushCache')) as Record<
+  const shardCaches = (await manager.fetchClientValues('statFlushCache')) as Record<
     string,
     StatFlushCache
   >[];

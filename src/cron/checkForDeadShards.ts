@@ -1,13 +1,11 @@
 import type { Client, ShardingManager } from 'discord.js';
 import logger from '../util/logger.js';
-import { getShardStat } from 'bot/models/shardStatModel.js';
 
 function _getStats(client: Client) {
-  const shardStat = getShardStat();
   const obj = {
     shardId: client.shard!.ids[0],
-    commandsTotal: shardStat.commandsTotal,
-    textMessagesTotal: shardStat.textMessagesTotal,
+    commandsTotal: client.botShardStat.commandsTotal,
+    textMessagesTotal: client.botShardStat.textMessagesTotal,
   };
   return obj;
 }

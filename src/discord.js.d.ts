@@ -6,5 +6,6 @@ declare module 'discord.js' {
   export interface Client {
     logger: pino.Logger;
     statFlushCache: Map<string, StatFlushCache>;
+    botShardStat: { commandsTotal: number; textMessagesTotal: number };
   }
 }
