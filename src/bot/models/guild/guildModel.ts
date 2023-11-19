@@ -2,10 +2,8 @@ import shardDb from '../../../models/shardDb/shardDb.js';
 import managerDb from '../../../models/managerDb/managerDb.js';
 import mysql from 'promise-mysql';
 import type { Guild } from 'discord.js';
-import type { guild } from 'models/types/shard.js';
+import type { GuildSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
-
-const promises = new Map<string, Promise<void>>();
 
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
@@ -54,68 +52,78 @@ const cachedFields = [
   'isBanned',
 ] as const;
 
+type CachedDbFields = Pick<GuildSchema, (typeof cachedFields)[number]>;
+
+// TODO convert to dates
+interface GuildCacheStorage {
+  lastAskForPremiumDate?: number;
+  lastResetServer?: number;
+}
+interface CachedGuild {
+  db: CachedDbFields;
+  dbHost: string;
+  cache: GuildCacheStorage;
+}
+const guildCache = new WeakMap<Guild, CachedGuild>();
+
 export const cache = {
-  load: (guild: Guild) => {
-    if (!guild.appData) {
-      if (promises.has(guild.id)) return promises.get(guild.id)!;
-
-      promises.set(
-        guild.id,
-        buildCache(guild).finally(() => promises.delete(guild.id)),
-      );
-
-      return promises.get(guild.id)!;
-    }
-
-    return new Promise<void>(async (resolve) => resolve());
+  get: async function (guild: Guild): Promise<CachedGuild> {
+    if (guildCache.has(guild)) return guildCache.get(guild)!;
+    else return await buildCache(guild);
   },
 };
 
+function isCachableDbKey(key: keyof GuildSchema): key is keyof CachedDbFields {
+  return cachedFields.includes(key as keyof CachedDbFields);
+}
+
 export const storage = {
-  set: async <K extends Exclude<keyof guild, 'guildId'>>(
+  set: async <K extends Exclude<keyof GuildSchema, 'guildId'>>(
     guild: Guild,
     field: K,
-    value: guild[K],
+    value: GuildSchema[K],
   ) => {
+    const cachedGuild = await cache.get(guild);
     await shardDb.query(
-      guild.appData.dbHost,
+      cachedGuild.dbHost,
       `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
     );
 
-    if ((cachedFields as readonly string[]).includes(field)) guild.appData[field] = value;
+    if (isCachableDbKey(field)) {
+      Object.defineProperty(cachedGuild.db, field, { value });
+    }
   },
-  increment: async <K extends keyof PropertiesOfType<CachedGuild, number>>(
+  increment: async <K extends keyof PropertiesOfType<GuildSchema, number>>(
     guild: Guild,
     field: K,
-    value: CachedGuild[K],
+    value: GuildSchema[K],
   ) => {
+    const cachedGuild = await cache.get(guild);
     await shardDb.query(
-      guild.appData.dbHost,
+      cachedGuild.dbHost,
       `UPDATE guild SET ${field} = ${field} + ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
     );
 
-    if ((cachedFields as readonly string[]).includes(field)) guild.appData[field] += value * 1;
+    if (isCachableDbKey(field)) {
+      cachedGuild.db[field] += value;
+    }
   },
-
   get: async (guild: Guild) => {
-    const res = await shardDb.query<guild[]>(
-      guild.appData.dbHost,
+    const cachedGuild = await cache.get(guild);
+
+    const res = await shardDb.query<GuildSchema[]>(
+      cachedGuild.dbHost,
       `SELECT * FROM guild WHERE guildId = ${guild.id}`,
     );
+
     if (res.length == 0) return null;
     else return res[0];
   },
 };
 
-export type CachedGuild = Pick<guild, (typeof cachedFields)[number]> & {
-  dbHost: string;
-  lastAskForPremiumDate: number;
-  lastResetServer: number;
-};
-
-async function buildCache(guild: Guild) {
+async function buildCache(guild: Guild): Promise<CachedGuild> {
   const dbHost = await getDbHost(guild.id);
-  let cache = await shardDb.query<CachedGuild[]>(
+  let cache = await shardDb.query<CachedDbFields[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
   );
@@ -127,15 +135,14 @@ async function buildCache(guild: Guild) {
         guild.members.me!.joinedAt!.getTime() / 1000,
       )},${Math.floor(Date.now() / 1000)})`,
     );
-    cache = await shardDb.query<CachedGuild[]>(
+    cache = await shardDb.query<CachedDbFields[]>(
       dbHost,
       `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
     );
   }
 
   const cachedGuild = cache[0]!;
-  cachedGuild.dbHost = dbHost;
-  guild.appData = cachedGuild;
+  return { cache: {}, db: cachedGuild, dbHost };
 }
 
 const getDbHost = async (guildId: string): Promise<string> => {

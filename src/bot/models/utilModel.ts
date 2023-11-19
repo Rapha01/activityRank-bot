@@ -1,5 +1,6 @@
 import shardDb from '../../models/shardDb/shardDb.js';
 import type { Guild } from 'discord.js';
+import guildModel from './guild/guildModel.js';
 
 export interface LastActivities {
   textMessage: null | number;
@@ -10,12 +11,13 @@ export interface LastActivities {
 }
 
 async function getLastActivities(guild: Guild, userId: string): Promise<LastActivities> {
+  const { dbHost } = await guildModel.cache.get(guild);
   const keys = ['textMessage', 'voiceMinute', 'invite', 'vote', 'bonus'];
 
   const results = await Promise.all(
     keys.map((key) =>
       shardDb.query<{ changeDate: number }[]>(
-        guild.appData.dbHost,
+        dbHost,
         `SELECT changeDate FROM ${key} WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate LIMIT 1`,
       ),
     ),
@@ -30,8 +32,6 @@ async function getLastActivities(guild: Guild, userId: string): Promise<LastActi
   };
 }
 
-export const storage = {
-  getLastActivities,
-};
+export const storage = { getLastActivities };
 
 export default { storage };
