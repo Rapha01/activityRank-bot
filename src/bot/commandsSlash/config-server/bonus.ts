@@ -27,8 +27,11 @@ registerSubCommand({
 
     for (const _k in items) {
       const k = _k as keyof typeof items;
-      if (items[k] !== null) await guildModel.storage.set(interaction.guild, k, items[k]);
+      const value = items[k];
+      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
     }
+
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
 
     await interaction.reply({
       embeds: [
@@ -36,8 +39,8 @@ registerSubCommand({
           .setDescription(stripIndent`
         Modified the server's settings!
   
-        Bonus Tag: \`${interaction.guild.appData.bonusTag}\`
-        Bonus Emote: ${interaction.guild.appData.bonusEmote}
+        Bonus Tag: \`${cachedGuild.db.bonusTag}\`
+        Bonus Emote: ${cachedGuild.db.bonusEmote}
         `),
       ],
       ephemeral: true,

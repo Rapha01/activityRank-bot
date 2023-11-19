@@ -1,5 +1,6 @@
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { getTexts } from 'models/managerDb/textModel.js';
 import type { PatchnotesEntry, TextsPatchnotes } from 'models/types/external.js';
 
 registerSlashCommand({
@@ -14,7 +15,7 @@ registerSlashCommand({
     ),
   execute: async (interaction) => {
     const version = interaction.options.getString('version');
-    const patchnotes = interaction.client.appData.texts.patchnotes;
+    const { patchnotes } = await getTexts();
     const applicableVersions = patchnotes.map((o) => o.version);
     applicableVersions.push('latest');
     let e;
@@ -26,7 +27,9 @@ registerSlashCommand({
     await interaction.reply({ embeds: [e] });
   },
   executeAutocomplete: async (interaction) => {
-    let patchnoteVersions = interaction.client.appData.texts.patchnotes.map((o) => o.version);
+    const { patchnotes } = await getTexts();
+
+    let patchnoteVersions = patchnotes.map((o) => o.version);
     const focused = interaction.options.getFocused().replace('v', '').replace('.', '');
 
     patchnoteVersions = patchnoteVersions.filter((o) => o.replace('.', '').includes(focused));

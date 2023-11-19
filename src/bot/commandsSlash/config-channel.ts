@@ -12,7 +12,7 @@ import {
 
 import { oneLine, stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildModel from '../models/guild/guildModel.js';
+import guildModel, { type CachedGuild } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
 import { parseChannel } from '../util/parser.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
@@ -35,9 +35,9 @@ const componentId = registerComponent<{
   callback: async function (interaction, data) {
     const { channelId, type, setting } = data;
 
-    // const [, memberId, channelId, channelType, type] = interaction.customId.split(' ');
-
     let myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
+
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
 
     if (setting === 'noXp' || setting === 'noCommand') {
       if (myChannel[setting])
@@ -46,15 +46,15 @@ const componentId = registerComponent<{
 
       myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
     } else {
-      if (interaction.guild.appData[setting] == channelId)
-        await guildModel.storage.set(interaction.guild, setting, 0);
+      if (cachedGuild.db[setting] == channelId)
+        await guildModel.storage.set(interaction.guild, setting, '0');
       else await guildModel.storage.set(interaction.guild, setting, channelId);
     }
 
     await interaction.update({
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          generateRow(interaction, channelId, type, myChannel),
+          generateRow(interaction, channelId, type, cachedGuild, myChannel),
         ),
         _close(interaction.user.id),
       ],
@@ -66,6 +66,7 @@ const generateRow = (
   interaction: Interaction<'cached'>,
   channelId: string,
   type: ChannelType | null,
+  myGuild: CachedGuild,
   myChannel: GuildChannelSchema,
 ) => {
   const ownerId = interaction.user.id;
@@ -76,7 +77,7 @@ const generateRow = (
     new ButtonBuilder().setLabel('Server Join Channel'),
     new ButtonBuilder().setLabel('Levelup Channel'),
   ];
-  // r[0].setCustomId(`config-channel ${i.member.id} ${id} ${type} noXp`);
+
   function disableIfNotText(builder: ButtonBuilder) {
     if (type !== ChannelType.GuildText) {
       builder.setDisabled(true);
@@ -92,20 +93,20 @@ const generateRow = (
   r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
   r[1].setCustomId(componentId({ channelId, type, setting: 'noCommand' }, { ownerId }));
-  r[1].setDisabled(Boolean(parseInt(interaction.guild.appData.commandOnlyChannel)));
+  r[1].setDisabled(Boolean(parseInt(myGuild.db.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
   // r[1].setDisabled(type !== ChannelType.GuildText);
   // if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
 
   r[2].setCustomId(componentId({ channelId, type, setting: 'commandOnlyChannel' }, { ownerId }));
-  r[2].setStyle(getStyleFromEquivalence(interaction.guild.appData.commandOnlyChannel));
+  r[2].setStyle(getStyleFromEquivalence(myGuild.db.commandOnlyChannel));
   // r[2].setStyle(i.guild.appData.commandOnlyChannel === channelId ? ButtonStyle.Success : ButtonStyle.Danger);
 
   r[3].setCustomId(componentId({ channelId, type, setting: 'autopost_serverJoin' }, { ownerId }));
-  r[3].setStyle(getStyleFromEquivalence(interaction.guild.appData.autopost_serverJoin));
+  r[3].setStyle(getStyleFromEquivalence(myGuild.db.autopost_serverJoin));
 
   r[4].setCustomId(componentId({ channelId, type, setting: 'autopost_levelup' }, { ownerId }));
-  r[4].setStyle(getStyleFromEquivalence(interaction.guild.appData.autopost_levelup));
+  r[4].setStyle(getStyleFromEquivalence(myGuild.db.autopost_levelup));
 
   disableIfNotText(r[1]);
   disableIfNotText(r[2]);
@@ -199,6 +200,8 @@ registerSlashCommand({
       });
     }
 
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
+
     await interaction.reply({
       embeds: [e],
       components: [
@@ -207,6 +210,7 @@ registerSlashCommand({
             interaction,
             resolvedChannel.id,
             resolvedChannel.channel ? resolvedChannel.channel.type : null,
+            cachedGuild,
             myChannel,
           ),
         ),

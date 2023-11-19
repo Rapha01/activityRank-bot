@@ -21,7 +21,7 @@ interface CachedRole {
   db: CachedDbFields;
 }
 
-const roleCache = new WeakMap<Role, CachedRole>();
+export const roleCache = new WeakMap<Role, CachedRole>();
 
 export const cache = {
   get: async function (role: Role): Promise<CachedRole> {

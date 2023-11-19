@@ -28,8 +28,11 @@ registerSubCommand({
 
     for (const _k in items) {
       const k = _k as keyof typeof items;
-      if (items[k] !== null) await guildModel.storage.set(interaction.guild, k, items[k]);
+      const value = items[k];
+      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
     }
+
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
 
     await interaction.reply({
       embeds: [
@@ -37,8 +40,8 @@ registerSubCommand({
           .setDescription(stripIndent`
         Modified the server's settings!
 
-        Vote Tag: \`${interaction.guild.appData.voteTag}\`
-        Vote Emote: ${interaction.guild.appData.voteEmote}
+        Vote Tag: \`${cachedGuild.db.voteTag}\`
+        Vote Emote: ${cachedGuild.db.voteEmote}
         `),
       ],
       ephemeral: true,
