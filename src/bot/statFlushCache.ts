@@ -158,33 +158,43 @@ export interface StatFlushCacheChannelEntry extends StatFlushCacheGuildEntry {
   channelId: string;
 }
 export interface StatFlushCache {
-  textMessage?: Record<string, StatFlushCacheChannelEntry>;
-  voiceMinute?: Record<string, StatFlushCacheChannelEntry>;
-  invite?: Record<string, StatFlushCacheGuildEntry>;
-  vote?: Record<string, StatFlushCacheGuildEntry>;
-  bonus?: Record<string, StatFlushCacheGuildEntry>;
+  textMessage: Record<string, StatFlushCacheChannelEntry>;
+  voiceMinute: Record<string, StatFlushCacheChannelEntry>;
+  invite: Record<string, StatFlushCacheGuildEntry>;
+  vote: Record<string, StatFlushCacheGuildEntry>;
+  bonus: Record<string, StatFlushCacheGuildEntry>;
 }
 
 const buildStatFlushCache = async (member: GuildMember, type: StatType) => {
-  const statFlushCache = member.client.appData.statFlushCache;
   const { dbHost } = await guildModel.cache.get(member.guild);
+  const { statFlushCache } = member.client;
 
-  if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
+  if (!statFlushCache.has(dbHost))
+    statFlushCache.set(dbHost, {
+      textMessage: {},
+      voiceMinute: {},
+      invite: {},
+      vote: {},
+      bonus: {},
+    });
 
-  if (!statFlushCache[dbHost][type]) statFlushCache[dbHost][type] = {};
-
-  return statFlushCache[dbHost][type]!;
+  return statFlushCache.get(dbHost)![type];
 };
 
 const directlyBuildStatFlushCache = async (client: Client, guild: Guild, type: StatType) => {
-  const statFlushCache = client.appData.statFlushCache;
   const { dbHost } = await guildModel.cache.get(guild);
+  const { statFlushCache } = client;
 
-  if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
+  if (!statFlushCache.has(dbHost))
+    statFlushCache.set(dbHost, {
+      textMessage: {},
+      voiceMinute: {},
+      invite: {},
+      vote: {},
+      bonus: {},
+    });
 
-  if (!statFlushCache[dbHost][type]) statFlushCache[dbHost][type] = {};
-
-  return statFlushCache[dbHost][type];
+  return statFlushCache.get(dbHost)![type];
 };
 
 export default {
