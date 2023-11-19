@@ -259,7 +259,7 @@ const levels: WindowFn = async ({ interaction, myGuild, from, to }) => {
 
   for (const level of recordingLevels)
     e.addFields({
-      name: `🎖 ${level.nr}`,
+      name: `🎖${level.nr}`,
       value: `${level.localXp}(${level.totalXp})`,
       inline: true,
     });

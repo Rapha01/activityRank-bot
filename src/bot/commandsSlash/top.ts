@@ -392,8 +392,8 @@ async function generateGuildMembers(
       else return `🔸 ${getScoreString(type, time)}`;
     };
 
-    e.addFields({
-      name: `**#${page.from + i} ${memberRank.name}** \\🎖 ${Math.floor(
+    e.addFields({ 
+      name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
         memberRank.levelProgression,
       )}`,
       value: `Total: ${memberRank[`totalScore${state.time}`]} XP ${getFieldScoreString(
@@ -624,7 +624,7 @@ export const sendMembersEmbed = async (
     if (guild.voteXp) scoreStrings.push(guild!.voteEmote + ' ' + memberRank[`vote${time}`]);
     if (guild.bonusXp) scoreStrings.push(guild!.bonusEmote + ' ' + memberRank[`bonus${time}`]);
     e.addFields({
-      name: `**#${page.from + iter} ${memberRank.name}** \\🎖 ${Math.floor(
+      name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(
         memberRank.levelProgression,
       )}`,
       value: `${memberRank[`totalScore${time}`]} XP \\⬄ ${scoreStrings.join(
