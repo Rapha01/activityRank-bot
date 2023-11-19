@@ -16,7 +16,7 @@ import guildModel from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
 import { parseChannel } from '../util/parser.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
-import type { guildChannel } from 'models/types/shard.js';
+import type { GuildChannelSchema } from 'models/types/shard.js';
 
 type Setting =
   | 'noXp'
@@ -66,7 +66,7 @@ const generateRow = (
   interaction: Interaction<'cached'>,
   channelId: string,
   type: ChannelType | null,
-  myChannel: guildChannel,
+  myChannel: GuildChannelSchema,
 ) => {
   const ownerId = interaction.user.id;
   const r = [

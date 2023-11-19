@@ -15,7 +15,7 @@ import guildRoleModel from '../models/guild/guildRoleModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
-import type { guild, guildRole } from 'models/types/shard.js';
+import type { GuildSchema, GuildRoleSchema } from 'models/types/shard.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -44,7 +44,7 @@ registerSlashCommand({
 
 type WindowFn = (args: {
   interaction: Interaction<'cached'>;
-  myGuild: guild;
+  myGuild: GuildSchema;
   from: number;
   to: number;
 }) => Promise<EmbedBuilder>;
@@ -285,7 +285,7 @@ const roles: WindowFn = async ({ interaction, from, to }) => {
   return e;
 };
 
-function getlevelString(myRole: guildRole) {
+function getlevelString(myRole: GuildRoleSchema) {
   if (myRole.assignLevel != 0 && myRole.deassignLevel != 0)
     return 'From ' + myRole.assignLevel + ' to ' + myRole.deassignLevel;
   else if (myRole.assignLevel != 0) return 'From ' + myRole.assignLevel;

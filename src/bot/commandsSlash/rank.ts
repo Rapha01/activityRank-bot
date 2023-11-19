@@ -23,7 +23,7 @@ import nameUtil from '../util/nameUtil.js';
 import userModel from '../models/userModel.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
-import type { guild } from 'models/types/shard.js';
+import type { GuildSchema } from 'models/types/shard.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
@@ -136,7 +136,7 @@ async function execCacheSet<T extends keyof CacheInstance>(
 async function generateCard(
   cache: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   if (cache.window === 'rank') return await generateRankCard(cache, guild, myGuild, disabled);
@@ -156,7 +156,7 @@ const _prettifyTime: { [k in StatTimeInterval]: string } = {
 async function generateChannelCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled: boolean,
 ): Promise<InteractionEditReplyOptions> {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
@@ -267,7 +267,7 @@ async function getTopChannels(
 async function generateRankCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);

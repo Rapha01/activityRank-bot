@@ -23,7 +23,7 @@ import {
 } from 'discord.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
-import type { guild } from 'models/types/shard.js';
+import type { GuildSchema } from 'models/types/shard.js';
 
 const _prettifyTime = {
   Day: 'Today',
@@ -173,7 +173,7 @@ async function execCacheSet<T extends keyof CacheInstance>(
 async function generate(
   state: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   if (state.window === 'channelMembers')
@@ -187,7 +187,7 @@ async function generate(
 async function generateChannels(
   state: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled: boolean,
 ) {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
@@ -243,7 +243,7 @@ async function getTopChannels(
 async function generateChannelMembers(
   state: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled: boolean,
 ) {
   if (!state.channel) {
@@ -318,7 +318,7 @@ async function generateChannelMembers(
 async function generateGuildMembers(
   state: CacheInstance,
   guild: Guild,
-  myGuild: guild,
+  myGuild: GuildSchema,
   disabled: boolean,
 ) {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
