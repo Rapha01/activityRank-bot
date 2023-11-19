@@ -9,6 +9,7 @@ import { updateTexts } from 'models/managerDb/textModel.js';
 import { updateSettings } from 'models/managerDb/settingModel.js';
 
 const isProd = process.env.NODE_ENV == 'production';
+// TODO: represent with Time.*
 const settings = {
   restartDelay: isProd ? 86_400_000 * 7 : 86_400_000,
   // statFlushCacheInterval: isProd ? 15_000 : 5_000,
