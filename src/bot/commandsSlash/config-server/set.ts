@@ -166,6 +166,8 @@ registerSubCommand({
       });
     }
 
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
+
     const embed = new EmbedBuilder()
       .setAuthor({ name: 'Server Settings' })
       .setColor(0x00ae86)
@@ -177,7 +179,7 @@ registerSubCommand({
         },
         {
           name: 'Reaction Voting',
-          value: `If this is enabled, members will be permitted to vote using the server's voteEmote, ${interaction.guild.appData.voteEmote}`,
+          value: `If this is enabled, members will be permitted to vote using the server's voteEmote, ${cachedGuild.db.voteEmote}`,
         },
         {
           name: 'Allow Muted XP',

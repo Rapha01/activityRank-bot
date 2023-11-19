@@ -64,7 +64,7 @@ export interface CachedGuild {
   dbHost: string;
   cache: GuildCacheStorage;
 }
-const guildCache = new WeakMap<Guild, CachedGuild>();
+export const guildCache = new WeakMap<Guild, CachedGuild>();
 
 export const cache = {
   get: async function (guild: Guild): Promise<CachedGuild> {

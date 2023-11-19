@@ -30,8 +30,11 @@ registerSubCommand({
 
     for (const _k in items) {
       const k = _k as keyof typeof items;
-      if (items[k] !== null) await guildModel.storage.set(interaction.guild, k, items[k]);
+      const value = items[k];
+      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
     }
+
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
 
     await interaction.reply({
       embeds: [
@@ -39,10 +42,10 @@ registerSubCommand({
           .setDescription(stripIndent`
         Modified Bonus XP Values! New values:
   
-        \`${interaction.guild.appData.bonusPerTextMessage} xp\` per text message
-        \`${interaction.guild.appData.bonusPerVoiceMinute} xp\` per minute in VC
-        \`${interaction.guild.appData.bonusPerVote} xp\` per vote
-        \`${interaction.guild.appData.bonusPerInvite} xp\` per invite
+        \`${cachedGuild.db.bonusPerTextMessage} xp\` per text message
+        \`${cachedGuild.db.bonusPerVoiceMinute} xp\` per minute in VC
+        \`${cachedGuild.db.bonusPerVote} xp\` per vote
+        \`${cachedGuild.db.bonusPerInvite} xp\` per invite
         `),
       ],
       ephemeral: true,

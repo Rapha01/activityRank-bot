@@ -11,13 +11,15 @@ import { stripIndent } from 'common-tags';
 import { supportServerInviteLink } from '../../const/config.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { TextsCommands, TextsEntry } from 'models/types/external.js';
+import { getTexts } from 'models/managerDb/textModel.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
     .setName('help')
     .setDescription('Shows information for operating the bot'),
   execute: async function (interaction) {
-    const helpEmbed = helpMainEmbed(interaction.client.appData.texts.commands);
+    const { commands } = await getTexts();
+    const helpEmbed = helpMainEmbed(commands);
     await interaction.reply({
       embeds: [helpEmbed],
       components: [
@@ -25,7 +27,7 @@ registerSlashCommand({
           new StringSelectMenuBuilder()
             .setCustomId(selectId(null, { ownerId: interaction.user.id }))
             .setPlaceholder('Nothing selected')
-            .addOptions(
+            .addOptions([
               { label: 'Server Statistics', value: 'stats' },
               { label: 'Voting and Inviting', value: 'voting' },
               { label: 'Configuration Info', value: 'info' },
@@ -36,7 +38,7 @@ registerSlashCommand({
               { label: 'Bonus XP', value: 'bonusxp' },
               { label: 'Role autoassignments', value: 'roleAssignments' },
               { label: 'Resets', value: 'reset' },
-            ),
+            ] satisfies { label: string; value: keyof TextsCommands }[]),
         ),
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
@@ -54,9 +56,8 @@ const selectId = registerComponent({
   type: ComponentType.StringSelect,
   callback: async function (interaction) {
     let e = interaction.message.embeds[0].toJSON();
-    e = helpFeatureEmbed(
-      interaction.client.appData.texts.commands[interaction.values[0] as keyof TextsCommands],
-    ).toJSON();
+    const { commands } = await getTexts();
+    e = helpFeatureEmbed(commands[interaction.values[0] as keyof TextsCommands]).toJSON();
     interaction.update({ embeds: [e] });
   },
 });
@@ -69,13 +70,6 @@ const closeId = registerComponent({
     await interaction.deleteReply();
   },
 });
-
-interface HelpSection {
-  title: string;
-  desc: string;
-  subdesc: string;
-  subcommands: { title: string; example: string; desc: string; command: string }[];
-}
 
 function helpMainEmbed(sections: TextsCommands) {
   const embed = new EmbedBuilder().setAuthor({ name: 'ActivityRank Manual' }).setColor(0x00ae86)

@@ -24,7 +24,7 @@ interface CachedUser {
   cache: UserCacheStorage;
 }
 
-const userCache = new WeakMap<User, CachedUser>();
+export const userCache = new WeakMap<User, CachedUser>();
 
 export const cache = {
   get: async function (user: User): Promise<CachedUser> {

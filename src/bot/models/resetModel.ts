@@ -1,10 +1,11 @@
 import shardDb from '../../models/shardDb/shardDb.js';
-import guildMemberModel from './guild/guildMemberModel.js';
-import guildChannelModel from './guild/guildChannelModel.js';
+import guildMemberModel, { memberCache } from './guild/guildMemberModel.js';
+import guildChannelModel, { channelCache } from './guild/guildChannelModel.js';
 import type { CommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
 import type { DBDelete, DBUpdate } from 'models/types/enums.js';
-import guildModel from './guild/guildModel.js';
+import guildModel, { guildCache } from './guild/guildModel.js';
 import type { GuildSchema } from 'models/types/shard.js';
+import { roleCache } from './guild/guildRoleModel.js';
 
 interface BaseResetJob {
   ref: CommandInteraction;
@@ -257,48 +258,30 @@ const noResetGuildFields = [
 
 export const cache = {
   resetGuild: (guild: Guild) => {
-    // @ts-expect-error allow delete required prop
-    if (guild.appData) delete guild.appData;
-
-    return;
+    guildCache.delete(guild);
   },
   resetGuildMembersAll: (guild: Guild) => {
-    // @ts-expect-error allow delete required prop
-    for (const member of guild.members.cache.values()) if (member.appData) delete member.appData;
-
-    return;
+    for (const member of guild.members.cache.values()) memberCache.delete(member);
   },
   resetGuildChannelsAll: (guild: Guild) => {
-    for (const channel of guild.channels.cache.values()) {
-      // @ts-expect-error allow delete required prop
-      if (channel.appData) delete channel.appData;
-    }
-
-    return;
+    for (const channel of guild.channels.cache.values()) channelCache.delete(channel);
   },
   resetGuildRolesAll: (guild: Guild) => {
-    // @ts-expect-error allow delete required prop
-    for (const role of guild.roles.cache.values()) if (role.appData) delete role.appData;
-
-    return;
+    for (const role of guild.roles.cache.values()) roleCache.delete(role);
   },
   resetGuildMemberIds: (guild: Guild, userIds: string[]) => {
     let member;
     for (const userId of userIds) {
       member = guild.members.cache.get(userId);
-      // @ts-expect-error allow delete required prop
-      if (member && member.appData) delete member.appData;
+      if (member) memberCache.delete(member);
     }
-    return;
   },
   resetGuildChannelIds: (guild: Guild, channelIds: string[]) => {
     let channel;
     for (const channelId of channelIds) {
       channel = guild.channels.cache.get(channelId);
-      // @ts-expect-error allow delete required prop
-      if (channel && channel.appData) delete channel.appData;
+      if (channel) channelCache.delete(channel);
     }
-    return;
   },
 };
 

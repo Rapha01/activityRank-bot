@@ -1,5 +1,6 @@
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { getTexts } from 'models/managerDb/textModel.js';
 import type { TextsFaqs } from 'models/types/external.js';
 
 registerSlashCommand({
@@ -11,7 +12,7 @@ registerSlashCommand({
     ),
   execute: async function (interaction) {
     const faq = interaction.options.getInteger('number');
-    const faqs = interaction.client.appData.texts.faqs;
+    const { faqs } = await getTexts();
 
     if (!faq) return await interaction.reply({ embeds: [faqReducedEmbed(faqs)] });
 
@@ -42,12 +43,15 @@ registerSlashCommand({
     await interaction.reply({ embeds: [embed] });
   },
   executeAutocomplete: async function (interaction) {
-    let faqs = interaction.client.appData.texts.faqs;
+    const { faqs } = await getTexts();
+
     const focused = interaction.options.getFocused();
-    faqs = faqs.filter((faq) => faq.title.includes(focused) || focused.includes(faq.id.toString()));
 
     interaction.respond(
-      faqs.map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id })).slice(0, 20),
+      faqs
+        .filter((faq) => faq.title.includes(focused) || focused.includes(faq.id.toString()))
+        .map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id }))
+        .slice(0, 20),
     );
   },
 });

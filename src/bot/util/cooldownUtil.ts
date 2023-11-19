@@ -86,7 +86,6 @@ export const checkResetServerCommandCooldown = async (
 
   const cachedGuild = await guildModel.cache.get(interaction.guild);
 
-  // const toWait = getCachedCooldown(interaction.guild.appData, 'lastResetServer', cd);
   const toWait = getWaitTime(cachedGuild.cache.lastResetServer, cd);
   if (toWait.remaining > 0) {
     await interaction.channel?.send(

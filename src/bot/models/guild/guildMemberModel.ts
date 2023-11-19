@@ -25,7 +25,7 @@ interface CachedGuildMember {
   cache: MemberCacheStorage;
 }
 
-const memberCache = new WeakMap<GuildMember, CachedGuildMember>();
+export const memberCache = new WeakMap<GuildMember, CachedGuildMember>();
 
 export const cache = {
   get: async function (member: GuildMember): Promise<CachedGuildMember> {

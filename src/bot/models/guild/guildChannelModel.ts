@@ -18,7 +18,7 @@ interface CachedGuildChannel {
   db: CachedDbFields;
 }
 
-const channelCache = new WeakMap<GuildBasedChannel, CachedGuildChannel>();
+export const channelCache = new WeakMap<GuildBasedChannel, CachedGuildChannel>();
 
 export const cache = {
   get: async function (channel: GuildBasedChannel): Promise<CachedGuildChannel> {
