@@ -2,7 +2,6 @@ import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import askForPremium from '../util/askForPremium.js';
-
 import {
   PermissionFlagsBits,
   EmbedBuilder,
@@ -11,12 +10,12 @@ import {
   ButtonStyle,
   type Interaction,
   type AutocompleteInteraction,
-  CommandInteraction,
+  type ChatInputCommandInteraction,
+  type ContextMenuCommandInteraction,
   DiscordAPIError,
   RESTJSONErrorCodes,
   Events,
 } from 'discord.js';
-
 import { supportServerInviteLink } from '../../const/config.js';
 import { stripIndent } from 'common-tags';
 import { userLevels } from '../../const/privilegedUsers.js';
@@ -30,6 +29,7 @@ import {
 import { logger } from 'bot/util/logger.js';
 import { hasPrivilege } from 'const/privilegeLevels.js';
 import { registerEvent } from 'bot/util/eventLoader.js';
+import { incrementShardStat } from 'bot/models/shardStatModel.js';
 
 registerEvent(Events.InteractionCreate, async function (interaction) {
   try {
@@ -128,7 +128,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
     } else if (interaction.isContextMenuCommand()) {
       const ref = contextMap.get(getCommandId(interaction));
 
-      interaction.client.appData.botShardStat.commandsTotal++;
+      incrementShardStat('commandsTotal');
 
       interaction.client.logger.debug(
         `Context command ${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
@@ -145,7 +145,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
     } else if (interaction.isChatInputCommand()) {
       const ref = commandMap.get(getCommandId(interaction));
 
-      interaction.client.appData.botShardStat.commandsTotal++;
+      incrementShardStat('commandsTotal');
 
       interaction.client.logger.debug(
         `/${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
@@ -204,7 +204,12 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
   }
 });
 
-function getCommandId(interaction: CommandInteraction | AutocompleteInteraction) {
+function getCommandId(
+  interaction:
+    | ChatInputCommandInteraction
+    | ContextMenuCommandInteraction
+    | AutocompleteInteraction,
+) {
   const src =
     interaction.isChatInputCommand() || interaction.isAutocomplete()
       ? [

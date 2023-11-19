@@ -1,9 +1,6 @@
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import userModel from '../bot/models/userModel.js';
-import type { CommandInteraction, GuildMember, Interaction, User } from 'discord.js';
-
-export const maxBigInt = 9223372036854775807;
-export const minIdInt = 1000000000000;
+import type { GuildMember, Interaction } from 'discord.js';
 
 // System
 export const waitAndReboot = async (milliseconds: number) => {
@@ -119,8 +116,6 @@ export const getPatreonTierName = (tier: number) => {
 };
 
 export default {
-  maxBigInt,
-  minIdInt,
   waitAndReboot,
   sleep,
   hasNoXpRole,

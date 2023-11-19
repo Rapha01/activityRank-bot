@@ -1,13 +1,13 @@
 import { Client, Options, GatewayIntentBits } from 'discord.js';
 import fct from '../util/fct.js';
-import settingModel from '../models/managerDb/settingModel.js';
-import textModel from '../models/managerDb/textModel.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
 // import loadEvents from './util/startup/eventLoader.js';
 import { loadCommandFiles } from './util/commandLoader.js';
 import { loadEventFiles, loadEvents } from './util/eventLoader.js';
 import { ActivityType } from 'discord.js';
+import { updateTexts } from 'models/managerDb/textModel.js';
+import { updateSettings } from 'models/managerDb/settingModel.js';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -52,13 +52,15 @@ const client = new Client({
   },
 });
 
+// Adjusts number of threads allocated by libuv
+// @ts-expect-error process.env only expects string values
 process.env.UV_THREADPOOL_SIZE = 50;
 
 start();
 
 async function start() {
   try {
-    await initClientCaches(client);
+    await initClientCaches();
 
     await client.login();
 
@@ -82,16 +84,9 @@ async function start() {
   }
 }
 
-async function initClientCaches(client: Client) {
-  client.appData = {
-    statFlushCache: {},
-    botShardStat: {
-      commandsTotal: 0,
-      textMessagesTotal: 0,
-    },
-    texts: await textModel.storage.get(),
-    settings: await settingModel.storage.get(),
-  };
+async function initClientCaches() {
+  await updateTexts();
+  await updateSettings();
 }
 
 process.on('SIGINT', () => {
