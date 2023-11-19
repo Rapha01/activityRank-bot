@@ -59,7 +59,7 @@ interface GuildCacheStorage {
   lastAskForPremiumDate?: number;
   lastResetServer?: number;
 }
-interface CachedGuild {
+export interface CachedGuild {
   db: CachedDbFields;
   dbHost: string;
   cache: GuildCacheStorage;

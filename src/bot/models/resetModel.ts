@@ -2,8 +2,9 @@ import shardDb from '../../models/shardDb/shardDb.js';
 import guildMemberModel from './guild/guildMemberModel.js';
 import guildChannelModel from './guild/guildChannelModel.js';
 import type { CommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
-import type { guild } from 'models/types/shard.js';
 import type { DBDelete, DBUpdate } from 'models/types/enums.js';
+import guildModel from './guild/guildModel.js';
+import type { GuildSchema } from 'models/types/shard.js';
 
 interface BaseResetJob {
   ref: CommandInteraction;
@@ -46,6 +47,8 @@ export const storage = {
     return affectedRows;
   },
   resetGuildSettings: async (batchsize: number, guild: Guild) => {
+    const cachedGuild = await guildModel.cache.get(guild);
+
     let affectedRows = 0;
     const tables = ['guildRole', 'guildMember', 'guildChannel'];
 
@@ -53,7 +56,7 @@ export const storage = {
       if (affectedRows < batchsize) {
         affectedRows += (
           await shardDb.query<DBDelete>(
-            guild.appData.dbHost,
+            cachedGuild.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`,
           )
         ).affectedRows;
@@ -63,8 +66,8 @@ export const storage = {
     if (affectedRows < batchsize) {
       const keys = Object.keys(
         (
-          await shardDb.query<guild[]>(
-            guild.appData.dbHost,
+          await shardDb.query<GuildSchema[]>(
+            cachedGuild.dbHost,
             `SELECT * FROM guild WHERE guildId = ${guild.id}`,
           )
         )[0],
@@ -74,7 +77,7 @@ export const storage = {
         if (noResetGuildFields.indexOf(key) == -1) keySqls.push(key + '=DEFAULT(' + key + ')');
       }
       await shardDb.query<DBUpdate>(
-        guild.appData.dbHost,
+        cachedGuild.dbHost,
         `UPDATE guild SET ${keySqls.join(',')} WHERE guildId = ${guild.id}`,
       );
 
@@ -90,11 +93,13 @@ export const storage = {
     let affectedRows = 0;
     const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'];
 
+    const cachedGuild = await guildModel.cache.get(guild);
+
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
           await shardDb.query<DBDelete>(
-            guild.appData.dbHost,
+            cachedGuild.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} LIMIT ${batchsize - affectedRows}`,
           )
         ).affectedRows;
@@ -104,7 +109,7 @@ export const storage = {
     if (affectedRows < batchsize) {
       affectedRows += (
         await shardDb.query<DBUpdate>(
-          guild.appData.dbHost,
+          cachedGuild.dbHost,
           `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${
             batchsize - affectedRows
           }`,
@@ -123,9 +128,11 @@ export const storage = {
   ) => {
     let affectedRows = 0;
 
+    const cachedGuild = await guildModel.cache.get(guild);
+
     affectedRows += (
       await shardDb.query<DBDelete>(
-        guild.appData.dbHost,
+        cachedGuild.dbHost,
         `DELETE FROM ${type} WHERE guildId = ${guild.id} LIMIT ${batchsize}`,
       )
     ).affectedRows;
@@ -133,7 +140,7 @@ export const storage = {
     if (type == 'invite' && affectedRows < batchsize) {
       affectedRows += (
         await shardDb.query<DBUpdate>(
-          guild.appData.dbHost,
+          cachedGuild.dbHost,
           `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${guild.id} LIMIT ${
             batchsize - affectedRows
           }`,
@@ -150,11 +157,13 @@ export const storage = {
 
     const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'];
 
+    const cachedGuild = await guildModel.cache.get(guild);
+
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
           await shardDb.query<DBDelete>(
-            guild.appData.dbHost,
+            cachedGuild.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} AND userId in (${userIds.join(
               ',',
             )}) LIMIT ${batchsize - affectedRows}`,
@@ -166,7 +175,7 @@ export const storage = {
     if (affectedRows < batchsize) {
       affectedRows += (
         await shardDb.query<DBUpdate>(
-          guild.appData.dbHost,
+          cachedGuild.dbHost,
           `UPDATE guildMember SET inviter=DEFAULT(inviter) WHERE guildId = ${
             guild.id
           } AND userId IN (${userIds.join(',')}) LIMIT ${batchsize - affectedRows}`,
@@ -183,11 +192,13 @@ export const storage = {
 
     const tables = ['textMessage', 'voiceMinute'];
 
+    const cachedGuild = await guildModel.cache.get(guild);
+
     for (const table of tables) {
       if (affectedRows < batchsize) {
         affectedRows += (
           await shardDb.query<DBDelete>(
-            guild.appData.dbHost,
+            cachedGuild.dbHost,
             `DELETE FROM ${table} WHERE guildId = ${guild.id} AND channelId IN (${channelIds.join(
               ',',
             )}) LIMIT ${batchsize - affectedRows}`,
