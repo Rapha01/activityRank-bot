@@ -392,7 +392,7 @@ async function generateGuildMembers(
       else return `🔸 ${getScoreString(type, time)}`;
     };
 
-    e.addFields({
+    e.addFields({ 
       name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
         memberRank.levelProgression,
       )}`,
