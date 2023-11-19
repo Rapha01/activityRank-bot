@@ -146,7 +146,12 @@ async function betaSystem(
 
   let affected = 0;
   for (const member of members) {
-    await statFlushCache.directlyAddBonus(member, interaction.guild, changeAmount);
+    await statFlushCache.directlyAddBonus(
+      member,
+      interaction.guild,
+      interaction.client,
+      changeAmount,
+    );
 
     affected++;
     if (affected % 2000 === 0) {
