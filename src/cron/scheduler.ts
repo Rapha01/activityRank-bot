@@ -2,12 +2,11 @@ import cron from 'node-cron';
 import saveBotShardHealth from './saveBotShardHealth.js';
 import fct from '../util/fct.js';
 import statFlush from '../models/shardDb/statFlush.js';
-import settingModel from '../models/managerDb/settingModel.js';
-import textModel from '../models/managerDb/textModel.js';
 import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
 import checkForDeadShards from './checkForDeadShards.js';
-import type { Client, ShardingManager } from 'discord.js';
-import type { TextsData } from 'models/types/external.js';
+import type { ShardingManager } from 'discord.js';
+import { updateTexts } from 'models/managerDb/textModel.js';
+import { updateSettings } from 'models/managerDb/settingModel.js';
 
 const isProd = process.env.NODE_ENV == 'production';
 const settings = {
@@ -48,25 +47,10 @@ export async function start(manager: ShardingManager) {
   });
 }
 
-/*
-const startStatFlush = async (manager) => {
-  while(true) {
-    await statFlush(manager).catch(e => console.log(e));
-    await fct.sleep(statFlushCacheInterval).catch(e => console.log(e));
-  }
-}*/
-
-function _updateSettings(client: Client, ctx: { settings: string }) {
-  client.appData.settings = JSON.parse(ctx.settings);
-}
-
 const startUpdateSettings = async (manager: ShardingManager) => {
   while (true) {
     try {
-      const settings = await settingModel.storage.get();
-      await manager.broadcastEval(_updateSettings, {
-        context: { settings: JSON.stringify(settings) },
-      });
+      await updateSettings();
     } catch (e) {
       console.log(e);
     }
@@ -75,18 +59,10 @@ const startUpdateSettings = async (manager: ShardingManager) => {
   }
 };
 
-function _updateTexts(client: Client, ctx: { texts: TextsData }) {
-  client.appData.texts = ctx.texts;
-}
-
 const startUpdateTexts = async (manager: ShardingManager) => {
   while (true) {
     try {
-      let t = await textModel.storage.get();
-      // t = JSON.stringify(t);
-      // console.log(t)
-      // await manager.broadcastEval((c,{t}) => c.appData.texts = t, { context: { t: t } } ); // `this.appData.texts = ${JSON.stringify(texts)}`);
-      await manager.broadcastEval(_updateTexts, { context: { texts: t } });
+      await updateTexts();
     } catch (e) {
       console.log(e);
     }
