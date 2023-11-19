@@ -60,7 +60,7 @@ start();
 
 async function start() {
   try {
-    await initClientCaches();
+    await initClientCaches(client);
 
     await client.login();
 
@@ -84,7 +84,8 @@ async function start() {
   }
 }
 
-async function initClientCaches() {
+async function initClientCaches(client: Client) {
+  client.statFlushCache = new Map();
   await updateTexts();
   await updateSettings();
 }

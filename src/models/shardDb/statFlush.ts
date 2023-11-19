@@ -18,15 +18,16 @@ export default async function (manager: ShardingManager) {
   let statFlushCache = combineShardCaches(shardCaches);
 
   let promises = [],
-    counts = {},
     count = 0;
+  const counts: { [k in keyof StatFlushCache]?: number } = {};
+
   for (let dbHost in statFlushCache)
-    for (let type in statFlushCache[dbHost]) {
-      promises.push(
-        shardDb.query(dbHost, getSql(type as StatType, statFlushCache[dbHost][type as StatType])!),
-      );
+    for (let _type in statFlushCache[dbHost]) {
+      const type = _type as StatType;
+      // FIXME: resolve this type error
+      promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])!));
       count = Object.keys(statFlushCache[dbHost][type]).length;
-      counts[type] ? (counts[type] += count) : (counts[type] = count);
+      counts[type] = count;
     }
 
   await Promise.all(promises);
@@ -39,8 +40,13 @@ export default async function (manager: ShardingManager) {
 
 const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
   let statFlushCache: Record<string, StatFlushCache> = {};
-
   for (const shard of shardCaches) {
+    for (const dbHost in shard) {
+      statFlushCache[dbHost] = shard[dbHost];
+    }
+  }
+
+  /* for (const shard of shardCaches) {
     for (const dbHost in shard) {
       if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
 
@@ -54,24 +60,27 @@ const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
         };
       }
     }
-  }
+  } */
 
   return statFlushCache;
 };
 
 const maxValue = 100000000;
-const getSql = (
-  type: StatType,
-  entries: (StatFlushCacheChannelEntry | StatFlushCacheGuildEntry)[],
+
+const getSql = <T extends StatType>(
+  type: T,
+  entries: T extends 'textMessage' | 'voiceMinute'
+    ? StatFlushCacheChannelEntry[]
+    : StatFlushCacheGuildEntry[],
 ) => {
   let sqls = [],
     now = Math.floor(new Date().getTime() / 1000);
 
   if (type == 'textMessage' || type == 'voiceMinute') {
-    for (let entry in entries)
-      sqls.push(`(${entries[entry].guildId},${entries[entry].userId},${entries[entry].channelId},
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),${now},${now})`);
+    for (let entry of entries as StatFlushCacheChannelEntry[])
+      sqls.push(`(${entry.guildId},${entry.userId},${entry.channelId},
+          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),
+          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),${now},${now})`);
 
     return `
         INSERT INTO ${type} (guildId,userId,channelId,alltime,year,month,week,day,changeDate,addDate)
@@ -90,10 +99,10 @@ const getSql = (
   }
 
   if (type == 'invite' || type == 'vote' || type == 'bonus') {
-    for (let entry in entries)
-      sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),${now},${now})`);
+    for (let entry of entries as StatFlushCacheGuildEntry[])
+      sqls.push(`(${entry.guildId},${entry.userId},
+          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),
+          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),${now},${now})`);
 
     return `
         INSERT INTO ${type} (guildId,userId,alltime,year,month,week,day,changeDate,addDate)
