@@ -1,6 +1,5 @@
 import scheduler from './cron/scheduler.js';
 import fct from './util/fct.js';
-import deployGlobal from './util/deploy-global.js';
 import { get as getKeys } from './const/keys.js';
 import { ShardingManager } from 'discord.js';
 import logger from './util/logger.js';
@@ -21,8 +20,6 @@ start().catch(async (e) => {
 });
 
 async function start() {
-  if (process.env.NODE_ENV == 'production') await deployGlobal();
-
   await manager.spawn({ delay: 10000, timeout: 120000 });
 
   await scheduler.start(manager);

@@ -32,6 +32,13 @@ interface CommandExecutables {
   executeAutocomplete?: AutocompleteFunc;
 }
 
+export const commands: {
+  data:
+    | RESTPostAPIChatInputApplicationCommandsJSONBody
+    | RESTPostAPIContextMenuApplicationCommandsJSONBody;
+  admin: boolean;
+}[] = [];
+
 export const commandMap = new Map<string, CommandExecutables & { privilege?: PrivilegeLevel }>();
 export const modalMap = new Map<string, Omit<ModalRegisterData<any>, 'identifier'>>();
 export const componentMap = new Map<string, Omit<ComponentRegisterData<any>, 'identifier'>>();
@@ -105,6 +112,7 @@ export function registerSlashCommand(
   } & CommandExecutables,
 ) {
   if ('toJSON' in meta.data) meta.data = meta.data.toJSON();
+  commands.push({ data: meta.data, admin: false });
 
   const subcommands = meta.data.options?.filter(
     (i) => i.type === ApplicationCommandOptionType.Subcommand,
@@ -226,7 +234,9 @@ export function registerAdminCommand(meta: {
   requiredPrivilege: PrivilegeLevel;
   autocomplete?: AutocompleteFunc;
 }) {
-  if (meta.data instanceof SlashCommandBuilder) meta.data = meta.data.toJSON();
+  if ('toJSON' in meta.data) meta.data = meta.data.toJSON();
+
+  commands.push({ data: meta.data, admin: true });
 
   if (meta.execute)
     commandMap.set(meta.data.name, {
@@ -245,6 +255,8 @@ export function registerContextMenu(meta: {
   execute: ContextFunc;
 }) {
   if (meta.data instanceof ContextMenuCommandBuilder) meta.data = meta.data.toJSON();
+
+  commands.push({ data: meta.data, admin: false });
 
   contextMap.set(meta.data.name, meta.execute);
 

@@ -1,6 +1,9 @@
 import pino from 'pino';
 
-const globalConfig = { base: { pid: process.pid }, level: 'debug' };
+const globalConfig = {
+  base: { pid: process.pid },
+  level: process.env.SUPPRESS_LOGGING !== 'true' ? 'debug' : 'silent',
+};
 
 const localConfig =
   //process.env.NODE_ENV === 'development'
