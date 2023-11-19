@@ -70,17 +70,21 @@ const maxValue = 100000000;
 const getSql = <T extends StatType>(
   type: T,
   entries: T extends 'textMessage' | 'voiceMinute'
-    ? StatFlushCacheChannelEntry[]
-    : StatFlushCacheGuildEntry[],
+    ? Record<string, StatFlushCacheChannelEntry>
+    : Record<string, StatFlushCacheGuildEntry>,
 ) => {
   let sqls = [],
     now = Math.floor(new Date().getTime() / 1000);
 
   if (type == 'textMessage' || type == 'voiceMinute') {
-    for (let entry of entries as StatFlushCacheChannelEntry[])
-      sqls.push(`(${entry.guildId},${entry.userId},${entry.channelId},
-          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),
-          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),${now},${now})`);
+    for (let entry in entries)
+      sqls.push(`(${entries[entry].guildId},${entries[entry].userId},${
+        (entries[entry] as StatFlushCacheChannelEntry).channelId
+      },
+          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
+          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${
+            entries[entry].count
+          }),LEAST(${maxValue},${entries[entry].count}),${now},${now})`);
 
     return `
         INSERT INTO ${type} (guildId,userId,channelId,alltime,year,month,week,day,changeDate,addDate)
@@ -99,10 +103,10 @@ const getSql = <T extends StatType>(
   }
 
   if (type == 'invite' || type == 'vote' || type == 'bonus') {
-    for (let entry of entries as StatFlushCacheGuildEntry[])
-      sqls.push(`(${entry.guildId},${entry.userId},
-          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),
-          LEAST(${maxValue},${entry.count}),LEAST(${maxValue},${entry.count}),${now},${now})`);
+    for (let entry in entries)
+      sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
+          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
+          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),${now},${now})`);
 
     return `
         INSERT INTO ${type} (guildId,userId,alltime,year,month,week,day,changeDate,addDate)
