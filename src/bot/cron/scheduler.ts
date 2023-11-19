@@ -6,6 +6,7 @@ import fct from '../../util/fct.js';
 import config from '../../const/config.js';
 import util from 'util';
 import type { Client } from 'discord.js';
+import { getShardStat } from 'bot/models/shardStatModel.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -64,8 +65,10 @@ export const start = (client: Client) => {
       // @ts-ignore FIXME: debug & works for now - fix later
       str += JSON.stringify(util.inspect(client.sweepers.threads)) + ' ';
 
-      str += client.appData.botShardStat.commandsTotal + ' ';
-      str += client.appData.botShardStat.textMessagesTotal + ' ';
+      const stat = getShardStat();
+
+      str += stat.commandsTotal + ' ';
+      str += stat.textMessagesTotal + ' ';
 
       client.logger.debug('logShardDiagnostics: ' + str);
     } catch (e) {

@@ -1,7 +1,7 @@
 import userModel from '../models/userModel.js';
 import fct from '../../util/fct.js';
-import cooldownUtil, { getWaitTime } from './cooldownUtil.js';
-import { ChatInputCommandInteraction, CommandInteraction, EmbedBuilder } from 'discord.js';
+import { getWaitTime } from './cooldownUtil.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
 import guildModel from 'bot/models/guild/guildModel.js';
 
@@ -31,7 +31,7 @@ export default async function (interaction: ChatInputCommandInteraction<'cached'
   await sendAskForPremiumEmbed(interaction);
 }
 
-async function sendAskForPremiumEmbed(interaction: CommandInteraction<'cached'>) {
+async function sendAskForPremiumEmbed(interaction: ChatInputCommandInteraction<'cached'>) {
   const e = new EmbedBuilder()
     .setTitle('Thank you for using ActivityRank!')
     .setColor(0x00ae86)

@@ -1,6 +1,6 @@
 import fct from '../../util/fct.js';
 import { users } from '../../const/privilegedUsers.js';
-import type { CommandInteraction } from 'discord.js';
+import type { ChatInputCommandInteraction } from 'discord.js';
 import guildMemberModel from 'bot/models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
 import guildModel from 'bot/models/guild/guildModel.js';
@@ -37,7 +37,9 @@ export const getCachedCooldown = (cache, field, cd) => {
   return remaining;
 };
 
-export const checkStatCommandsCooldown = async (interaction: CommandInteraction<'cached'>) => {
+export const checkStatCommandsCooldown = async (
+  interaction: ChatInputCommandInteraction<'cached'>,
+) => {
   if (users.includes(interaction.user.id)) return true;
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
@@ -72,7 +74,7 @@ export const checkStatCommandsCooldown = async (interaction: CommandInteraction<
 };
 
 export const checkResetServerCommandCooldown = async (
-  interaction: CommandInteraction<'cached'>,
+  interaction: ChatInputCommandInteraction<'cached'>,
 ) => {
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 

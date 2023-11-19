@@ -2,16 +2,18 @@ import { publicIpv4 } from 'public-ip';
 import managerDb from '../models/managerDb/managerDb.js';
 import { escape } from 'promise-mysql';
 import type { Client, ShardingManager } from 'discord.js';
+import { getShardStat } from 'bot/models/shardStatModel.js';
 
 function _save(client: Client) {
+  const stat = getShardStat();
   const obj = {
     shardId: client.shard!.ids[0],
     uptimeSeconds: Math.floor(client.uptime! / 1000),
     readyDate: client.readyTimestamp,
     serverCount: client.guilds.cache.size,
     status: client.ws.status,
-    commandsTotal: client.appData.botShardStat.commandsTotal,
-    textMessagesTotal: client.appData.botShardStat.textMessagesTotal,
+    commandsTotal: stat.commandsTotal,
+    textMessagesTotal: stat.textMessagesTotal,
   };
   return obj;
 }

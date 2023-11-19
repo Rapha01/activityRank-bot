@@ -6,6 +6,7 @@ import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
 import { MessageType, ChannelType, Message, Events } from 'discord.js';
 import { registerEvent } from 'bot/util/eventLoader.js';
+import { incrementShardStat } from 'bot/models/shardStatModel.js';
 
 const acceptedChannelTypes = [
   ChannelType.GuildText,
@@ -79,7 +80,7 @@ async function rankMessage(msg: Message<true>) {
     cachedMember.cache.lastTextMessageDate = new Date();
   }
 
-  msg.client.appData.botShardStat.textMessagesTotal++;
+  incrementShardStat('textMessagesTotal');
 
   // Add Score
   await statFlushCache.addTextMessage(msg.member, channel, 1);

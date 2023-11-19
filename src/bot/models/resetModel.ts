@@ -1,14 +1,14 @@
 import shardDb from '../../models/shardDb/shardDb.js';
 import guildMemberModel, { memberCache } from './guild/guildMemberModel.js';
 import guildChannelModel, { channelCache } from './guild/guildChannelModel.js';
-import type { CommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
+import type { ChatInputCommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
 import type { DBDelete, DBUpdate } from 'models/types/enums.js';
 import guildModel, { guildCache } from './guild/guildModel.js';
 import type { GuildSchema } from 'models/types/shard.js';
 import { roleCache } from './guild/guildRoleModel.js';
 
 interface BaseResetJob {
-  ref: CommandInteraction;
+  ref: ChatInputCommandInteraction;
   cmdChannel: GuildTextBasedChannel;
 }
 interface MemberResetJob extends BaseResetJob {
