@@ -6,6 +6,7 @@ import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import userModel from '../models/userModel.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
+import guildModel from 'bot/models/guild/guildModel.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -15,7 +16,9 @@ registerSlashCommand({
       o.setName('member').setDescription('The member to upvote').setRequired(true),
     ),
   async execute(interaction) {
-    if (!interaction.guild.appData.voteXp)
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
+
+    if (!cachedGuild.db.voteXp)
       return await interaction.reply({
         content: 'Voting is disabled on this server.',
         ephemeral: true,
@@ -28,8 +31,7 @@ registerSlashCommand({
         ephemeral: true,
       });
 
-    await guildMemberModel.cache.load(interaction.member);
-    await guildMemberModel.cache.load(targetMember);
+    const cachedMember = await guildMemberModel.cache.get(interaction.member);
 
     if (targetMember.user.bot)
       return await interaction.reply({
@@ -52,14 +54,13 @@ registerSlashCommand({
     }
 
     // Get author multiplier
-    await userModel.cache.load(interaction.user);
     const myUser = await userModel.storage.get(interaction.user);
     const value = fct.getVoteMultiplier(myUser);
 
     // Check Command cooldown
     const toWait = getWaitTime(
-      interaction.member.appData.lastVoteDate,
-      interaction.guild.appData.voteCooldownSeconds * 1000,
+      cachedMember.cache.lastVoteDate,
+      cachedGuild.db.voteCooldownSeconds * 1000,
     );
 
     if (toWait.remaining > 0) {
@@ -72,7 +73,7 @@ registerSlashCommand({
       });
     }
 
-    interaction.member.appData.lastVoteDate = new Date();
+    cachedMember.cache.lastVoteDate = new Date();
 
     await statFlushCache.addVote(targetMember, value);
 

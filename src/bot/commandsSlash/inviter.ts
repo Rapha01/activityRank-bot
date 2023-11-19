@@ -3,6 +3,7 @@ import guildMemberModel from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import fct from '../../util/fct.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
+import guildModel from 'bot/models/guild/guildModel.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -16,8 +17,9 @@ registerSlashCommand({
     ),
   execute: async (interaction) => {
     const member = interaction.options.getMember('member')!;
-    await guildMemberModel.cache.load(interaction.member);
-    if (!interaction.guild.appData.inviteXp) {
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
+
+    if (!cachedGuild.db.inviteXp) {
       return await interaction.reply({
         content: 'The invite XP module is paused on this server.',
         ephemeral: true,
@@ -36,26 +38,22 @@ registerSlashCommand({
     );
     const myTargetGuildMember = await guildMemberModel.storage.get(interaction.guild, member.id);
 
-    if (myGuildMember.inviter != 0) {
+    if (myGuildMember.inviter !== '0') {
       return await interaction.reply({
-        content: 'You have already set your inviter. This setting is final.',
+        content: 'You have already set your inviter. This setting is unchangeable.',
         ephemeral: true,
       });
-    }
-    if (myTargetGuildMember.inviter != 0 && myTargetGuildMember.inviter == interaction.member.id) {
+    } else if (myTargetGuildMember.inviter == interaction.member.id) {
       return await interaction.reply({
         content: 'You cannot set your inviter to a person who has been invited by you.',
         ephemeral: true,
       });
-    }
-    if (member.user.bot) {
+    } else if (member.user.bot) {
       return await interaction.reply({
         content: 'You cannot set a bot as your inviter.',
         ephemeral: true,
       });
     }
-
-    await guildMemberModel.cache.load(member);
 
     if (await fct.hasNoXpRole(member)) {
       return await interaction.reply({

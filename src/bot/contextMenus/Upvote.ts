@@ -7,11 +7,13 @@ import fct from '../../util/fct.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import { registerContextMenu } from 'bot/util/commandLoader.js';
 import { ApplicationCommandType, time } from 'discord.js';
+import guildModel from 'bot/models/guild/guildModel.js';
 
 registerContextMenu({
   data: new ContextMenuCommandBuilder().setName('Upvote').setType(ApplicationCommandType.User),
   execute: async function (interaction) {
-    if (!interaction.guild.appData.voteXp)
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    if (!cachedGuild.db.voteXp)
       return await interaction.reply({
         content: 'Voting is disabled on this server.',
         ephemeral: true,
@@ -24,9 +26,6 @@ registerContextMenu({
         content: 'Could not find member.',
         ephemeral: true,
       });
-
-    await guildMemberModel.cache.load(interaction.member);
-    await guildMemberModel.cache.load(targetMember);
 
     if (targetMember.user.bot)
       return await interaction.reply({
@@ -49,14 +48,15 @@ registerContextMenu({
     }
 
     // Get author multiplier
-    await userModel.cache.load(interaction.user);
+    const cachedMember = await guildMemberModel.cache.get(interaction.member);
+
     const myUser = await userModel.storage.get(interaction.user);
     const value = fct.getVoteMultiplier(myUser);
 
     // Check Command cooldown
     const toWait = getWaitTime(
-      interaction.member.appData.lastVoteDate,
-      interaction.guild.appData.voteCooldownSeconds * 1000,
+      cachedMember.cache.lastVoteDate,
+      cachedGuild.db.voteCooldownSeconds * 1000,
     );
 
     if (toWait.remaining > 0) {
@@ -69,7 +69,7 @@ registerContextMenu({
       });
     }
 
-    interaction.member.appData.lastVoteDate = new Date();
+    cachedMember.cache.lastVoteDate = new Date();
 
     await statFlushCache.addVote(targetMember, value);
 

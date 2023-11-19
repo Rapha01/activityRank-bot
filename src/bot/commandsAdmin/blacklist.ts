@@ -32,7 +32,7 @@ registerAdminCommand({
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   requiredPrivilege: PrivilegeLevel.Developer,
   execute: async function (interaction) {
-    const sc = await interaction.options.getSubcommand();
+    const sc = interaction.options.getSubcommand();
     if (sc === 'user') {
       const user = await interaction.client.users.fetch(interaction.options.getUser('user')!);
       if (!user) {
@@ -42,7 +42,6 @@ registerAdminCommand({
         });
       }
 
-      await userModel.cache.load(user);
       const targetUser = await userModel.storage.get(user);
 
       if (targetUser.isBanned) {
@@ -72,7 +71,6 @@ registerAdminCommand({
         });
       }
 
-      await guildModel.cache.load(guild);
       const targetGuild = await guildModel.storage.get(guild);
       if (targetGuild!.isBanned) {
         await guildModel.storage.set(guild, 'isBanned', 0);

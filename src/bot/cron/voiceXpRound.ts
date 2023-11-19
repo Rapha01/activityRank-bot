@@ -1,6 +1,5 @@
 import fct from '../../util/fct.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
 import guildModel from '../models/guild/guildModel.js';
 import skip from '../skip.js';
 import statFlushCache from '../statFlushCache.js';
@@ -8,10 +7,10 @@ import noXpUtil from '../util/noXpUtil.js';
 import type {
   Guild,
   Client,
-  GuildChannel,
   VoiceBasedChannel,
   Collection,
   GuildMember,
+  GuildBasedChannel,
 } from 'discord.js';
 
 let minutesToAdd = 0,
@@ -50,41 +49,39 @@ export default async (client: Client) => {
 
 // existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1
 const rankVoiceGuild = async (guild: Guild) => {
-  await guildModel.cache.load(guild);
+  const cachedGuild = await guildModel.cache.get(guild);
 
-  if (!guild.appData.voiceXp) return;
+  if (!cachedGuild.db.voiceXp) return;
 
   const voiceChannels = guild.channels.cache.filter<VoiceBasedChannel>(
     (channel): channel is VoiceBasedChannel => channel.isVoiceBased(),
   );
 
   for (const channel of voiceChannels.values()) {
-    await guildChannelModel.cache.load(channel);
-
     if (
       (await givesXp(channel)) &&
-      (guild.appData.allowSoloXp || existMultipleMembers(channel.members))
+      (cachedGuild.db.allowSoloXp || existMultipleMembers(channel.members))
     )
       await rankVoiceChannel(channel);
   }
 };
 
-async function givesXp(channel: GuildChannel) {
-  if (channel.appData.noXp) return false;
+async function givesXp(channel: GuildBasedChannel) {
+  const cachedChannel = await guildChannelModel.cache.get(channel);
+
+  if (cachedChannel.db.noXp) return false;
 
   const parent = channel.parent;
   if (!parent) return true;
 
-  await guildChannelModel.cache.load(parent);
-  if (parent.appData.noXp) return false;
+  const cachedParent = await guildChannelModel.cache.get(parent);
+  if (cachedParent.db.noXp) return false;
 
   return true;
 }
 
 const rankVoiceChannel = async (channel: VoiceBasedChannel) => {
   for (const member of channel.members.values()) {
-    await guildMemberModel.cache.load(member);
-
     if (await noXpUtil.noVoiceXp(member, channel)) continue;
 
     if (minutesToAdd > 0) {
@@ -105,20 +102,3 @@ function existMultipleMembers(members: Collection<string, GuildMember>) {
 
   return false;
 }
-/*
-function existTwoUnmutedMembers(members) {
-  if (members.size < 2)
-    return false;
-
-  let nrOfActiveMembers = 0;
-  for (let member of members) {
-    member = member[1];
-    if(member.voice.selfMute == false && member.voice.serverMute == false && member.user.bot == false)
-      nrOfActiveMembers++;
-  }
-
-  if (nrOfActiveMembers >=2)
-    return true;
-  else
-    return false;
-}*/

@@ -5,7 +5,7 @@ import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import { get as getEmoji } from 'node-emoji';
-import cooldownUtil from '../util/cooldownUtil.js';
+import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
 import fct from '../../util/fct.js';
@@ -17,18 +17,18 @@ registerEvent(Events.MessageReactionAdd, async function (reaction) {
   if (skip(reaction.message.guild.id)) return;
   if (reaction.message.author?.bot) return;
 
-  await guildModel.cache.load(guild);
+  const cachedGuild = await guildModel.cache.get(guild);
 
-  if (!guild.appData.voteXp || !guild.appData.reactionVote) return;
+  if (!cachedGuild.db.voteXp || !cachedGuild.db.reactionVote) return;
 
   if (!reaction.emoji.id) {
     if (
-      reaction.emoji.name != getEmoji(guild.appData.voteEmote) &&
-      reaction.emoji.name != guild.appData.voteEmote
+      reaction.emoji.name != getEmoji(cachedGuild.db.voteEmote) &&
+      reaction.emoji.name != cachedGuild.db.voteEmote
     )
       return;
   } else {
-    if (`<:${reaction.emoji.name}:${reaction.emoji.id}>` != guild.appData.voteEmote) return;
+    if (`<:${reaction.emoji.name}:${reaction.emoji.id}>` != cachedGuild.db.voteEmote) return;
   }
 
   let targetMember = await guild.members.fetch(reaction.message.author!.id);
@@ -36,31 +36,27 @@ registerEvent(Events.MessageReactionAdd, async function (reaction) {
 
   if (!targetMember || !member || member.user.bot || targetMember.id == member.id) return;
 
-  await guildMemberModel.cache.load(targetMember);
-  await guildMemberModel.cache.load(member);
+  const cachedMember = await guildMemberModel.cache.get(member);
 
-  if (!member.appData.reactionVote) return;
+  if (!cachedMember.db.reactionVote) return;
 
-  for (const _role of targetMember.roles.cache) {
-    const role = _role[1];
-    await guildRoleModel.cache.load(role);
-
-    if (role.appData.noXp) return;
+  for (const role of targetMember.roles.cache.values()) {
+    const cachedRole = await guildRoleModel.cache.get(role);
+    if (cachedRole.db.noXp) return;
   }
 
   // Get author multiplier
-  await userModel.cache.load(member.user);
   const myUser = await userModel.storage.get(member.user);
   const value = fct.getVoteMultiplier(myUser);
 
-  const toWait = cooldownUtil.getCachedCooldown(
-    member.appData,
-    'lastVoteDate',
-    guild.appData.voteCooldownSeconds,
+  const toWait = getWaitTime(
+    cachedMember.cache.lastVoteDate,
+    cachedGuild.db.voteCooldownSeconds * 1000,
   );
-  if (toWait > 0) return;
 
-  member.appData.lastVoteDate = new Date();
+  if (toWait.remaining > 0) return;
+
+  cachedMember.cache.lastVoteDate = new Date();
 
   await statFlushCache.addVote(targetMember, value);
 });

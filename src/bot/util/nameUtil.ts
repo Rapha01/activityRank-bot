@@ -1,3 +1,4 @@
+import guildModel from 'bot/models/guild/guildModel.js';
 import type { getGuildMemberRanks } from 'bot/models/rankModel.js';
 import {
   ChannelType,
@@ -7,10 +8,14 @@ import {
   type Collection,
   type Role,
   type GuildChannel,
+  type GuildBasedChannel,
 } from 'discord.js';
 import { deprecate } from 'node:util';
 
-export const getChannelName = (channels: Collection<string, GuildChannel>, channelId: string) => {
+export const getChannelName = (
+  channels: Collection<string, GuildBasedChannel>,
+  channelId: string,
+) => {
   const channel = channels.get(channelId);
 
   if (channel) return cutName(channel.name);
@@ -70,13 +75,15 @@ export const getGuildMemberInfos = async (guild: Guild, userIds: string[]) => {
     { name: string; avatarUrl: string | null; joinedAt: number | string }
   > = {};
 
+  const cachedGuild = await guildModel.cache.get(guild);
+
   // Add cached
   for (const userId of userIds) {
     const member = guild.members.cache.get(userId);
 
     if (member) {
       infos[userId] = {
-        name: getGuildMemberAlias(member),
+        name: getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1),
         avatarUrl: member.user.avatarURL(),
         joinedAt: member.joinedAt?.getTime() ?? 'n/a',
       };
@@ -93,7 +100,7 @@ export const getGuildMemberInfos = async (guild: Guild, userIds: string[]) => {
     });
     for (const member of fetchedMembers.values()) {
       infos[member.id] = {
-        name: getGuildMemberAlias(member),
+        name: getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1),
         avatarUrl: member.user.avatarURL(),
         joinedAt: member.joinedAt?.getTime() ?? 'n/a',
       };
@@ -157,33 +164,15 @@ export const addGuildMemberNamesToRanks = deprecate((guild, memberRanks) => {
   });
 }, "addGuildMemberNamesToRanks() is deprecated due to TypeScript's inability to change variable types. Use getGuildMemberNamesWithRanks() instead.");
 
-export const getGuildMemberAlias = (member: GuildMember) => {
-  if (member.guild.appData.showNicknames && member.nickname) return cutName(member.nickname);
-  return cutName(member.user.username);
-};
+// TODO consider checking if displayNames are appropriate in this function
+export const getGuildMemberAlias = (member: GuildMember, showNicknames: boolean) =>
+  cutName(showNicknames && member.nickname ? member.nickname : member.user.username);
 
 export const cutName = (name: string) => {
   if (name.length > 32) name = name.slice(0, 30) + '..';
 
   return name;
 };
-
-/* exports.getSimpleEmbed = (title,text) => {
-  const embed = new Discord.EmbedBuilder();
-  embed.setColor(0x00AE86);
-
-  if (title != '')
-    embed.setAuthor(title);
-
-  if (text != '')
-    embed.setDescription(text);
-
-  return embed;
-
-} */
-
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
 
 export default {
   getChannelName,
@@ -199,5 +188,3 @@ export default {
   getGuildMemberAlias,
   cutName,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.

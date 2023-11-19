@@ -1,6 +1,6 @@
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import userModel from '../bot/models/userModel.js';
-import type { GuildMember, Interaction, User } from 'discord.js';
+import type { CommandInteraction, GuildMember, Interaction, User } from 'discord.js';
 
 export const maxBigInt = 9223372036854775807;
 export const minIdInt = 1000000000000;
@@ -23,8 +23,8 @@ export const sleep = (milliseconds: number) => {
 
 export const hasNoXpRole = async (member: GuildMember) => {
   for (const role of member.roles.cache.values()) {
-    await guildRoleModel.cache.load(role);
-    if (role.appData.noXp) return true;
+    const cachedRole = await guildRoleModel.cache.get(role);
+    if (cachedRole.db.noXp) return true;
   }
   return false;
 };
@@ -58,9 +58,6 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   const ownerUser = (
     await interaction.guild.members.fetch({ user: interaction.guild.ownerId, cache: true })
   ).user;
-
-  await userModel.cache.load(interaction.user);
-  await userModel.cache.load(ownerUser);
 
   const myUser = await userModel.storage.get(interaction.user);
   const myOwnerUser = await userModel.storage.get(ownerUser);

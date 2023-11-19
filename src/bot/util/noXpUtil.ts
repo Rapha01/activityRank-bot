@@ -1,25 +1,19 @@
 import type { GuildMember, VoiceBasedChannel } from 'discord.js';
+import guildModel from 'bot/models/guild/guildModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 
 export const noVoiceXp = async (member: GuildMember, channel: VoiceBasedChannel) => {
   if (member.user.bot) return true;
 
-  if (!member.guild.appData.allowMutedXp && member.voice.mute) return true;
+  const cachedGuild = await guildModel.cache.get(member.guild);
 
-  if (!member.guild.appData.allowDeafenedXp && member.voice.deaf) return true;
+  if (!cachedGuild.db.allowMutedXp && member.voice.mute) return true;
+  if (!cachedGuild.db.allowDeafenedXp && member.voice.deaf) return true;
+  if (!cachedGuild.db.allowSoloXp && channel.members.size < 2) return true;
 
-  //console.log(member.voice.mute, member.voice.deaf);
-
-  if (!member.guild.appData.allowSoloXp && channel.members.size < 2) return true;
-
-  //if (!member.guild.appData.allowInvisibleXp && member.user.presence.status == 'offline')
-  //return resolve(true);
-
-  for (const _role of member.roles.cache) {
-    const role = _role[1];
-    await guildRoleModel.cache.load(role);
-
-    if (role.appData.noXp) return true;
+  for (const role of member.roles.cache.values()) {
+    const cachedRole = await guildRoleModel.cache.get(role);
+    if (cachedRole.db.noXp) return true;
   }
 
   return false;

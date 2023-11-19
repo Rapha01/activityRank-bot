@@ -1,19 +1,23 @@
 import fct from '../../util/fct.js';
 import { users } from '../../const/privilegedUsers.js';
 import type { CommandInteraction } from 'discord.js';
+import guildMemberModel from 'bot/models/guild/guildMemberModel.js';
+import { Time } from '@sapphire/duration';
+import guildModel from 'bot/models/guild/guildModel.js';
 
 const premiumLowersCooldownMessage =
   'You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it here: https://patreon.com/rapha01/. ';
 
+// TODO style with new timestamps
 const activeStatCommandCooldown = (cd: number, toWait: number) =>
-  `You can use stat commands only once per ${cd} seconds. Please wait ${Math.ceil(
-    toWait,
-  )} more seconds.`;
+  `You can use stat commands only once per ${Math.floor(
+    cd / 1000,
+  )} seconds. Please wait ${Math.ceil(toWait / 1000)} more seconds.`;
 
 const activeResetServerCommandCooldown = (cd: number, toWait: number) =>
-  `You can start a server reset only once every ${cd} seconds. Please wait ${Math.ceil(
-    toWait,
-  )} more seconds.`;
+  `You can start a server reset only once every ${Math.floor(
+    cd / 1000,
+  )} seconds. Please wait ${Math.ceil(toWait / 1000)} more seconds.`;
 
 export function getWaitTime(lastDate: Date | number | undefined | null, cooldown: number) {
   const now = Date.now();
@@ -22,7 +26,8 @@ export function getWaitTime(lastDate: Date | number | undefined | null, cooldown
   return { remaining, next: new Date(now + remaining) };
 }
 
-// * deprecated: prefer `getWaitTime`
+// * deprecated: prefer `getWaitTime()`
+// @ts-expect-error Type checking disabled for deprecated fn
 export const getCachedCooldown = (cache, field, cd) => {
   const nowDate = Date.now() / 1000;
 
@@ -37,30 +42,32 @@ export const checkStatCommandsCooldown = async (interaction: CommandInteraction<
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
-  let cd = 300;
-  if (userTier == 1) cd = 60;
-  if (ownerTier == 3) cd = 30;
-  if (userTier == 2 || userTier == 3) cd = 5;
+  let cd = Time.Minute * 5;
+  if (userTier == 1) cd = Time.Minute;
+  if (ownerTier == 3) cd = Time.Minute / 2;
+  if (userTier == 2 || userTier == 3) cd = Time.Second * 5;
 
   const premiumLowersCooldownString =
     userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
 
-  const toWait = getCachedCooldown(interaction.member.appData, 'lastStatCmdDate', cd);
-  if (toWait > 0) {
+  const cachedMember = await guildMemberModel.cache.get(interaction.member);
+
+  const toWait = getWaitTime(cachedMember.cache.lastStatCommandDate, cd);
+  if (toWait.remaining > 0) {
     if (interaction.deferred) {
       await interaction.editReply({
-        content: activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+        content: activeStatCommandCooldown(cd, toWait.remaining) + premiumLowersCooldownString,
       });
     } else {
       await interaction.reply({
-        content: activeStatCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+        content: activeStatCommandCooldown(cd, toWait.remaining) + premiumLowersCooldownString,
         ephemeral: true,
       });
     }
     return false;
   }
 
-  interaction.member.appData.lastStatCmdDate = Date.now() / 1000;
+  cachedMember.cache.lastStatCommandDate = new Date();
   return true;
 };
 
@@ -69,23 +76,26 @@ export const checkResetServerCommandCooldown = async (
 ) => {
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
-  let cd = 300;
-  if (userTier == 1) cd = 120;
-  if (ownerTier == 3) cd = 60;
-  if (userTier == 2 || userTier == 3) cd = 10;
+  let cd = Time.Hour / 2;
+  if (userTier == 1) cd = Time.Minute * 10;
+  if (ownerTier == 3) cd = Time.Minute * 5;
+  if (userTier == 2 || userTier == 3) cd = Time.Minute * 2;
 
   const premiumLowersCooldownString =
     userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
 
-  const toWait = getCachedCooldown(interaction.guild.appData, 'lastResetServer', cd);
-  if (toWait > 0) {
-    await interaction.channel.send(
-      activeResetServerCommandCooldown(cd, toWait) + premiumLowersCooldownString,
+  const cachedGuild = await guildModel.cache.get(interaction.guild);
+
+  // const toWait = getCachedCooldown(interaction.guild.appData, 'lastResetServer', cd);
+  const toWait = getWaitTime(cachedGuild.cache.lastResetServer, cd);
+  if (toWait.remaining > 0) {
+    await interaction.channel?.send(
+      activeResetServerCommandCooldown(cd, toWait.remaining) + premiumLowersCooldownString,
     );
     return false;
   }
 
-  interaction.guild.appData.lastResetServer = Date.now() / 1000;
+  cachedGuild.cache.lastResetServer = new Date();
   return true;
 };
 
