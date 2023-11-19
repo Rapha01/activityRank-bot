@@ -1,8 +1,15 @@
 import managerDb from './managerDb.js';
 import type { SettingSchema } from 'models/types/manager.js';
 
-// TODO: check performance impact of not caching settings
+let cachedSettings: Record<string, string> | null = null;
+
 export async function getSettings() {
+  if (cachedSettings) return cachedSettings;
+  return await updateSettings();
+}
+
+export async function updateSettings() {
   const res = await managerDb.query<SettingSchema[]>('SELECT * from setting');
-  return Object.fromEntries(res.map((i) => [i.id, i.value]));
+  cachedSettings = Object.fromEntries(res.map((i) => [i.id, i.value]));
+  return cachedSettings;
 }
