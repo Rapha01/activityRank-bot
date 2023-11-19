@@ -14,7 +14,7 @@ let defaultAll: GuildChannelSchema | null = null;
 
 type CachedDbFields = Pick<GuildChannelSchema, (typeof cachedFields)[number]>;
 
-interface CachedGuildChannel {
+export interface CachedGuildChannel {
   db: CachedDbFields;
 }
 

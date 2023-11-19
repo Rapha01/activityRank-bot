@@ -54,7 +54,7 @@ function solve(a: number, b: number, c: number) {
   else return null;
 }
 
-export const getPatreonTiers = async (interaction: CommandInteraction<'cached'>) => {
+export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   const ownerUser = (
     await interaction.guild.members.fetch({ user: interaction.guild.ownerId, cache: true })
   ).user;

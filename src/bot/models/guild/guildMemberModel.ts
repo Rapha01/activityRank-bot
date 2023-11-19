@@ -20,7 +20,7 @@ interface MemberCacheStorage {
   lastMessageChannelId?: string | null;
 }
 
-interface CachedGuildMember {
+export interface CachedGuildMember {
   db: CachedDbFields;
   cache: MemberCacheStorage;
 }

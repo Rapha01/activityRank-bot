@@ -17,7 +17,7 @@ let defaultAll: GuildRoleSchema | null = null;
 
 type CachedDbFields = Pick<GuildRoleSchema, (typeof cachedFields)[number]>;
 
-interface CachedRole {
+export interface CachedRole {
   db: CachedDbFields;
 }
 

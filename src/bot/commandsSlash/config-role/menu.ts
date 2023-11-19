@@ -11,14 +11,15 @@ import {
   type Interaction,
 } from 'discord.js';
 
-import guildRoleModel, { type CachedRole } from '../../models/guild/guildRoleModel.js';
+import guildRoleModel from '../../models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
 import { parseRole } from '../../util/parser.js';
 import { registerComponent, registerModal, registerSubCommand } from 'bot/util/commandLoader.js';
+import type { GuildRoleSchema } from 'models/types/shard.js';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 
-const generateRow = (i: Interaction<'cached'>, roleId: string, myRole: CachedRole) => {
+const generateRow = (i: Interaction<'cached'>, roleId: string, myRole: GuildRoleSchema) => {
   const r = [
     new ButtonBuilder().setLabel('No XP'),
     new ButtonBuilder().setLabel('Assignment Message'),

@@ -18,7 +18,7 @@ interface UserCacheStorage {
   lastTopggUpvoteDate?: number;
 }
 
-interface CachedUser {
+export interface CachedUser {
   db: CachedDbFields;
   dbHost: string;
   cache: UserCacheStorage;
