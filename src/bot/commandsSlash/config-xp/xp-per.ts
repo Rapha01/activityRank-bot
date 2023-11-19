@@ -28,10 +28,13 @@ registerSubCommand({
 
     for (const _k in items) {
       const k = _k as keyof typeof items;
-      if (items[k] !== null) await guildModel.storage.set(interaction.guild, k, items[k]);
+      const value = items[k];
+      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
       // TODO: refactor into a `storage.setObject` method??
       // Could be applied to many other files with a similar pattern
     }
+
+    const cachedGuild = await guildModel.cache.get(interaction.guild);
 
     await interaction.reply({
       embeds: [
@@ -39,10 +42,10 @@ registerSubCommand({
           .setDescription(stripIndent`
         Modified XP Values! New values:
   
-        \`${interaction.guild.appData.xpPerTextMessage} xp\` per text message
-        \`${interaction.guild.appData.xpPerVoiceMinute} xp\` per minute in VC
-        \`${interaction.guild.appData.xpPerVote} xp\` per vote
-        \`${interaction.guild.appData.xpPerInvite} xp\` per invite
+        \`${cachedGuild.db.xpPerTextMessage} xp\` per text message
+        \`${cachedGuild.db.xpPerVoiceMinute} xp\` per minute in VC
+        \`${cachedGuild.db.xpPerVote} xp\` per vote
+        \`${cachedGuild.db.xpPerInvite} xp\` per invite
         `),
       ],
       ephemeral: true,
