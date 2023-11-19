@@ -2,6 +2,7 @@ import shardDb from '../../models/shardDb/shardDb.js';
 import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
 import type { StatTimeInterval, StatType } from 'models/types/enums.js';
+import guildModel, { type CachedGuild } from './guild/guildModel.js';
 
 // Toplist
 export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
@@ -11,8 +12,10 @@ export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
   from: number,
   to: number,
 ) {
+  const cachedGuild = await guildModel.cache.get(guild);
+
   const memberRanksSql = `
-    SELECT * FROM ${getGuildMemberRanksSql(guild)} AS memberranks
+    SELECT * FROM ${getGuildMemberRanksSql(cachedGuild, guild.id)} AS memberranks
     ORDER BY ${type + time} DESC 
     LIMIT ${from - 1},${to - (from - 1)}`;
 
@@ -20,19 +23,24 @@ export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
     userId: string;
   };
 
-  const ranks = await shardDb.query<RankResult[]>(guild.appData.dbHost, memberRanksSql);
+  const ranks = await shardDb.query<RankResult[]>(cachedGuild.dbHost, memberRanksSql);
 
   return ranks.map((r) => ({
     ...r,
-    levelProgression: fct.getLevelProgression(r.totalScoreAlltime, guild.appData.levelFactor),
+    levelProgression: fct.getLevelProgression(r.totalScoreAlltime, cachedGuild.db.levelFactor),
   }));
 };
 
 // All scores for one member
 export const getGuildMemberRank = async function (guild: Guild, userId: string) {
+  const cachedGuild = await guildModel.cache.get(guild);
+
   const res = await shardDb.query<
     Record<`${StatType | 'totalScore'}${StatTimeInterval}`, number>[]
-  >(guild.appData.dbHost, `SELECT * FROM ${getGuildMemberRankSql(guild, userId)} AS memberrank`);
+  >(
+    cachedGuild.dbHost,
+    `SELECT * FROM ${getGuildMemberRankSql(cachedGuild, guild.id, userId)} AS memberrank`,
+  );
 
   if (res.length == 0) return null;
 
@@ -45,11 +53,13 @@ export const getGuildMemberRankPosition = async function (
   userId: string,
   typeTime: string,
 ) {
+  const cachedGuild = await guildModel.cache.get(guild);
+
   const res = await shardDb.query<{ count: number }[]>(
-    guild.appData.dbHost,
-    `SELECT (COUNT(*) + 1) AS count FROM ${getGuildMemberRanksSql(guild)}
+    cachedGuild.dbHost,
+    `SELECT (COUNT(*) + 1) AS count FROM ${getGuildMemberRanksSql(cachedGuild, guild.id)}
       AS memberranks WHERE memberranks.${typeTime} >
-      (SELECT ${typeTime} FROM ${getGuildMemberRankSql(guild, userId)} AS alias2)`,
+      (SELECT ${typeTime} FROM ${getGuildMemberRankSql(cachedGuild, guild.id, userId)} AS alias2)`,
   );
 
   if (res.length == 0) return null;
@@ -65,8 +75,10 @@ export const getChannelRanks = async function <T extends StatTimeInterval>(
   from: number,
   to: number,
 ) {
+  const { dbHost } = await guildModel.cache.get(guild);
+
   const ranks = await shardDb.query<({ channelId: string } & Record<T, number>)[]>(
-    guild.appData.dbHost,
+    dbHost,
     `SELECT channelId,
     SUM(${time}) AS ${time} FROM ${type}
     WHERE guildId = ${guild.id} AND alltime != 0 GROUP BY channelId
@@ -84,8 +96,10 @@ export const getChannelMemberRanks = async <T extends StatTimeInterval>(
   from: number,
   to: number,
 ) => {
+  const { dbHost } = await guildModel.cache.get(guild);
+
   const ranks = await shardDb.query<({ userId: string } & Record<T, number>)[]>(
-    guild.appData.dbHost,
+    dbHost,
     `SELECT userId,${time} FROM ${type}
           WHERE guildId = ${guild.id} AND channelId = ${channelId} AND alltime != 0
           ORDER BY ${time} DESC 
@@ -103,8 +117,10 @@ export const getGuildMemberTopChannels = async function <T extends StatTimeInter
   from: number,
   to: number,
 ) {
+  const { dbHost } = await guildModel.cache.get(guild);
+
   const res = await shardDb.query<({ channelId: string } & Record<T, number>)[]>(
-    guild.appData.dbHost,
+    dbHost,
     `SELECT channelId,${time} FROM ${type}
           WHERE guildId = ${guild.id} AND userId = ${userId} AND ${time} != 0
           ORDER BY ${time} DESC
@@ -117,17 +133,21 @@ export const getGuildMemberTopChannels = async function <T extends StatTimeInter
 };
 
 export const countGuildRanks = async function (guild: Guild) {
+  const cachedGuild = await guildModel.cache.get(guild);
+
   const res = await shardDb.query<{ count: number }[]>(
-    guild.appData.dbHost,
-    `SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(guild)} AS alias1`,
+    cachedGuild.dbHost,
+    `SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(cachedGuild, guild.id)} AS alias1`,
   );
   return res[0].count;
 };
 
 export const getGuildMemberTotalScore = async function (guild: Guild, userId: string) {
+  const cachedGuild = await guildModel.cache.get(guild);
+
   const res = await shardDb.query<{ totalScoreAlltime: number }[]>(
-    guild.appData.dbHost,
-    `${getGuildMemberTotalScoreSql(guild, userId)}`,
+    cachedGuild.dbHost,
+    getGuildMemberTotalScoreSql(cachedGuild, guild.id, userId),
   );
 
   if (res.length == 0) return null;
@@ -149,32 +169,32 @@ export const getGuildMemberTotalScore = async function (guild: Guild, userId: st
   });
 } */
 
-function getGuildMemberTotalScoreSql(guild: Guild, userId: string) {
+function getGuildMemberTotalScoreSql(guildCache: CachedGuild, guildId: string, userId: string) {
   const voicerankSql = `(SELECT userId,
         SUM(alltime) AS voiceMinuteAlltime
-        FROM voiceMinute WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
+        FROM voiceMinute WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
         GROUP BY userId) AS voicerank`;
   const textrankSql = `(SELECT userId,
         SUM(alltime) AS textMessageAlltime
-        FROM textMessage WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
+        FROM textMessage WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
         GROUP BY userId) AS textrank`;
   const voterankSql = `(SELECT userId,
         alltime AS voteAlltime
-        FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS voterank`;
+        FROM vote WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS voterank`;
   const inviterankSql = `(SELECT userId,
         alltime AS inviteAlltime
-        FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS inviterank`;
+        FROM invite WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS inviterank`;
   const bonusrankSql = `(SELECT userId,
         alltime AS bonusAlltime
-        FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
+        FROM bonus WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
   const memberIdSql = `(SELECT ${userId} AS userId) AS userIds`;
 
   const memberRankRawSql = `(SELECT
       userIds.userId AS userId,
-      IFNULL(voiceMinuteAlltime,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
-      IFNULL(textMessageAlltime,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreAlltime,
-      IFNULL(voteAlltime,0) * ${guild.appData.xpPerVote} AS voteScoreAlltime,
-      IFNULL(inviteAlltime,0) * ${guild.appData.xpPerInvite} AS inviteScoreAlltime,
+      IFNULL(voiceMinuteAlltime,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
+      IFNULL(textMessageAlltime,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreAlltime,
+      IFNULL(voteAlltime,0) * ${guildCache.db.xpPerVote} AS voteScoreAlltime,
+      IFNULL(inviteAlltime,0) * ${guildCache.db.xpPerInvite} AS inviteScoreAlltime,
       IFNULL(bonusAlltime,0) AS bonusScoreAlltime
       FROM ${memberIdSql}
       LEFT JOIN ${voicerankSql} ON userIds.userId = voicerank.userId
@@ -188,14 +208,14 @@ function getGuildMemberTotalScoreSql(guild: Guild, userId: string) {
   return memberTotalScoreAlltimeSql;
 }
 
-function getGuildMemberRanksSql(guild: Guild) {
+function getGuildMemberRanksSql(guildCache: CachedGuild, guildId: string) {
   const voiceranksSql = `(SELECT userId,
       SUM(alltime) AS voiceMinuteAlltime,
       SUM(year) AS voiceMinuteYear,
       SUM(month) AS voiceMinuteMonth,
       SUM(week) AS voiceMinuteWeek,
       SUM(day) AS voiceMinuteDay
-      FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0
+      FROM voiceMinute WHERE guildId = ${guildId} AND alltime != 0
       GROUP BY userId) AS voiceranks`;
   const textranksSql = `(SELECT userId,
       SUM(alltime) AS textMessageAlltime,
@@ -203,7 +223,7 @@ function getGuildMemberRanksSql(guild: Guild) {
       SUM(month) AS textMessageMonth,
       SUM(week) AS textMessageWeek,
       SUM(day) AS textMessageDay
-      FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0
+      FROM textMessage WHERE guildId = ${guildId} AND alltime != 0
       GROUP BY userId) AS textranks`;
   const voteranksSql = `(SELECT userId,
       alltime AS voteAlltime,
@@ -211,53 +231,53 @@ function getGuildMemberRanksSql(guild: Guild) {
       month AS voteMonth,
       week AS voteWeek,
       day AS voteDay
-      FROM vote WHERE guildId = ${guild.id} AND alltime != 0) AS voteranks`;
+      FROM vote WHERE guildId = ${guildId} AND alltime != 0) AS voteranks`;
   const inviteranksSql = `(SELECT userId,
       alltime AS inviteAlltime,
       year AS inviteYear,
       month AS inviteMonth,
       week AS inviteWeek,
       day AS inviteDay
-      FROM invite WHERE guildId = ${guild.id} AND alltime != 0) AS inviteranks`;
+      FROM invite WHERE guildId = ${guildId} AND alltime != 0) AS inviteranks`;
   const bonusranksSql = `(SELECT userId,
       alltime AS bonusAlltime,
       year AS bonusYear,
       month AS bonusMonth,
       week AS bonusWeek,
       day AS bonusDay
-      FROM bonus WHERE guildId = ${guild.id} AND alltime != 0) AS bonusranks`;
-  const memberIdsSql = `((SELECT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0)
-      UNION (SELECT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0)
-      UNION (SELECT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0)
-      UNION (SELECT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0)) AS userIds`;
+      FROM bonus WHERE guildId = ${guildId} AND alltime != 0) AS bonusranks`;
+  const memberIdsSql = `((SELECT userId FROM voiceMinute WHERE guildId = ${guildId} AND alltime != 0)
+      UNION (SELECT userId FROM textMessage WHERE guildId = ${guildId} AND alltime != 0)
+      UNION (SELECT userId FROM vote WHERE guildId = ${guildId} AND alltime != 0)
+      UNION (SELECT userId FROM bonus WHERE guildId = ${guildId} AND alltime != 0)) AS userIds`;
 
   const memberRanksRawSql = `(SELECT
       userIds.userId AS userId,
-      IFNULL(voiceMinuteAlltime,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
-      IFNULL(voiceMinuteYear,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreYear,
-      IFNULL(voiceMinuteMonth,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreMonth,
-      IFNULL(voiceMinuteWeek,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreWeek,
-      IFNULL(voiceMinuteDay,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreDay,
-      IFNULL(textMessageAlltime,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreAlltime,
-      IFNULL(textMessageYear,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreYear,
-      IFNULL(textMessageMonth,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreMonth,
-      IFNULL(textMessageWeek,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreWeek,
-      IFNULL(textMessageDay,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreDay,
-      IFNULL(voteAlltime,0) * ${guild.appData.xpPerVote} AS voteScoreAlltime,
-      IFNULL(voteYear,0) * ${guild.appData.xpPerVote} AS voteScoreYear,
-      IFNULL(voteMonth,0) * ${guild.appData.xpPerVote} AS voteScoreMonth,
-      IFNULL(voteWeek,0) * ${guild.appData.xpPerVote} AS voteScoreWeek,
-      IFNULL(voteDay,0) * ${guild.appData.xpPerVote} AS voteScoreDay,
-      IFNULL(inviteAlltime,0) * ${guild.appData.xpPerInvite} AS inviteScoreAlltime,
-      IFNULL(inviteYear,0) * ${guild.appData.xpPerInvite} AS inviteScoreYear,
-      IFNULL(inviteMonth,0) * ${guild.appData.xpPerInvite} AS inviteScoreMonth,
-      IFNULL(inviteWeek,0) * ${guild.appData.xpPerInvite} AS inviteScoreWeek,
-      IFNULL(inviteDay,0) * ${guild.appData.xpPerInvite} AS inviteScoreDay,
-      IFNULL(bonusAlltime,0) * ${guild.appData.xpPerBonus} AS bonusScoreAlltime,
-      IFNULL(bonusYear,0) * ${guild.appData.xpPerBonus} AS bonusScoreYear,
-      IFNULL(bonusMonth,0) * ${guild.appData.xpPerBonus} AS bonusScoreMonth,
-      IFNULL(bonusWeek,0) * ${guild.appData.xpPerBonus} AS bonusScoreWeek,
-      IFNULL(bonusDay,0) * ${guild.appData.xpPerBonus} AS bonusScoreDay,
+      IFNULL(voiceMinuteAlltime,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
+      IFNULL(voiceMinuteYear,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreYear,
+      IFNULL(voiceMinuteMonth,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreMonth,
+      IFNULL(voiceMinuteWeek,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreWeek,
+      IFNULL(voiceMinuteDay,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreDay,
+      IFNULL(textMessageAlltime,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreAlltime,
+      IFNULL(textMessageYear,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreYear,
+      IFNULL(textMessageMonth,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreMonth,
+      IFNULL(textMessageWeek,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreWeek,
+      IFNULL(textMessageDay,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreDay,
+      IFNULL(voteAlltime,0) * ${guildCache.db.xpPerVote} AS voteScoreAlltime,
+      IFNULL(voteYear,0) * ${guildCache.db.xpPerVote} AS voteScoreYear,
+      IFNULL(voteMonth,0) * ${guildCache.db.xpPerVote} AS voteScoreMonth,
+      IFNULL(voteWeek,0) * ${guildCache.db.xpPerVote} AS voteScoreWeek,
+      IFNULL(voteDay,0) * ${guildCache.db.xpPerVote} AS voteScoreDay,
+      IFNULL(inviteAlltime,0) * ${guildCache.db.xpPerInvite} AS inviteScoreAlltime,
+      IFNULL(inviteYear,0) * ${guildCache.db.xpPerInvite} AS inviteScoreYear,
+      IFNULL(inviteMonth,0) * ${guildCache.db.xpPerInvite} AS inviteScoreMonth,
+      IFNULL(inviteWeek,0) * ${guildCache.db.xpPerInvite} AS inviteScoreWeek,
+      IFNULL(inviteDay,0) * ${guildCache.db.xpPerInvite} AS inviteScoreDay,
+      IFNULL(bonusAlltime,0) * ${guildCache.db.xpPerBonus} AS bonusScoreAlltime,
+      IFNULL(bonusYear,0) * ${guildCache.db.xpPerBonus} AS bonusScoreYear,
+      IFNULL(bonusMonth,0) * ${guildCache.db.xpPerBonus} AS bonusScoreMonth,
+      IFNULL(bonusWeek,0) * ${guildCache.db.xpPerBonus} AS bonusScoreWeek,
+      IFNULL(bonusDay,0) * ${guildCache.db.xpPerBonus} AS bonusScoreDay,
       IFNULL(voiceMinuteAlltime,0) AS voiceMinuteAlltime,
       IFNULL(voiceMinuteYear,0) AS voiceMinuteYear,
       IFNULL(voiceMinuteMonth,0) AS voiceMinuteMonth,
@@ -300,14 +320,14 @@ function getGuildMemberRanksSql(guild: Guild) {
   return memberRanksSql;
 }
 
-function getGuildMemberRankSql(guild: Guild, userId: string) {
+function getGuildMemberRankSql(guildCache: CachedGuild, guildId: string, userId: string) {
   const voicerankSql = `(SELECT userId,
         SUM(alltime) AS voiceMinuteAlltime,
         SUM(year) AS voiceMinuteYear,
         SUM(month) AS voiceMinuteMonth,
         SUM(week) AS voiceMinuteWeek,
         SUM(day) AS voiceMinuteDay
-        FROM voiceMinute WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
+        FROM voiceMinute WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
         GROUP BY userId) AS voicerank`;
   const textrankSql = `(SELECT userId,
         SUM(alltime) AS textMessageAlltime,
@@ -315,7 +335,7 @@ function getGuildMemberRankSql(guild: Guild, userId: string) {
         SUM(month) AS textMessageMonth,
         SUM(week) AS textMessageWeek,
         SUM(day) AS textMessageDay
-        FROM textMessage WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0
+        FROM textMessage WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
         GROUP BY userId) AS textrank`;
   const voterankSql = `(SELECT userId,
         alltime AS voteAlltime,
@@ -323,50 +343,50 @@ function getGuildMemberRankSql(guild: Guild, userId: string) {
         month AS voteMonth,
         week AS voteWeek,
         day AS voteDay
-        FROM vote WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS voterank`;
+        FROM vote WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS voterank`;
   const inviterankSql = `(SELECT userId,
         alltime AS inviteAlltime,
         year AS inviteYear,
         month AS inviteMonth,
         week AS inviteWeek,
         day AS inviteDay
-        FROM invite WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS inviterank`;
+        FROM invite WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS inviterank`;
   const bonusrankSql = `(SELECT userId,
         alltime AS bonusAlltime,
         year AS bonusYear,
         month AS bonusMonth,
         week AS bonusWeek,
         day AS bonusDay
-        FROM bonus WHERE guildId = ${guild.id} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
+        FROM bonus WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
   const memberIdSql = `(SELECT '${userId}' AS userId) AS userIds`;
 
   const memberRankRawSql = `(SELECT
       userIds.userId AS userId,
-      IFNULL(voiceMinuteAlltime,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
-      IFNULL(voiceMinuteYear,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreYear,
-      IFNULL(voiceMinuteMonth,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreMonth,
-      IFNULL(voiceMinuteWeek,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreWeek,
-      IFNULL(voiceMinuteDay,0) * ${guild.appData.xpPerVoiceMinute} AS voiceMinuteScoreDay,
-      IFNULL(textMessageAlltime,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreAlltime,
-      IFNULL(textMessageYear,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreYear,
-      IFNULL(textMessageMonth,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreMonth,
-      IFNULL(textMessageWeek,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreWeek,
-      IFNULL(textMessageDay,0) * ${guild.appData.xpPerTextMessage} AS textMessageScoreDay,
-      IFNULL(voteAlltime,0) * ${guild.appData.xpPerVote} AS voteScoreAlltime,
-      IFNULL(voteYear,0) * ${guild.appData.xpPerVote} AS voteScoreYear,
-      IFNULL(voteMonth,0) * ${guild.appData.xpPerVote} AS voteScoreMonth,
-      IFNULL(voteWeek,0) * ${guild.appData.xpPerVote} AS voteScoreWeek,
-      IFNULL(voteDay,0) * ${guild.appData.xpPerVote} AS voteScoreDay,
-      IFNULL(inviteAlltime,0) * ${guild.appData.xpPerInvite} AS inviteScoreAlltime,
-      IFNULL(inviteYear,0) * ${guild.appData.xpPerInvite} AS inviteScoreYear,
-      IFNULL(inviteMonth,0) * ${guild.appData.xpPerInvite} AS inviteScoreMonth,
-      IFNULL(inviteWeek,0) * ${guild.appData.xpPerInvite} AS inviteScoreWeek,
-      IFNULL(inviteDay,0) * ${guild.appData.xpPerInvite} AS inviteScoreDay,
-      IFNULL(bonusAlltime,0) * ${guild.appData.xpPerBonus} AS bonusScoreAlltime,
-      IFNULL(bonusYear,0) * ${guild.appData.xpPerBonus} AS bonusScoreYear,
-      IFNULL(bonusMonth,0) * ${guild.appData.xpPerBonus} AS bonusScoreMonth,
-      IFNULL(bonusWeek,0) * ${guild.appData.xpPerBonus} AS bonusScoreWeek,
-      IFNULL(bonusDay,0) * ${guild.appData.xpPerBonus} AS bonusScoreDay,
+      IFNULL(voiceMinuteAlltime,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
+      IFNULL(voiceMinuteYear,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreYear,
+      IFNULL(voiceMinuteMonth,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreMonth,
+      IFNULL(voiceMinuteWeek,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreWeek,
+      IFNULL(voiceMinuteDay,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreDay,
+      IFNULL(textMessageAlltime,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreAlltime,
+      IFNULL(textMessageYear,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreYear,
+      IFNULL(textMessageMonth,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreMonth,
+      IFNULL(textMessageWeek,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreWeek,
+      IFNULL(textMessageDay,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreDay,
+      IFNULL(voteAlltime,0) * ${guildCache.db.xpPerVote} AS voteScoreAlltime,
+      IFNULL(voteYear,0) * ${guildCache.db.xpPerVote} AS voteScoreYear,
+      IFNULL(voteMonth,0) * ${guildCache.db.xpPerVote} AS voteScoreMonth,
+      IFNULL(voteWeek,0) * ${guildCache.db.xpPerVote} AS voteScoreWeek,
+      IFNULL(voteDay,0) * ${guildCache.db.xpPerVote} AS voteScoreDay,
+      IFNULL(inviteAlltime,0) * ${guildCache.db.xpPerInvite} AS inviteScoreAlltime,
+      IFNULL(inviteYear,0) * ${guildCache.db.xpPerInvite} AS inviteScoreYear,
+      IFNULL(inviteMonth,0) * ${guildCache.db.xpPerInvite} AS inviteScoreMonth,
+      IFNULL(inviteWeek,0) * ${guildCache.db.xpPerInvite} AS inviteScoreWeek,
+      IFNULL(inviteDay,0) * ${guildCache.db.xpPerInvite} AS inviteScoreDay,
+      IFNULL(bonusAlltime,0) * ${guildCache.db.xpPerBonus} AS bonusScoreAlltime,
+      IFNULL(bonusYear,0) * ${guildCache.db.xpPerBonus} AS bonusScoreYear,
+      IFNULL(bonusMonth,0) * ${guildCache.db.xpPerBonus} AS bonusScoreMonth,
+      IFNULL(bonusWeek,0) * ${guildCache.db.xpPerBonus} AS bonusScoreWeek,
+      IFNULL(bonusDay,0) * ${guildCache.db.xpPerBonus} AS bonusScoreDay,
       IFNULL(voiceMinuteAlltime,0) AS voiceMinuteAlltime,
       IFNULL(voiceMinuteYear,0) AS voiceMinuteYear,
       IFNULL(voiceMinuteMonth,0) AS voiceMinuteMonth,
@@ -409,9 +429,6 @@ function getGuildMemberRankSql(guild: Guild, userId: string) {
   return memberRankSql;
 }
 
-// GENERATED: start of generated content by `exports-to-default`.
-// [GENERATED: exports-to-default:v0]
-
 export default {
   getGuildMemberRanks,
   getGuildMemberRank,
@@ -422,5 +439,3 @@ export default {
   countGuildRanks,
   getGuildMemberTotalScore,
 };
-
-// GENERATED: end of generated content by `exports-to-default`.
