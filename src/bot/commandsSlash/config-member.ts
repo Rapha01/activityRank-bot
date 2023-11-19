@@ -11,10 +11,10 @@ import {
 import { oneLine } from 'common-tags';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
-import type { guildMember } from 'models/types/shard.js';
+import type { GuildMemberSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
 
-const generateRow = (i: Interaction<'cached'>, myGuildMember: guildMember) => {
+const generateRow = (i: Interaction<'cached'>, myGuildMember: GuildMemberSchema) => {
   return [
     new ButtonBuilder()
       .setLabel('Notify levelup via DM')
@@ -77,7 +77,7 @@ const closeId = registerComponent({
 });
 
 const toggleId = registerComponent<{
-  type: Exclude<keyof PropertiesOfType<guildMember, number>, 'tokensBurned'>;
+  type: Exclude<keyof PropertiesOfType<GuildMemberSchema, number>, 'tokensBurned'>;
 }>({
   type: ComponentType.Button,
   identifier: 'config-member.toggle',

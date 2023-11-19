@@ -11,7 +11,7 @@ import {
 import { stripIndent } from 'common-tags';
 import guildModel from '../../models/guild/guildModel.js';
 import { registerComponent, registerSubCommand } from 'bot/util/commandLoader.js';
-import type { guild } from 'models/types/shard.js';
+import type { GuildSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
 
 const generateRows = async (
@@ -19,7 +19,11 @@ const generateRows = async (
 ): Promise<ActionRowData<ButtonComponentData>[]> => {
   // TODO: test this
   const myGuild = await guildModel.storage.get(interaction.guild);
-  const rows: { label?: string; emoji?: string; key: keyof PropertiesOfType<guild, number> }[][] = [
+  const rows: {
+    label?: string;
+    emoji?: string;
+    key: keyof PropertiesOfType<GuildSchema, number>;
+  }[][] = [
     [
       { label: 'Use Nicknames', key: 'showNicknames' },
       { label: 'Reaction Voting', key: 'reactionVote' },
@@ -228,7 +232,7 @@ registerSubCommand({
   },
 });
 
-const setId = registerComponent<{ key: keyof PropertiesOfType<guild, number> }>({
+const setId = registerComponent<{ key: keyof PropertiesOfType<GuildSchema, number> }>({
   identifier: 'config-server.set',
   type: ComponentType.Button,
   async callback(interaction, data) {
