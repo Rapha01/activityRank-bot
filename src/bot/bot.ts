@@ -2,7 +2,6 @@ import { Client, Options, GatewayIntentBits } from 'discord.js';
 import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
-// import loadEvents from './util/startup/eventLoader.js';
 import { loadCommandFiles } from './util/commandLoader.js';
 import { loadEventFiles, loadEvents } from './util/eventLoader.js';
 import { ActivityType } from 'discord.js';
@@ -86,6 +85,7 @@ async function start() {
 
 async function initClientCaches(client: Client) {
   client.statFlushCache = new Map();
+  client.botShardStat = { commandsTotal: 0, textMessagesTotal: 0 };
   await updateTexts();
   await updateSettings();
 }
