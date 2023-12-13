@@ -1,13 +1,15 @@
 import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import { join } from 'node:path';
 
 const rootDir = fileURLToPath(new URL('../..', import.meta.url));
-const distDir = path.join(rootDir, 'dist');
-export const configDir = path.join(rootDir, 'config');
+const distDir = join(rootDir, 'dist');
+export const configDir = join(rootDir, 'config');
 
-export const botDir = path.join(distDir, 'bot');
+export const botDir = join(distDir, 'bot');
 
-export const commandsDir = path.join(botDir, 'commandsSlash');
-export const adminDir = path.join(botDir, 'commandsAdmin');
-export const contextDir = path.join(botDir, 'contextMenus');
-export const eventsDir = path.join(botDir, 'events');
+export const commandsDir = join(botDir, 'commandsSlash');
+export const adminDir = join(botDir, 'commandsAdmin');
+export const contextDir = join(botDir, 'contextMenus');
+export const eventsDir = join(botDir, 'events');
+
+export const packageFile = join(rootDir, 'package.json');

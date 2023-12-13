@@ -5,12 +5,14 @@ import type {
   PrivilegeInstance,
   PrivilegeLevel as PL,
 } from './config.types.js';
+import { packageFile } from './paths.js';
 
 // read from Docker Compose configs/secrets locations
-const [conffile, privfile, keyfile] = await Promise.all([
+const [conffile, privfile, keyfile, pkgfile] = await Promise.all([
   readFile('/conf'),
   readFile('/privileges'),
   readFile('/run/secrets/keys'),
+  readFile(packageFile),
 ]);
 
 export const isProduction = process.env.NODE_ENV === 'production';
@@ -43,3 +45,6 @@ export const getKeys = (prod: boolean = isProduction) =>
   keys[prod ? 'production' : 'development'] as KeyInstance;
 export const getPrivileges = (prod: boolean = isProduction) =>
   privileges[prod ? 'production' : 'development'] as PrivilegeInstance;
+
+const pkg = JSON.parse(pkgfile.toString());
+export const version = pkg.version as string;
