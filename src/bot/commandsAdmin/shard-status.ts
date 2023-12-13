@@ -9,7 +9,7 @@ import {
 import { DurationFormatter } from '@sapphire/duration';
 import managerDb from '../../models/managerDb/managerDb.js';
 import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/privilegeLevels.js';
+import { PrivilegeLevel } from 'const/config.js';
 
 export const activeCache = new Map();
 

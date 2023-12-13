@@ -16,9 +16,7 @@ import {
   RESTJSONErrorCodes,
   Events,
 } from 'discord.js';
-import { supportServerInviteLink } from '../../const/config.js';
 import { stripIndent } from 'common-tags';
-import { userLevels } from '../../const/privilegedUsers.js';
 import {
   ComponentKey,
   commandMap,
@@ -27,8 +25,8 @@ import {
   modalMap,
 } from 'bot/util/commandLoader.js';
 import { logger } from 'bot/util/logger.js';
-import { hasPrivilege } from 'const/privilegeLevels.js';
 import { registerEvent } from 'bot/util/eventLoader.js';
+import { config, getPrivileges, hasPrivilege } from 'const/config.js';
 
 registerEvent(Events.InteractionCreate, async function (interaction) {
   try {
@@ -151,7 +149,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
       );
 
       if (ref) {
-        if (ref.privilege && !hasPrivilege(ref.privilege, userLevels[interaction.user.id])) {
+        if (ref.privilege && !hasPrivilege(ref.privilege, getPrivileges()[interaction.user.id])) {
           interaction.client.logger.warn(interaction, 'Unauthorized admin command attempt');
 
           return await interaction.reply({
@@ -182,7 +180,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
       const message = {
         content: stripIndent`
         There was an error while executing this command! 
-        If this error persists, report it [in our support server](${supportServerInviteLink})`,
+        If this error persists, report it [in our support server](${config.supportServer.invite})`,
         ephemeral: true,
       };
 
@@ -238,7 +236,7 @@ async function executeBans(
         new ActionRowBuilder<ButtonBuilder>().setComponents(
           new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
-            .setURL(supportServerInviteLink)
+            .setURL(config.supportServer.invite)
             .setLabel('Appeal'),
         ),
       ],
@@ -261,7 +259,7 @@ async function executeBans(
         new ActionRowBuilder<ButtonBuilder>().setComponents(
           new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
-            .setURL(supportServerInviteLink)
+            .setURL(config.supportServer.invite)
             .setLabel('Appeal'),
         ),
       ],

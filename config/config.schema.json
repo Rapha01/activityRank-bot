@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://activityrank.me/_meta/bot/json-schema/keys.schema.json",
+  "title": "ActivityRank Bot Config",
+  "description": "The basic config to be provided to the Bot module of ActivityRank",
+  "type": "object",
+  "properties": {
+    "embedColor": {
+      "oneOf": [
+        { "type": "string", "pattern": "^#?([a-f0-9]{6}|[a-f0-9]{3})$" },
+        { "type": "number", "minimum": 0, "maximum": 16777215 },
+        { "type": "array" }
+      ]
+    },
+    "supportServer": {
+      "id": { "type": "string" },
+      "invite": { "type": "string" },
+      "patreonRoles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "tier": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "invite": {
+      "type": "object",
+      "properties": {
+        "standard": { "type": "string" },
+        "admin": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

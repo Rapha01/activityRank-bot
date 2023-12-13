@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import resetModel from '../models/resetModel.js';
 import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/privilegeLevels.js';
+import { PrivilegeLevel } from 'const/config.js';
 
 registerAdminCommand({
   data: new SlashCommandBuilder()

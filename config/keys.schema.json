@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://activityrank.me/_meta/bot/json-schema/keys.schema.json",
+  "title": "ActivityRank Bot Keys",
+  "description": "The keys to be provided to the Bot module of ActivityRank",
+  "type": "object",
+  "properties": {
+    "production": {
+      "$ref": "#/$defs/keyset"
+    },
+    "development": {
+      "$ref": "#/$defs/keyset"
+    },
+    "deploy": {
+      "type": "object",
+      "properties": {
+        "admin": {
+          "description": "Admin ID variables",
+          "type": "object",
+          "properties": {
+            "guildIds": {
+              "description": "The IDs of servers in which to register admin commands",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": ["guildIds"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "keyset": {
+      "type": "object",
+      "properties": {
+        "botAuth": {
+          "description": "The Discord token of the bot",
+          "type": "string"
+        },
+        "botId": {
+          "description": "The Discord ID of the bot",
+          "type": "string"
+        },
+        "managerApiAuth": {
+          "description": "The password required by the Manager API",
+          "type": "string"
+        },
+        "managerHost": {
+          "description": "The host of the Manager API",
+          "type": "string"
+        },
+        "managerPort": {
+          "description": "The port of the Manager API",
+          "oneOf": [
+            {
+              "type": "number",
+              "minimumExclusive": 0,
+              "maximum": 65535
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "managerDb": {
+          "description": "Properties concerning manager DB connections",
+          "$ref": "#/$defs/dbConnection"
+        },
+        "shardDb": {
+          "description": "Properties concerning shard DB connections",
+          "$ref": "#/$defs/dbConnection"
+        }
+      },
+      "required": [
+        "botAuth",
+        "botId",
+        "managerApiAuth",
+        "managerHost",
+        "managerPort",
+        "managerDb",
+        "shardDb"
+      ],
+      "additionalProperties": false
+    },
+    "dbConnection": {
+      "type": "object",
+      "properties": {
+        "dbUser": {
+          "description": "The username to use while connecting to the database",
+          "type": "string"
+        },
+        "dbPassword": {
+          "description": "The password to use while connecting to the database",
+          "type": "string"
+        },
+        "dbName": {
+          "description": "The name of the database to connect to",
+          "type": "string"
+        }
+      },
+      "required": ["dbUser", "dbPassword", "dbName"],
+      "additionalProperties": false
+    }
+  }
+}

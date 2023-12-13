@@ -8,10 +8,10 @@ import {
   ComponentType,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import { supportServerInviteLink } from '../../const/config.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { TextsCommands, TextsEntry } from 'models/types/external.js';
 import { getTexts } from 'models/managerDb/textModel.js';
+import { config } from 'const/config.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -75,7 +75,7 @@ function helpMainEmbed(sections: TextsCommands) {
   const embed = new EmbedBuilder().setAuthor({ name: 'ActivityRank Manual' }).setColor(0x00ae86)
     .setDescription(stripIndent`
       **[Website](https://activityrank.me/commands)**
-      **[Support Server](${supportServerInviteLink})**
+      **[Support Server](${config.supportServer.invite})**
       By using this bot you accept the **[terms and conditions](https://activityrank.me/termsandconditions)**.`);
 
   for (const _command in sections) {

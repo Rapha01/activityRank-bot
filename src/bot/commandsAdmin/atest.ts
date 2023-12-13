@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/privilegeLevels.js';
+import { PrivilegeLevel } from 'const/config.js';
 
 registerAdminCommand({
   data: new SlashCommandBuilder()

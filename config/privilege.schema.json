@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://activityrank.me/_meta/bot/json-schema/keys.schema.json",
+  "title": "ActivityRank Privileged Users",
+  "description": "The users that are able to use privileged commands",
+  "type": "object",
+  "properties": {
+    "production": {
+      "$ref": "#/$defs/privset"
+    },
+    "development": {
+      "$ref": "#/$defs/privset"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "privset": {
+      "type": "object",
+      "patternProperties": {
+        "^\\d+$": {
+          "enum": ["OWNER", "DEVELOPER", "MODERATOR", "HELPSTAFF"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

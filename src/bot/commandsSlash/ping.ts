@@ -5,8 +5,8 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from 'discord.js';
-import { botInviteLink } from '../../const/config.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
+import { config, isProduction } from 'const/config.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder().setName('ping').setDescription("Checks the bot's latency"),
@@ -16,6 +16,7 @@ registerSlashCommand({
     const pingEmbed = new EmbedBuilder()
       .setColor(0x00ae86)
       .setTitle('🏓 Pong! 🏓')
+      .setDescription(isProduction ? null : '**This is a development version of ActivityRank.**')
       .addFields(
         {
           name: '🔁 Roundtrip Latency 🔁',
@@ -31,7 +32,7 @@ registerSlashCommand({
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel('Invite the bot')
-        .setURL(botInviteLink)
+        .setURL(config.invite.standard)
         .setStyle(ButtonStyle.Link),
     );
 
