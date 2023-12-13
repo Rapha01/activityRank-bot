@@ -1,10 +1,11 @@
 .PHONY: up
 up:
-	docker-compose up -d
+	docker-compose up --build
 
 .PHONY: up-prod
 up-prod:
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+	npm run build
+	docker-compose -f docker-compose.prod.yml up --build
 
 .PHONY: down
 down: 
