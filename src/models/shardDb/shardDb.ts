@@ -1,8 +1,8 @@
 import mysql from 'promise-mysql';
 import managerDb from '../managerDb/managerDb.js';
-import { get as getKeys } from '../../const/keys.js';
+import { getKeys } from 'const/config.js';
 
-let keys = getKeys();
+const keys = getKeys();
 const pools: Record<string, mysql.Pool> = {};
 
 export async function query<T>(dbHost: string, sql: string) {

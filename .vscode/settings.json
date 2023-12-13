@@ -1,0 +1,16 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["config/keys.json", "config/keys.example.json"],
+      "url": "./config/keys.schema.json"
+    },
+    {
+      "fileMatch": ["config/privilege.json"],
+      "url": "./config/privilege.schema.json"
+    },
+    {
+      "fileMatch": ["config/config.json"],
+      "url": "./config/config.schema.json"
+    }
+  ]
+}

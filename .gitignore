@@ -3,3 +3,6 @@
 **/node_modules
 dist
 .private
+config/keys.json
+config/config.json
+config/privilege.json

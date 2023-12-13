@@ -1,6 +1,6 @@
 {
   "name": "activity-rank-bot",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "ActivityRank Bot",
   "exports": "./src/app.js",
   "type": "module",

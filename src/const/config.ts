@@ -1,21 +1,50 @@
-export const embedColor = '#4fd6c8';
-export const supportServerId = '534598374985302027';
-export const supportServerInviteLink = 'https://discordapp.com/invite/DE3eQ8H';
-export const supportServerPatreonRoles = [
-  { tier: 1, roleId: '734769115495137300' },
-  { tier: 2, roleId: '1059900445759385650' },
-  { tier: 3, roleId: '1059900590852944035' },
-];
-export const botInviteLink =
-  'https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands%20applications.commands.permissions.update';
-export const botInviteLinkAdmin =
-  'https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=8&scope=bot%20applications.commands%20applications.commands.permissions.update';
+import { readFile } from 'node:fs/promises';
+import type {
+  ConfigInstance,
+  KeyInstance,
+  PrivilegeInstance,
+  PrivilegeLevel as PL,
+} from './config.types.js';
+import { packageFile } from './paths.js';
 
-export default {
-  embedColor,
-  supportServerId,
-  supportServerInviteLink,
-  supportServerPatreonRoles,
-  botInviteLink,
-  botInviteLinkAdmin,
+// read from Docker Compose configs/secrets locations
+const [conffile, privfile, keyfile, pkgfile] = await Promise.all([
+  readFile('/conf'),
+  readFile('/privileges'),
+  readFile('/run/secrets/keys'),
+  readFile(packageFile),
+]);
+
+export const isProduction = process.env.NODE_ENV === 'production';
+export const PrivilegeLevel = {
+  Owner: 'OWNER',
+  Developer: 'DEVELOPER',
+  Moderator: 'MODERATOR',
+  HelpStaff: 'HELPSTAFF',
+} as const;
+const privilegeLevels: { [k in PL]: number } = {
+  OWNER: 4,
+  DEVELOPER: 3,
+  MODERATOR: 2,
+  HELPSTAFF: 1,
 };
+
+export function hasPrivilege(requirement: PL, testCase: PL | undefined) {
+  if (!testCase) return false;
+  return privilegeLevels[testCase] >= privilegeLevels[requirement];
+}
+export function isPrivileged(userId: string) {
+  return Object.keys(getPrivileges()).includes(userId);
+}
+
+export const config = JSON.parse(conffile.toString()) as ConfigInstance;
+const keys = JSON.parse(keyfile.toString());
+const privileges = JSON.parse(privfile.toString());
+
+export const getKeys = (prod: boolean = isProduction) =>
+  keys[prod ? 'production' : 'development'] as KeyInstance;
+export const getPrivileges = (prod: boolean = isProduction) =>
+  privileges[prod ? 'production' : 'development'] as PrivilegeInstance;
+
+const pkg = JSON.parse(pkgfile.toString());
+export const version = pkg.version as string;

@@ -5,6 +5,9 @@ const globalConfig = {
   level: process.env.SUPPRESS_LOGGING !== 'true' ? 'debug' : 'silent',
 };
 
+const localConfig = {};
+// ! FIXME
+/* 
 const localConfig =
   //process.env.NODE_ENV === 'development'
   //?
@@ -13,7 +16,7 @@ const localConfig =
       target: './dev-transport',
     },
   };
-//: {}
+//: {} */
 const logger = pino.default({ ...globalConfig, ...localConfig });
 
 export default logger;

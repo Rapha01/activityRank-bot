@@ -5,6 +5,7 @@ RUN npm ci
 COPY .swcrc ./
 
 FROM base as builder
+COPY src /usr/src/app/src
 RUN npm run build
 
 FROM node:18-slim as production

@@ -2,7 +2,7 @@ import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import guildModel from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/privilegeLevels.js';
+import { PrivilegeLevel } from 'const/config.js';
 
 registerAdminCommand({
   data: new SlashCommandBuilder()

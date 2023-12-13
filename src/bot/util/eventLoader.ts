@@ -1,7 +1,7 @@
 import { Client, type ClientEvents, type GuildMember } from 'discord.js';
 import logger from '../../util/logger.js';
 import { glob } from 'glob';
-import { eventsDir } from './paths.js';
+import { eventsDir } from 'const/paths.js';
 
 type EventCallback<T extends keyof ClientEvents> = {
   callback: (...args: T extends keyof ClientEvents ? ClientEvents[T] : unknown[]) => unknown;

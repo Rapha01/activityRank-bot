@@ -23,9 +23,9 @@ import {
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import logger from '../../util/logger.js';
-import type { PrivilegeLevel } from 'const/privilegeLevels.js';
+import type { PrivilegeLevel } from 'const/config.types.js';
 import { glob } from 'glob';
-import { adminDir, commandsDir, contextDir } from './paths.js';
+import { adminDir, commandsDir, contextDir } from 'const/paths.js';
 
 interface CommandExecutables {
   execute?: CommandFunc;

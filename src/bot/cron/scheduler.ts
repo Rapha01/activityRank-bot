@@ -3,9 +3,9 @@ import voiceXpRound from './voiceXpRound.js';
 import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
 import resetJob from './resetJob.js';
 import fct from '../../util/fct.js';
-import config from '../../const/config.js';
 import util from 'util';
 import type { Client } from 'discord.js';
+import { config } from 'const/config.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -73,7 +73,7 @@ export const start = (client: Client) => {
     }
   });
 
-  const supportGuild = client.guilds.cache.get(config.supportServerId);
+  const supportGuild = client.guilds.cache.get(config.supportServer.id);
   if (supportGuild) {
     cron.schedule(autoAssignPatreonRolesInterval, async () => {
       try {

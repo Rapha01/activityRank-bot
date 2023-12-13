@@ -1,9 +1,10 @@
 import fct from '../../util/fct.js';
-import { users } from '../../const/privilegedUsers.js';
+// import { users } from '../../const/privilegedUsers.js';
 import type { ChatInputCommandInteraction } from 'discord.js';
 import guildMemberModel from 'bot/models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
 import guildModel from 'bot/models/guild/guildModel.js';
+import { isPrivileged } from 'const/config.js';
 
 const premiumLowersCooldownMessage =
   'You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it here: https://patreon.com/rapha01/. ';
@@ -40,7 +41,7 @@ export const getCachedCooldown = (cache, field, cd) => {
 export const checkStatCommandsCooldown = async (
   interaction: ChatInputCommandInteraction<'cached'>,
 ) => {
-  if (users.includes(interaction.user.id)) return true;
+  if (isPrivileged(interaction.user.id)) return true;
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 

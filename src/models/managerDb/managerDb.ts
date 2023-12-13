@@ -1,6 +1,6 @@
+import { getKeys } from 'const/config.js';
 import mysql from 'promise-mysql';
-import { get as getKeys } from '../../const/keys.js';
-let keys = getKeys();
+const keys = getKeys();
 let pool: mysql.Pool | null;
 
 export async function query<T>(sql: string) {
@@ -71,8 +71,8 @@ export async function mgrFetch<T extends any>(body: any, route: string, method: 
     const res = await fetch(fetchURL, requestObject);
 
     return (await res.json()) as T;
-  } catch (error) {
-    throw `Fetch Error in backup.api.call(): ${error}`;
+  } catch (cause) {
+    throw new Error('Fetch error in backup.api.call()', { cause });
   }
 }
 
