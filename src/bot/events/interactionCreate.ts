@@ -19,9 +19,12 @@ import {
 import { stripIndent } from 'common-tags';
 import {
   ComponentKey,
+  INTERACTION_MAP_VERSION,
   commandMap,
   componentMap,
   contextMap,
+  customIdMap,
+  getCustomIdDropper,
   modalMap,
 } from 'bot/util/commandLoader.js';
 import { logger } from 'bot/util/logger.js';
@@ -85,24 +88,36 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
       });
     }
 
+    // TODO: refactor to clean up
     if (interaction.isMessageComponent()) {
-      const parts = interaction.customId.split(' ');
-      const key = parts[0];
-      if (key.startsWith(ComponentKey.Ignore)) return;
-      if (key === ComponentKey.Throw) throw new Error('should never occur');
-      const ref = componentMap.get(key);
-      if (ref) {
-        const opts = JSON.parse(parts[2]);
-        if (opts && opts.ownerId && interaction.user.id !== opts.ownerId) {
+      const [version, identifier, instance] = interaction.customId.split('.');
+      if (identifier === ComponentKey.Ignore) return;
+      if (identifier === ComponentKey.Throw) throw new Error('should never occur');
+      const ref = componentMap.get(identifier);
+
+      if (version !== INTERACTION_MAP_VERSION) {
+        await interaction.reply({
+          content: 'Oops! This is an old menu. Make a new one by re-running the command!',
+          ephemeral: true,
+        });
+      } else if (ref) {
+        const data = customIdMap.get(instance);
+        if (!data) {
+          await interaction.reply({
+            content: 'Oops! This menu timed out. Try again!',
+            ephemeral: true,
+          });
+        } else if (data.options.ownerId && interaction.user.id !== data.options.ownerId) {
           await interaction.reply({
             content: "Sorry, this menu isn't for you.",
             ephemeral: true,
           });
         } else {
+          const dropCustomId = getCustomIdDropper(interaction);
           // Typescript is weird and hard :(
           // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172
           // @ts-expect-error
-          await ref.callback(interaction, JSON.parse(parts[1]));
+          await ref.callback({ interaction, data: data.data, dropCustomId });
         }
       } else {
         logger.warn(
@@ -111,17 +126,30 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
         );
       }
     } else if (interaction.isModalSubmit()) {
-      const ref = modalMap.get(interaction.customId.split(' ')[0]);
-      if (ref)
-        await ref.callback(
-          interaction,
-          JSON.parse(interaction.customId.split(' ').slice(1).join(' ')),
-        );
-      else
+      const [version, identifier, instance] = interaction.customId.split('.');
+      const ref = modalMap.get(identifier);
+      if (version !== INTERACTION_MAP_VERSION) {
+        await interaction.reply({
+          content: 'Oops! This is an old menu. Make a new one by re-running the command!',
+          ephemeral: true,
+        });
+      } else if (ref) {
+        const data = customIdMap.get(instance);
+        if (!data) {
+          await interaction.reply({
+            content: 'Oops! This menu timed out. Try again!',
+            ephemeral: true,
+          });
+        } else {
+          const dropCustomId = getCustomIdDropper(interaction);
+          await ref.callback({ interaction, data: data.data, dropCustomId });
+        }
+      } else {
         logger.warn(
           interaction,
           `No modal found in map for interaction with customId ${interaction.customId}`,
         );
+      }
     } else if (interaction.isContextMenuCommand()) {
       const ref = contextMap.get(getCommandId(interaction));
 
