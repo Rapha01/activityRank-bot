@@ -16,19 +16,22 @@ async function getLastActivities(guild: Guild, userId: string): Promise<LastActi
 
   const results = await Promise.all(
     keys.map((key) =>
-      shardDb.query<{ changeDate: number }[]>(
+      shardDb.query<{ changeDate: string }[]>(
         dbHost,
         `SELECT changeDate FROM ${key} WHERE guildId = ${guild.id} AND userId = ${userId} ORDER BY changeDate LIMIT 1`,
       ),
     ),
   );
 
+  const getResult = (res: { changeDate: string }[]) =>
+    res.length > 0 ? parseInt(res[0].changeDate) : null;
+
   return {
-    textMessage: results[0].length > 0 ? results[0][0].changeDate : null,
-    voiceMinute: results[1].length > 0 ? results[1][0].changeDate : null,
-    invite: results[2].length > 0 ? results[2][0].changeDate : null,
-    vote: results[3].length > 0 ? results[3][0].changeDate : null,
-    bonus: results[4].length > 0 ? results[4][0].changeDate : null,
+    textMessage: getResult(results[0]),
+    voiceMinute: getResult(results[1]),
+    invite: getResult(results[2]),
+    vote: getResult(results[3]),
+    bonus: getResult(results[4]),
   };
 }
 
