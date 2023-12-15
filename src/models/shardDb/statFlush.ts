@@ -7,6 +7,7 @@ import type {
   StatFlushCacheGuildEntry,
 } from 'bot/statFlushCache.js';
 import type { StatType } from 'models/types/enums.js';
+import { inspect } from 'node:util';
 
 export default async function (manager: ShardingManager) {
   const hrstart = process.hrtime();
@@ -14,6 +15,8 @@ export default async function (manager: ShardingManager) {
     string,
     StatFlushCache
   >[];
+
+  manager.broadcastEval((client) => (client.statFlushCache = {}));
 
   let statFlushCache = combineShardCaches(shardCaches);
 
@@ -24,18 +27,17 @@ export default async function (manager: ShardingManager) {
   for (let dbHost in statFlushCache)
     for (let _type in statFlushCache[dbHost]) {
       const type = _type as StatType;
-      // FIXME: resolve this type error
+      if (!Object.keys(statFlushCache[dbHost][type]).length) continue;
+
       promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])!));
       count = Object.keys(statFlushCache[dbHost][type]).length;
-      counts[type] = count;
+      counts[type] ? (counts[type]! += count) : (counts[type] = count);
     }
 
   await Promise.all(promises);
 
   const hrend = process.hrtime(hrstart);
-  logger.info(
-    'Stat flush finished after ' + hrend + 's. Saved rows: ' + JSON.stringify(counts) + '',
-  );
+  logger.info(`Stat flush finished after ${hrend}s. Saved rows: ${inspect(counts)}`);
 }
 
 const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {

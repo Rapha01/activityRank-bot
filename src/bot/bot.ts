@@ -84,7 +84,9 @@ async function start() {
 }
 
 async function initClientCaches(client: Client) {
-  client.statFlushCache = new Map();
+  // statFlushCache cannot be a Map because it's fetched by the manager
+  // (which only accepts JSON-serializable objects)
+  client.statFlushCache = {};
   client.botShardStat = { commandsTotal: 0, textMessagesTotal: 0 };
   await updateTexts();
   await updateSettings();

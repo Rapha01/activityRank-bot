@@ -3,6 +3,7 @@ import levelManager from './levelManager.js';
 import type { StatType } from 'models/types/enums.js';
 import guildModel from './models/guild/guildModel.js';
 import guildMemberModel from './models/guild/guildMemberModel.js';
+import { deprecate } from 'node:util';
 
 export async function addTextMessage(
   member: GuildMember,
@@ -165,36 +166,24 @@ export interface StatFlushCache {
   bonus: Record<string, StatFlushCacheGuildEntry>;
 }
 
-const buildStatFlushCache = async (member: GuildMember, type: StatType) => {
-  const { dbHost } = await guildModel.cache.get(member.guild);
-  const { statFlushCache } = member.client;
-
-  if (!statFlushCache.has(dbHost))
-    statFlushCache.set(dbHost, {
-      textMessage: {},
-      voiceMinute: {},
-      invite: {},
-      vote: {},
-      bonus: {},
-    });
-
-  return statFlushCache.get(dbHost)![type];
-};
+const buildStatFlushCache = deprecate(async (member: GuildMember, type: StatType) => {
+  return await directlyBuildStatFlushCache(member.client, member.guild, type);
+}, 'Prefer directlyBuildStatFlushCache, which does not require a useless `member` param');
 
 const directlyBuildStatFlushCache = async (client: Client, guild: Guild, type: StatType) => {
   const { dbHost } = await guildModel.cache.get(guild);
   const { statFlushCache } = client;
 
-  if (!statFlushCache.has(dbHost))
-    statFlushCache.set(dbHost, {
+  if (!Object.keys(statFlushCache).includes(dbHost))
+    statFlushCache[dbHost] = {
       textMessage: {},
       voiceMinute: {},
       invite: {},
       vote: {},
       bonus: {},
-    });
+    };
 
-  return statFlushCache.get(dbHost)![type];
+  return statFlushCache[dbHost]![type];
 };
 
 export default {
