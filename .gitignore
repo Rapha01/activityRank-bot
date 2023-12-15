@@ -1,8 +1,7 @@
-**/keys.ts
-**/privilegedUsers.ts
-**/node_modules
+node_modules
 dist
 .private
+
 config/keys.json
 config/config.json
 config/privilege.json

@@ -34,12 +34,12 @@ registerSubCommand({
 
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(`${ComponentKey.Ignore} confirm`)
+        .setCustomId(`${ComponentKey.Ignore}.confirm`)
         .setLabel('Reset')
         .setEmoji('✅')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
-        .setCustomId(`${ComponentKey.Ignore} cancel`)
+        .setCustomId(`${ComponentKey.Ignore}.cancel`)
         .setLabel('Cancel')
         .setEmoji('❎')
         .setStyle(ButtonStyle.Secondary),
@@ -63,7 +63,7 @@ registerSubCommand({
         filter,
         time: 15_000,
       });
-      if (buttonInteraction.customId.split(' ')[1] === 'confirm') {
+      if (buttonInteraction.customId.split('.')[1] === 'confirm') {
         resetModel.resetJobs[interaction.guild.id] = {
           type: 'guildMembersStats',
           ref: interaction,

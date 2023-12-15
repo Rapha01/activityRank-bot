@@ -237,7 +237,7 @@ registerSubCommand({
 const setId = registerComponent<{ key: keyof PropertiesOfType<GuildSchema, number> }>({
   identifier: 'config-server.set',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     const myGuild = await guildModel.storage.get(interaction.guild);
 
     if (myGuild![data.key]) await guildModel.storage.set(interaction.guild, data.key, 0);
@@ -250,7 +250,7 @@ const setId = registerComponent<{ key: keyof PropertiesOfType<GuildSchema, numbe
 const closeId = registerComponent({
   identifier: 'config-server.close',
   type: ComponentType.Button,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
   },

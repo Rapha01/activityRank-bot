@@ -107,7 +107,7 @@ registerSlashCommand({
 const setWindow = registerComponent({
   identifier: 'top.window',
   type: ComponentType.StringSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await execCacheSet(interaction, 'window', interaction.values[0] as Window);
   },
 });
@@ -115,7 +115,7 @@ const setWindow = registerComponent({
 const setTime = registerComponent({
   identifier: 'top.time',
   type: ComponentType.StringSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await execCacheSet(interaction, 'time', interaction.values[0] as StatTimeInterval);
   },
 });
@@ -123,7 +123,7 @@ const setTime = registerComponent({
 const setOrdertype = registerComponent({
   identifier: 'top.otype',
   type: ComponentType.StringSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await execCacheSet(interaction, 'orderType', interaction.values[0] as OrderType);
   },
 });
@@ -131,7 +131,7 @@ const setOrdertype = registerComponent({
 const setChannel = registerComponent({
   identifier: 'top.channel',
   type: ComponentType.ChannelSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await execCacheSet(interaction, 'channel', interaction.channels.first() as GuildChannel);
   },
 });
@@ -139,7 +139,7 @@ const setChannel = registerComponent({
 const setPage = registerComponent<{ page: number }>({
   identifier: 'top.page',
   type: ComponentType.Button,
-  async callback(interaction, { page }) {
+  async callback({ interaction, data: { page } }) {
     await execCacheSet(interaction, 'page', page);
   },
 });
@@ -392,7 +392,7 @@ async function generateGuildMembers(
       else return `🔸 ${getScoreString(type, time)}`;
     };
 
-    e.addFields({ 
+    e.addFields({
       name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
         memberRank.levelProgression,
       )}`,

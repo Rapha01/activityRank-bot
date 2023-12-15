@@ -39,37 +39,38 @@ export const start = (client: Client) => {
 
   cron.schedule(logShardDiagnostics, async () => {
     try {
-      let str = '';
-      // @ts-ignore FIXME: debug & works for now - fix later
+      const attrs = {
+        presenceStatus: client.options.presence?.status,
+        wsStatus: client.ws.status,
+        wsDestroyed: client.ws['destroyed'],
+        remainingRequests: client.rest.globalRemaining,
+        cachedGuilds: client.guilds.cache.size,
+        commandsTotal: client.botShardStat.commandsTotal,
+        msgsTotal: client.botShardStat.textMessagesTotal,
+      };
+      /* 
       str += client.options.presence.status + ' ';
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.options.ws.presence.status + ' ';
       str += client.ws.status + ' ';
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.ws.destroyed + ' ';
 
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.rest.requestManager.globalRemaining + ' ';
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.rest.requestManager.hashTimer._destroyed + ' ';
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.rest.requestManager.handlerTimer._destroyed + ' ';
 
       str += client.guilds.cache.size + ' ';
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.presence.status + ' ';
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += client.presence.clientStatus + ' ';
 
-      // @ts-ignore FIXME: debug & works for now - fix later
       str += JSON.stringify(util.inspect(client.sweepers.threads)) + ' ';
 
       str += client.botShardStat.commandsTotal + ' ';
-      str += client.botShardStat.textMessagesTotal + ' ';
+      str += client.botShardStat.textMessagesTotal + ' '; 
+      */
 
-      client.logger.debug('logShardDiagnostics: ' + str);
+      client.logger.debug({ attrs }, 'Shard diagnostics');
     } catch (e) {
-      client.logger.warn(e, 'Error in logShardDiagnostics');
+      client.logger.warn(e, 'Error in shard diagnostics');
     }
   });
 

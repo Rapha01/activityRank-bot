@@ -32,7 +32,7 @@ const generateRow = (i: Interaction<'cached'>, roleId: string, myRole: GuildRole
   r[1].setCustomId(modalLaunchId({ roleId, type: 'assignMessage' }, { ownerId: i.user.id }));
   r[1].setStyle(ButtonStyle.Secondary);
 
-  r[1].setCustomId(modalLaunchId({ roleId, type: 'deassignMessage' }, { ownerId: i.user.id }));
+  r[2].setCustomId(modalLaunchId({ roleId, type: 'deassignMessage' }, { ownerId: i.user.id }));
   r[2].setStyle(ButtonStyle.Secondary);
 
   return r;
@@ -127,7 +127,7 @@ registerSubCommand({
 const clearDirectoryId = registerComponent<{ roleId: string }>({
   identifier: 'config-role.menu.clear.directory',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     await interaction.reply({
       content: 'Which message do you want to clear?',
       components: [
@@ -150,7 +150,7 @@ const clearDirectoryId = registerComponent<{ roleId: string }>({
 const clearAssignId = registerComponent<{ roleId: string; type: AssignType }>({
   identifier: 'config-role.menu.clear',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     await interaction.deferReply({ ephemeral: true });
 
     await guildRoleModel.storage.set(interaction.guild, data.roleId, data.type, '');
@@ -164,7 +164,7 @@ const clearAssignId = registerComponent<{ roleId: string; type: AssignType }>({
 const noXPToggleId = registerComponent<{ roleId: string }>({
   identifier: 'config-role.menu.noxptoggle',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data, dropCustomId }) {
     const myRole = await guildRoleModel.storage.get(interaction.guild, data.roleId);
 
     if (myRole.noXp) {
@@ -182,13 +182,14 @@ const noXPToggleId = registerComponent<{ roleId: string }>({
         _close(interaction),
       ],
     });
+    dropCustomId();
   },
 });
 
 const modalLaunchId = registerComponent<{ roleId: string; type: AssignType }>({
   identifier: 'config-role.menu.launchmodal',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     await interaction.showModal(_modal(data.roleId, data.type === 'assignMessage'));
   },
 });
@@ -197,21 +198,22 @@ const modalLaunchId = registerComponent<{ roleId: string; type: AssignType }>({
 const closeId = registerComponent({
   identifier: 'config-role.menu.close',
   type: ComponentType.Button,
-  async callback(interaction) {
+  async callback({ interaction, dropCustomId }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
+    dropCustomId();
   },
 });
 
 const modalId = registerModal<{ type: AssignType; roleId: string }>({
   identifier: 'config-role.menu.input',
-  async callback(i, data) {
+  async callback({ interaction, data }) {
     const { roleId, type } = data;
-    const value = i.fields.getTextInputValue('msg-component-1');
-    await guildRoleModel.storage.set(i.guild, roleId, type, value);
+    const value = interaction.fields.getTextInputValue('msg-component-1');
+    await guildRoleModel.storage.set(interaction.guild, roleId, type, value);
 
-    await i.deferReply({ ephemeral: true });
-    await i.followUp({
+    await interaction.deferReply({ ephemeral: true });
+    await interaction.followUp({
       content: `Set ${
         type === 'assignMessage' ? 'Assignment' : 'Deassignment'
       } Message for <@&${roleId}>`,

@@ -14,6 +14,7 @@ import type {
   UserSelectMenuInteraction,
   MentionableSelectMenuInteraction,
   Interaction,
+  MessageComponentInteraction,
 } from 'discord.js';
 import {
   SlashCommandBuilder,
@@ -26,6 +27,8 @@ import logger from '../../util/logger.js';
 import type { PrivilegeLevel } from 'const/config.types.js';
 import { glob } from 'glob';
 import { adminDir, commandsDir, contextDir } from 'const/paths.js';
+import { nanoid } from 'nanoid';
+import { Time } from '@sapphire/duration';
 
 interface CommandExecutables {
   execute?: CommandFunc;
@@ -161,10 +164,16 @@ export function registerSlashCommand(
   logger.debug(`Loaded command /${meta.data.name}`);
 }
 
-type ComponentCallback<T, D> = (interaction: T, data: D) => Promise<void> | void;
+// type ComponentCallback<T, D> = (interaction: T, data: D) => Promise<void> | void;
+type ComponentCallback<T, D> = (args: {
+  interaction: T;
+  data: D;
+  dropCustomId: () => void;
+}) => Promise<void> | void;
 
 interface Component<I extends Interaction<'cached'>, D> {
-  identifier: string;
+  // `identifier` is no longer used but retained for backwards-compat
+  identifier?: string;
   callback: ComponentCallback<I, D>;
 }
 
@@ -191,41 +200,61 @@ only a user with id ownerId may use the component.
 All others will get an error message.
 */
 // TODO refactor to clean up typings
+
+// TODO: use FIFO or some other limited-size structure?
+export const customIdMap = new Map<
+  string,
+  { data: unknown; options: { ownerId: string | null } }
+>();
+
+export const INTERACTION_MAP_VERSION = '1';
+
 function customIdBuilder<D>(identifier: string) {
-  function makeCustomId(data: D, options?: { ownerId?: string }) {
-    const res = `${identifier} ${JSON.stringify(data)} ${JSON.stringify(options)}`;
-    // TODO compress?
-    if (res.length > 100) logger.warn(res, 'too long');
-    return res;
+  function makeCustomId(data: D, options?: { ownerId?: string; timeout?: number }) {
+    const instance = nanoid(20);
+    customIdMap.set(instance, { data, options: { ownerId: options?.ownerId ?? null } });
+    setTimeout(() => customIdMap.delete(instance), options?.timeout ?? Time.Minute * 30);
+    return [INTERACTION_MAP_VERSION, identifier, instance].join('.');
   }
   return makeCustomId;
+}
+
+export function getCustomIdDropper(
+  interaction: MessageComponentInteraction | ModalSubmitInteraction,
+) {
+  return () => customIdMap.delete(interaction.customId.split('.')[1]);
 }
 
 export function registerComponent<D = string | undefined | null | void>(
   meta: ComponentRegisterData<D>,
 ) {
-  if (meta.identifier.includes(' ')) throw new Error('Component IDs cannot contain spaces.');
+  // TODO remove meta.identifer
+  // unique per-component _type_ identifier. Not unique per component _sent_.
+  // Equivalent would be `config-role.menu.launchmodal`
+  const identifier = nanoid(20);
 
-  componentMap.set(meta.identifier, {
+  componentMap.set(identifier, {
     callback: meta.callback,
     type: meta.type,
   });
 
-  logger.debug(`Loaded component ${meta.identifier}`);
+  logger.debug(`Loaded component ${identifier}`);
 
-  return customIdBuilder<D>(meta.identifier);
+  return customIdBuilder<D>(identifier);
 }
 
 type ModalRegisterData<D> = Component<ModalSubmitInteraction<'cached'>, D>;
 
 export function registerModal<D>(meta: ModalRegisterData<D>) {
-  if (meta.identifier.includes(' ')) throw new Error('Modal Component IDs cannot contain spaces.');
+  // unique per-component _type_ identifier. Not unique per component _sent_.
+  // Equivalent would be `config-role.menu.infmodal`
+  const identifier = nanoid(20);
 
-  modalMap.set(meta.identifier, { callback: meta.callback });
+  modalMap.set(identifier, { callback: meta.callback });
 
-  logger.debug(`Loaded modal ${meta.identifier}`);
+  logger.debug(`Loaded modal ${identifier}`);
 
-  return customIdBuilder<D>(meta.identifier);
+  return customIdBuilder<D>(identifier);
 }
 
 export function registerAdminCommand(meta: {

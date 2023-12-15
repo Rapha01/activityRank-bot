@@ -54,7 +54,7 @@ registerSlashCommand({
 const selectId = registerComponent({
   identifier: 'help.sel',
   type: ComponentType.StringSelect,
-  callback: async function (interaction) {
+  async callback({ interaction }) {
     let e = interaction.message.embeds[0].toJSON();
     const { commands } = await getTexts();
     e = helpFeatureEmbed(commands[interaction.values[0] as keyof TextsCommands]).toJSON();
@@ -65,7 +65,7 @@ const selectId = registerComponent({
 const closeId = registerComponent({
   identifier: 'help.cls',
   type: ComponentType.Button,
-  callback: async function (interaction) {
+  async callback({ interaction }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
   },

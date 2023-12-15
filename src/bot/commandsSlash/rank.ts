@@ -83,7 +83,7 @@ registerSlashCommand({
 const pageId = registerComponent<{ page: number }>({
   identifier: 'rank.page',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     await execCacheSet(interaction, 'page', data.page);
   },
 });
@@ -91,15 +91,15 @@ const pageId = registerComponent<{ page: number }>({
 const windowId = registerComponent<CacheInstance['window']>({
   identifier: 'rank.window',
   type: ComponentType.Button,
-  async callback(interaction, window) {
-    await execCacheSet(interaction, 'window', window);
+  async callback({ interaction, data }) {
+    await execCacheSet(interaction, 'window', data);
   },
 });
 
 const timeId = registerComponent({
   identifier: 'rank.time',
   type: ComponentType.StringSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     const time = interaction.values[0];
     await execCacheSet(interaction, 'time', time as StatTimeInterval);
   },

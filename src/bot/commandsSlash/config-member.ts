@@ -77,7 +77,7 @@ registerSlashCommand({
 const closeId = registerComponent({
   type: ComponentType.Button,
   identifier: 'config-member.close',
-  async callback(interaction) {
+  async callback({ interaction }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
   },
@@ -88,7 +88,7 @@ const toggleId = registerComponent<{
 }>({
   type: ComponentType.Button,
   identifier: 'config-member.toggle',
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     const cachedGuild = await guildModel.cache.get(interaction.guild);
     const myGuildMember = await guildMemberModel.storage.get(
       interaction.guild,
