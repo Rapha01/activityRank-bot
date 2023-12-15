@@ -113,7 +113,7 @@ registerSlashCommand({
 const clearBtnId = registerComponent({
   identifier: 'config-messages.open-clearmenu',
   type: ComponentType.Button,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await interaction.reply({
       content: 'Which message do you want to clear?',
       components: [
@@ -137,7 +137,7 @@ const clearBtnId = registerComponent({
 const clearMsgId = registerComponent({
   identifier: 'config-messages.clear-message',
   type: ComponentType.StringSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     const clearItem = interaction.values[0] as ServerMessage;
     await guildModel.storage.set(interaction.guild, clearItem, '');
 
@@ -148,7 +148,7 @@ const clearMsgId = registerComponent({
 const editSelectId = registerComponent({
   identifier: 'config-messages.edit-message',
   type: ComponentType.StringSelect,
-  async callback(interaction) {
+  async callback({ interaction }) {
     const editItem = interaction.values[0] as ServerMessage;
     await interaction.showModal(_modal(editItem));
   },
@@ -156,7 +156,7 @@ const editSelectId = registerComponent({
 
 const setModalId = registerModal<{ message: ServerMessage }>({
   identifier: 'config-messages.set',
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     const value = interaction.fields.getTextInputValue('msg-component-1');
     await interaction.deferReply({ ephemeral: true });
 

@@ -58,7 +58,7 @@ type WindowFn = (args: {
 const setWindow = registerComponent<{ window: string; page: number }>({
   identifier: 'serverinfo.window',
   type: ComponentType.StringSelect,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     const myGuild = await guildModel.storage.get(interaction.guild);
     const page = fct.extractPageSimple(data.page, myGuild!.entriesPerPage);
 
@@ -79,7 +79,7 @@ const setWindow = registerComponent<{ window: string; page: number }>({
 const setPage = registerComponent<{ window: string; page: number }>({
   identifier: 'serverinfo.page',
   type: ComponentType.Button,
-  async callback(interaction, data) {
+  async callback({ interaction, data }) {
     const myGuild = await guildModel.storage.get(interaction.guild);
     const page = fct.extractPageSimple(data.page, myGuild!.entriesPerPage);
 
@@ -100,7 +100,7 @@ const setPage = registerComponent<{ window: string; page: number }>({
 const closeMsg = registerComponent({
   identifier: 'serverinfo.close',
   type: ComponentType.Button,
-  async callback(interaction) {
+  async callback({ interaction }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
   },
@@ -180,10 +180,10 @@ const info: WindowFn = async ({ interaction, myGuild }) => {
   const notifyLevelupType = myGuild.notifyLevelupDm
     ? 'DM'
     : myGuild.notifyLevelupCurrentChannel
-    ? 'Current Channel'
-    : myGuild.autopost_levelup
-    ? '#' + nameUtil.getChannelName(interaction.guild.channels.cache, myGuild.autopost_levelup)
-    : 'None';
+      ? 'Current Channel'
+      : myGuild.autopost_levelup
+        ? '#' + nameUtil.getChannelName(interaction.guild.channels.cache, myGuild.autopost_levelup)
+        : 'None';
 
   e.addFields({
     name: '**General**',
