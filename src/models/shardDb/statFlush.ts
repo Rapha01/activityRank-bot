@@ -16,9 +16,13 @@ export default async function (manager: ShardingManager) {
     StatFlushCache
   >[];
 
+  // console.debug('Shard caches ', inspect(shardCaches, { depth: 4 }));
+
   manager.broadcastEval((client) => (client.statFlushCache = {}));
 
   let statFlushCache = combineShardCaches(shardCaches);
+
+  // console.debug('Combined Cache ', inspect(statFlushCache, { depth: 4 }));
 
   let promises = [],
     count = 0;
@@ -42,27 +46,34 @@ export default async function (manager: ShardingManager) {
 
 const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
   let statFlushCache: Record<string, StatFlushCache> = {};
+  /* 
+  ! THIS CODE DOES NOT WORK.
+  This was attempted to simplify. 
+  It caused an error of discarding some shards.
+  TODO: simplify & cleanup.
+
   for (const shard of shardCaches) {
     for (const dbHost in shard) {
       statFlushCache[dbHost] = shard[dbHost];
     }
-  }
+  } */
 
-  /* for (const shard of shardCaches) {
+  for (const shard of shardCaches) {
     for (const dbHost in shard) {
-      if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {};
+      if (!statFlushCache[dbHost]) statFlushCache[dbHost] = {} as StatFlushCache;
 
       for (const type in shard[dbHost]) {
         if (!statFlushCache[dbHost][type as StatType])
           statFlushCache[dbHost][type as StatType] = {};
 
+        // @ts-expect-error See above; needs cleanup
         statFlushCache[dbHost][type as StatType] = {
           ...statFlushCache[dbHost][type as StatType],
           ...shard[dbHost][type as StatType],
         };
       }
     }
-  } */
+  }
 
   return statFlushCache;
 };
