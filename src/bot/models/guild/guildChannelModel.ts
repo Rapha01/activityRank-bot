@@ -127,7 +127,9 @@ async function buildCache(channel: GuildBasedChannel): Promise<CachedGuildChanne
 
   const db = foundCache.length > 0 ? foundCache[0] : { ...(await loadDefaultCache(dbHost)) };
 
-  return { db };
+  const res = { db };
+  channelCache.set(channel, res);
+  return res;
 }
 
 const loadDefaultCache = async (dbHost: string) => {

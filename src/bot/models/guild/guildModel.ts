@@ -142,7 +142,9 @@ async function buildCache(guild: Guild): Promise<CachedGuild> {
   }
 
   const cachedGuild = cache[0]!;
-  return { cache: {}, db: cachedGuild, dbHost };
+  const res = { cache: {}, db: cachedGuild, dbHost };
+  guildCache.set(guild, res);
+  return res;
 }
 
 const getDbHost = async (guildId: string): Promise<string> => {
