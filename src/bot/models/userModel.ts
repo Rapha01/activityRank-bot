@@ -115,7 +115,9 @@ async function buildCache(user: User): Promise<CachedUser> {
 
   const db = foundCache.length > 0 ? foundCache[0] : { ...(await loadDefaultCache(dbHost)) };
 
-  return { dbHost, db, cache: {} };
+  const res = { dbHost, db, cache: {} };
+  userCache.set(user, res);
+  return res;
 }
 
 async function getDbHost(userId: string): Promise<string> {

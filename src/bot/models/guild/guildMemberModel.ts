@@ -29,6 +29,7 @@ export const memberCache = new WeakMap<GuildMember, CachedGuildMember>();
 
 export const cache = {
   get: async function (member: GuildMember): Promise<CachedGuildMember> {
+    console.log('getting member', memberCache.has(member));
     if (memberCache.has(member)) return memberCache.get(member)!;
     return await buildCache(member);
   },
@@ -150,7 +151,10 @@ async function buildCache(member: GuildMember): Promise<CachedGuildMember> {
 
   const db = foundCache.length > 0 ? foundCache[0] : { ...(await loadDefaultCache(dbHost)) };
 
-  return { db, cache: {} };
+  const res = { db, cache: {} };
+  memberCache.set(member, res);
+
+  return res;
 }
 
 const loadDefaultCache = async (dbHost: string) => {

@@ -134,7 +134,9 @@ const buildCache = async (role: Role): Promise<CachedRole> => {
 
   const db = foundCache.length > 0 ? foundCache[0] : await loadDefaultCache(dbHost);
 
-  return { db };
+  const res = { db };
+  roleCache.set(role, res);
+  return res;
 };
 
 const loadDefaultCache = async (dbHost: string) => {
