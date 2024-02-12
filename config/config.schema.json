@@ -33,6 +33,9 @@
         "admin": { "type": "string" }
       },
       "additionalProperties": false
+    },
+    "disablePatreon": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false

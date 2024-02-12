@@ -75,7 +75,7 @@ export const start = (client: Client) => {
   });
 
   const supportGuild = client.guilds.cache.get(config.supportServer.id);
-  if (supportGuild) {
+  if (supportGuild && !config.disablePatreon) {
     cron.schedule(autoAssignPatreonRolesInterval, async () => {
       try {
         await autoAssignPatreonRoles(supportGuild);
