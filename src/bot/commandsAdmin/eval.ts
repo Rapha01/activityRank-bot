@@ -59,7 +59,12 @@ registerAdminCommand({
     console.log('Eval used\n\n', code, '\n\n');
 
     try {
-      result = eval(code);
+      // add context to eval (accessed via `this`)
+      const ctx = { interaction, client: interaction.client };
+
+      result = function (str: string) {
+        return eval(str);
+      }.call(ctx, code);
     } catch (err) {
       if (err && err instanceof Error && err.stack) {
         console.error('Error found in eval command', err);
