@@ -9,6 +9,7 @@ export interface ConfigInstance {
     standard: string;
     admin: string;
   };
+  disablePatreon?: boolean;
 }
 
 export interface KeyInstance {
