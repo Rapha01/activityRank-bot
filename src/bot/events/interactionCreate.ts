@@ -168,7 +168,8 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
         );
       }
     } else if (interaction.isChatInputCommand()) {
-      const ref = commandMap.get(getCommandId(interaction));
+      const ref =
+        commandMap.get(getCommandId(interaction)) ?? commandMap.get(interaction.commandName);
 
       interaction.client.botShardStat.commandsTotal++;
 
