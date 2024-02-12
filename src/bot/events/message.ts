@@ -30,6 +30,11 @@ registerEvent(Events.MessageCreate, async function (message) {
   if (message.content && mentionRegex.test(message.content))
     await message.reply('This test is successful. The bot is up and running.');
 
+  if (!message.channel) {
+    // TODO: find why this might occur
+    message.client.logger.warn({ message }, 'Message.channel undefined');
+  }
+
   if (cachedGuild.db.textXp && acceptedChannelTypes.includes(message.channel.type))
     await rankMessage(message);
 });
