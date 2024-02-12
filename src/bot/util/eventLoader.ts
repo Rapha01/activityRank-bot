@@ -33,7 +33,7 @@ export async function loadEventFiles() {
   await Promise.all(eventFiles.map(async (file) => await import(file)));
 }
 
-export async function loadEvents(client: Client) {
+export function loadEvents(client: Client) {
   for (const [event, opts] of eventMap.entries()) {
     // descending order: higher numbers are loaded first
     for (const opt of opts.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))) {
