@@ -26,7 +26,7 @@ registerAdminCommand({
     )
     .addBooleanOption((o) =>
       o
-        .setName('showHidden')
+        .setName('show-hidden')
         .setDescription('Whether or not to show hidden properties when inspecting the result'),
     )
     .addBooleanOption((o) =>
@@ -51,10 +51,12 @@ registerAdminCommand({
     if (async) code = `(async () => {\n${code}\n})();`;
 
     const depth = interaction.options.getInteger('depth') ?? 3;
-    const showHidden = interaction.options.getBoolean('showHidden') ?? false;
+    const showHidden = interaction.options.getBoolean('show-hidden') ?? false;
 
     let success = true;
     let result = null;
+
+    console.log('Eval used\n\n', code, '\n\n');
 
     try {
       result = eval(code);
