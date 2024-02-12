@@ -1,4 +1,4 @@
-import { Client, Options, GatewayIntentBits } from 'discord.js';
+import { Client, Options, GatewayIntentBits, Events } from 'discord.js';
 import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
@@ -59,22 +59,25 @@ start();
 
 async function start() {
   try {
+    client.logger = loggerManager.init(client.shard!.ids);
+    client.logger.info('Initialising...');
+
     await initClientCaches(client);
 
-    await client.login();
-
-    client.logger = loggerManager.init(client.shard!.ids);
-    client.logger.info('Logged in');
-
     try {
+      client.logger.info('Loading pieces...');
       await loadCommandFiles();
       await loadEventFiles();
-      await fct.sleep(1000);
-      await loadEvents(client);
+      loadEvents(client);
+      client.logger.info('Pieces loaded');
     } catch (e) {
       client.logger.warn(e, 'Error while loading in shard');
       await fct.waitAndReboot(3_000);
     }
+
+    client.logger.info('Logging in...');
+
+    await client.login();
 
     client.logger.info('Initialized');
   } catch (e) {
