@@ -291,6 +291,7 @@ async function executeBans(
             .setLabel('Appeal'),
         ),
       ],
+      ephemeral: true,
     });
     return true;
   }
