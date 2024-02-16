@@ -29,7 +29,7 @@ registerAdminCommand({
             .setRequired(true),
         ),
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers | PermissionFlagsBits.ManageGuild),
   requiredPrivilege: PrivilegeLevel.Developer,
   execute: async function (interaction) {
     const sc = interaction.options.getSubcommand();
