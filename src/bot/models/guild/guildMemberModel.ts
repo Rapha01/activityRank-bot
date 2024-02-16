@@ -151,12 +151,7 @@ async function buildCache(member: GuildMember): Promise<CachedGuildMember> {
 
   const db = foundCache.length > 0 ? foundCache[0] : { ...(await loadDefaultCache(dbHost)) };
 
-  const res = {
-    db,
-    cache: {
-      totalXp: parseInt(await rankModel.getGuildMemberTotalScore(member.guild, member.id)),
-    },
-  };
+  const res = { db, cache: {} };
   memberCache.set(member, res);
 
   return res;
