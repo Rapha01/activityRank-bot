@@ -11,20 +11,25 @@ export async function checkLevelUp(
   oldTotalScore: number,
   newTotalScore: number,
 ) {
-  let roleMessages;
+  member.client.logger.debug(
+    { memberId: member.id, oldTotalScore, newTotalScore },
+    'checking levelup',
+  );
+
   const cachedGuild = await guildModel.cache.get(member.guild);
 
   const oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, cachedGuild.db.levelFactor));
   const newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, cachedGuild.db.levelFactor));
 
-  if (oldLevel != newLevel) roleMessages = await checkRoleAssignment(member, newLevel);
+  member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
 
-  // Send Message
   if (oldLevel >= newLevel) return;
-
-  await sendGratulationMessage(member, roleMessages!, newLevel).catch((e) =>
-    member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
-  );
+  if (oldLevel != newLevel) {
+    const roleMessages = await checkRoleAssignment(member, newLevel);
+    await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
+      member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
+    );
+  }
 }
 
 export async function checkRoleAssignment(member: GuildMember, level: number) {
@@ -37,9 +42,14 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 
   const cachedGuild = await guildModel.cache.get(member.guild);
 
-  for (const _role of roles) {
-    const role = _role[1];
+  member.client.logger.debug(
+    { memberId: member.id, guildId: member.guild.id, level },
+    'checking roleAssigment',
+  );
+
+  for (const role of roles.values()) {
     const cachedRole = await guildRoleModel.cache.get(role);
+    member.client.logger.debug({ cachedRole }, 'processing role');
 
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
@@ -56,7 +66,13 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
       }
     } else if (cachedRole.db.assignLevel != 0 && level >= cachedRole.db.assignLevel) {
       // User is within role. Assign or do nothing.
+
+      if (role.permissions.has(PermissionFlagsBits.ManageGuild, true)) {
+        member.client.logger.warn({ role, cachedRole }, 'attempted to assign dangerous role');
+        continue;
+      }
       if (!memberHasRole) {
+        member.client.logger.debug({ roleId: role.id }, 'assigning role');
         await member.roles.add(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
