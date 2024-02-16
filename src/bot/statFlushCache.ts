@@ -128,11 +128,11 @@ export const addBonus = async (member: GuildMember, count: number) => {
 const addTotalXp = async (member: GuildMember, xp: number) => {
   const cachedMember = await guildMemberModel.cache.get(member);
 
-  const oldTotalXp = cachedMember.cache.totalXp;
-  cachedMember.cache.totalXp! += xp;
+  const oldTotalXp = cachedMember.cache.totalXp ?? 0;
+  cachedMember.cache.totalXp = oldTotalXp + xp;
   const newTotalXp = cachedMember.cache.totalXp;
 
-  await levelManager.checkLevelUp(member, oldTotalXp!, newTotalXp!);
+  await levelManager.checkLevelUp(member, oldTotalXp, newTotalXp);
 };
 
 // beta function
