@@ -2,7 +2,7 @@
   Code adapted from @sapphiredev (code owned by @favna), under the *Unlicense*
   https://github.com/sapphiredev/examples/blob/main/examples/with-typescript-complete/src/commands/General/eval.ts
  */
-import { SlashCommandBuilder, codeBlock } from 'discord.js';
+import { PermissionFlagsBits, SlashCommandBuilder, codeBlock } from 'discord.js';
 import { registerAdminCommand } from 'bot/util/commandLoader.js';
 import { PrivilegeLevel } from 'const/config.js';
 import { inspect } from 'util';
@@ -32,7 +32,7 @@ registerAdminCommand({
     .addBooleanOption((o) =>
       o.setName('visible').setDescription('Whether the result should be non-ephemeral'),
     )
-    .setDefaultMemberPermissions('0'),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers | PermissionFlagsBits.ManageGuild),
   requiredPrivilege: PrivilegeLevel.Developer,
   execute: async function (interaction) {
     if (!['370650814223482880', '774660568728469585'].includes(interaction.user.id)) {
