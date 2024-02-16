@@ -4,6 +4,7 @@ import type { Guild, GuildMember } from 'discord.js';
 import type { GuildMemberSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
 import guildModel from './guildModel.js';
+import rankModel from '../rankModel.js';
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const;
 let defaultCache: CachedDbFields | null = null;
@@ -29,7 +30,6 @@ export const memberCache = new WeakMap<GuildMember, CachedGuildMember>();
 
 export const cache = {
   get: async function (member: GuildMember): Promise<CachedGuildMember> {
-    console.log('getting member', memberCache.has(member));
     if (memberCache.has(member)) return memberCache.get(member)!;
     return await buildCache(member);
   },
