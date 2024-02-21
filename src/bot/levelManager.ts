@@ -49,7 +49,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 
   for (const role of roles.values()) {
     const cachedRole = await guildRoleModel.cache.get(role);
-    member.client.logger.debug({ cachedRole }, 'processing role');
+    member.client.logger.debug({ cachedRole, role }, 'processing role');
 
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
