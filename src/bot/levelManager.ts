@@ -49,7 +49,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 
   for (const role of roles.values()) {
     const cachedRole = await guildRoleModel.cache.get(role);
-    member.client.logger.debug({ cachedRole }, 'processing role');
+    member.client.logger.debug({ cachedRole, role }, 'processing role');
 
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
@@ -67,7 +67,14 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
     } else if (cachedRole.db.assignLevel != 0 && level >= cachedRole.db.assignLevel) {
       // User is within role. Assign or do nothing.
 
-      if (role.permissions.has(PermissionFlagsBits.ManageGuild, true)) {
+      if (
+        role.permissions.has(PermissionFlagsBits.ManageGuild, true) ||
+        role.permissions.has(PermissionFlagsBits.KickMembers, true) ||
+        role.permissions.has(PermissionFlagsBits.BanMembers, true) ||
+        role.permissions.has(PermissionFlagsBits.ManageChannels, true) ||
+        role.permissions.has(PermissionFlagsBits.ManageEvents, true) ||
+        role.permissions.has(PermissionFlagsBits.ManageMessages, true)
+      ) {
         member.client.logger.warn({ role, cachedRole }, 'attempted to assign dangerous role');
         continue;
       }

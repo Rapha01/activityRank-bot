@@ -140,7 +140,8 @@ const buildCache = async (role: Role): Promise<CachedRole> => {
 };
 
 const loadDefaultCache = async (dbHost: string) => {
-  if (defaultCache) return defaultCache;
+  // clone defaultCache
+  if (defaultCache) return Object.assign({}, defaultCache);
 
   let res = await shardDb.query<GuildRoleSchema[]>(
     dbHost,
