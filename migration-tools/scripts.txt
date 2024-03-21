@@ -1,2 +1,0 @@
-node --experimental-import-meta-resolve exports-to-default.mjs src 2>&1 | tee logs/exports-to-default.log
-node --experimental-import-meta-resolve relative-named-imports.mjs src 2>&1 | tee logs/relative-named-imports.log
