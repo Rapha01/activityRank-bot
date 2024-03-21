@@ -1,8 +1,8 @@
 {
   "name": "activity-rank-bot",
+  "private": true,
   "version": "5.1.0",
-  "description": "ActivityRank Bot",
-  "exports": "./src/app.js",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
     "production": "NODE_ENV=production node ./src/app.js",
@@ -15,13 +15,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Linck01/activityRankBot.git"
+    "url": "git+https://github.com/Rapha01/activityRank-bot.git"
   },
-  "keywords": [
-    "discord",
-    "bot",
-    "rank"
-  ],
   "dependencies": {
     "@discordjs/rest": "^2.2.0",
     "@sapphire/duration": "^1.1.2",
@@ -38,7 +33,6 @@
     "promise-mysql": "^5.2.0",
     "public-ip": "^6.0.1"
   },
-  "author": "Linck",
   "devDependencies": {
     "@swc/cli": "^0.1.63",
     "@swc/core": "^1.3.96",
@@ -54,7 +48,6 @@
     "prettier": "^3.2.5",
     "typescript": "^5.3.3"
   },
-  "license": "",
   "nodemonConfig": {
     "delay": 2500,
     "ext": "js,ts",

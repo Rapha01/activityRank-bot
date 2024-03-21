@@ -41,6 +41,14 @@ registerSubCommand({
       assignLevel: interaction.options.getInteger('assign-level'),
       deassignLevel: interaction.options.getInteger('deassign-level'),
     };
+
+    if (items.assignLevel && items.deassignLevel && items.assignLevel >= items.deassignLevel) {
+      return await interaction.reply({
+        content: `Using an assignLevel higher than a deassignLevel will not work: the role gets removed as soon as it gets added!\n Did you mean: \`assign-level:${items.deassignLevel} deassign-level:${items.assignLevel}`,
+        ephemeral: true,
+      });
+    }
+
     if (Object.values(items).every((x) => x === null)) {
       return await interaction.reply({
         content: 'You must specify at least one option for this command to do anything!',

@@ -32,7 +32,7 @@ const componentId = registerComponent<{
 }>({
   identifier: 'config-channel.set',
   type: ComponentType.Button,
-  async callback ({interaction, data}) {
+  async callback({ interaction, data }) {
     const { channelId, type, setting } = data;
 
     let myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
@@ -119,7 +119,7 @@ const generateRow = (
 const closeId = registerComponent({
   identifier: 'config-channel.cls',
   type: ComponentType.Button,
-  async callback ({interaction}) {
+  async callback({ interaction }) {
     await interaction.deferUpdate();
     return await interaction.deleteReply();
   },
