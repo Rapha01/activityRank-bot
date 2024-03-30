@@ -1,11 +1,11 @@
 {
-  "name": "activityRankManager",
+  "name": "activity-rank-manager",
   "version": "4.0.0",
   "description": "ActivityRank Manager",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "production": "NODE_ENV=production node ./app",
-    "development": "NODE_ENV=development node ./app",
+    "production": "NODE_ENV=production node ./src/app.js",
+    "development": "NODE_ENV=development node ./src/app.js",
     "developmentNodemon": "nodemon --legacy-watch"
   },
   "dependencies": {
