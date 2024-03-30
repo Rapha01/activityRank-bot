@@ -1,27 +1,46 @@
+<div align="center">
+
+![ActivityRank Wordmark](https://raw.githubusercontent.com/activityrankbot/assets/main/banners/wordmark.png)
+
 # ActivityRank Manager
-Manager server responsible for routing database shard queries, handling webhooks and creating statistics.
 
-[Live Bot Invite Link](https://discord.com/oauth2/authorize?client_id=534589798267224065&permissions=2114448593&scope=bot)
+**The management module powering the ActivityRank Bot**
 
-## Other Repos
+<!-- [![Latest Release](https://img.shields.io/github/v/release/Rapha01/activityRank-manager?style=for-the-badge)](https://github.com/Rapha01/activityRank-manager/releases) -->
 
-### [Bot](https://github.com/Linck01/activityRankBot)
-Sharded bot capable of running distributed on multiple machines.
+[![License](https://img.shields.io/github/license/Rapha01/activityRank-manager?style=for-the-badge)](https://github.com/Rapha01/activityRank-manager/blob/main/LICENSE.txt)
+[![Support Server](https://img.shields.io/discord/534598374985302027?style=for-the-badge&logo=discord&label=support%20server&link=https%3A%2F%2Factivityrank.me/support)](https://activityrank.me/support)
 
-### [DB](https://github.com/Linck01/activityRankDb)
-Docker script for one database shard instance.
+</div>
 
-### [Website](https://github.com/Linck01/activityRankWebsite)
+---
+
+## Description
+
+ActivityRank is a Discord bot focusing on flexible statistics and ranking.
+This repository hosts the source code for the manager that enables higher-level management,
+such as handling webhooks and routing shard queries.
+
+The bot can be invited using [this link.](https://activityrank.me/invite)
+
+## See Also:
+
+### [Bot](https://github.com/Linck01/activityRank-bot)
+
+Sharded bot capable of running in a distributed form across multiple servers.
+
+### [Website](https://github.com/activityrankbot/website)
+
 Website with features, commands and patchnotes for the bot.
 
-## Docker
+## Contributors
+
+Thank you for deciding to contribute! Pull requests are welcome.
+For major changes, please open an issue first to discuss what you would like to change.
+
+When running with Docker, we recommend the following scripts, depending on environment:
+
 ```bash
-docker-compose -f docker-compose-developmentNodemon.yml up
-docker-compose -f docker-compose-production.yml up
+docker compose up
+docker compose -f docker-compose.prod.yml up
 ```
-
-## Support and Inquiries
-Please visit our support discord server: https://discord.com/invite/DE3eQ8H
-
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
