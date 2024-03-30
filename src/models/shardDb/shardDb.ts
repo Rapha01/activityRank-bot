@@ -1,4 +1,4 @@
-import mysql from 'promise-mysql';
+import mysql from 'mysql2/promise';
 import managerDb from '../managerDb/managerDb.js';
 import { getKeys } from 'const/config.js';
 
@@ -7,7 +7,7 @@ const pools: Record<string, mysql.Pool> = {};
 
 export async function query<T>(dbHost: string, sql: string) {
   if (!pools[dbHost]) await createPool(dbHost);
-  return await pools[dbHost]!.query<T>(sql);
+  return (await pools[dbHost]!.query(sql))[0] as T;
 }
 
 export async function queryAllHosts<T>(sql: string) {
@@ -28,21 +28,9 @@ async function createPool(dbHost: string) {
       user: keys.shardDb.dbUser,
       password: keys.shardDb.dbPassword,
       database: keys.shardDb.dbName,
-      dateStrings: ['DATE'],
       charset: 'utf8mb4',
       supportBigNumbers: true,
-      bigNumberStrings: true,
       connectionLimit: 3,
-    });
-
-    pools[dbHost].on('error', function (err) {
-      console.log('ShardDb pool error.');
-      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log('PROTOCOL_CONNECTION_LOST for shardDb @' + dbHost + '. Deleting connection.');
-        delete pools[dbHost];
-      } else {
-        throw err;
-      }
     });
 
     console.log('Connected to dbShard ' + dbHost);
