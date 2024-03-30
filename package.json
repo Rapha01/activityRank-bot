@@ -31,7 +31,6 @@
     "node-emoji": "^2.1.3",
     "pino": "^8.18.0",
     "pretty-ms": "^8.0.0",
-    "promise-mysql": "^5.2.0",
     "public-ip": "^6.0.1"
   },
   "devDependencies": {
