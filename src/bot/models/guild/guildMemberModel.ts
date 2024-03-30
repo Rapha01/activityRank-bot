@@ -1,5 +1,5 @@
 import shardDb from '../../../models/shardDb/shardDb.js';
-import mysql from 'promise-mysql';
+import { escape } from 'mysql2/promise';
 import type { Guild, GuildMember } from 'discord.js';
 import type { GuildMemberSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
@@ -44,7 +44,7 @@ export const storage = {
     const { dbHost } = await guildModel.cache.get(guild);
     const res = await shardDb.query<GuildMemberSchema[]>(
       dbHost,
-      `SELECT * FROM guildMember WHERE guildId = ${guild.id} && userId = ${mysql.escape(userId)}`,
+      `SELECT * FROM guildMember WHERE guildId = ${guild.id} && userId = ${escape(userId)}`,
     );
 
     if (res.length == 0) {
@@ -69,9 +69,9 @@ export const storage = {
 
     await shardDb.query(
       dbHost,
-      `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${mysql.escape(
+      `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${escape(
         userId,
-      )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`,
     );
 
     const member = guild.members.cache.get(userId);
@@ -93,11 +93,9 @@ export const storage = {
 
     await shardDb.query(
       dbHost,
-      `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${mysql.escape(
+      `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${escape(
         userId,
-      )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(
-        value,
-      )}`,
+      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${escape(value)}`,
     );
 
     const member = guild.members.cache.get(userId);

@@ -1,6 +1,6 @@
 import type { Guild, GuildBasedChannel } from 'discord.js';
 import shardDb from '../../../models/shardDb/shardDb.js';
-import mysql from 'promise-mysql';
+import { escape } from 'mysql2/promise';
 import type {
   GuildChannelSchema,
   TextMessageSchema,
@@ -36,9 +36,7 @@ export const storage = {
     const { dbHost } = await guildModel.cache.get(guild);
     const res = await shardDb.query<GuildChannelSchema[]>(
       dbHost,
-      `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${mysql.escape(
-        channelId,
-      )}`,
+      `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${escape(channelId)}`,
     );
 
     if (res.length == 0) {
@@ -62,9 +60,9 @@ export const storage = {
     const { dbHost } = await guildModel.cache.get(guild);
     await shardDb.query(
       dbHost,
-      `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${mysql.escape(
+      `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${escape(
         channelId,
-      )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`,
     );
 
     const channel = guild.channels.cache.get(channelId);

@@ -1,6 +1,6 @@
 import { publicIpv4 } from 'public-ip';
 import managerDb from '../models/managerDb/managerDb.js';
-import { escape } from 'promise-mysql';
+import { escape } from 'mysql2/promise';
 import type { Client, ShardingManager } from 'discord.js';
 
 function _save(client: Client) {

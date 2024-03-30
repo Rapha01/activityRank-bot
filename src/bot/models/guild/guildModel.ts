@@ -1,6 +1,6 @@
 import shardDb from '../../../models/shardDb/shardDb.js';
 import managerDb from '../../../models/managerDb/managerDb.js';
-import mysql from 'promise-mysql';
+import { escape } from 'mysql2/promise';
 import type { Guild } from 'discord.js';
 import type { GuildSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
@@ -86,7 +86,7 @@ export const storage = {
     const cachedGuild = await cache.get(guild);
     await shardDb.query(
       cachedGuild.dbHost,
-      `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
+      `UPDATE guild SET ${field} = ${escape(value)} WHERE guildId = ${guild.id}`,
     );
 
     if (isCachableDbKey(field)) {
@@ -101,7 +101,7 @@ export const storage = {
     const cachedGuild = await cache.get(guild);
     await shardDb.query(
       cachedGuild.dbHost,
-      `UPDATE guild SET ${field} = ${field} + ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
+      `UPDATE guild SET ${field} = ${field} + ${escape(value)} WHERE guildId = ${guild.id}`,
     );
 
     if (isCachableDbKey(field)) {
