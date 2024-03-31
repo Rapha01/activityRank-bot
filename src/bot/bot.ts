@@ -49,6 +49,21 @@ const client = new Client({
       },
     ],
   },
+  makeCache: Options.cacheWithLimits({
+    ...Options.DefaultMakeCacheSettings,
+    ApplicationCommandManager: 0,
+    AutoModerationRuleManager: 0,
+    BaseGuildEmojiManager: 0,
+    DMMessageManager: 0,
+    GuildBanManager: 0,
+    GuildEmojiManager: 0,
+    GuildInviteManager: 0,
+    PresenceManager: 0,
+    GuildScheduledEventManager: 0,
+    GuildStickerManager: 0,
+    ReactionManager: 0,
+    ReactionUserManager: 0,
+  }),
 });
 
 // Adjusts number of threads allocated by libuv
