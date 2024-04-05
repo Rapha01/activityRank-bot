@@ -13,7 +13,7 @@ const intents = [
   GatewayIntentBits.GuildMembers,
   // FLAGS.GUILD_BANS,
   // FLAGS.GUILD_EMOJIS_AND_STICKERS,
-  GatewayIntentBits.GuildIntegrations,
+  // GatewayIntentBits.GuildIntegrations,
   // FLAGS.GUILD_WEBHOOKS,
   GatewayIntentBits.GuildVoiceStates,
   GatewayIntentBits.GuildMessages,
