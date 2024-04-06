@@ -1,5 +1,10 @@
 version: '3.3'
 name: activityrank-manager
+
+secrets:
+  keys:
+    file: ./config/keys.json
+
 services:
   mysql:
     container_name: activityrank.manager.db
@@ -20,9 +25,12 @@ services:
     restart: always
     init: true
     build: .
+    image: 'activityrank/manager:dev'
     depends_on:
       - mysql
     links:
       - mysql
     ports:
       - '3005:3000'
+    secrets:
+      - keys
