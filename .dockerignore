@@ -1,0 +1,9 @@
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+.nitro
+.output
+.git
+dist
+README.md
