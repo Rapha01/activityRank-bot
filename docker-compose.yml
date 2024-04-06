@@ -18,6 +18,7 @@ services:
   activityrankmanager:
     container_name: activityrank.manager
     restart: always
+    init: true
     build: .
     depends_on:
       - mysql
