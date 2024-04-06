@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@sapphire/snowflake": "^3.2.2",
-    "nodemon": "^2.0.20",
     "promise-mysql": "^5.2.0"
   },
   "devDependencies": {
