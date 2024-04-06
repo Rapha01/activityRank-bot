@@ -1,4 +1,4 @@
-import { get as getKeys } from '~/const/keys';
+import { getKeys, isProduction } from '~/const/keys';
 import { queryAllHosts } from '~/models/shardDb';
 import { setUser } from '~/models/userModel';
 const keys = getKeys();
@@ -24,7 +24,7 @@ export default defineTask({
   },
   async run() {
     console.log('[task | patreon] Updating information');
-    if (process.env.NODE_ENV !== 'production') return { result: 'Ignored' };
+    if (!isProduction) return { result: 'Ignored' };
 
     let nextUrl = baseURL.href;
     const apiMemberData = [];

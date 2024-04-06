@@ -1,7 +1,7 @@
+import { isProduction } from '~/const/keys';
 import { queryManager } from './managerDb';
 
-const hostField =
-  process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+const hostField = isProduction ? 'hostIntern' : 'hostExtern';
 
 export async function get(guildId: string) {
   let res = await queryManager<{ host: string }[]>(

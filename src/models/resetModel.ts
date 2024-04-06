@@ -1,6 +1,7 @@
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { queryManager } from './managerDb';
 import { queryShard } from './shardDb';
+import { isProduction } from '~/const/keys';
 
 const statsTables = [
   'textMessage',
@@ -17,8 +18,7 @@ const queryConstraints = (thisHour: number, thisDay: number) => ({
   year: ``,
 });
 
-const hostField =
-  process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+const hostField = isProduction ? 'hostIntern' : 'hostExtern';
 
 export async function resetScoreByTime(
   time: 'day' | 'week' | 'month' | 'year'

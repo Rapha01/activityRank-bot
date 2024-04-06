@@ -1,5 +1,5 @@
 import mysql from 'promise-mysql';
-import { get as getKeys } from '../const/keys';
+import { getKeys } from '~/const/keys';
 import { getAllDbHosts } from './managerDb';
 const keys = getKeys();
 

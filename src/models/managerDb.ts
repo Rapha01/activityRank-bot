@@ -1,5 +1,5 @@
 import mysql from 'promise-mysql';
-import { get as getKeys } from '../const/keys';
+import { getKeys, isProduction } from '~/const/keys';
 const keys = getKeys();
 
 let pool: mysql.Pool | null = null;
@@ -15,8 +15,7 @@ export async function getConnection() {
 }
 
 export async function getAllDbHosts() {
-  const hostField =
-    process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+  const hostField = isProduction ? 'hostIntern' : 'hostExtern';
 
   const res = await queryManager<{ host: string }[]>(
     `SELECT ${hostField} AS host FROM dbShard`

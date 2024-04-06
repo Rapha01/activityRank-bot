@@ -1,10 +1,9 @@
 import { escape } from 'promise-mysql';
 import { queryShard } from './shardDb';
 import { queryManager } from './managerDb';
+import { isProduction } from '~/const/keys';
 
-export const storage = {};
-const hostField =
-  process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+const hostField = isProduction ? 'hostIntern' : 'hostExtern';
 let defaultAll = null;
 
 export async function setUser(userId: string, field: string, value: unknown) {

@@ -1,4 +1,4 @@
-import { get as getKeys } from '~/const/keys';
+import { getKeys } from '~/const/keys';
 import { getShardServerCounts } from '~/models/botShardStatModel';
 const keys = getKeys();
 
