@@ -38,9 +38,15 @@ Website with features, commands and patchnotes for the bot.
 Thank you for deciding to contribute! Pull requests are welcome.
 For major changes, please open an issue first to discuss what you would like to change.
 
-When running with Docker, we recommend the following scripts, depending on environment:
+### Running with Docker
 
-```bash
-docker compose up
-docker compose -f docker-compose.prod.yml up
+We use Docker to run the manager in production.
+
+```sh
+$ docker build -t activityrank/manager:dev .
+$ docker run -p3005:3000 --init --name activityrank.manager activityrank/manager:dev
 ```
+
+Alternatively, use the provided `docker compose` script with `docker compose up`.
+
+If not running via Compose, remember to provide an appropriate mysql connection.

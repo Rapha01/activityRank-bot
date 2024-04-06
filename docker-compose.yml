@@ -1,7 +1,8 @@
 version: '3.3'
+name: activityrank-manager
 services:
   mysql:
-    container_name: mysql
+    container_name: activityrank.manager.db
     image: mysql:5.7
     restart: always
     environment:
@@ -11,20 +12,16 @@ services:
       - ./data:/var/lib/mysql
       - ./scripts/my.cnf:/etc/mysql/my.cnf
     ports:
-      - "3306:3306"
+      - '3306:3306'
     command: --default-authentication-plugin=mysql_native_password
 
   activityrankmanager:
-    container_name: activityRankManager
+    container_name: activityrank.manager
     restart: always
     build: .
     depends_on:
       - mysql
     links:
       - mysql
-    volumes:
-      - ./src:/usr/src/app
-      #- /usr/src/app/node_modules
-    command: npm run production
     ports:
-      - "3005:3005"
+      - '3005:3000'
