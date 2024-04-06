@@ -1,21 +1,22 @@
 {
   "name": "activity-rank-manager",
-  "version": "4.0.0",
-  "description": "ActivityRank Manager",
-  "main": "src/app.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "production": "NODE_ENV=production node ./src/app.js",
-    "development": "NODE_ENV=development node ./src/app.js",
-    "developmentNodemon": "nodemon --legacy-watch"
+    "build": "nitro build",
+    "dev": "nitro dev",
+    "prepare": "nitro prepare",
+    "preview": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@sapphire/snowflake": "^3.2.2",
-    "axios": "^1.2.2",
-    "express": "^4.18.1",
-    "node-cron": "^3.0.2",
     "nodemon": "^2.0.20",
     "promise-mysql": "^5.2.0"
   },
-  "author": "Linck",
-  "license": ""
+  "devDependencies": {
+    "nitropack": "^2.9.6"
+  },
+  "prettier": {
+    "singleQuote": true
+  }
 }

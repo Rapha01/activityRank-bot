@@ -1,4 +1,10 @@
-node_modules/
-/src/const/keys.js
-/data/
-/docker/mysql_init/init.sql
+docker/mysql_init/init.sql
+node_modules
+dist
+data
+.data
+.nitro
+.cache
+.private
+.output
+.env
