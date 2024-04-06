@@ -18,5 +18,6 @@
   },
   "prettier": {
     "singleQuote": true
-  }
+  },
+  "packageManager": "yarn@4.1.0"
 }
