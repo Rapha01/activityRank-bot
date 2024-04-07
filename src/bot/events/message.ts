@@ -11,6 +11,8 @@ const acceptedChannelTypes = [
   ChannelType.GuildText,
   ChannelType.GuildAnnouncement,
   ChannelType.PublicThread,
+  ChannelType.PrivateThread,
+  ChannelType.AnnouncementThread,
 ];
 const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
@@ -42,7 +44,7 @@ registerEvent(Events.MessageCreate, async function (message) {
 async function rankMessage(msg: Message<true>) {
   if (!msg.channel) return;
 
-  const channel = msg.channel.type === ChannelType.PublicThread ? msg.channel.parent : msg.channel;
+  const channel = msg.channel.isThread() ? msg.channel.parent : msg.channel;
   if (!channel) throw new Error('no channel defined in rankMessage second stage');
 
   await msg.guild.members.fetch(msg.author.id);
