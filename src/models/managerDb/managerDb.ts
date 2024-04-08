@@ -13,6 +13,7 @@ export async function getManagerDb() {
   return db;
 }
 
+/** ! Remember to close the connection after use. */
 export async function getManagerConnection() {
   return await getManagerPool().getConnection();
 }
