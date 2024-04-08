@@ -3,14 +3,14 @@ import managerDb from '../managerDb/managerDb.js';
 import { getKeys } from 'const/config.js';
 
 const keys = getKeys();
-const pools: Record<string, mysql.Pool> = {};
+const pools: Map<string, mysql.Pool> = new Map();
 
-export async function query<T>(dbHost: string, sql: string) {
-  if (!pools[dbHost]) await createPool(dbHost);
-  return (await pools[dbHost]!.query(sql))[0] as T;
+export async function query<T>(dbHost: string, sql: string): Promise<T> {
+  const pool = pools.get(dbHost) ?? createPool(dbHost);
+  return (await pool.query(sql))[0] as T;
 }
 
-export async function queryAllHosts<T>(sql: string) {
+export async function queryAllHosts<T>(sql: string): Promise<T[]> {
   const hosts = await managerDb.getAllDbHosts();
 
   let aggregate: T[] = [];
@@ -21,22 +21,22 @@ export async function queryAllHosts<T>(sql: string) {
   return aggregate;
 }
 
-async function createPool(dbHost: string) {
-  if (!pools[dbHost]) {
-    pools[dbHost] = await mysql.createPool({
-      host: dbHost,
-      user: keys.shardDb.dbUser,
-      password: keys.shardDb.dbPassword,
-      database: keys.shardDb.dbName,
-      charset: 'utf8mb4',
-      supportBigNumbers: true,
-      connectionLimit: 3,
-    });
+function createPool(dbHost: string): mysql.Pool {
+  if (pools.has(dbHost)) return pools.get(dbHost)!;
 
-    console.log('Connected to dbShard ' + dbHost);
-  }
+  const pool = mysql.createPool({
+    host: dbHost,
+    user: keys.shardDb.dbUser,
+    password: keys.shardDb.dbPassword,
+    database: keys.shardDb.dbName,
+    charset: 'utf8mb4',
+    supportBigNumbers: true,
+    connectionLimit: 3,
+  });
 
-  return pools[dbHost];
+  pools.set(dbHost, pool);
+  console.log('Connected to dbShard ' + dbHost);
+  return pool;
 }
 
 export default {

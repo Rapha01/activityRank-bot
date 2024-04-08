@@ -5,39 +5,30 @@ const keys = getKeys();
 let pool: mysql.Pool | null = null;
 
 export async function query<T>(sql: string) {
-  if (!pool) await createPool();
-  return (await pool!.query(sql))[0] as T;
+  return (await createPool().query(sql))[0] as T;
 }
 
 export async function getConnection() {
-  if (!pool) await createPool();
-  return await pool!.getConnection();
+  return await createPool().getConnection();
 }
 
 export async function getAllDbHosts() {
   const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-  let res = (await query(`SELECT ${hostField} AS host FROM dbShard`)) as { host: string }[];
+  let res = await query<{ host: string }[]>(`SELECT ${hostField} AS host FROM dbShard`);
 
-  const hosts = [];
-  for (let row of res) hosts.push(row.host);
-
-  return hosts;
+  return res.map((r) => r.host);
 }
 
-async function createPool() {
-  if (!pool) {
-    pool = mysql.createPool({
-      host: keys.managerHost,
-      user: keys.managerDb.dbUser,
-      password: keys.managerDb.dbPassword,
-      database: keys.managerDb.dbName,
-      charset: 'utf8mb4',
-      supportBigNumbers: true,
-      connectionLimit: 3,
-    });
-
-    console.log(`Connected to managerDb @${keys.managerHost}.`);
-  }
+function createPool(): mysql.Pool {
+  pool ??= mysql.createPool({
+    host: keys.managerHost,
+    user: keys.managerDb.dbUser,
+    password: keys.managerDb.dbPassword,
+    database: keys.managerDb.dbName,
+    charset: 'utf8mb4',
+    supportBigNumbers: true,
+    connectionLimit: 3,
+  });
 
   return pool;
 }
@@ -61,7 +52,7 @@ export async function mgrFetch<T extends any>(body: any, route: string, method: 
 
     return (await res.json()) as T;
   } catch (cause) {
-    throw new Error('Fetch error in backup.api.call()', { cause });
+    throw new Error('Failed to fetch data from Manager API', { cause });
   }
 }
 
