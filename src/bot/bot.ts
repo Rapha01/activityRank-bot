@@ -13,7 +13,7 @@ const intents = [
   GatewayIntentBits.GuildMembers,
   // FLAGS.GUILD_BANS,
   // FLAGS.GUILD_EMOJIS_AND_STICKERS,
-  GatewayIntentBits.GuildIntegrations,
+  // GatewayIntentBits.GuildIntegrations,
   // FLAGS.GUILD_WEBHOOKS,
   GatewayIntentBits.GuildVoiceStates,
   GatewayIntentBits.GuildMessages,
@@ -49,6 +49,21 @@ const client = new Client({
       },
     ],
   },
+  makeCache: Options.cacheWithLimits({
+    ...Options.DefaultMakeCacheSettings,
+    ApplicationCommandManager: 0,
+    AutoModerationRuleManager: 0,
+    BaseGuildEmojiManager: 0,
+    DMMessageManager: 0,
+    GuildBanManager: 0,
+    GuildEmojiManager: 0,
+    GuildInviteManager: 0,
+    PresenceManager: 0,
+    GuildScheduledEventManager: 0,
+    GuildStickerManager: 0,
+    ReactionManager: 0,
+    ReactionUserManager: 0,
+  }),
 });
 
 // Adjusts number of threads allocated by libuv
