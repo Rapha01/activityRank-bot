@@ -1,15 +1,17 @@
 import { getKeys } from 'const/config.js';
-import mysql from 'mysql2/promise';
+import { createPool, type Pool } from 'mysql2/promise';
 
 const keys = getKeys();
-let pool: mysql.Pool | null = null;
+let pool: Pool | null = null;
+
+export async function getManagerDb() {}
 
 export async function query<T>(sql: string) {
-  return (await createPool().query(sql))[0] as T;
+  return (await getManagerPool().query(sql))[0] as T;
 }
 
 export async function getConnection() {
-  return await createPool().getConnection();
+  return await getManagerPool().getConnection();
 }
 
 export async function getAllDbHosts() {
@@ -19,15 +21,14 @@ export async function getAllDbHosts() {
   return res.map((r) => r.host);
 }
 
-function createPool(): mysql.Pool {
-  pool ??= mysql.createPool({
+function getManagerPool() {
+  pool ??= createPool({
     host: keys.managerHost,
+    port: keys.managerPort ?? undefined,
+    database: keys.managerDb.dbName,
     user: keys.managerDb.dbUser,
     password: keys.managerDb.dbPassword,
-    database: keys.managerDb.dbName,
-    charset: 'utf8mb4',
     supportBigNumbers: true,
-    connectionLimit: 3,
   });
 
   return pool;
