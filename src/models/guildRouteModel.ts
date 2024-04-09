@@ -1,5 +1,5 @@
-import { isProduction } from '~/const/keys';
-import { queryManager } from './managerDb';
+import { isProduction } from '../const/keys.js';
+import { queryManager } from './managerDb.js';
 
 const hostField = isProduction ? 'hostIntern' : 'hostExtern';
 

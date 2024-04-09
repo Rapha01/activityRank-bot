@@ -22,18 +22,17 @@ WORKDIR /app
 COPY --from=deps /app/node_modules /app/node_modules
 
 COPY . .
-ARG BUILD_COMMAND="yarn build --preset node-cluster"
-RUN ${BUILD_COMMAND}
+RUN yarn build
 
 FROM base
 WORKDIR /app
 
 COPY --from=production-deps /app/node_modules /app/node_modules
 
-COPY --from=build /app/.output /app/.output
+COPY --from=build /app/dist /app/dist
 COPY --from=build /app/package.json /app/package.json
 
 EXPOSE 3000
 ENV PORT 3000
 
-ENTRYPOINT [ "yarn", "preview" ]
+ENTRYPOINT [ "yarn", "serve" ]

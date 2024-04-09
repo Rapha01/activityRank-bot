@@ -1,7 +1,7 @@
 import { DiscordSnowflake } from '@sapphire/snowflake';
-import { queryManager } from './managerDb';
-import { queryShard } from './shardDb';
-import { isProduction } from '~/const/keys';
+import { queryManager } from './managerDb.js';
+import { queryShard } from './shardDb.js';
+import { isProduction } from '../const/keys.js';
 
 const statsTables = [
   'textMessage',

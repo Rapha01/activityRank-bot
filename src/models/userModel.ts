@@ -1,10 +1,10 @@
 import { escape } from 'promise-mysql';
-import { queryShard } from './shardDb';
-import { queryManager } from './managerDb';
-import { isProduction } from '~/const/keys';
+import { queryShard } from './shardDb.js';
+import { queryManager } from './managerDb.js';
+import { isProduction } from '../const/keys.js';
 
 const hostField = isProduction ? 'hostIntern' : 'hostExtern';
-let defaultAll = null;
+let defaultAll: any = null;
 
 export async function setUser(userId: string, field: string, value: unknown) {
   const dbHost = await getDbHost(userId);
@@ -26,7 +26,7 @@ export async function getUser(userId: string) {
   if (res.length == 0) {
     if (!defaultAll)
       defaultAll = (
-        await queryShard(dbHost, `SELECT * FROM user WHERE userId = 0`)
+        await queryShard<any>(dbHost, `SELECT * FROM user WHERE userId = 0`)
       )[0];
     return defaultAll;
   } else {

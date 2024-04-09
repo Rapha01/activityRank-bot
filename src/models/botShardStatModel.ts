@@ -1,4 +1,4 @@
-import { queryManager } from './managerDb';
+import { queryManager } from './managerDb.js';
 
 export async function getShardServerCounts() {
   const results = await queryManager<{ serverCount: number }[]>(

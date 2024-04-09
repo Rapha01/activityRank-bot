@@ -4,11 +4,7 @@ docker/data
 node_modules
 .private
 
-.data
-.nitro
-.cache
-.output
-.env
+dist
 
 .yarn/*
 !.yarn/patches

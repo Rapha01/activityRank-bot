@@ -1,17 +1,17 @@
 import mysql from 'promise-mysql';
-import { getKeys, isProduction } from '~/const/keys';
+import { getKeys, isProduction } from '../const/keys.js';
 const keys = getKeys();
 
 let pool: mysql.Pool | null = null;
 
 export async function queryManager<T>(sql: string) {
   if (!pool) await createPool();
-  return await pool.query<T>(sql);
+  return await pool!.query<T>(sql);
 }
 
 export async function getConnection() {
   if (!pool) await createPool();
-  return await pool.getConnection();
+  return await pool!.getConnection();
 }
 
 export async function getAllDbHosts() {
