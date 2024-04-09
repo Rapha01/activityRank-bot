@@ -7,7 +7,7 @@ const keys = getKeys();
 let pool: Pool | null = null;
 let db: Kysely<ManagerDB> | null = null;
 
-export async function getManagerDb() {
+export function getManagerDb() {
   const activePool = getManagerPool();
   db ??= new Kysely({ dialect: new MysqlDialect({ pool: activePool.pool }) });
   return db;
