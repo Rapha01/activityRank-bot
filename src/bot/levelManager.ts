@@ -42,8 +42,7 @@ const DANGEROUS_PERMISSIONS =
   PermissionFlagsBits.ManageWebhooks;
 
 export async function checkRoleAssignment(member: GuildMember, level: number) {
-  let roleMessages: string[] = [],
-    memberHasRole;
+  const roleMessages: string[] = [];
   const roles = member.guild.roles.cache;
 
   if (roles.size == 0 || !member.guild.members.me!.permissions.has(PermissionFlagsBits.ManageRoles))
