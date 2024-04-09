@@ -3,7 +3,6 @@ import {
   SlashCommandBuilder,
   EmbedBuilder,
   ComponentType,
-  type Interaction,
   type ActionRowData,
   type MessageActionRowComponentData,
   ChatInputCommandInteraction,
@@ -11,29 +10,30 @@ import {
   StringSelectMenuInteraction,
 } from 'discord.js';
 
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import { stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
-import type { GuildSchema, GuildRoleSchema } from 'models/types/shard.js';
+import type { GuildRoleSchema } from 'models/types/shard.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
     .setName('serverinfo')
     .setDescription('Information about your server!'),
   execute: async function (interaction) {
-    const myGuild = await guildModel.storage.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
+
     const page = fct.extractPageSimple(
       interaction.options.getInteger('page') ?? 1,
-      myGuild!.entriesPerPage,
+      cachedGuild.db.entriesPerPage,
     );
 
     const embed = await embeds['general']({
       interaction,
-      myGuild: myGuild!,
+      cachedGuild,
       from: page.from,
       to: page.to,
     });
@@ -50,7 +50,7 @@ type WindowFn = (args: {
     | ChatInputCommandInteraction<'cached'>
     | ButtonInteraction<'cached'>
     | StringSelectMenuInteraction<'cached'>;
-  myGuild: GuildSchema;
+  cachedGuild: GuildModel;
   from: number;
   to: number;
 }) => Promise<EmbedBuilder>;
@@ -59,12 +59,12 @@ const setWindow = registerComponent<{ window: string; page: number }>({
   identifier: 'serverinfo.window',
   type: ComponentType.StringSelect,
   async callback({ interaction, data }) {
-    const myGuild = await guildModel.storage.get(interaction.guild);
-    const page = fct.extractPageSimple(data.page, myGuild!.entriesPerPage);
+    const cachedGuild = await getGuildModel(interaction.guild);
+    const page = fct.extractPageSimple(data.page, cachedGuild.db.entriesPerPage);
 
     const embed = await embeds[interaction.values[0]]({
       interaction,
-      myGuild: myGuild!,
+      cachedGuild,
       from: page.from,
       to: page.to,
     });
@@ -80,12 +80,12 @@ const setPage = registerComponent<{ window: string; page: number }>({
   identifier: 'serverinfo.page',
   type: ComponentType.Button,
   async callback({ interaction, data }) {
-    const myGuild = await guildModel.storage.get(interaction.guild);
-    const page = fct.extractPageSimple(data.page, myGuild!.entriesPerPage);
+    const cachedGuild = await getGuildModel(interaction.guild);
+    const page = fct.extractPageSimple(data.page, cachedGuild.db.entriesPerPage);
 
     const embed = await embeds[data.window]({
       interaction,
-      myGuild: myGuild!,
+      cachedGuild,
       from: page.from,
       to: page.to,
     });
@@ -171,86 +171,90 @@ const rows = (
   ];
 };
 
-const info: WindowFn = async ({ interaction, myGuild }) => {
+const info: WindowFn = async ({ interaction, cachedGuild }) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Info for server ${interaction.guild.name}` })
     .setColor('#4fd6c8')
     .setThumbnail(interaction.guild.iconURL());
 
-  const notifyLevelupType = myGuild.notifyLevelupDm
+  const notifyLevelupType = cachedGuild.db.notifyLevelupDm
     ? 'DM'
-    : myGuild.notifyLevelupCurrentChannel
+    : cachedGuild.db.notifyLevelupCurrentChannel
       ? 'Current Channel'
-      : myGuild.autopost_levelup
-        ? '#' + nameUtil.getChannelName(interaction.guild.channels.cache, myGuild.autopost_levelup)
+      : cachedGuild.db.autopost_levelup
+        ? '#' +
+          nameUtil.getChannelName(interaction.guild.channels.cache, cachedGuild.db.autopost_levelup)
         : 'None';
 
   e.addFields({
     name: '**General**',
     value: stripIndent`
-  Tracking since: <t:${myGuild.addDate}>
+  Tracking since: <t:${cachedGuild.db.addDate}>
   Tracking stats: ${
-    (myGuild.textXp ? ':writing_hand: ' : '') +
-    (myGuild.voiceXp ? ':microphone2: ' : '') +
-    (myGuild.inviteXp ? ':envelope: ' : '') +
-    (myGuild.voteXp ? myGuild.voteEmote + ' ' : '') +
-    (myGuild.bonusXp ? myGuild.bonusEmote + ' ' : '')
+    (cachedGuild.db.textXp ? ':writing_hand: ' : '') +
+    (cachedGuild.db.voiceXp ? ':microphone2: ' : '') +
+    (cachedGuild.db.inviteXp ? ':envelope: ' : '') +
+    (cachedGuild.db.voteXp ? cachedGuild.db.voteEmote + ' ' : '') +
+    (cachedGuild.db.bonusXp ? cachedGuild.db.bonusEmote + ' ' : '')
   }
   Notify levelup: ${notifyLevelupType}
-  Include levelup message: ${myGuild.notifyLevelupWithRole ? 'Yes' : 'No'}
-  Take away assigned roles on level down: ${myGuild.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
-  List entries per page: ${myGuild.entriesPerPage}
+  Include levelup message: ${cachedGuild.db.notifyLevelupWithRole ? 'Yes' : 'No'}
+  Take away assigned roles on level down: ${cachedGuild.db.takeAwayAssignedRolesOnLevelDown ? 'Yes' : 'No'}
+  List entries per page: ${cachedGuild.db.entriesPerPage}
   Status: ${(await fct.getPatreonTiers(interaction)).ownerTier == 3 ? 'Premium' : 'Not Premium'}`,
   });
 
   let bonusTimeString = '';
-  if (myGuild.bonusUntilDate > Date.now() / 1000) {
-    bonusTimeString = `**!! Bonus XP Active !!** (ends <t:${myGuild.bonusUntilDate}:R>)
-    ${myGuild.bonusPerTextMessage * myGuild.xpPerBonus} Bonus XP per textmessage
-    ${myGuild.bonusPerVoiceMinute * myGuild.xpPerBonus} Bonus XP per voiceminute
-    ${myGuild.bonusPerVote * myGuild.xpPerBonus} Bonus XP for ${myGuild.voteTag}`;
+  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000) {
+    bonusTimeString = `**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)
+    ${cachedGuild.db.bonusPerTextMessage * cachedGuild.db.xpPerBonus} Bonus XP per textmessage
+    ${cachedGuild.db.bonusPerVoiceMinute * cachedGuild.db.xpPerBonus} Bonus XP per voiceminute
+    ${cachedGuild.db.bonusPerVote * cachedGuild.db.xpPerBonus} Bonus XP for ${cachedGuild.db.voteTag}`;
   }
 
   let xpPerString = '';
-  if (myGuild.textXp) xpPerString += `${myGuild.xpPerTextMessage} XP per textmessage\n`;
-  if (myGuild.voiceXp) xpPerString += `${myGuild.xpPerVoiceMinute} XP per voiceminute\n`;
-  if (myGuild.voteXp) xpPerString += `${myGuild.xpPerVote} XP per ${myGuild.voteTag}\n`;
-  if (myGuild.inviteXp) xpPerString += `${myGuild.xpPerInvite} XP per invite\n`;
+  if (cachedGuild.db.textXp)
+    xpPerString += `${cachedGuild.db.xpPerTextMessage} XP per textmessage\n`;
+  if (cachedGuild.db.voiceXp)
+    xpPerString += `${cachedGuild.db.xpPerVoiceMinute} XP per voiceminute\n`;
+  if (cachedGuild.db.voteXp)
+    xpPerString += `${cachedGuild.db.xpPerVote} XP per ${cachedGuild.db.voteTag}\n`;
+  if (cachedGuild.db.inviteXp) xpPerString += `${cachedGuild.db.xpPerInvite} XP per invite\n`;
 
-  const textmessageCooldownString = myGuild.textMessageCooldownSeconds
-    ? `max every ${myGuild.textMessageCooldownSeconds} seconds`
+  const textmessageCooldownString = cachedGuild.db.textMessageCooldownSeconds
+    ? `max every ${cachedGuild.db.textMessageCooldownSeconds} seconds`
     : ' without any cooldown';
 
   e.addFields({
     name: '**Points**',
     value: stripIndent`
     Vote Cooldown: A user has to wait ${Math.round(
-      myGuild.voteCooldownSeconds / 60,
+      cachedGuild.db.voteCooldownSeconds / 60,
     )} minutes between each vote
     Text Message Cooldown: Messages give XP ${textmessageCooldownString}
-    Muted voice XP allowed: ${myGuild.allowMutedXp ? 'Yes' : 'No'}
-    Solo voice XP allowed: ${myGuild.allowSoloXp ? 'Yes' : 'No'}
-    Deafened voice XP allowed: ${myGuild.allowDeafenedXp ? 'Yes' : 'No'}
-    Levelfactor: ${myGuild.levelFactor} XP
+    Muted voice XP allowed: ${cachedGuild.db.allowMutedXp ? 'Yes' : 'No'}
+    Solo voice XP allowed: ${cachedGuild.db.allowSoloXp ? 'Yes' : 'No'}
+    Deafened voice XP allowed: ${cachedGuild.db.allowDeafenedXp ? 'Yes' : 'No'}
+    Levelfactor: ${cachedGuild.db.levelFactor} XP
     ${xpPerString} ${bonusTimeString}`,
   });
 
   return e;
 };
 
-const levels: WindowFn = async ({ interaction, myGuild, from, to }) => {
+const levels: WindowFn = async ({ interaction, cachedGuild, from, to }) => {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
     .setDescription(
-      `XP needed to reach next level (total XP).\nLevelfactor: ${myGuild.levelFactor}.`,
+      `XP needed to reach next level (total XP).\nLevelfactor: ${cachedGuild.db.levelFactor}.`,
     );
 
   let recordingLevels = [],
     localXp = 100,
     totalXp = 0;
   for (let iter = 2; iter < to + 2; iter++) {
-    localXp = 100 + (iter - 1) * myGuild.levelFactor;
+    localXp = 100 + (iter - 1) * cachedGuild.db.levelFactor;
     totalXp += localXp;
     recordingLevels.push({ nr: iter, totalXp: totalXp, localXp: localXp });
   }
@@ -297,7 +301,7 @@ function getlevelString(myRole: GuildRoleSchema) {
 
 // TODO: deprecate noCommandChannels in favour of Discord's native Integrations
 const noCommandChannels: WindowFn = async ({ interaction, from, to }) => {
-  const cachedGuild = await guildModel.cache.get(interaction.guild);
+  const cachedGuild = await getGuildModel(interaction.guild);
 
   let description = '';
   if (cachedGuild.db.commandOnlyChannel !== '0') {
@@ -371,15 +375,15 @@ const noXpRoles: WindowFn = async ({ interaction, from, to }) => {
   return e;
 };
 
-const messages: WindowFn = async ({ interaction, myGuild, from, to }) => {
+const messages: WindowFn = async ({ interaction, cachedGuild, from, to }) => {
   let entries = [];
 
-  entries.push({ title: 'levelupMessage', desc: myGuild.levelupMessage });
-  entries.push({ title: 'serverJoinMessage', desc: myGuild.serverJoinMessage });
-  entries.push({ title: 'roleAssignMessage', desc: myGuild.roleAssignMessage });
+  entries.push({ title: 'levelupMessage', desc: cachedGuild.db.levelupMessage });
+  entries.push({ title: 'serverJoinMessage', desc: cachedGuild.db.serverJoinMessage });
+  entries.push({ title: 'roleAssignMessage', desc: cachedGuild.db.roleAssignMessage });
   entries.push({
     title: 'roleDeassignMessage',
-    desc: myGuild.roleDeassignMessage,
+    desc: cachedGuild.db.roleDeassignMessage,
   });
 
   for (const role of interaction.guild.roles.cache.values()) {

@@ -12,7 +12,7 @@ import {
 
 import { oneLine, stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildModel, { type CachedGuild } from '../models/guild/guildModel.js';
+import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
 import { parseChannel } from '../util/parser.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
@@ -37,7 +37,7 @@ const componentId = registerComponent<{
 
     let myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
 
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     if (setting === 'noXp' || setting === 'noCommand') {
       if (myChannel[setting])
@@ -46,9 +46,8 @@ const componentId = registerComponent<{
 
       myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
     } else {
-      if (cachedGuild.db[setting] == channelId)
-        await guildModel.storage.set(interaction.guild, setting, '0');
-      else await guildModel.storage.set(interaction.guild, setting, channelId);
+      if (cachedGuild.db[setting] == channelId) await cachedGuild.upsert({ [setting]: '0' });
+      else await cachedGuild.upsert({ [setting]: channelId });
     }
 
     await interaction.update({
@@ -66,7 +65,7 @@ const generateRow = (
   interaction: Interaction<'cached'>,
   channelId: string,
   type: ChannelType | null,
-  myGuild: CachedGuild,
+  myGuild: GuildModel,
   myChannel: GuildChannelSchema,
 ) => {
   const ownerId = interaction.user.id;
@@ -200,7 +199,7 @@ registerSlashCommand({
       });
     }
 
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     await interaction.reply({
       embeds: [e],

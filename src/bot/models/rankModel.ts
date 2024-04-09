@@ -2,7 +2,7 @@ import shardDb from '../../models/shardDb/shardDb.js';
 import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
 import type { StatTimeInterval, StatType } from 'models/types/enums.js';
-import guildModel, { type CachedGuild } from './guild/guildModel.js';
+import { getGuildModel, type GuildModel } from './guild/guildModel.js';
 
 // Toplist
 export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
@@ -12,7 +12,7 @@ export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
   from: number,
   to: number,
 ) {
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   const memberRanksSql = `
     SELECT * FROM ${getGuildMemberRanksSql(cachedGuild, guild.id)} AS memberranks
@@ -33,7 +33,7 @@ export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
 
 // All scores for one member
 export const getGuildMemberRank = async function (guild: Guild, userId: string) {
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   const res = await shardDb.query<
     Record<`${StatType | 'totalScore'}${StatTimeInterval}`, number>[]
@@ -53,7 +53,7 @@ export const getGuildMemberRankPosition = async function (
   userId: string,
   typeTime: string,
 ) {
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   const res = await shardDb.query<{ count: number }[]>(
     cachedGuild.dbHost,
@@ -75,7 +75,7 @@ export const getChannelRanks = async function <T extends StatTimeInterval>(
   from: number,
   to: number,
 ) {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
 
   const ranks = await shardDb.query<({ channelId: string } & Record<T, number>)[]>(
     dbHost,
@@ -96,7 +96,7 @@ export const getChannelMemberRanks = async <T extends StatTimeInterval>(
   from: number,
   to: number,
 ) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
 
   const ranks = await shardDb.query<({ userId: string } & Record<T, number>)[]>(
     dbHost,
@@ -117,7 +117,7 @@ export const getGuildMemberTopChannels = async function <T extends StatTimeInter
   from: number,
   to: number,
 ) {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
 
   const res = await shardDb.query<({ channelId: string } & Record<T, number>)[]>(
     dbHost,
@@ -133,7 +133,7 @@ export const getGuildMemberTopChannels = async function <T extends StatTimeInter
 };
 
 export const countGuildRanks = async function (guild: Guild) {
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   const res = await shardDb.query<{ count: number }[]>(
     cachedGuild.dbHost,
@@ -143,7 +143,7 @@ export const countGuildRanks = async function (guild: Guild) {
 };
 
 export const getGuildMemberTotalScore = async function (guild: Guild, userId: string) {
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   const res = await shardDb.query<{ totalScoreAlltime: number }[]>(
     cachedGuild.dbHost,
@@ -169,7 +169,7 @@ export const getGuildMemberTotalScore = async function (guild: Guild, userId: st
   });
 } */
 
-function getGuildMemberTotalScoreSql(guildCache: CachedGuild, guildId: string, userId: string) {
+function getGuildMemberTotalScoreSql(guildCache: GuildModel, guildId: string, userId: string) {
   const voicerankSql = `(SELECT userId,
         SUM(alltime) AS voiceMinuteAlltime
         FROM voiceMinute WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
@@ -208,7 +208,7 @@ function getGuildMemberTotalScoreSql(guildCache: CachedGuild, guildId: string, u
   return memberTotalScoreAlltimeSql;
 }
 
-function getGuildMemberRanksSql(guildCache: CachedGuild, guildId: string) {
+function getGuildMemberRanksSql(guildCache: GuildModel, guildId: string) {
   const voiceranksSql = `(SELECT userId,
       SUM(alltime) AS voiceMinuteAlltime,
       SUM(year) AS voiceMinuteYear,
@@ -320,7 +320,7 @@ function getGuildMemberRanksSql(guildCache: CachedGuild, guildId: string) {
   return memberRanksSql;
 }
 
-function getGuildMemberRankSql(guildCache: CachedGuild, guildId: string, userId: string) {
+function getGuildMemberRankSql(guildCache: GuildModel, guildId: string, userId: string) {
   const voicerankSql = `(SELECT userId,
         SUM(alltime) AS voiceMinuteAlltime,
         SUM(year) AS voiceMinuteYear,

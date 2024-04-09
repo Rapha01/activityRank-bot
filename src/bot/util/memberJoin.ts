@@ -1,6 +1,6 @@
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import levelManager from '../levelManager.js';
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import fct from '../../util/fct.js';
 import { DiscordAPIError, RESTJSONErrorCodes, type GuildMember } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
@@ -9,7 +9,7 @@ export async function handleMemberJoin(member: GuildMember) {
   member.client.logger.debug(`Handling member ${member.id} join`);
   if (member.user.bot) return;
 
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
   const cachedMember = await guildMemberModel.cache.get(member);
 
   member.client.logger.debug({ cachedGuild, cachedMember }, `cache objects`);
@@ -32,7 +32,7 @@ export async function handleMemberJoin(member: GuildMember) {
 }
 
 async function autoPostServerJoin(member: GuildMember, roleAssignmentString: string[]) {
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
 
   const channel = member.guild.channels.cache.get(cachedGuild.db.autopost_serverJoin);
   if (!channel || !channel.viewable || !channel.isTextBased()) return;

@@ -10,7 +10,7 @@ import {
   type Interaction,
 } from 'discord.js';
 import { ComponentKey, registerSubCommand } from 'bot/util/commandLoader.js';
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 
 registerSubCommand({
   async execute(interaction) {
@@ -110,7 +110,7 @@ registerSubCommand({
         } else {
           console.warn(`[/reset server] Invalid field ${field}`);
         }
-        const cachedGuild = await guildModel.cache.get(interaction.guild);
+        const cachedGuild = await getGuildModel(interaction.guild);
         cachedGuild.cache.lastResetServer = new Date();
       } else {
         buttonInteraction.reply({

@@ -6,7 +6,7 @@ import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import userModel from '../models/userModel.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -16,7 +16,7 @@ registerSlashCommand({
       o.setName('member').setDescription('The member to upvote').setRequired(true),
     ),
   async execute(interaction) {
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     if (!cachedGuild.db.voteXp)
       return await interaction.reply({

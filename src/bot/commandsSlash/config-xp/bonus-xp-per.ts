@@ -1,13 +1,14 @@
 import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import guildModel from '../../models/guild/guildModel.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
 
 registerSubCommand({
   async execute(interaction) {
     // TODO (old permissions) deprecate
     if (
-      !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
+      !interaction.channel ||
+      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
       return await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',
@@ -16,25 +17,20 @@ registerSubCommand({
     }
 
     const items = {
-      bonusPerTextMessage: interaction.options.getInteger('message'),
-      bonusPerVoiceMinute: interaction.options.getInteger('voiceminute'),
-      bonusPerVote: interaction.options.getInteger('vote'),
-      bonusPerInvite: interaction.options.getInteger('invite'),
+      bonusPerTextMessage: interaction.options.getInteger('message') ?? undefined,
+      bonusPerVoiceMinute: interaction.options.getInteger('voiceminute') ?? undefined,
+      bonusPerVote: interaction.options.getInteger('vote') ?? undefined,
+      bonusPerInvite: interaction.options.getInteger('invite') ?? undefined,
     };
-    if (Object.values(items).every((x) => x === null)) {
+    if (Object.values(items).every((x) => x === undefined)) {
       return await interaction.reply({
         content: 'You must specify at least one option for this command to do anything!',
         ephemeral: true,
       });
     }
 
-    for (const _k in items) {
-      const k = _k as keyof typeof items;
-      const value = items[k];
-      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
-    }
-
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
+    cachedGuild.upsert(items);
 
     await interaction.reply({
       embeds: [

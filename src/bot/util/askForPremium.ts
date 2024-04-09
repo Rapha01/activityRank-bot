@@ -3,7 +3,7 @@ import fct from '../../util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -11,7 +11,7 @@ const askForPremiumCdGuild = isDev ? 3600 * 0.4 : 3600 * 0.4;
 const askForPremiumCdUser = isDev ? 3600 * 6 : 3600 * 6;
 
 export default async function (interaction: ChatInputCommandInteraction<'cached'>) {
-  const cachedGuild = await guildModel.cache.get(interaction.guild);
+  const cachedGuild = await getGuildModel(interaction.guild);
   const onGuildCooldown =
     getWaitTime(cachedGuild.cache.lastAskForPremiumDate, askForPremiumCdGuild).remaining > 0;
 

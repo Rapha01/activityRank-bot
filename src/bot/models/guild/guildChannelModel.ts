@@ -6,7 +6,7 @@ import type {
   TextMessageSchema,
   VoiceMinuteSchema,
 } from 'models/types/shard.js';
-import guildModel from './guildModel.js';
+import { getGuildModel } from './guildModel.js';
 
 const cachedFields = ['noXp', 'noCommand'] as const;
 let defaultCache: CachedDbFields | null = null;
@@ -33,7 +33,7 @@ function isCachableDbKey(key: keyof GuildChannelSchema): key is keyof CachedDbFi
 
 export const storage = {
   get: async (guild: Guild, channelId: string): Promise<GuildChannelSchema> => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
     const res = await shardDb.query<GuildChannelSchema[]>(
       dbHost,
       `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${escape(channelId)}`,
@@ -57,7 +57,7 @@ export const storage = {
     field: K,
     value: GuildChannelSchema[K],
   ) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
     await shardDb.query(
       dbHost,
       `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${escape(
@@ -74,7 +74,7 @@ export const storage = {
 };
 
 export const getRankedChannelIds = async (guild: Guild) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const textmessageUserIds = await shardDb.query<TextMessageSchema[]>(
     dbHost,
     `SELECT DISTINCT channelId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
@@ -95,7 +95,7 @@ export const getRankedChannelIds = async (guild: Guild) => {
 };
 
 export const getNoXpChannelIds = async (guild: Guild) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const res = await shardDb.query<Pick<GuildChannelSchema, 'channelId'>[]>(
     dbHost,
     `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noXp = 1`,
@@ -105,7 +105,7 @@ export const getNoXpChannelIds = async (guild: Guild) => {
 };
 
 export const getNoCommandChannelIds = async (guild: Guild) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const res = await shardDb.query<Pick<GuildChannelSchema, 'channelId'>[]>(
     dbHost,
     `SELECT channelId FROM guildChannel WHERE guildId = ${guild.id} AND noCommand = 1`,
@@ -115,7 +115,7 @@ export const getNoCommandChannelIds = async (guild: Guild) => {
 };
 
 async function buildCache(channel: GuildBasedChannel): Promise<CachedGuildChannel> {
-  const { dbHost } = await guildModel.cache.get(channel.guild);
+  const { dbHost } = await getGuildModel(channel.guild);
   let foundCache = await shardDb.query<CachedDbFields[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = ${

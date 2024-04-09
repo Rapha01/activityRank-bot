@@ -3,7 +3,7 @@ import { escape } from 'mysql2/promise';
 import type { Guild, GuildMember } from 'discord.js';
 import type { GuildMemberSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
-import guildModel from './guildModel.js';
+import { getGuildModel } from './guildModel.js';
 import rankModel from '../rankModel.js';
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const;
@@ -41,7 +41,7 @@ function isCachableDbKey(key: keyof GuildMemberSchema): key is keyof CachedDbFie
 
 export const storage = {
   get: async (guild: Guild, userId: string) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
     const res = await shardDb.query<GuildMemberSchema[]>(
       dbHost,
       `SELECT * FROM guildMember WHERE guildId = ${guild.id} && userId = ${escape(userId)}`,
@@ -65,7 +65,7 @@ export const storage = {
     field: K,
     value: GuildMemberSchema[K],
   ) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     await shardDb.query(
       dbHost,
@@ -89,7 +89,7 @@ export const storage = {
     field: K,
     value: number,
   ) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     await shardDb.query(
       dbHost,
@@ -107,7 +107,7 @@ export const storage = {
 };
 
 export async function getRankedUserIds(guild: Guild) {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
 
   const textmessageUserIds = await shardDb.query<{ userId: string }[]>(
     dbHost,
@@ -139,7 +139,7 @@ export async function getRankedUserIds(guild: Guild) {
 }
 
 async function buildCache(member: GuildMember): Promise<CachedGuildMember> {
-  const { dbHost } = await guildModel.cache.get(member.guild);
+  const { dbHost } = await getGuildModel(member.guild);
   let foundCache = await shardDb.query<CachedDbFields[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = ${

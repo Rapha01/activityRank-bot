@@ -13,12 +13,12 @@ import guildMemberModel from '../models/guild/guildMemberModel.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { GuildMemberSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
-import guildModel, { type CachedGuild } from 'bot/models/guild/guildModel.js';
+import { getGuildModel, type GuildModel } from 'bot/models/guild/guildModel.js';
 
 const generateRow = (
   i: Interaction<'cached'>,
   myMember: GuildMemberSchema,
-  myGuild: CachedGuild,
+  myGuild: GuildModel,
 ) => {
   return [
     new ButtonBuilder()
@@ -46,7 +46,7 @@ registerSlashCommand({
     .setName('config-member')
     .setDescription('Change your personal settings'),
   async execute(i) {
-    const cachedGuild = await guildModel.cache.get(i.member.guild);
+    const cachedGuild = await getGuildModel(i.member.guild);
     const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
 
     await i.reply({
@@ -89,7 +89,7 @@ const toggleId = registerComponent<{
   type: ComponentType.Button,
   identifier: 'config-member.toggle',
   async callback({ interaction, data }) {
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
     const myGuildMember = await guildMemberModel.storage.get(
       interaction.guild,
       interaction.member.id,

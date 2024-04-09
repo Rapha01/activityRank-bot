@@ -1,4 +1,4 @@
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import askForPremium from '../util/askForPremium.js';
@@ -64,7 +64,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
     }
 
     const cachedChannel = await guildChannelModel.cache.get(interaction.channel);
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     if (
       cachedChannel.db.noCommand &&
@@ -251,7 +251,7 @@ function getCommandId(
 async function executeBans(
   interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction<'cached'>>,
 ): Promise<boolean> {
-  const cachedGuild = await guildModel.cache.get(interaction.guild);
+  const cachedGuild = await getGuildModel(interaction.guild);
 
   if (cachedGuild.db.isBanned) {
     interaction.client.logger.debug(`Banned guild ${interaction.guild.id} used interaction.`);
