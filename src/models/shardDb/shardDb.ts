@@ -58,6 +58,7 @@ function getShardInstance(host: string) {
     database: keys.shardDb.dbName,
     charset: 'utf8mb4',
     supportBigNumbers: true,
+    bigNumberStrings: true,
     connectionLimit: 3,
   });
 

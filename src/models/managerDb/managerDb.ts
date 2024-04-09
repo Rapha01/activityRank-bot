@@ -43,6 +43,7 @@ function getManagerPool() {
     user: keys.managerDb.dbUser,
     password: keys.managerDb.dbPassword,
     supportBigNumbers: true,
+    bigNumberStrings: true,
   });
 
   return pool;
