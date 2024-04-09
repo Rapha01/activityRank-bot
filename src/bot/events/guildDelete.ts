@@ -1,7 +1,9 @@
 import { registerEvent } from 'bot/util/eventLoader.js';
 import { Events } from 'discord.js';
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel, guildCache } from '../models/guild/guildModel.js';
 
 registerEvent(Events.GuildDelete, async function (guild) {
-  await guildModel.storage.set(guild, 'leftAtDate', Date.now() / 1000);
+  const cachedGuild = await getGuildModel(guild);
+  await cachedGuild.upsert({ leftAtDate: Date.now() / 1000 });
+  guildCache.delete(guild);
 });

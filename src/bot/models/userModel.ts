@@ -1,6 +1,6 @@
 import shardDb from '../../models/shardDb/shardDb.js';
 import managerDb from '../../models/managerDb/managerDb.js';
-import mysql from 'promise-mysql';
+import { escape } from 'mysql2/promise';
 import type { User } from 'discord.js';
 import type { UserSchema } from 'models/types/shard.js';
 import type { PropertiesOfType } from 'models/types/generics.js';
@@ -56,9 +56,9 @@ const storage = {
       `INSERT INTO user 
       (userId,${field}) 
       VALUES 
-      (${user.id},${mysql.escape(value)})
+      (${user.id},${escape(value)})
       ON DUPLICATE KEY UPDATE 
-      ${field} = ${mysql.escape(value)}`,
+      ${field} = ${escape(value)}`,
     );
 
     if (isCachableDbKey(field)) {
@@ -76,9 +76,9 @@ const storage = {
     const cachedUser = await cache.get(user);
     await shardDb.query(
       cachedUser.dbHost,
-      `INSERT INTO user (userId,${field}) VALUES (${user.id},DEFAULT(${field}) + ${mysql.escape(
+      `INSERT INTO user (userId,${field}) VALUES (${user.id},DEFAULT(${field}) + ${escape(
         value,
-      )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${mysql.escape(value)}`,
+      )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${escape(value)}`,
     );
 
     if (isCachableDbKey(field)) {

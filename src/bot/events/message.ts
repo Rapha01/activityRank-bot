@@ -1,4 +1,4 @@
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
@@ -26,7 +26,7 @@ registerEvent(Events.MessageCreate, async function (message) {
   )
     return;
 
-  const cachedGuild = await guildModel.cache.get(message.guild);
+  const cachedGuild = await getGuildModel(message.guild);
 
   const mentionRegex = new RegExp(`^(<@!?${message.client.user.id}>)\\s*test\\s*$`);
   if (message.content && mentionRegex.test(message.content))
@@ -73,7 +73,7 @@ async function rankMessage(msg: Message<true>) {
     if (cachedRole.db.noXp) return;
   }
 
-  const cachedGuild = await guildModel.cache.get(msg.guild);
+  const cachedGuild = await getGuildModel(msg.guild);
 
   // Check textmessage cooldown
   const lastMessage = cachedMember.cache.lastTextMessageDate;

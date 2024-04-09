@@ -3,7 +3,7 @@ import guildMemberModel, { memberCache } from './guild/guildMemberModel.js';
 import guildChannelModel, { channelCache } from './guild/guildChannelModel.js';
 import type { ChatInputCommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
 import type { DBDelete, DBUpdate } from 'models/types/enums.js';
-import guildModel, { guildCache } from './guild/guildModel.js';
+import { getGuildModel, guildCache } from './guild/guildModel.js';
 import type { GuildSchema } from 'models/types/shard.js';
 import { roleCache } from './guild/guildRoleModel.js';
 
@@ -48,7 +48,7 @@ export const storage = {
     return affectedRows;
   },
   resetGuildSettings: async (batchsize: number, guild: Guild) => {
-    const cachedGuild = await guildModel.cache.get(guild);
+    const cachedGuild = await getGuildModel(guild);
 
     let affectedRows = 0;
     const tables = ['guildRole', 'guildMember', 'guildChannel'];
@@ -94,7 +94,7 @@ export const storage = {
     let affectedRows = 0;
     const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'];
 
-    const cachedGuild = await guildModel.cache.get(guild);
+    const cachedGuild = await getGuildModel(guild);
 
     for (const table of tables) {
       if (affectedRows < batchsize) {
@@ -129,7 +129,7 @@ export const storage = {
   ) => {
     let affectedRows = 0;
 
-    const cachedGuild = await guildModel.cache.get(guild);
+    const cachedGuild = await getGuildModel(guild);
 
     affectedRows += (
       await shardDb.query<DBDelete>(
@@ -158,7 +158,7 @@ export const storage = {
 
     const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'];
 
-    const cachedGuild = await guildModel.cache.get(guild);
+    const cachedGuild = await getGuildModel(guild);
 
     for (const table of tables) {
       if (affectedRows < batchsize) {
@@ -193,7 +193,7 @@ export const storage = {
 
     const tables = ['textMessage', 'voiceMinute'];
 
-    const cachedGuild = await guildModel.cache.get(guild);
+    const cachedGuild = await getGuildModel(guild);
 
     for (const table of tables) {
       if (affectedRows < batchsize) {

@@ -1,7 +1,7 @@
 import { registerEvent } from 'bot/util/eventLoader.js';
 import { Events } from 'discord.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import { get as getEmoji } from 'node-emoji';
@@ -17,7 +17,7 @@ registerEvent(Events.MessageReactionAdd, async function (reaction) {
   if (skip(reaction.message.guild.id)) return;
   if (reaction.message.author?.bot) return;
 
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   if (!cachedGuild.db.voteXp || !cachedGuild.db.reactionVote) return;
 

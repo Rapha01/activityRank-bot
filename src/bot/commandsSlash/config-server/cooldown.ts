@@ -1,6 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import guildModel from '../../models/guild/guildModel.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 import prettyTime from 'pretty-ms';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
 
@@ -16,23 +16,20 @@ registerSubCommand({
     }
 
     const items = {
-      textMessageCooldownSeconds: interaction.options.getInteger('message'),
-      voteCooldownSeconds: interaction.options.getInteger('vote'),
+      textMessageCooldownSeconds: interaction.options.getInteger('message') ?? undefined,
+      voteCooldownSeconds: interaction.options.getInteger('vote') ?? undefined,
     };
-    if (Object.values(items).every((x) => x === null)) {
+    if (Object.values(items).every((x) => x === undefined)) {
       return await interaction.reply({
         content: 'You must specify at least one option for this command to do anything!',
         ephemeral: true,
       });
     }
 
-    for (const _k in items) {
-      const k = _k as keyof typeof items;
-      const value = items[k];
-      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
-    }
+    const cachedGuild = await getGuildModel(interaction.guild);
+    await cachedGuild.upsert(items);
 
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const pretty = (sec: number) => prettyTime(sec * 1000, { verbose: true });
 
     await interaction.reply({
       embeds: [
@@ -40,13 +37,10 @@ registerSubCommand({
           .setDescription(stripIndent`
         Modified Cooldown Values! New values:
   
-        Messages will only give XP if their author has not sent one in the last \`${prettyTime(
-          cachedGuild.db.textMessageCooldownSeconds * 1000,
-          { verbose: true },
+        Messages will only give XP if their author has not sent one in the last \`${pretty(
+          cachedGuild.db.textMessageCooldownSeconds,
         )}\`.
-        Votes will have a cooldown of \`${prettyTime(cachedGuild.db.voteCooldownSeconds * 1000, {
-          verbose: true,
-        })}\`.
+        Votes will have a cooldown of \`${pretty(cachedGuild.db.voteCooldownSeconds)}\`.
         `),
       ],
       ephemeral: true,

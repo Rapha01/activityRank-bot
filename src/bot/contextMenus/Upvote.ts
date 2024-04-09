@@ -7,12 +7,12 @@ import fct from '../../util/fct.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import { registerContextMenu } from 'bot/util/commandLoader.js';
 import { ApplicationCommandType, time } from 'discord.js';
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 
 registerContextMenu({
   data: new ContextMenuCommandBuilder().setName('Upvote').setType(ApplicationCommandType.User),
   execute: async function (interaction) {
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
     if (!cachedGuild.db.voteXp)
       return await interaction.reply({
         content: 'Voting is disabled on this server.',

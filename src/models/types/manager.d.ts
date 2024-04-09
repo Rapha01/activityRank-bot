@@ -1,3 +1,6 @@
+// ! DEPRECATED file. Prefer `models/types/kysely/manager.ts`.
+
+/** @deprecated use `kysely` types instead. */
 export interface BotShardStatSchema {
   shardId: number;
   status: number;
@@ -19,6 +22,7 @@ export interface BotShardStatSchema {
   textMessagesTotal: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface BotStatSchema {
   commands1h: number;
   botInvites1h: number;
@@ -31,17 +35,20 @@ export interface BotStatSchema {
   addDate: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface DbShardSchema {
   id: string;
   hostExtern: string;
   hostIntern: string;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface GuildRouteSchema {
   guildId: string;
   dbShardId: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface ProductKeySchema {
   key: string;
   type: string;
@@ -50,11 +57,13 @@ export interface ProductKeySchema {
   addDate: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface SettingSchema {
   id: string;
   value: string;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface UserRouteSchema {
   userId: string;
   dbShardId: number;
