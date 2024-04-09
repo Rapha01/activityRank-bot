@@ -50,7 +50,7 @@ export async function runPatreonTask() {
    * Update DB. Use activePledges to update DB (if information of pledge and DB differ)
    */
 
-  /* const usersWithActivePledge = await queryAllHosts<{
+  const usersWithActivePledge = await queryAllHosts<{
     userId: string;
     patreonTier: number;
     patreonTierUntilDate: number;
@@ -58,10 +58,10 @@ export async function runPatreonTask() {
     `SELECT * FROM user WHERE patreonTier > 0 && patreonTierUntilDate > ${
       Date.now() / 1000
     }`
-  ); */
+  );
 
-  console.log('Pledges: ', entitledPledgesWithDiscord.length);
-  /* 
+  console.log(`Processing ${entitledPledgesWithDiscord.length} pledges.`);
+
   for (const pledge of entitledPledgesWithDiscord) {
     let userWithActivePledge = usersWithActivePledge.find(
       (u) => u.userId == pledge.discordUserId
@@ -86,7 +86,7 @@ export async function runPatreonTask() {
         pledgeSeconds
       );
     }
-  } */
+  }
 }
 
 function getParsedMembers(response: PatreonResponse): ParsedMember[] {
