@@ -32,6 +32,15 @@ export async function checkLevelUp(
   }
 }
 
+const DANGEROUS_PERMISSIONS =
+  PermissionFlagsBits.KickMembers |
+  PermissionFlagsBits.BanMembers |
+  PermissionFlagsBits.Administrator |
+  PermissionFlagsBits.ManageRoles |
+  PermissionFlagsBits.ManageGuild |
+  PermissionFlagsBits.ManageChannels |
+  PermissionFlagsBits.ManageWebhooks;
+
 export async function checkRoleAssignment(member: GuildMember, level: number) {
   let roleMessages: string[] = [],
     memberHasRole;
@@ -67,17 +76,11 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
     } else if (cachedRole.db.assignLevel != 0 && level >= cachedRole.db.assignLevel) {
       // User is within role. Assign or do nothing.
 
-      if (
-        role.permissions.has(PermissionFlagsBits.ManageGuild, true) ||
-        role.permissions.has(PermissionFlagsBits.KickMembers, true) ||
-        role.permissions.has(PermissionFlagsBits.BanMembers, true) ||
-        role.permissions.has(PermissionFlagsBits.ManageChannels, true) ||
-        role.permissions.has(PermissionFlagsBits.ManageEvents, true) ||
-        role.permissions.has(PermissionFlagsBits.ManageMessages, true)
-      ) {
+      if (role.permissions.any(DANGEROUS_PERMISSIONS)) {
         member.client.logger.warn({ role, cachedRole }, 'attempted to assign dangerous role');
         continue;
       }
+
       if (!memberHasRole) {
         member.client.logger.debug({ roleId: role.id }, 'assigning role');
         await member.roles.add(role).catch((e) => {
