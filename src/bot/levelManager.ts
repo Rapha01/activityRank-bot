@@ -54,7 +54,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
 
-    memberHasRole = member.roles.cache.get(role.id);
+    const memberHasRole = member.roles.cache.has(role.id);
 
     if (cachedRole.db.deassignLevel != 0 && level >= cachedRole.db.deassignLevel) {
       // User is above role. Deassign or do nothing.
