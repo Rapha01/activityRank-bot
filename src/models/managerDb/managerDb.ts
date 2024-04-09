@@ -30,7 +30,7 @@ export async function getConnection() {
 
 export async function getAllDbHosts() {
   const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-  const db = await getManagerDb();
+  const db = getManagerDb();
   const res = await db.selectFrom('dbShard').select(`${hostField} as host`).execute();
 
   return res.map((r) => r.host);
@@ -39,7 +39,6 @@ export async function getAllDbHosts() {
 function getManagerPool() {
   pool ??= createPool({
     host: keys.managerHost,
-    port: keys.managerPort ?? undefined,
     database: keys.managerDb.dbName,
     user: keys.managerDb.dbUser,
     password: keys.managerDb.dbPassword,
