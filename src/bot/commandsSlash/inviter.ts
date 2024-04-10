@@ -3,7 +3,7 @@ import guildMemberModel from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import fct from '../../util/fct.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -17,7 +17,7 @@ registerSlashCommand({
     ),
   execute: async (interaction) => {
     const member = interaction.options.getMember('member')!;
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     if (!cachedGuild.db.inviteXp) {
       return await interaction.reply({

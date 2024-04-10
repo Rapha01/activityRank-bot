@@ -12,7 +12,7 @@ import {
   type Interaction,
 } from 'discord.js';
 
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import { registerComponent, registerModal, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { ComponentType } from 'discord.js';
 
@@ -139,7 +139,9 @@ const clearMsgId = registerComponent({
   type: ComponentType.StringSelect,
   async callback({ interaction }) {
     const clearItem = interaction.values[0] as ServerMessage;
-    await guildModel.storage.set(interaction.guild, clearItem, '');
+
+    const model = await getGuildModel(interaction.guild);
+    model.upsert({ [clearItem]: '' });
 
     await interaction.reply({ content: `Cleared \`${_prettifyId[clearItem]}\``, ephemeral: true });
   },
@@ -160,7 +162,8 @@ const setModalId = registerModal<{ message: ServerMessage }>({
     const value = interaction.fields.getTextInputValue('msg-component-1');
     await interaction.deferReply({ ephemeral: true });
 
-    await guildModel.storage.set(interaction.guild, data.message, value);
+    const model = await getGuildModel(interaction.guild);
+    model.upsert({ [data.message]: value });
 
     await interaction.followUp({
       content: `Set ${_prettifyId[data.message]}`,

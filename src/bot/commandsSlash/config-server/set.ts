@@ -7,22 +7,33 @@ import {
   type ButtonComponentData,
   type ActionRowData,
 } from 'discord.js';
-
 import { stripIndent } from 'common-tags';
-import guildModel from '../../models/guild/guildModel.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 import { registerComponent, registerSubCommand } from 'bot/util/commandLoader.js';
-import type { GuildSchema } from 'models/types/shard.js';
-import type { PropertiesOfType } from 'models/types/generics.js';
+
+type BooleanGuildKey =
+  | 'showNicknames'
+  | 'reactionVote'
+  | 'allowMutedXp'
+  | 'allowDeafenedXp'
+  | 'allowSoloXp'
+  | 'takeAwayAssignedRolesOnLevelDown'
+  | 'notifyLevelupDm'
+  | 'notifyLevelupCurrentChannel'
+  | 'notifyLevelupWithRole'
+  | 'textXp'
+  | 'voiceXp'
+  | 'inviteXp'
+  | 'voteXp';
 
 const generateRows = async (
   interaction: Interaction<'cached'>,
 ): Promise<ActionRowData<ButtonComponentData>[]> => {
-  // TODO: test this
-  const myGuild = await guildModel.storage.get(interaction.guild);
+  const cachedGuild = await getGuildModel(interaction.guild);
   const rows: {
     label?: string;
     emoji?: string;
-    key: keyof PropertiesOfType<GuildSchema, number>;
+    key: BooleanGuildKey;
   }[][] = [
     [
       { label: 'Use Nicknames', key: 'showNicknames' },
@@ -44,64 +55,12 @@ const generateRows = async (
       { emoji: '❤️', key: 'voteXp' },
     ],
   ];
-  /* const r1 = [
-    new ButtonBuilder()
-      .setLabel('Use Nicknames')
-      .setCustomId(`config-server/set ${i.member.id} showNicknames`),
-    new ButtonBuilder()
-      .setLabel('Reaction Voting')
-      .setCustomId(`config-server/set ${i.member.id} reactionVote`),
-    new ButtonBuilder()
-      .setLabel('Allow Muted XP')
-      .setCustomId(`config-server/set ${i.member.id} allowMutedXp`),
-    new ButtonBuilder()
-      .setLabel('Allow Deafened XP')
-      .setCustomId(`config-server/set ${i.member.id} allowDeafenedXp`),
-    new ButtonBuilder()
-      .setLabel('Allow Solo XP')
-      .setCustomId(`config-server/set ${i.member.id} allowSoloXp`),
-  ];
-  const r2 = [
-    new ButtonBuilder()
-      .setLabel('TAAROLD')
-      .setCustomId(`config-server/set ${i.member.id} takeAwayAssignedRolesOnLevelDown`),
-    new ButtonBuilder()
-      .setLabel('Notify Via DM')
-      .setCustomId(`config-server/set ${i.member.id} notifyLevelupDm`),
-    new ButtonBuilder()
-      .setLabel('Notify in Last Active Channel')
-      .setCustomId(`config-server/set ${i.member.id} notifyLevelupCurrentChannel`),
-    new ButtonBuilder()
-      .setLabel('Include Levelup Message')
-      .setCustomId(`config-server/set ${i.member.id} notifyLevelupWithRole`),
-  ];
-  const r3 = [
-    new ButtonBuilder().setEmoji('✍️').setCustomId(`config-server/set ${i.member.id} textXp`),
-    new ButtonBuilder().setEmoji('🎙️').setCustomId(`config-server/set ${i.member.id} voiceXp`),
-    new ButtonBuilder().setEmoji('✉️').setCustomId(`config-server/set ${i.member.id} inviteXp`),
-    new ButtonBuilder().setEmoji('❤️').setCustomId(`config-server/set ${i.member.id} voteXp`),
-  ];
-  r1.forEach((o) =>
-    o.setStyle(
-      myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
-    ),
-  );
-  r2.forEach((o) =>
-    o.setStyle(
-      myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
-    ),
-  );
-  r3.forEach((o) =>
-    o.setStyle(
-      myGuild[o.data.custom_id.split(' ')[2]] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
-    ),
-  ); */
 
   const items = rows.map((group) =>
     group.map(
       (item): ButtonComponentData => ({
         type: ComponentType.Button,
-        style: myGuild![item.key] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
+        style: cachedGuild.db[item.key] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
         label: item.label,
         emoji: item.emoji,
         customId: setId({ key: item.key }, { ownerId: interaction.user.id }),
@@ -110,12 +69,12 @@ const generateRows = async (
   );
 
   // special cases
-  if (myGuild!.notifyLevelupCurrentChannel) {
+  if (cachedGuild.db.notifyLevelupCurrentChannel) {
     items[1][1].disabled = true;
     items[1][1].style = ButtonStyle.Danger;
   }
 
-  if (parseInt(myGuild!.autopost_levelup)) {
+  if (parseInt(cachedGuild.db.autopost_levelup)) {
     items[1][1].disabled = true;
     items[1][1].style = ButtonStyle.Danger;
     items[1][2].disabled = true;
@@ -141,18 +100,6 @@ const generateRows = async (
       ],
     },
   ];
-
-  /* if (myGuild.notifyLevelupCurrentChannel) r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
-  if (parseInt(myGuild.autopost_levelup)) {
-    r2[1].setDisabled(true).setStyle(ButtonStyle.Danger);
-    r2[2].setDisabled(true).setStyle(ButtonStyle.Danger);
-  }
-  return [
-    new ActionRowBuilder<ButtonBuilder>().addComponents(r1),
-    new ActionRowBuilder<ButtonBuilder>().addComponents(r2),
-    new ActionRowBuilder<ButtonBuilder>().addComponents(r3),
-    _close(i),
-  ]; */
 };
 
 registerSubCommand({
@@ -166,7 +113,7 @@ registerSubCommand({
       });
     }
 
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: 'Server Settings' })
@@ -234,14 +181,14 @@ registerSubCommand({
   },
 });
 
-const setId = registerComponent<{ key: keyof PropertiesOfType<GuildSchema, number> }>({
+const setId = registerComponent<{ key: BooleanGuildKey }>({
   identifier: 'config-server.set',
   type: ComponentType.Button,
   async callback({ interaction, data }) {
-    const myGuild = await guildModel.storage.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
-    if (myGuild![data.key]) await guildModel.storage.set(interaction.guild, data.key, 0);
-    else await guildModel.storage.set(interaction.guild, data.key, 1);
+    if (cachedGuild.db[data.key]) await cachedGuild.upsert({ [data.key]: 0 });
+    else await cachedGuild.upsert({ [data.key]: 1 });
 
     await interaction.update({ components: await generateRows(interaction) });
   },

@@ -1,6 +1,6 @@
 import fct from '../../util/fct.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import skip from '../skip.js';
 import statFlushCache from '../statFlushCache.js';
 import noXpUtil from '../util/noXpUtil.js';
@@ -49,7 +49,7 @@ export default async (client: Client) => {
 
 // existTwoUnmutedMembers(channel.members)) { && guildchannel.noxp != 1
 const rankVoiceGuild = async (guild: Guild) => {
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   if (!cachedGuild.db.voiceXp) return;
 

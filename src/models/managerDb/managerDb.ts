@@ -1,58 +1,70 @@
 import { getKeys } from 'const/config.js';
-import mysql from 'promise-mysql';
-const keys = getKeys();
-let pool: mysql.Pool | null;
+import { createPool, type Pool } from 'mysql2/promise';
+import { Kysely, MysqlDialect } from 'kysely';
+import type { ManagerDB } from 'models/types/kysely/manager.js';
 
-export async function query<T>(sql: string) {
-  if (!pool) await createPool();
-  return await pool!.query<T>(sql);
+const keys = getKeys();
+let pool: Pool | null = null;
+let db: Kysely<ManagerDB> | null = null;
+
+export function getManagerDb() {
+  const activePool = getManagerPool();
+  db ??= new Kysely({ dialect: new MysqlDialect({ pool: activePool.pool }) });
+  return db;
 }
 
+/** ! Remember to close the connection after use. */
+export async function getManagerConnection() {
+  return await getManagerPool().getConnection();
+}
+
+/** @deprecated Prefer querying with Kysely and getManagerDb() instead */
+export async function query<T>(sql: string) {
+  return (await getManagerPool().query(sql))[0] as T;
+}
+
+/** @deprecated Prefer getManagerConnection() instead */
 export async function getConnection() {
-  if (!pool) await createPool();
-  return await pool!.getConnection();
+  return await getManagerPool().getConnection();
 }
 
 export async function getAllDbHosts() {
   const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-  let res = (await query(`SELECT ${hostField} AS host FROM dbShard`)) as { host: string }[];
+  const db = getManagerDb();
+  const res = await db.selectFrom('dbShard').select(`${hostField} as host`).execute();
 
-  const hosts = [];
-  for (let row of res) hosts.push(row.host);
-
-  return hosts;
+  return res.map((r) => r.host);
 }
 
-async function createPool() {
-  if (!pool) {
-    pool = await mysql.createPool({
-      host: keys.managerHost,
-      user: keys.managerDb.dbUser,
-      password: keys.managerDb.dbPassword,
-      database: keys.managerDb.dbName,
-      dateStrings: ['DATE'],
-      charset: 'utf8mb4',
-      supportBigNumbers: true,
-      bigNumberStrings: true,
-      connectionLimit: 3,
-    });
-
-    pool.on('error', (err) => {
-      console.log('ManagerDb pool error.');
-      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log('PROTOCOL_CONNECTION_LOST for manager. Deleting connection.');
-        pool = null;
-      } else {
-        throw err;
-      }
-    });
-
-    console.log(`Connected to managerDb @${keys.managerHost}.`);
-  }
+function getManagerPool() {
+  pool ??= createPool({
+    host: keys.managerHost,
+    database: keys.managerDb.dbName,
+    user: keys.managerDb.dbUser,
+    password: keys.managerDb.dbPassword,
+    supportBigNumbers: true,
+    bigNumberStrings: true,
+  });
 
   return pool;
 }
 
+export async function managerFetch<T extends any>(route: string, init: RequestInit) {
+  try {
+    const port = keys.managerPort ? `:${keys.managerPort}` : '';
+    const url = new URL(`http://${keys.managerHost}${port}/${route}`);
+
+    const headers = new Headers(init.headers);
+    headers.set('Authorization', keys.managerApiAuth);
+
+    const res = await fetch(url, { ...init, headers });
+    return (await res.json()) as T;
+  } catch (cause) {
+    throw new Error('Failed to fetch data from Manager API', { cause });
+  }
+}
+
+/** @deprecated Prefer managerFetch() instead */
 export async function mgrFetch<T extends any>(body: any, route: string, method: string) {
   try {
     const requestObject: RequestInit = {
@@ -72,7 +84,7 @@ export async function mgrFetch<T extends any>(body: any, route: string, method: 
 
     return (await res.json()) as T;
   } catch (cause) {
-    throw new Error('Fetch error in backup.api.call()', { cause });
+    throw new Error('Failed to fetch data from Manager API', { cause });
   }
 }
 

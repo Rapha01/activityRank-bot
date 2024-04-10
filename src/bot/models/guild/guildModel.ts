@@ -1,9 +1,8 @@
-import shardDb from '../../../models/shardDb/shardDb.js';
-import managerDb from '../../../models/managerDb/managerDb.js';
-import mysql from 'promise-mysql';
+import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getManagerDb } from 'models/managerDb/managerDb.js';
+import type { GuildSchema, GuildUpdate } from 'models/types/kysely/shard.js';
+import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
-import type { GuildSchema } from 'models/types/shard.js';
-import type { PropertiesOfType } from 'models/types/generics.js';
 
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 const cachedFields = [
@@ -52,117 +51,92 @@ const cachedFields = [
   'isBanned',
 ] as const;
 
-type CachedDbFields = Pick<GuildSchema, (typeof cachedFields)[number]>;
-
 // TODO convert to dates
 interface GuildCacheStorage {
   lastAskForPremiumDate?: Date;
   lastResetServer?: Date;
 }
-export interface CachedGuild {
-  db: CachedDbFields;
-  dbHost: string;
-  cache: GuildCacheStorage;
-}
-export const guildCache = new WeakMap<Guild, CachedGuild>();
+export const guildCache = new WeakMap<Guild, GuildModel>();
 
-export const cache = {
-  get: async function (guild: Guild): Promise<CachedGuild> {
-    if (guildCache.has(guild)) return guildCache.get(guild)!;
-    else return await buildCache(guild);
-  },
-};
+export class GuildModel extends CachedModel<
+  Guild,
+  GuildSchema,
+  typeof cachedFields,
+  GuildCacheStorage
+> {
+  async fetch() {
+    const guild = await this.handle
+      .selectFrom('guild')
+      .selectAll()
+      .where('guildId', '=', this.object.id)
+      .executeTakeFirst();
 
-function isCachableDbKey(key: keyof GuildSchema): key is keyof CachedDbFields {
-  return cachedFields.includes(key as keyof CachedDbFields);
-}
-
-export const storage = {
-  set: async <K extends Exclude<keyof GuildSchema, 'guildId'>>(
-    guild: Guild,
-    field: K,
-    value: GuildSchema[K],
-  ) => {
-    const cachedGuild = await cache.get(guild);
-    await shardDb.query(
-      cachedGuild.dbHost,
-      `UPDATE guild SET ${field} = ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
-    );
-
-    if (isCachableDbKey(field)) {
-      Object.defineProperty(cachedGuild.db, field, { value });
-    }
-  },
-  increment: async <K extends keyof PropertiesOfType<GuildSchema, number>>(
-    guild: Guild,
-    field: K,
-    value: GuildSchema[K],
-  ) => {
-    const cachedGuild = await cache.get(guild);
-    await shardDb.query(
-      cachedGuild.dbHost,
-      `UPDATE guild SET ${field} = ${field} + ${mysql.escape(value)} WHERE guildId = ${guild.id}`,
-    );
-
-    if (isCachableDbKey(field)) {
-      cachedGuild.db[field] += value;
-    }
-  },
-  get: async (guild: Guild) => {
-    const cachedGuild = await cache.get(guild);
-
-    const res = await shardDb.query<GuildSchema[]>(
-      cachedGuild.dbHost,
-      `SELECT * FROM guild WHERE guildId = ${guild.id}`,
-    );
-
-    if (res.length == 0) return null;
-    else return res[0];
-  },
-};
-
-async function buildCache(guild: Guild): Promise<CachedGuild> {
-  const dbHost = await getDbHost(guild.id);
-  let cache = await shardDb.query<CachedDbFields[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
-  );
-
-  if (cache.length == 0) {
-    await shardDb.query(
-      dbHost,
-      `INSERT INTO guild (guildId,joinedAtDate,addDate) VALUES (${guild.id},${Math.floor(
-        guild.members.me!.joinedAt!.getTime() / 1000,
-      )},${Math.floor(Date.now() / 1000)})`,
-    );
-    cache = await shardDb.query<CachedDbFields[]>(
-      dbHost,
-      `SELECT ${cachedFields.join(',')} FROM guild WHERE guildId = ${guild.id}`,
-    );
+    if (!guild) throw new Error(`Could not find guild ${this.object.id} in database`);
+    return guild;
   }
 
-  const cachedGuild = cache[0]!;
-  const res = { cache: {}, db: cachedGuild, dbHost };
-  guildCache.set(guild, res);
-  return res;
+  async upsert(expr: GuildUpdate) {
+    const result = await this.handle
+      .insertInto('guild')
+      .values({ guildId: this.object.id, ...expr })
+      .onDuplicateKeyUpdate(expr)
+      .returning(cachedFields)
+      .executeTakeFirstOrThrow();
+
+    this._db = result;
+  }
+}
+
+export async function getGuildModel(guild: Guild): Promise<GuildModel> {
+  if (guildCache.has(guild)) return guildCache.get(guild)!;
+  else return await buildCache(guild);
+}
+
+async function buildCache(guild: Guild): Promise<GuildModel> {
+  const host = await getDbHost(guild.id);
+  const db = getShardDb(host);
+
+  const fetch = db.selectFrom('guild').select(cachedFields).where('guildId', '=', guild.id);
+
+  let cache = await fetch.executeTakeFirst();
+
+  if (!cache) {
+    await db
+      .insertInto('guild')
+      .values({
+        guildId: guild.id,
+        joinedAtDate: Math.floor(guild.members.me!.joinedAt!.getTime() / 1000),
+        addDate: Math.floor(Date.now() / 1000),
+      })
+      .executeTakeFirstOrThrow();
+
+    cache = await fetch.executeTakeFirstOrThrow();
+  }
+
+  const built = new GuildModel(guild, host, cache, {});
+
+  guildCache.set(guild, built);
+  return built;
 }
 
 const getDbHost = async (guildId: string): Promise<string> => {
-  let res = await managerDb.query<{ host: string }[]>(
-    `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
-  );
+  const db = getManagerDb();
 
-  if (res.length < 1) {
-    await managerDb.query(`INSERT INTO guildRoute (guildId) VALUES (${guildId})`);
-    res = await managerDb.query(
-      `SELECT ${hostField} AS host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
-    );
+  const getRoute = db
+    .selectFrom('guildRoute')
+    .leftJoin('dbShard', 'guildRoute.dbShardId', 'dbShard.id')
+    .select(`${hostField} as host`)
+    .where('guildId', '=', guildId);
+
+  let res = await getRoute.executeTakeFirst();
+
+  if (!res) {
+    await db.insertInto('guildRoute').values({ guildId }).executeTakeFirst();
+    res = await getRoute.executeTakeFirstOrThrow();
+  }
+  if (!res.host) {
+    throw new Error(`Failed to map guild ID "${guildId}" to a database host.`);
   }
 
-  return res[0].host;
-};
-
-export default {
-  cache,
-  storage,
+  return res.host;
 };

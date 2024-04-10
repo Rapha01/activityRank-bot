@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import guildModel from '../models/guild/guildModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 import userModel from '../models/userModel.js';
 import { registerAdminCommand } from 'bot/util/commandLoader.js';
 import { PrivilegeLevel } from 'const/config.js';
@@ -71,15 +71,17 @@ registerAdminCommand({
         });
       }
 
-      const targetGuild = await guildModel.storage.get(guild);
-      if (targetGuild!.isBanned) {
-        await guildModel.storage.set(guild, 'isBanned', 0);
+      const cachedGuild = await getGuildModel(guild);
+      const targetGuild = await cachedGuild.fetch();
+
+      if (targetGuild.isBanned) {
+        await cachedGuild.upsert({ isBanned: 0 });
         return await interaction.reply({
           content: `Unblacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
           ephemeral: true,
         });
       } else {
-        await guildModel.storage.set(guild, 'isBanned', 1);
+        await cachedGuild.upsert({ isBanned: 1 });
         return await interaction.reply({
           content: `Blacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
           ephemeral: true,
