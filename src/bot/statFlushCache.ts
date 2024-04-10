@@ -4,6 +4,8 @@ import type { StatType } from 'models/types/enums.js';
 import guildModel from './models/guild/guildModel.js';
 import guildMemberModel from './models/guild/guildMemberModel.js';
 import { deprecate } from 'node:util';
+import { addXp } from './xpFlushCache.js';
+import { Feature, hasFeature } from './util/feature.js';
 
 export async function addTextMessage(
   member: GuildMember,
@@ -12,7 +14,7 @@ export async function addTextMessage(
   count: number,
 ) {
   // Add to FlushCache
-  let textMessageCache = await buildStatFlushCache(member, 'textMessage');
+  let textMessageCache = await buildStatFlushCache(member.client, member.guild, 'textMessage');
 
   const cachedGuild = await guildModel.cache.get(member.guild);
 
@@ -40,7 +42,7 @@ export async function addVoiceMinute(
   count: number,
 ) {
   // Add to FlushCache
-  let voiceMinuteCache = await buildStatFlushCache(member, 'voiceMinute');
+  let voiceMinuteCache = await buildStatFlushCache(member.client, member.guild, 'voiceMinute');
 
   const cachedGuild = await guildModel.cache.get(member.guild);
 
@@ -63,7 +65,7 @@ export async function addVoiceMinute(
 }
 
 export const addInvite = async (member: GuildMember, count: number) => {
-  let inviteCache = await buildStatFlushCache(member, 'invite');
+  let inviteCache = await buildStatFlushCache(member.client, member.guild, 'invite');
 
   const cachedGuild = await guildModel.cache.get(member.guild);
 
@@ -85,7 +87,7 @@ export const addInvite = async (member: GuildMember, count: number) => {
 };
 
 export const addVote = async (member: GuildMember, count: number) => {
-  let voteCache = await buildStatFlushCache(member, 'vote');
+  let voteCache = await buildStatFlushCache(member.client, member.guild, 'vote');
 
   const cachedGuild = await guildModel.cache.get(member.guild);
 
@@ -107,7 +109,7 @@ export const addVote = async (member: GuildMember, count: number) => {
 };
 
 export const addBonus = async (member: GuildMember, count: number) => {
-  let bonusCache = await buildStatFlushCache(member, 'bonus');
+  let bonusCache = await buildStatFlushCache(member.client, member.guild, 'bonus');
 
   const cachedGuild = await guildModel.cache.get(member.guild);
 
@@ -132,6 +134,8 @@ const addTotalXp = async (member: GuildMember, xp: number) => {
   cachedMember.cache.totalXp = oldTotalXp + xp;
   const newTotalXp = cachedMember.cache.totalXp;
 
+  if (hasFeature(member.guild, Feature.XPFlush)) await addXp(member, xp);
+
   await levelManager.checkLevelUp(member, oldTotalXp, newTotalXp);
 };
 
@@ -142,7 +146,7 @@ export const directlyAddBonus = async (
   client: Client,
   count: number,
 ) => {
-  const bonusCache = await directlyBuildStatFlushCache(client, guild, 'bonus')!;
+  const bonusCache = await buildStatFlushCache(client, guild, 'bonus')!;
 
   count *= 1; // ?
   let entry = bonusCache[userId];
@@ -166,11 +170,7 @@ export interface StatFlushCache {
   bonus: Record<string, StatFlushCacheGuildEntry>;
 }
 
-const buildStatFlushCache = deprecate(async (member: GuildMember, type: StatType) => {
-  return await directlyBuildStatFlushCache(member.client, member.guild, type);
-}, 'Prefer directlyBuildStatFlushCache, which does not require a useless `member` param');
-
-const directlyBuildStatFlushCache = async (client: Client, guild: Guild, type: StatType) => {
+const buildStatFlushCache = async (client: Client, guild: Guild, type: StatType) => {
   const { dbHost } = await guildModel.cache.get(guild);
   const { statFlushCache } = client;
 

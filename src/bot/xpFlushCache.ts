@@ -3,9 +3,9 @@ import guildModel from './models/guild/guildModel.js';
 
 export async function addXp(member: GuildMember, xp: number) {
   const key = `${member.guild.id}.${member.id}`;
-  let bonusCache = await buildXpFlushCache(member.guild);
+  const cache = await buildXpFlushCache(member.guild);
 
-  let entry = bonusCache[key];
+  let entry = cache[key];
   if (!entry) entry = { guildId: member.guild.id, userId: member.id, count: xp };
   else entry.count += xp;
 }
