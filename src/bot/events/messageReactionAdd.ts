@@ -1,6 +1,6 @@
 import { registerEvent } from 'bot/util/eventLoader.js';
 import { Events } from 'discord.js';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
@@ -36,7 +36,7 @@ registerEvent(Events.MessageReactionAdd, async function (reaction) {
 
   if (!targetMember || !member || member.user.bot || targetMember.id == member.id) return;
 
-  const cachedMember = await guildMemberModel.cache.get(member);
+  const cachedMember = await getMemberModel(member);
 
   if (!cachedMember.db.reactionVote) return;
 

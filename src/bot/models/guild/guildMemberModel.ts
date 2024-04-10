@@ -1,16 +1,16 @@
-import shardDb from '../../../models/shardDb/shardDb.js';
-import { escape } from 'mysql2/promise';
+import shardDb, { getShardDb } from '../../../models/shardDb/shardDb.js';
 import type { Guild, GuildMember } from 'discord.js';
-import type { GuildMemberSchema } from 'models/types/shard.js';
-import type { PropertiesOfType } from 'models/types/generics.js';
+import type {
+  GuildMember as DBMember,
+  GuildMemberSchema,
+  GuildMemberUpdate,
+} from 'models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
-import rankModel from '../rankModel.js';
+import { getGuildMemberTotalScore } from '../rankModel.js';
+import { CachedModel } from '../generic/model.js';
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const;
-let defaultCache: CachedDbFields | null = null;
-let defaultAll: GuildMemberSchema | null = null;
-
-type CachedDbFields = Pick<GuildMemberSchema, (typeof cachedFields)[number]>;
+let defaultCache: Pick<DBMember, (typeof cachedFields)[number]> | null = null;
 
 interface MemberCacheStorage {
   totalXp?: number;
@@ -21,90 +21,40 @@ interface MemberCacheStorage {
   lastMessageChannelId?: string | null;
 }
 
-export interface CachedGuildMember {
-  db: CachedDbFields;
-  cache: MemberCacheStorage;
+export const memberCache = new WeakMap<GuildMember, GuildMemberModel>();
+
+export class GuildMemberModel extends CachedModel<
+  GuildMember,
+  GuildMemberSchema,
+  typeof cachedFields,
+  MemberCacheStorage
+> {
+  async fetch() {
+    const member = await this.handle
+      .selectFrom('guildMember')
+      .selectAll()
+      .where('guildId', '=', this.object.guild.id)
+      .where('userId', '=', this.object.id)
+      .executeTakeFirst();
+
+    if (!member)
+      throw new Error(
+        `Could not find member ${this.object.id} [${this.object.guild.id}] in database`,
+      );
+    return member;
+  }
+
+  async upsert(expr: GuildMemberUpdate) {
+    const result = await this.handle
+      .insertInto('guildMember')
+      .values({ userId: this.object.id, guildId: this.object.guild.id, ...expr })
+      .onDuplicateKeyUpdate(expr)
+      .returning(cachedFields)
+      .executeTakeFirstOrThrow();
+
+    this._db = result;
+  }
 }
-
-export const memberCache = new WeakMap<GuildMember, CachedGuildMember>();
-
-export const cache = {
-  get: async function (member: GuildMember): Promise<CachedGuildMember> {
-    if (memberCache.has(member)) return memberCache.get(member)!;
-    return await buildCache(member);
-  },
-};
-
-function isCachableDbKey(key: keyof GuildMemberSchema): key is keyof CachedDbFields {
-  return cachedFields.includes(key as keyof CachedDbFields);
-}
-
-export const storage = {
-  get: async (guild: Guild, userId: string) => {
-    const { dbHost } = await getGuildModel(guild);
-    const res = await shardDb.query<GuildMemberSchema[]>(
-      dbHost,
-      `SELECT * FROM guildMember WHERE guildId = ${guild.id} && userId = ${escape(userId)}`,
-    );
-
-    if (res.length == 0) {
-      if (!defaultAll)
-        defaultAll = (
-          await shardDb.query<GuildMemberSchema[]>(
-            dbHost,
-            `SELECT * FROM guildMember WHERE guildId = 0 AND userId = 0`,
-          )
-        )[0];
-      return defaultAll;
-    } else return res[0];
-  },
-
-  set: async <K extends Exclude<keyof GuildMemberSchema, 'guildId' | 'userId'>>(
-    guild: Guild,
-    userId: string,
-    field: K,
-    value: GuildMemberSchema[K],
-  ) => {
-    const { dbHost } = await getGuildModel(guild);
-
-    await shardDb.query(
-      dbHost,
-      `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${escape(
-        userId,
-      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`,
-    );
-
-    const member = guild.members.cache.get(userId);
-    if (member) {
-      const cachedMember = await cache.get(member);
-      if (isCachableDbKey(field)) {
-        Object.defineProperty(cachedMember.db, field, { value });
-      }
-    }
-  },
-
-  increment: async <K extends keyof PropertiesOfType<GuildMemberSchema, number>>(
-    guild: Guild,
-    userId: string,
-    field: K,
-    value: number,
-  ) => {
-    const { dbHost } = await getGuildModel(guild);
-
-    await shardDb.query(
-      dbHost,
-      `INSERT INTO guildMember (guildId,userId,${field}) VALUES (${guild.id},${escape(
-        userId,
-      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${escape(value)}`,
-    );
-
-    const member = guild.members.cache.get(userId);
-    if (member && isCachableDbKey(field)) {
-      const cachedMember = await cache.get(member);
-      cachedMember.db[field] += value;
-    }
-  },
-};
 
 export async function getRankedUserIds(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
@@ -138,50 +88,51 @@ export async function getRankedUserIds(guild: Guild) {
   return userIds;
 }
 
-async function buildCache(member: GuildMember): Promise<CachedGuildMember> {
+export async function getMemberModel(member: GuildMember): Promise<GuildMemberModel> {
+  if (memberCache.has(member)) return memberCache.get(member)!;
+  else return await buildCache(member);
+}
+
+async function buildCache(member: GuildMember): Promise<GuildMemberModel> {
   const { dbHost } = await getGuildModel(member.guild);
-  let foundCache = await shardDb.query<CachedDbFields[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = ${
-      member.guild.id
-    } AND userId = ${member.id}`,
-  );
+  const db = getShardDb(dbHost);
 
-  const db = foundCache.length > 0 ? foundCache[0] : { ...(await loadDefaultCache(dbHost)) };
+  const foundCache = await db
+    .selectFrom('guildMember')
+    .select(cachedFields)
+    .where('guildId', '=', member.guild.id)
+    .where('userId', '=', member.id)
+    .executeTakeFirst();
 
-  const res = {
-    db,
-    cache: {
-      totalXp: parseInt(await rankModel.getGuildMemberTotalScore(member.guild, member.id)),
-    },
-  };
-  memberCache.set(member, res);
+  const cache = foundCache ?? { ...(await loadDefaultCache(dbHost)) };
 
-  return res;
+  const built = new GuildMemberModel(member, dbHost, cache, {
+    totalXp: await getGuildMemberTotalScore(member.guild, member.id),
+  });
+
+  memberCache.set(member, built);
+  return built;
 }
 
 const loadDefaultCache = async (dbHost: string) => {
   if (defaultCache) return defaultCache;
+  const db = getShardDb(dbHost);
 
-  let res = await shardDb.query<CachedDbFields[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = 0 AND userId = 0`,
-  );
+  let res = await db
+    .selectFrom('guildMember')
+    .select(cachedFields)
+    .where('userId', '=', '0')
+    .where('guildId', '=', '0')
+    .executeTakeFirst();
 
-  if (res.length == 0)
-    await shardDb.query(dbHost, `INSERT IGNORE INTO guildMember (guildId,userId) VALUES (0,0)`);
+  if (!res) {
+    res = await db
+      .insertInto('guildMember')
+      .values({ userId: '0', guildId: '0' })
+      .returning(cachedFields)
+      .executeTakeFirstOrThrow();
+  }
 
-  res = await shardDb.query(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guildMember WHERE guildId = 0 AND userId = 0`,
-  );
-
-  defaultCache = res[0];
+  defaultCache = res;
   return defaultCache;
-};
-
-export default {
-  cache,
-  storage,
-  getRankedUserIds,
 };

@@ -4,7 +4,7 @@ import guildRoleModel from './models/guild/guildRoleModel.js';
 import Discord, { DiscordAPIError, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from './models/guild/guildModel.js';
-import guildMemberModel from './models/guild/guildMemberModel.js';
+import { getMemberModel } from './models/guild/guildMemberModel.js';
 
 export async function checkLevelUp(
   member: GuildMember,
@@ -109,7 +109,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   let gratulationMessage = '';
 
   const cachedGuild = await getGuildModel(member.guild);
-  const cachedMember = await guildMemberModel.cache.get(member);
+  const cachedMember = await getMemberModel(member);
 
   if (
     cachedGuild.db.levelupMessage != '' &&

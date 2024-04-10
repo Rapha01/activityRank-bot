@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, time } from 'discord.js';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import utilModel from '../models/utilModel.js';
@@ -26,7 +26,8 @@ registerSlashCommand({
     const userModel = await getUserModel(member.user);
     const myTargetUser = await userModel.fetch();
 
-    const myTargetMember = await guildMemberModel.storage.get(i.guild, member.id);
+    const cachedMember = await getMemberModel(member);
+    const myTargetMember = await cachedMember.fetch();
     const targetMemberInfo = await nameUtil.getGuildMemberInfo(i.guild, member.id);
 
     const lastActivities = await utilModel.storage.getLastActivities(i.guild, member.id);

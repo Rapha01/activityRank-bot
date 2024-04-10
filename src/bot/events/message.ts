@@ -1,7 +1,7 @@
 import { getGuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
 import { MessageType, ChannelType, Message, Events } from 'discord.js';
@@ -51,7 +51,7 @@ async function rankMessage(msg: Message<true>) {
 
   if (!msg.member) return;
 
-  const cachedMember = await guildMemberModel.cache.get(msg.member);
+  const cachedMember = await getMemberModel(msg.member);
   cachedMember.cache.lastMessageChannelId = msg.channel.id;
 
   // Check noxp channel

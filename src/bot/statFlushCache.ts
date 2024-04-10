@@ -2,7 +2,7 @@ import type { Client, Guild, GuildBasedChannel, GuildMember, VoiceBasedChannel }
 import levelManager from './levelManager.js';
 import type { StatType } from 'models/types/enums.js';
 import { getGuildModel } from './models/guild/guildModel.js';
-import guildMemberModel from './models/guild/guildMemberModel.js';
+import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
 import { Feature, hasFeature } from './util/feature.js';
 
@@ -127,7 +127,7 @@ export const addBonus = async (member: GuildMember, count: number) => {
 };
 
 const addTotalXp = async (member: GuildMember, xp: number) => {
-  const cachedMember = await guildMemberModel.cache.get(member);
+  const cachedMember = await getMemberModel(member);
 
   const oldTotalXp = cachedMember.cache.totalXp ?? 0;
   cachedMember.cache.totalXp = oldTotalXp + xp;

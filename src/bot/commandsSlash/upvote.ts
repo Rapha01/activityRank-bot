@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, time } from 'discord.js';
 import { oneLine } from 'common-tags';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import fct from '../../util/fct.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
@@ -31,7 +31,7 @@ registerSlashCommand({
         ephemeral: true,
       });
 
-    const cachedMember = await guildMemberModel.cache.get(interaction.member);
+    const cachedMember = await getMemberModel(interaction.member);
 
     if (targetMember.user.bot)
       return await interaction.reply({

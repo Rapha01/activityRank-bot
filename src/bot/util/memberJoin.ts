@@ -1,4 +1,4 @@
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import levelManager from '../levelManager.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import fct from '../../util/fct.js';
@@ -10,7 +10,7 @@ export async function handleMemberJoin(member: GuildMember) {
   if (member.user.bot) return;
 
   const cachedGuild = await getGuildModel(member.guild);
-  const cachedMember = await guildMemberModel.cache.get(member);
+  const cachedMember = await getMemberModel(member);
 
   member.client.logger.debug({ cachedGuild, cachedMember }, `cache objects`);
 

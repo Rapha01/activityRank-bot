@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import fct from '../../util/fct.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
@@ -32,18 +32,17 @@ registerSlashCommand({
       });
     }
 
-    const myGuildMember = await guildMemberModel.storage.get(
-      interaction.guild,
-      interaction.member.id,
-    );
-    const myTargetGuildMember = await guildMemberModel.storage.get(interaction.guild, member.id);
+    const cachedMember = await getMemberModel(interaction.member);
+    const myMember = await cachedMember.fetch();
+    const cachedTarget = await getMemberModel(member);
+    const myTarget = await cachedTarget.fetch();
 
-    if (myGuildMember.inviter !== '0') {
+    if (myMember.inviter !== '0') {
       return await interaction.reply({
         content: 'You have already set your inviter. This setting is unchangeable.',
         ephemeral: true,
       });
-    } else if (myTargetGuildMember.inviter == interaction.member.id) {
+    } else if (myTarget.inviter === interaction.member.id) {
       return await interaction.reply({
         content: 'You cannot set your inviter to a person who has been invited by you.',
         ephemeral: true,
@@ -62,20 +61,17 @@ registerSlashCommand({
         ephemeral: true,
       });
     }
-    await guildMemberModel.storage.set(
-      interaction.guild,
-      interaction.member.id,
-      'inviter',
-      member.id,
-    );
+
+    await interaction.deferReply({ ephemeral: true });
+
+    await cachedMember.upsert({ inviter: member.id });
 
     await statFlushCache.addInvite(member, 1);
     await statFlushCache.addInvite(interaction.member, 1);
 
-    return await interaction.reply({
+    return await interaction.editReply({
       content:
         'Your inviter has been set successfully. You will both get 1 invite added to your stats.',
-      ephemeral: true,
     });
   },
 });

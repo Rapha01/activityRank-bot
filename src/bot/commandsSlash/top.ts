@@ -1,10 +1,8 @@
-import guildMemberModel from '../models/guild/guildMemberModel.js';
 import { GuildModel, getGuildModel } from '../models/guild/guildModel.js';
 import rankModel from '../models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import cooldownUtil from '../util/cooldownUtil.js';
 import nameUtil, { getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
-
 import {
   SlashCommandBuilder,
   EmbedBuilder,
@@ -23,7 +21,6 @@ import {
 } from 'discord.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
-import type { GuildSchema } from 'models/types/shard.js';
 import { getSettings } from 'models/managerDb/settingModel.js';
 
 const _prettifyTime = {

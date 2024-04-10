@@ -1,5 +1,5 @@
 import shardDb from '../../models/shardDb/shardDb.js';
-import guildMemberModel, { memberCache } from './guild/guildMemberModel.js';
+import { getRankedUserIds, memberCache } from './guild/guildMemberModel.js';
 import guildChannelModel, { channelCache } from './guild/guildChannelModel.js';
 import type { ChatInputCommandInteraction, Guild, GuildTextBasedChannel } from 'discord.js';
 import type { DBDelete, DBUpdate } from 'models/types/enums.js';
@@ -216,7 +216,7 @@ export const storage = {
     return affectedRows;
   },
   getDeletedUserIds: async (guild: Guild) => {
-    const userIds = await guildMemberModel.getRankedUserIds(guild);
+    const userIds = await getRankedUserIds(guild);
     const users = await guild.members.fetch({ withPresences: false });
 
     const deletedUserIds = [];

@@ -150,7 +150,7 @@ export const getGuildMemberTotalScore = async function (guild: Guild, userId: st
     getGuildMemberTotalScoreSql(cachedGuild, guild.id, userId),
   );
 
-  if (res.length == 0) return null;
+  if (res.length == 0) return 0;
 
   return res[0].totalScoreAlltime;
 };
