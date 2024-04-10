@@ -24,14 +24,14 @@ export class UserModel extends CachedModel<
   UserCacheStorage
 > {
   async fetch() {
-    const guild = await this.handle
+    const member = await this.handle
       .selectFrom('user')
       .selectAll()
       .where('userId', '=', this.object.id)
       .executeTakeFirst();
 
-    if (!guild) throw new Error(`Could not find user ${this.object.id} in database`);
-    return guild;
+    if (!member) throw new Error(`Could not find user ${this.object.id} in database`);
+    return member;
   }
 
   async upsert(expr: UserUpdate) {
