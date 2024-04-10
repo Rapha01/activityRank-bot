@@ -1,5 +1,5 @@
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
-import userModel from '../bot/models/userModel.js';
+import { getUserModel } from '../bot/models/userModel.js';
 import type { GuildMember, Interaction } from 'discord.js';
 
 // System
@@ -56,8 +56,10 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
     await interaction.guild.members.fetch({ user: interaction.guild.ownerId, cache: true })
   ).user;
 
-  const myUser = await userModel.storage.get(interaction.user);
-  const myOwnerUser = await userModel.storage.get(ownerUser);
+  const userModel = await getUserModel(interaction.user);
+  const myUser = await userModel.fetch();
+  const ownerModel = await getUserModel(ownerUser);
+  const myOwnerUser = await ownerModel.fetch();
 
   let userTier;
   if (Date.now() / 1000 <= myUser.patreonTierUntilDate) {

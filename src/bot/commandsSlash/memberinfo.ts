@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, time } from 'discord.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
-import userModel from '../models/userModel.js';
+import { getUserModel } from '../models/userModel.js';
 import utilModel from '../models/utilModel.js';
 import nameUtil from '../util/nameUtil.js';
 import cooldownUtil from '../util/cooldownUtil.js';
@@ -23,7 +23,8 @@ registerSlashCommand({
 
     if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
-    const myTargetUser = await userModel.storage.get(member.user);
+    const userModel = await getUserModel(member.user);
+    const myTargetUser = await userModel.fetch();
 
     const myTargetMember = await guildMemberModel.storage.get(i.guild, member.id);
     const targetMemberInfo = await nameUtil.getGuildMemberInfo(i.guild, member.id);

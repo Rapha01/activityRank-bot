@@ -2,7 +2,7 @@ import { ContextMenuCommandBuilder } from '@discordjs/builders';
 import { oneLine } from 'common-tags';
 import statFlushCache from '../statFlushCache.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
-import userModel from '../models/userModel.js';
+import { getUserModel } from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import { registerContextMenu } from 'bot/util/commandLoader.js';
@@ -50,7 +50,8 @@ registerContextMenu({
     // Get author multiplier
     const cachedMember = await guildMemberModel.cache.get(interaction.member);
 
-    const myUser = await userModel.storage.get(interaction.user);
+    const userModel = await getUserModel(interaction.user);
+    const myUser = await userModel.fetch();
     const value = fct.getVoteMultiplier(myUser);
 
     // Check Command cooldown

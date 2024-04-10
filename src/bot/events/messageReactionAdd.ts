@@ -2,7 +2,7 @@ import { registerEvent } from 'bot/util/eventLoader.js';
 import { Events } from 'discord.js';
 import guildMemberModel from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
-import userModel from '../models/userModel.js';
+import { getUserModel } from '../models/userModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import { get as getEmoji } from 'node-emoji';
 import { getWaitTime } from '../util/cooldownUtil.js';
@@ -46,7 +46,8 @@ registerEvent(Events.MessageReactionAdd, async function (reaction) {
   }
 
   // Get author multiplier
-  const myUser = await userModel.storage.get(member.user);
+  const userModel = await getUserModel(member.user);
+  const myUser = await userModel.fetch();
   const value = fct.getVoteMultiplier(myUser);
 
   const toWait = getWaitTime(
