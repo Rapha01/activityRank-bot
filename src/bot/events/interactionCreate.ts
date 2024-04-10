@@ -91,7 +91,7 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
     // TODO: refactor to clean up
     if (interaction.isMessageComponent()) {
       const [version, identifier, instance] = interaction.customId.split('.');
-      if (identifier === ComponentKey.Ignore) return;
+      if (identifier === ComponentKey.Ignore || version === ComponentKey.Ignore) return;
       if (identifier === ComponentKey.Throw) throw new Error('should never occur');
       const ref = componentMap.get(identifier);
 

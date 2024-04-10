@@ -8,35 +8,43 @@ import type {
 } from 'bot/statFlushCache.js';
 import type { StatType } from 'models/types/enums.js';
 import { inspect } from 'node:util';
+import type { XpFlushCache } from 'bot/xpFlushCache.js';
 
 export default async function (manager: ShardingManager) {
-  const hrstart = process.hrtime();
   const shardCaches = (await manager.fetchClientValues('statFlushCache')) as Record<
     string,
     StatFlushCache
   >[];
-
-  // console.debug('Shard caches ', inspect(shardCaches, { depth: 4 }));
-
   manager.broadcastEval((client) => (client.statFlushCache = {}));
 
-  let statFlushCache = combineShardCaches(shardCaches);
+  const xpCaches = (await manager.fetchClientValues('xpFlushCache')) as Record<
+    string,
+    XpFlushCache
+  >[];
+  manager.broadcastEval((client) => (client.xpFlushCache = {}));
 
-  // console.debug('Combined Cache ', inspect(statFlushCache, { depth: 4 }));
+  await runStatFlush(shardCaches);
+  await runXpFlush(xpCaches);
+}
 
-  let promises = [],
-    count = 0;
+async function runStatFlush(caches: Record<string, StatFlushCache>[]) {
+  const hrstart = process.hrtime();
+
+  let statFlushCache = combineShardCaches(caches);
+
+  let promises = [];
   const counts: { [k in keyof StatFlushCache]?: number } = {};
 
-  for (let dbHost in statFlushCache)
+  for (let dbHost in statFlushCache) {
     for (let _type in statFlushCache[dbHost]) {
       const type = _type as StatType;
-      if (!Object.keys(statFlushCache[dbHost][type]).length) continue;
+      const count = Object.keys(statFlushCache[dbHost][type]).length;
+      if (count < 1) continue;
 
       promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])!));
-      count = Object.keys(statFlushCache[dbHost][type]).length;
       counts[type] ? (counts[type]! += count) : (counts[type] = count);
     }
+  }
 
   await Promise.all(promises);
 
@@ -44,19 +52,31 @@ export default async function (manager: ShardingManager) {
   logger.info(`Stat flush finished after ${hrend}s. Saved rows: ${inspect(counts)}`);
 }
 
+async function runXpFlush(caches: Record<string, XpFlushCache>[]) {
+  const hrstart = process.hrtime();
+
+  let flushCache = combineXpCaches(caches);
+
+  let promises = [];
+  let count = 0;
+
+  for (let dbHost in flushCache) {
+    const length = Object.keys(flushCache[dbHost]).length;
+    if (length < 1) continue;
+
+    promises.push(shardDb.query(dbHost, getXpSql(flushCache[dbHost])));
+
+    count += length;
+  }
+
+  await Promise.all(promises);
+
+  const hrend = process.hrtime(hrstart);
+  logger.info(`XP flush finished after ${hrend}s. Saved rows: ${count}`);
+}
+
 const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
   let statFlushCache: Record<string, StatFlushCache> = {};
-  /* 
-  ! THIS CODE DOES NOT WORK.
-  This was attempted to simplify. 
-  It caused an error of discarding some shards.
-  TODO: simplify & cleanup.
-
-  for (const shard of shardCaches) {
-    for (const dbHost in shard) {
-      statFlushCache[dbHost] = shard[dbHost];
-    }
-  } */
 
   for (const shard of shardCaches) {
     for (const dbHost in shard) {
@@ -76,6 +96,17 @@ const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
   }
 
   return statFlushCache;
+};
+const combineXpCaches = (shardCaches: Record<string, XpFlushCache>[]) => {
+  let flushCache: Record<string, XpFlushCache> = {};
+
+  for (const shard of shardCaches) {
+    for (const dbHost in shard) {
+      flushCache[dbHost] = { ...flushCache[dbHost], ...shard[dbHost] };
+    }
+  }
+
+  return flushCache;
 };
 
 const maxValue = 100000000;
@@ -113,9 +144,7 @@ const getSql = <T extends StatType>(
         day = LEAST(${maxValue},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
-  }
-
-  if (type == 'invite' || type == 'vote' || type == 'bonus') {
+  } else if (type == 'invite' || type == 'vote' || type == 'bonus') {
     for (let entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
           LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
@@ -134,10 +163,43 @@ const getSql = <T extends StatType>(
         day = LEAST(${maxValue},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
+  } else {
+    throw new Error(`Invalid xp type "${type}" provided`);
   }
 };
 
-/*
-shard0 -> dbHosts -> type -> entries
-shard1 -> type -> entries[dbHost,guildId,..]
-*/
+const getXpSql = (entries: XpFlushCache) => {
+  let sqls = [],
+    now = Math.floor(new Date().getTime() / 1000);
+
+  const least = (s: string | number) => `LEAST(${maxValue},${s})`;
+
+  for (let entry in entries) {
+    const fields = [
+      entries[entry].guildId,
+      entries[entry].userId,
+      least(entries[entry].count),
+      least(entries[entry].count),
+      least(entries[entry].count),
+      least(entries[entry].count),
+      least(entries[entry].count),
+    ]
+      .map(String)
+      .join(',');
+
+    sqls.push(`(${fields})`);
+  }
+
+  return `
+    INSERT INTO guildMember (guildId,userId,alltime,year,month,week,day)
+    VALUES ${sqls.join(',')}
+    ON DUPLICATE KEY UPDATE
+    guildId = VALUES(guildId),
+    userId = VALUES(userId),
+    alltime = LEAST(${maxValue},alltime + VALUES(alltime)),
+    year = LEAST(${maxValue},year + VALUES(year)),
+    month = LEAST(${maxValue},month + VALUES(month)),
+    week = LEAST(${maxValue},week + VALUES(week)),
+    day = LEAST(${maxValue},day + VALUES(day));
+    `;
+};
