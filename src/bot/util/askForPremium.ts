@@ -23,7 +23,7 @@ export default async function (interaction: ChatInputCommandInteraction<'cached'
   const userModel = await getUserModel(interaction.user);
   const myUser = await userModel.fetch();
 
-  const now = Date.now() / 1000;
+  const now = Math.floor(Date.now() / 1000);
   if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser) return;
 
   await userModel.upsert({ lastAskForPremiumDate: now });
