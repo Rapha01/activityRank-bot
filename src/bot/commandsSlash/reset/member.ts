@@ -8,7 +8,6 @@ import {
   type Interaction,
 } from 'discord.js';
 import resetModel from '../../models/resetModel.js';
-import nameUtil from '../../util/nameUtil.js';
 import { parseMember } from '../../util/parser.js';
 import { ComponentKey, registerSubCommand } from 'bot/util/commandLoader.js';
 
@@ -46,10 +45,11 @@ registerSubCommand({
     );
 
     const msg = await interaction.reply({
-      content: `Are you sure you want to reset all the statistics of ${nameUtil.getGuildMemberMention(
-        interaction.guild.members.cache,
-        resolvedMember.id,
-      )}?`,
+      content: `Are you sure you want to reset all the statistics of ${
+        resolvedMember.member
+          ? resolvedMember.member.user.username
+          : `Deleted [${resolvedMember.id}]`
+      }?`,
       ephemeral: true,
       fetchReply: true,
       components: [confirmRow],

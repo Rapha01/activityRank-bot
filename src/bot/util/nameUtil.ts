@@ -125,16 +125,6 @@ export const getGuildMemberInfo = async (guild: Guild, userId: string) => {
   return (await getGuildMemberInfos(guild, [userId]))[userId];
 };
 
-export const getGuildMemberMention = (
-  members: Collection<string, GuildMember>,
-  memberId: string,
-) => {
-  const role = members.get(memberId);
-
-  if (role) return role.toString();
-  else return `Deleted [${memberId}]`;
-};
-
 export const getGuildMemberNamesWithRanks = async (
   guild: Guild,
   memberRanks: Awaited<ReturnType<typeof getGuildMemberRanks>>,
@@ -183,7 +173,6 @@ export default {
   getChannelTypeIcon,
   getGuildMemberInfos,
   getGuildMemberInfo,
-  getGuildMemberMention,
   addGuildMemberNamesToRanks,
   getGuildMemberAlias,
   cutName,

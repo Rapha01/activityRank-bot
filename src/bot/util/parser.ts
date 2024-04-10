@@ -6,7 +6,7 @@
   .setName('id').setDescription('The ID of the channel to modify'));
 */
 
-import type { ChatInputCommandInteraction } from 'discord.js';
+import { DiscordAPIError, type ChatInputCommandInteraction, RESTJSONErrorCodes } from 'discord.js';
 
 export const parseChannel = async (interaction: ChatInputCommandInteraction<'cached'>) => {
   let id = null;
@@ -40,10 +40,10 @@ export const parseMember = async (interaction: ChatInputCommandInteraction<'cach
 
   if (!id) return null;
 
-  const member = null;
-  try {
-    const member = await interaction.guild.members.fetch(id);
-  } catch (e) {}
+  const member = await interaction.guild.members.fetch(id).catch((e) => {
+    if (e instanceof DiscordAPIError && e.code === RESTJSONErrorCodes.UnknownMember) return null;
+    else throw e;
+  });
 
   return { id, member };
 };
