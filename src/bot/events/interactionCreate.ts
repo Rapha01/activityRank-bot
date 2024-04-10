@@ -1,5 +1,5 @@
 import { getGuildModel } from '../models/guild/guildModel.js';
-import userModel from '../models/userModel.js';
+import { getUserModel } from '../models/userModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import askForPremium from '../util/askForPremium.js';
 import {
@@ -274,7 +274,7 @@ async function executeBans(
     return true;
   }
 
-  const cachedUser = await userModel.cache.get(interaction.user);
+  const cachedUser = await getUserModel(interaction.user);
 
   if (cachedUser.db.isBanned) {
     interaction.client.logger.debug(`Banned user ${interaction.user.id} used interaction.`);

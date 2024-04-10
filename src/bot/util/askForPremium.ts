@@ -1,4 +1,4 @@
-import userModel from '../models/userModel.js';
+import { getUserModel } from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
@@ -20,12 +20,13 @@ export default async function (interaction: ChatInputCommandInteraction<'cached'
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
   if (userTier > 0 || ownerTier > 0) return;
 
-  const myUser = await userModel.storage.get(interaction.user);
+  const userModel = await getUserModel(interaction.user);
+  const myUser = await userModel.fetch();
 
   const now = Date.now() / 1000;
   if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser) return;
 
-  await userModel.storage.set(interaction.user, 'lastAskForPremiumDate', now);
+  await userModel.upsert({ lastAskForPremiumDate: now });
   cachedGuild.cache.lastAskForPremiumDate = new Date();
 
   await sendAskForPremiumEmbed(interaction);

@@ -7,29 +7,22 @@ import {
   ComponentType,
   type Interaction,
 } from 'discord.js';
-
 import { oneLine } from 'common-tags';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { type GuildMemberModel, getMemberModel } from '../models/guild/guildMemberModel.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
-import type { GuildMemberSchema } from 'models/types/shard.js';
-import type { PropertiesOfType } from 'models/types/generics.js';
 import { getGuildModel, type GuildModel } from 'bot/models/guild/guildModel.js';
 
-const generateRow = (
-  i: Interaction<'cached'>,
-  myMember: GuildMemberSchema,
-  myGuild: GuildModel,
-) => {
+const generateRow = (i: Interaction<'cached'>, myMember: GuildMemberModel, myGuild: GuildModel) => {
   return [
     new ButtonBuilder()
       .setLabel('Notify levelup via DM')
       .setCustomId(toggleId({ type: 'notifyLevelupDm' }, { ownerId: i.member.id }))
-      .setStyle(myMember.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger),
+      .setStyle(myMember.db.notifyLevelupDm ? ButtonStyle.Success : ButtonStyle.Danger),
     new ButtonBuilder()
       .setLabel('Reaction voting')
       .setCustomId(toggleId({ type: 'reactionVote' }, { ownerId: i.member.id }))
       .setDisabled(!myGuild.db.voteXp || !myGuild.db.reactionVote)
-      .setStyle(myMember.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger),
+      .setStyle(myMember.db.reactionVote ? ButtonStyle.Success : ButtonStyle.Danger),
   ];
 };
 
@@ -47,7 +40,7 @@ registerSlashCommand({
     .setDescription('Change your personal settings'),
   async execute(i) {
     const cachedGuild = await getGuildModel(i.member.guild);
-    const myGuildMember = await guildMemberModel.storage.get(i.guild, i.member.id);
+    const cachedMember = await getMemberModel(i.member);
 
     await i.reply({
       embeds: [
@@ -66,7 +59,7 @@ registerSlashCommand({
       ],
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          generateRow(i, myGuildMember, cachedGuild),
+          generateRow(i, cachedMember, cachedGuild),
         ),
         _close(i),
       ],
@@ -84,27 +77,22 @@ const closeId = registerComponent({
 });
 
 const toggleId = registerComponent<{
-  type: Exclude<keyof PropertiesOfType<GuildMemberSchema, number>, 'tokensBurned'>;
+  type: 'reactionVote' | 'notifyLevelupDm';
 }>({
   type: ComponentType.Button,
   identifier: 'config-member.toggle',
   async callback({ interaction, data }) {
     const cachedGuild = await getGuildModel(interaction.guild);
-    const myGuildMember = await guildMemberModel.storage.get(
-      interaction.guild,
-      interaction.member.id,
-    );
+    const cachedMember = await getMemberModel(interaction.member);
     const { type } = data;
 
-    if (myGuildMember[type])
-      await guildMemberModel.storage.set(interaction.guild, interaction.user.id, type, 0);
-    else await guildMemberModel.storage.set(interaction.guild, interaction.user.id, type, 1);
+    if (cachedMember.db[type]) await cachedMember.upsert({ [type]: 0 });
+    else await cachedMember.upsert({ [type]: 1 });
 
-    const newMember = await guildMemberModel.storage.get(interaction.guild, interaction.member.id);
     await interaction.update({
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          generateRow(interaction, newMember, cachedGuild),
+          generateRow(interaction, cachedMember, cachedGuild),
         ),
         _close(interaction),
       ],

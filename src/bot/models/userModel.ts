@@ -1,16 +1,13 @@
-import shardDb from '../../models/shardDb/shardDb.js';
-import managerDb from '../../models/managerDb/managerDb.js';
-import { escape } from 'mysql2/promise';
+import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getManagerDb } from 'models/managerDb/managerDb.js';
 import type { User } from 'discord.js';
-import type { UserSchema } from 'models/types/shard.js';
-import type { PropertiesOfType } from 'models/types/generics.js';
+import type { User as DBUser, UserSchema, UserUpdate } from 'models/types/kysely/shard.js';
+import { CachedModel } from './generic/model.js';
 
-let defaultCache: CachedDbFields | null = null;
-let defaultAll: UserSchema | null = null;
+let defaultCache: Pick<DBUser, (typeof cachedFields)[number]> | null = null;
+
 const cachedFields = ['userId', 'isBanned'] as const;
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
-
-type CachedDbFields = Pick<UserSchema, (typeof cachedFields)[number]>;
 
 interface UserCacheStorage {
   patreonTier?: number;
@@ -18,137 +15,99 @@ interface UserCacheStorage {
   lastTopggUpvoteDate?: number;
 }
 
-export interface CachedUser {
-  db: CachedDbFields;
-  dbHost: string;
-  cache: UserCacheStorage;
+export const userCache = new WeakMap<User, UserModel>();
+
+export class UserModel extends CachedModel<
+  User,
+  UserSchema,
+  typeof cachedFields,
+  UserCacheStorage
+> {
+  async fetch() {
+    const member = await this.handle
+      .selectFrom('user')
+      .selectAll()
+      .where('userId', '=', this.object.id)
+      .executeTakeFirst();
+
+    if (!member) throw new Error(`Could not find user ${this.object.id} in database`);
+    return member;
+  }
+
+  async upsert(expr: UserUpdate) {
+    const result = await this.handle
+      .insertInto('user')
+      .values({ userId: this.object.id, ...expr })
+      .onDuplicateKeyUpdate(expr)
+      .returning(cachedFields)
+      .executeTakeFirstOrThrow();
+
+    this._db = result;
+  }
 }
 
-export const userCache = new WeakMap<User, CachedUser>();
-
-export const cache = {
-  get: async function (user: User): Promise<CachedUser> {
-    if (userCache.has(user)) return userCache.get(user)!;
-    return await buildCache(user);
-  },
-  /* load: async function (user: User) {
-    if (user.appData) return;
-    if (promises.has(user.id)) return promises.get(user.id)!;
-
-    promises.set(
-      user.id,
-      buildCache(user).finally(() => promises.delete(user.id)),
-    );
-
-    return promises.get(user.id)!;
-  }, */
-};
-
-function isCachableDbKey(key: keyof UserSchema): key is keyof CachedDbFields {
-  return cachedFields.includes(key as keyof CachedDbFields);
+export async function getUserModel(user: User): Promise<UserModel> {
+  if (userCache.has(user)) return userCache.get(user)!;
+  else return await buildCache(user);
 }
 
-const storage = {
-  set: async function <K extends keyof UserSchema>(user: User, field: K, value: UserSchema[K]) {
-    const cachedUser = await cache.get(user);
-    await shardDb.query(
-      cachedUser.dbHost,
-      `INSERT INTO user 
-      (userId,${field}) 
-      VALUES 
-      (${user.id},${escape(value)})
-      ON DUPLICATE KEY UPDATE 
-      ${field} = ${escape(value)}`,
-    );
+async function buildCache(user: User): Promise<UserModel> {
+  const host = await getDbHost(user.id);
+  const db = getShardDb(host);
 
-    if (isCachableDbKey(field)) {
-      // Typescript can't handle `cachedUser.db[_field] = value`
-      // when `value` is a mixed type, even with the type narrowing
-      // because the relationship between `K` and `value` is lost
-      Object.defineProperty(cachedUser.db, field, { value });
-    }
-  },
-  increment: async function <K extends keyof PropertiesOfType<UserSchema, number>>(
-    user: User,
-    field: K,
-    value: UserSchema[K],
-  ) {
-    const cachedUser = await cache.get(user);
-    await shardDb.query(
-      cachedUser.dbHost,
-      `INSERT INTO user (userId,${field}) VALUES (${user.id},DEFAULT(${field}) + ${escape(
-        value,
-      )}) ON DUPLICATE KEY UPDATE ${field} = ${field} + ${escape(value)}`,
-    );
+  const foundCache = await db
+    .selectFrom('user')
+    .select(cachedFields)
+    .where('userId', '=', user.id)
+    .executeTakeFirst();
+  const cache = foundCache ?? { ...(await loadDefaultCache(host)) };
 
-    if (isCachableDbKey(field)) {
-      cachedUser.db[field] += value;
-    }
-  },
-  get: async function (user: User) {
-    const cachedUser = await cache.get(user);
+  const built = new UserModel(user, host, cache, {});
 
-    const res = await shardDb.query<UserSchema[]>(
-      cachedUser.dbHost,
-      `SELECT * FROM user WHERE userId = ${user.id}`,
-    );
-
-    if (res.length == 0) {
-      if (!defaultAll)
-        defaultAll = (
-          await shardDb.query<UserSchema[]>(
-            cachedUser.dbHost,
-            `SELECT * FROM user WHERE userId = 0`,
-          )
-        )[0];
-      return defaultAll;
-    } else return res[0];
-  },
-};
-
-async function buildCache(user: User): Promise<CachedUser> {
-  const dbHost = await getDbHost(user.id);
-  let foundCache = await shardDb.query<CachedDbFields[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM user WHERE userId = ${user.id}`,
-  );
-
-  const db = foundCache.length > 0 ? foundCache[0] : { ...(await loadDefaultCache(dbHost)) };
-
-  const res = { dbHost, db, cache: {} };
-  userCache.set(user, res);
-  return res;
+  userCache.set(user, built);
+  return built;
 }
 
 async function getDbHost(userId: string): Promise<string> {
-  let res = await managerDb.query<{ host: string }[]>(
-    `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`,
-  );
+  const db = getManagerDb();
 
-  if (res.length < 1) {
-    await managerDb.query(`INSERT INTO userRoute (userId) VALUES (${userId})`);
-    res = await managerDb.query(
-      `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`,
-    );
+  const getRoute = db
+    .selectFrom('userRoute')
+    .leftJoin('dbShard', 'userRoute.dbShardId', 'dbShard.id')
+    .select(`${hostField} as host`)
+    .where('userId', '=', userId);
+
+  let res = await getRoute.executeTakeFirst();
+
+  if (!res) {
+    await db.insertInto('userRoute').values({ userId }).executeTakeFirstOrThrow();
+    res = await getRoute.executeTakeFirstOrThrow();
+  }
+  if (!res.host) {
+    throw new Error(`Failed to map user ID "${userId}" to a database host.`);
   }
 
-  return res[0].host;
+  return res.host;
 }
 
-async function loadDefaultCache(dbHost: string) {
+async function loadDefaultCache(host: string) {
   if (defaultCache) return defaultCache;
+  const db = getShardDb(host);
 
-  let res = await shardDb.query<CachedDbFields[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`,
-  );
+  let res = await db
+    .selectFrom('user')
+    .select(cachedFields)
+    .where('userId', '=', '0')
+    .executeTakeFirst();
 
-  if (res.length == 0) await shardDb.query(dbHost, `INSERT IGNORE INTO user (userId) VALUES (0)`);
+  if (!res) {
+    res = await db
+      .insertInto('user')
+      .values({ userId: '0' })
+      .returning(cachedFields)
+      .executeTakeFirstOrThrow();
+  }
 
-  res = await shardDb.query(dbHost, `SELECT ${cachedFields.join(',')} FROM user WHERE userId = 0`);
-
-  defaultCache = res[0];
+  defaultCache = res;
   return defaultCache;
 }
-
-export default { cache, storage };

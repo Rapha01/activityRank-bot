@@ -1,5 +1,4 @@
 import { PermissionFlagsBits } from 'discord.js';
-import guildMemberModel from '../../models/guild/guildMemberModel.js';
 import statFlushCache from '../../statFlushCache.js';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
 

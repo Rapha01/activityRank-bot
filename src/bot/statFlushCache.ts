@@ -2,8 +2,7 @@ import type { Client, Guild, GuildBasedChannel, GuildMember, VoiceBasedChannel }
 import levelManager from './levelManager.js';
 import type { StatType } from 'models/types/enums.js';
 import { getGuildModel } from './models/guild/guildModel.js';
-import guildMemberModel from './models/guild/guildMemberModel.js';
-import { deprecate } from 'node:util';
+import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
 import { Feature, hasFeature } from './util/feature.js';
 
@@ -128,7 +127,7 @@ export const addBonus = async (member: GuildMember, count: number) => {
 };
 
 const addTotalXp = async (member: GuildMember, xp: number) => {
-  const cachedMember = await guildMemberModel.cache.get(member);
+  const cachedMember = await getMemberModel(member);
 
   const oldTotalXp = cachedMember.cache.totalXp ?? 0;
   cachedMember.cache.totalXp = oldTotalXp + xp;
@@ -170,9 +169,8 @@ export interface StatFlushCache {
   bonus: Record<string, StatFlushCacheGuildEntry>;
 }
 
-
 const buildStatFlushCache = async (client: Client, guild: Guild, type: StatType) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const { statFlushCache } = client;
 
   if (!Object.keys(statFlushCache).includes(dbHost))
