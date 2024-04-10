@@ -63,7 +63,20 @@ const client = new Client({
     GuildStickerManager: 0,
     ReactionManager: 0,
     ReactionUserManager: 0,
+    GuildMemberManager: {
+      maxSize: 200,
+      keepOverLimit: (member) =>
+        member.id === member.client.user.id || // keep own client cached
+        member.voice.channelId !== null, // keep users in voice cached so we can count them
+    },
   }),
+  sweepers: {
+    ...Options.DefaultSweeperSettings,
+    users: {
+      interval: 3_600, // Every hour.
+      filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
+    },
+  },
 });
 
 // Adjusts number of threads allocated by libuv
