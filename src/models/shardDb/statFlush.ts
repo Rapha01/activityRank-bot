@@ -200,6 +200,6 @@ const getXpSql = (entries: XpFlushCache) => {
     year = LEAST(${maxValue},year + VALUES(year)),
     month = LEAST(${maxValue},month + VALUES(month)),
     week = LEAST(${maxValue},week + VALUES(week)),
-    day = LEAST(${maxValue},day + VALUES(day)),
+    day = LEAST(${maxValue},day + VALUES(day));
     `;
 };
