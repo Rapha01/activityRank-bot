@@ -35,14 +35,20 @@ export class UserModel extends CachedModel<
   }
 
   async upsert(expr: UserUpdate) {
-    const result = await this.handle
+    await this.handle
       .insertInto('user')
       .values({ userId: this.object.id, ...expr })
       .onDuplicateKeyUpdate(expr)
-      .returning(cachedFields)
+      // .returning(cachedFields) RETURNING is not supported on UPDATE statements in MySQL.
       .executeTakeFirstOrThrow();
 
-    this._db = result;
+    const res = await this.handle
+      .selectFrom('user')
+      .select(cachedFields)
+      .where('userId', '=', this.object.id)
+      .executeTakeFirstOrThrow();
+
+    this._db = res;
   }
 }
 
