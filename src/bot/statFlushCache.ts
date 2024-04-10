@@ -3,7 +3,6 @@ import levelManager from './levelManager.js';
 import type { StatType } from 'models/types/enums.js';
 import { getGuildModel } from './models/guild/guildModel.js';
 import guildMemberModel from './models/guild/guildMemberModel.js';
-import { deprecate } from 'node:util';
 import { addXp } from './xpFlushCache.js';
 import { Feature, hasFeature } from './util/feature.js';
 
@@ -170,9 +169,8 @@ export interface StatFlushCache {
   bonus: Record<string, StatFlushCacheGuildEntry>;
 }
 
-
 const buildStatFlushCache = async (client: Client, guild: Guild, type: StatType) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const { statFlushCache } = client;
 
   if (!Object.keys(statFlushCache).includes(dbHost))

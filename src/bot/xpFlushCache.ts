@@ -1,5 +1,5 @@
 import type { Guild, GuildMember } from 'discord.js';
-import guildModel from './models/guild/guildModel.js';
+import { getGuildModel } from './models/guild/guildModel.js';
 
 export async function addXp(member: GuildMember, xp: number) {
   const key = `${member.guild.id}.${member.id}`;
@@ -11,7 +11,7 @@ export async function addXp(member: GuildMember, xp: number) {
 }
 
 const buildXpFlushCache = async (guild: Guild) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const { xpFlushCache } = guild.client;
 
   if (!Object.keys(xpFlushCache).includes(dbHost)) xpFlushCache[dbHost] = {};
