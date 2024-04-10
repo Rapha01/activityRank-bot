@@ -45,14 +45,21 @@ export class GuildMemberModel extends CachedModel<
   }
 
   async upsert(expr: GuildMemberUpdate) {
-    const result = await this.handle
+    await this.handle
       .insertInto('guildMember')
       .values({ userId: this.object.id, guildId: this.object.guild.id, ...expr })
       .onDuplicateKeyUpdate(expr)
-      .returning(cachedFields)
+      // .returning(cachedFields) RETURNING is not supported on UPDATE statements in MySQL.
       .executeTakeFirstOrThrow();
 
-    this._db = result;
+    const res = await this.handle
+      .selectFrom('guildMember')
+      .select(cachedFields)
+      .where('guildId', '=', this.object.guild.id)
+      .where('userId', '=', this.object.id)
+      .executeTakeFirstOrThrow();
+
+    this._db = res;
   }
 }
 
