@@ -145,12 +145,12 @@ export const countGuildRanks = async function (guild: Guild) {
 export const getGuildMemberTotalScore = async function (guild: Guild, userId: string) {
   const cachedGuild = await getGuildModel(guild);
 
-  const res = await shardDb.query<{ totalScoreAlltime: number }[]>(
+  const res = await shardDb.query<{ totalScoreAlltime: string }[]>(
     cachedGuild.dbHost,
     getGuildMemberTotalScoreSql(cachedGuild, guild.id, userId),
   );
 
-  if (res.length == 0) return 0;
+  if (res.length == 0) return '0';
 
   return res[0].totalScoreAlltime;
 };
