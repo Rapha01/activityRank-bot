@@ -1,8 +1,8 @@
 import type { Guild, Role } from 'discord.js';
 import shardDb from '../../../models/shardDb/shardDb.js';
-import mysql from 'promise-mysql';
+import { escape } from 'mysql2/promise';
 import type { GuildRoleSchema } from 'models/types/shard.js';
-import guildModel from './guildModel.js';
+import { getGuildModel } from './guildModel.js';
 
 const cachedFields = [
   'noXp',
@@ -36,11 +36,11 @@ function isCachableDbKey(key: keyof GuildRoleSchema): key is keyof CachedDbField
 
 export const storage = {
   get: async (guild: Guild, roleId: string) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     const res = await shardDb.query<GuildRoleSchema[]>(
       dbHost,
-      `SELECT * FROM guildRole WHERE guildId = ${guild.id} && roleId = ${mysql.escape(roleId)}`,
+      `SELECT * FROM guildRole WHERE guildId = ${guild.id} && roleId = ${escape(roleId)}`,
     );
 
     if (res.length == 0) {
@@ -60,13 +60,13 @@ export const storage = {
     field: K,
     value: GuildRoleSchema[K],
   ) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     await shardDb.query(
       dbHost,
-      `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${guild.id},${mysql.escape(
+      `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${guild.id},${escape(
         roleId,
-      )},${mysql.escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${mysql.escape(value)}`,
+      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`,
     );
 
     const role = guild.roles.cache.get(roleId);
@@ -76,7 +76,7 @@ export const storage = {
     }
   },
   getRoleAssignments: async (guild: Guild) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     const res = await shardDb.query<GuildRoleSchema[]>(
       dbHost,
@@ -90,17 +90,17 @@ export const storage = {
     type: 'assignLevel' | 'deassignLevel',
     level: number | null,
   ) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     const res = await shardDb.query<GuildRoleSchema[]>(
       dbHost,
-      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${mysql.escape(level)}`,
+      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${escape(level)}`,
     );
 
     return res;
   },
   getRoleAssignmentsByRole: async (guild: Guild, roleId: string) => {
-    const { dbHost } = await guildModel.cache.get(guild);
+    const { dbHost } = await getGuildModel(guild);
 
     const res = await shardDb.query<GuildRoleSchema[]>(
       dbHost,
@@ -112,7 +112,7 @@ export const storage = {
 };
 
 export const getNoXpRoleIds = async (guild: Guild) => {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
 
   const res = await shardDb.query<{ roleId: string }[]>(
     dbHost,
@@ -123,7 +123,7 @@ export const getNoXpRoleIds = async (guild: Guild) => {
 };
 
 const buildCache = async (role: Role): Promise<CachedRole> => {
-  const { dbHost } = await guildModel.cache.get(role.guild);
+  const { dbHost } = await getGuildModel(role.guild);
 
   const foundCache = await shardDb.query<GuildRoleSchema[]>(
     dbHost,

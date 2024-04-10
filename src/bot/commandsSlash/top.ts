@@ -1,5 +1,5 @@
 import guildMemberModel from '../models/guild/guildMemberModel.js';
-import guildModel from '../models/guild/guildModel.js';
+import { GuildModel, getGuildModel } from '../models/guild/guildModel.js';
 import rankModel from '../models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import cooldownUtil from '../util/cooldownUtil.js';
@@ -64,7 +64,7 @@ registerSlashCommand({
   async execute(interaction) {
     await interaction.deferReply();
 
-    const myGuild = await guildModel.storage.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
     if (!(await cooldownUtil.checkStatCommandsCooldown(interaction))) return;
 
@@ -78,7 +78,7 @@ registerSlashCommand({
     };
 
     const { id } = await interaction.editReply(
-      await generate(initialState, interaction.guild, myGuild!),
+      await generate(initialState, interaction.guild, cachedGuild),
     );
 
     const cleanCache = async () => {
@@ -90,7 +90,7 @@ registerSlashCommand({
           '/top tried to update uncached guild',
         );
       try {
-        await interaction.editReply(await generate(state!, interaction.guild, myGuild!, true));
+        await interaction.editReply(await generate(state!, interaction.guild, cachedGuild, true));
       } catch (_err) {
         const err = _err as DiscordAPIError;
         if (err.code === RESTJSONErrorCodes.UnknownMessage)
@@ -158,37 +158,38 @@ async function execCacheSet<T extends keyof CacheInstance>(
     return;
   }
 
-  const myGuild = await guildModel.storage.get(interaction.guild);
+  const cachedGuild = await getGuildModel(interaction.guild);
 
   activeCache.set(interaction.message.id, { ...cachedMessage, [key]: value });
 
   await interaction.deferUpdate();
 
   const state = activeCache.get(interaction.message.id);
-  await state!.interaction.editReply(await generate(state!, interaction.guild, myGuild!));
+  await state!.interaction.editReply(await generate(state!, interaction.guild, cachedGuild));
 }
 
 async function generate(
   state: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  cachedGuild: GuildModel,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   if (state.window === 'channelMembers')
-    return await generateChannelMembers(state, guild, myGuild, disabled);
+    return await generateChannelMembers(state, guild, cachedGuild, disabled);
   if (state.window === 'members')
-    return await generateGuildMembers(state, guild, myGuild, disabled);
-  if (state.window === 'channels') return await generateChannels(state, guild, myGuild, disabled);
+    return await generateGuildMembers(state, guild, cachedGuild, disabled);
+  if (state.window === 'channels')
+    return await generateChannels(state, guild, cachedGuild, disabled);
   throw new Error('unknown window');
 }
 
 async function generateChannels(
   state: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  cachedGuild: GuildModel,
   disabled: boolean,
 ) {
-  const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
+  const page = fct.extractPageSimple(state.page ?? 1, cachedGuild.db.entriesPerPage);
 
   const header = `Toplist channels in ${guild.name} | ${_prettifyTime[state.time]}`;
 
@@ -241,7 +242,7 @@ async function getTopChannels(
 async function generateChannelMembers(
   state: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  cachedGuild: GuildModel,
   disabled: boolean,
 ) {
   if (!state.channel) {
@@ -259,7 +260,7 @@ async function generateChannelMembers(
 
   const type = state.channel.type === ChannelType.GuildVoice ? 'voiceMinute' : 'textMessage';
 
-  const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
+  const page = fct.extractPageSimple(state.page ?? 1, cachedGuild.db.entriesPerPage);
 
   const header = `Toplist for channel ${state.channel.name} | ${_prettifyTime[state.time]}`;
 
@@ -288,8 +289,8 @@ async function generateChannelMembers(
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (myGuild.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${myGuild.bonusUntilDate}:R>)`);
+  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)`);
 
   let str = '',
     guildMemberName;
@@ -316,18 +317,18 @@ async function generateChannelMembers(
 async function generateGuildMembers(
   state: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  cachedGuild: GuildModel,
   disabled: boolean,
 ) {
-  const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
+  const page = fct.extractPageSimple(state.page ?? 1, cachedGuild.db.entriesPerPage);
 
   let header = `Toplist for server ${guild.name} | ${_prettifyTime[state.time]}`;
 
   if (state.orderType === 'voiceMinute') header += ' | By voice (hours)';
   else if (state.orderType === 'textMessage') header += ' | By text (messages)';
   else if (state.orderType === 'invite') header += ' | By invites';
-  else if (state.orderType === 'vote') header += ' | By ' + myGuild.voteTag;
-  else if (state.orderType === 'bonus') header += ' | By ' + myGuild.bonusTag;
+  else if (state.orderType === 'vote') header += ' | By ' + cachedGuild.db.voteTag;
+  else if (state.orderType === 'bonus') header += ' | By ' + cachedGuild.db.bonusTag;
   else if (state.orderType === 'totalScore' || state.orderType === 'allScores')
     header += ' | By total XP';
 
@@ -355,23 +356,24 @@ async function generateGuildMembers(
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (myGuild.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${myGuild.bonusUntilDate}:R>)`);
+  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)`);
 
   let i = 0;
   while (memberRanksWithNames.length > 0) {
     const memberRank = memberRanksWithNames.shift()!;
 
     const getScoreString = (type: StatType, time: StatTimeInterval) => {
-      if (type === 'textMessage' && myGuild.textXp)
+      if (type === 'textMessage' && cachedGuild.db.textXp)
         return `:writing_hand: ${memberRank[`textMessage${time}`]}`;
-      if (type === 'voiceMinute' && myGuild.voiceXp)
+      if (type === 'voiceMinute' && cachedGuild.db.voiceXp)
         return `:microphone2: ${Math.round((memberRank[`voiceMinute${time}`] / 60) * 10) / 10}`;
-      if (type === 'invite' && myGuild.inviteXp) return `:envelope: ${memberRank[`invite${time}`]}`;
-      if (type === 'vote' && myGuild.voteXp)
-        return `${myGuild.voteEmote} ${memberRank[`vote${time}`]}`;
-      if (type === 'bonus' && myGuild.bonusXp)
-        return `${myGuild.bonusEmote} ${memberRank[`bonus${time}`]}`;
+      if (type === 'invite' && cachedGuild.db.inviteXp)
+        return `:envelope: ${memberRank[`invite${time}`]}`;
+      if (type === 'vote' && cachedGuild.db.voteXp)
+        return `${cachedGuild.db.voteEmote} ${memberRank[`vote${time}`]}`;
+      if (type === 'bonus' && cachedGuild.db.bonusXp)
+        return `${cachedGuild.db.bonusEmote} ${memberRank[`bonus${time}`]}`;
       return null;
     };
 
@@ -578,12 +580,14 @@ export const sendMembersEmbed = async (
   type: StatType,
 ) => {
   await i.deferReply();
-  const guild = await guildModel.storage.get(i.guild);
-  if (!guild) throw new Error('TODO: actually fix');
+  const cachedGuild = await getGuildModel(i.guild);
 
   if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
-  const page = fct.extractPageSimple(i.options.getInteger('page') || 1, guild!.entriesPerPage);
+  const page = fct.extractPageSimple(
+    i.options.getInteger('page') || 1,
+    cachedGuild.db.entriesPerPage,
+  );
   const time = (i.options.getString('period') || 'Alltime') as keyof typeof _prettifyTime;
 
   let header = `Toplist for server ${i.guild.name} from ${page.from} to ${page.to} | ${_prettifyTime[time]}`;
@@ -591,8 +595,8 @@ export const sendMembersEmbed = async (
   if (type === 'voiceMinute') header += ' | By voice (hours)';
   else if (type === 'textMessage') header += ' | By text (messages)';
   else if (type === 'invite') header += ' | By invites';
-  else if (type === 'vote') header += ' | By ' + guild!.voteTag;
-  else if (type === 'bonus') header += ' | By ' + guild!.bonusTag;
+  else if (type === 'vote') header += ' | By ' + cachedGuild.db.voteTag;
+  else if (type === 'bonus') header += ' | By ' + cachedGuild.db.bonusTag;
   else header += ' | By total XP';
 
   const memberRanks = await rankModel.getGuildMemberRanks(i.guild, type, time, page.from, page.to);
@@ -604,8 +608,8 @@ export const sendMembersEmbed = async (
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (guild!.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${guild!.bonusUntilDate}:R> \n`);
+  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R> \n`);
 
   const settings = await getSettings();
   if (settings.footer) e.setFooter({ text: settings.footer });
@@ -615,14 +619,17 @@ export const sendMembersEmbed = async (
     const scoreStrings = [];
     const memberRank = memberRanksWithNames.shift()!;
 
-    if (guild.textXp) scoreStrings.push(`:writing_hand: ${memberRank[`textMessage${time}`]}`);
-    if (guild.voiceXp)
+    if (cachedGuild.db.textXp)
+      scoreStrings.push(`:writing_hand: ${memberRank[`textMessage${time}`]}`);
+    if (cachedGuild.db.voiceXp)
       scoreStrings.push(
         `:microphone2: ${Math.round((memberRank[`voiceMinute${time}`] / 60) * 10) / 10}`,
       );
-    if (guild.inviteXp) scoreStrings.push(`:envelope: ${memberRank[`invite${time}`]}`);
-    if (guild.voteXp) scoreStrings.push(guild!.voteEmote + ' ' + memberRank[`vote${time}`]);
-    if (guild.bonusXp) scoreStrings.push(guild!.bonusEmote + ' ' + memberRank[`bonus${time}`]);
+    if (cachedGuild.db.inviteXp) scoreStrings.push(`:envelope: ${memberRank[`invite${time}`]}`);
+    if (cachedGuild.db.voteXp)
+      scoreStrings.push(cachedGuild.db.voteEmote + ' ' + memberRank[`vote${time}`]);
+    if (cachedGuild.db.bonusXp)
+      scoreStrings.push(cachedGuild.db.bonusEmote + ' ' + memberRank[`bonus${time}`]);
     e.addFields({
       name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(
         memberRank.levelProgression,

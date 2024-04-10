@@ -1,4 +1,4 @@
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import type { getGuildMemberRanks } from 'bot/models/rankModel.js';
 import {
   ChannelType,
@@ -7,7 +7,6 @@ import {
   type Channel,
   type Collection,
   type Role,
-  type GuildChannel,
   type GuildBasedChannel,
 } from 'discord.js';
 import { deprecate } from 'node:util';
@@ -75,7 +74,7 @@ export const getGuildMemberInfos = async (guild: Guild, userIds: string[]) => {
     { name: string; avatarUrl: string | null; joinedAt: number | string }
   > = {};
 
-  const cachedGuild = await guildModel.cache.get(guild);
+  const cachedGuild = await getGuildModel(guild);
 
   // Add cached
   for (const userId of userIds) {

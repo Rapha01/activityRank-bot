@@ -3,7 +3,7 @@ import fct from '../../util/fct.js';
 import type { ChatInputCommandInteraction } from 'discord.js';
 import guildMemberModel from 'bot/models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
-import guildModel from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { isPrivileged } from 'const/config.js';
 
 const premiumLowersCooldownMessage =
@@ -87,7 +87,7 @@ export const checkResetServerCommandCooldown = async (
   const premiumLowersCooldownString =
     userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
 
-  const cachedGuild = await guildModel.cache.get(interaction.guild);
+  const cachedGuild = await getGuildModel(interaction.guild);
 
   const toWait = getWaitTime(cachedGuild.cache.lastResetServer, cd);
   if (toWait.remaining > 0) {

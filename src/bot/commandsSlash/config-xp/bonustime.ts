@@ -1,5 +1,5 @@
 import { PermissionFlagsBits } from 'discord.js';
-import guildModel from '../../models/guild/guildModel.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
 
 registerSubCommand({
@@ -10,19 +10,21 @@ registerSubCommand({
         ephemeral: true,
       });
     }
-    const endsAt = Math.floor(Date.now() / 1000 + i.options.getInteger('time', true) * 60);
-    await guildModel.storage.set(i.guild, 'bonusUntilDate', endsAt);
-    await i.reply({ content: `Bonus time has started! It will end <t:${endsAt}:R>.` });
+    const cachedGuild = await getGuildModel(i.guild);
+
+    const bonusUntilDate = Math.floor(Date.now() / 1000 + i.options.getInteger('time', true) * 60);
+    await cachedGuild.upsert({ bonusUntilDate });
+    await i.reply({ content: `Bonus time has started! It will end <t:${bonusUntilDate}:R>.` });
   },
   async executeAutocomplete(interaction) {
     await interaction.respond([
       { name: 'End Now', value: 0 },
       { name: '1 hour', value: 60 },
-      { name: '3 hours', value: 180 },
-      { name: '12 hours', value: 720 },
-      { name: '1 day', value: 1440 },
-      { name: '2 days', value: 2880 },
-      { name: '3 days', value: 4320 },
+      { name: '3 hours', value: 60 * 3 },
+      { name: '12 hours', value: 60 * 12 },
+      { name: '1 day', value: 60 * 24 },
+      { name: '2 days', value: 60 * 24 * 2 },
+      { name: '3 days', value: 60 * 24 * 3 },
     ]);
   },
 });

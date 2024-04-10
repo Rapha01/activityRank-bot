@@ -1,6 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import guildModel from '../../models/guild/guildModel.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
 
 registerSubCommand({
@@ -13,25 +13,21 @@ registerSubCommand({
         ephemeral: true,
       });
     }
+
     const items = {
-      bonusEmote: interaction.options.getString('emote'),
-      bonusTag: interaction.options.getString('tag'),
+      bonusEmote: interaction.options.getString('emote') ?? undefined,
+      bonusTag: interaction.options.getString('tag') ?? undefined,
     };
 
-    if (Object.values(items).every((x) => x === null)) {
+    if (Object.values(items).every((x) => x === undefined)) {
       return await interaction.reply({
         content: 'You must specify at least one option for this command to do anything!',
         ephemeral: true,
       });
     }
 
-    for (const _k in items) {
-      const k = _k as keyof typeof items;
-      const value = items[k];
-      if (value !== null) await guildModel.storage.set(interaction.guild, k, value);
-    }
-
-    const cachedGuild = await guildModel.cache.get(interaction.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
+    await cachedGuild.upsert(items);
 
     await interaction.reply({
       embeds: [

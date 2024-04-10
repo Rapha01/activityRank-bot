@@ -1,3 +1,6 @@
+// ! DEPRECATED file. Prefer `models/types/kysely/shard.ts`.
+
+/** @deprecated use `kysely` types instead. */
 export interface BonusSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
@@ -10,6 +13,7 @@ export interface BonusSchema {
   addDate: number; // BIGINT;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface GuildSchema {
   guildId: string; // BIGINT;
   prefix: string;
@@ -78,6 +82,7 @@ export interface GuildSchema {
   isBanned: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface GuildChannelSchema {
   guildId: string; // BIGINT;
   channelId: string; // BIGINT;
@@ -85,6 +90,7 @@ export interface GuildChannelSchema {
   noCommand: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface GuildMemberSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
@@ -94,6 +100,7 @@ export interface GuildMemberSchema {
   inviter: string; // BIGINT;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface GuildRoleSchema {
   guildId: string; // BIGINT;
   roleId: string; // BIGINT;
@@ -104,6 +111,7 @@ export interface GuildRoleSchema {
   noXp: number;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface InviteSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
@@ -116,6 +124,7 @@ export interface InviteSchema {
   addDate: number; // BIGINT;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface TextMessageSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
@@ -129,6 +138,7 @@ export interface TextMessageSchema {
   addDate: number; // BIGINT;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface UserSchema {
   userId: string; // BIGINT;
   tokens: number;
@@ -144,6 +154,7 @@ export interface UserSchema {
   lastTopggUpvoteDate: number; // BIGINT;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface VoiceMinuteSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;
@@ -157,6 +168,7 @@ export interface VoiceMinuteSchema {
   addDate: number; // BIGINT;
 }
 
+/** @deprecated use `kysely` types instead. */
 export interface VoteSchema {
   guildId: string; // BIGINT;
   userId: string; // BIGINT;

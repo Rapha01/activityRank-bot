@@ -1,6 +1,3 @@
-import guildModel from '../../models/guild/guildModel.js';
-import guildMemberModel from '../../models/guild/guildMemberModel.js';
-import guildRoleModel from '../../models/guild/guildRoleModel.js';
 import statFlushCache from '../../statFlushCache.js';
 import { oneLine, stripIndent } from 'common-tags';
 import {

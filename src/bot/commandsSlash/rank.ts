@@ -15,12 +15,10 @@ import {
 } from 'discord.js';
 
 import cooldownUtil from '../util/cooldownUtil.js';
-import guildModel, { type CachedGuild } from '../models/guild/guildModel.js';
-import guildMemberModel from '../models/guild/guildMemberModel.js';
+import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import rankModel from '../models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
-import userModel from '../models/userModel.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
 import type { GuildSchema } from 'models/types/shard.js';
@@ -46,7 +44,8 @@ registerSlashCommand({
 
     if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
 
-    const myGuild = await guildModel.storage.get(i.guild);
+    const cachedGuild = await getGuildModel(i.guild);
+    const myGuild = await cachedGuild.fetch();
 
     const targetUser = i.options.getUser('member') ?? i.user;
 
@@ -59,14 +58,14 @@ registerSlashCommand({
       interaction: i,
     };
 
-    const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild!));
+    const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild));
 
     const cleanCache = async () => {
       const state = activeCache.get(id);
       activeCache.delete(id);
       if (!i.guild) return i.client.logger.debug({ i }, '/rank tried to update uncached guild');
       try {
-        await i.editReply(await generateCard(state, i.guild, myGuild!, true));
+        await i.editReply(await generateCard(state, i.guild, myGuild, true));
       } catch (_err) {
         const err = _err as DiscordAPIError;
         if (err.code === RESTJSONErrorCodes.UnknownMessage)
@@ -119,14 +118,15 @@ async function execCacheSet<T extends keyof CacheInstance>(
     return;
   }
 
-  const myGuild = await guildModel.storage.get(interaction.guild);
+  const guildModel = await getGuildModel(interaction.guild);
+  const myGuild = await guildModel.fetch();
 
   activeCache.set(interaction.message.id, { ...cachedMessage, [key]: value });
 
   await interaction.deferUpdate();
 
   const state = activeCache.get(interaction.message.id);
-  await interaction.editReply(await generateCard(state, interaction.guild, myGuild!));
+  await interaction.editReply(await generateCard(state, interaction.guild, myGuild));
 }
 
 async function generateCard(
@@ -268,7 +268,7 @@ async function generateRankCard(
 ): Promise<InteractionEditReplyOptions> {
   const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);
   if (!rank) throw new Error();
-  const guildCache = await guildModel.cache.get(guild);
+  const guildCache = await getGuildModel(guild);
 
   const positions = await getPositions(
     guild,
@@ -370,7 +370,7 @@ function getRankComponents(
 }
 
 function getScoreStrings(
-  myGuild: CachedGuild,
+  myGuild: GuildModel,
   ranks: NonNullable<Awaited<ReturnType<typeof rankModel.getGuildMemberRank>>>,
   positions: Record<string, number | null>,
   time: StatTimeInterval,
@@ -413,7 +413,7 @@ async function getPositions<T extends string>(
 }
 
 function getTypes(
-  myGuild: CachedGuild,
+  myGuild: GuildModel,
 ): ('textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus' | 'totalScore')[] {
   return [
     myGuild.db.textXp ? 'textMessage' : null,

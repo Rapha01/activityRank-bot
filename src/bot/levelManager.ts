@@ -3,7 +3,7 @@ import nameUtil from './util/nameUtil.js';
 import guildRoleModel from './models/guild/guildRoleModel.js';
 import Discord, { DiscordAPIError, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
-import guildModel from './models/guild/guildModel.js';
+import { getGuildModel } from './models/guild/guildModel.js';
 import guildMemberModel from './models/guild/guildMemberModel.js';
 
 export async function checkLevelUp(
@@ -16,7 +16,7 @@ export async function checkLevelUp(
     'checking levelup',
   );
 
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
 
   const oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, cachedGuild.db.levelFactor));
   const newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, cachedGuild.db.levelFactor));
@@ -32,15 +32,23 @@ export async function checkLevelUp(
   }
 }
 
+const DANGEROUS_PERMISSIONS =
+  PermissionFlagsBits.KickMembers |
+  PermissionFlagsBits.BanMembers |
+  PermissionFlagsBits.Administrator |
+  PermissionFlagsBits.ManageRoles |
+  PermissionFlagsBits.ManageGuild |
+  PermissionFlagsBits.ManageChannels |
+  PermissionFlagsBits.ManageWebhooks;
+
 export async function checkRoleAssignment(member: GuildMember, level: number) {
-  let roleMessages: string[] = [],
-    memberHasRole;
+  const roleMessages: string[] = [];
   const roles = member.guild.roles.cache;
 
   if (roles.size == 0 || !member.guild.members.me!.permissions.has(PermissionFlagsBits.ManageRoles))
     return roleMessages;
 
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
 
   member.client.logger.debug(
     { memberId: member.id, guildId: member.guild.id, level },
@@ -67,17 +75,11 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
     } else if (cachedRole.db.assignLevel != 0 && level >= cachedRole.db.assignLevel) {
       // User is within role. Assign or do nothing.
 
-      if (
-        role.permissions.has(PermissionFlagsBits.ManageGuild, true) ||
-        role.permissions.has(PermissionFlagsBits.KickMembers, true) ||
-        role.permissions.has(PermissionFlagsBits.BanMembers, true) ||
-        role.permissions.has(PermissionFlagsBits.ManageChannels, true) ||
-        role.permissions.has(PermissionFlagsBits.ManageEvents, true) ||
-        role.permissions.has(PermissionFlagsBits.ManageMessages, true)
-      ) {
+      if (role.permissions.any(DANGEROUS_PERMISSIONS)) {
         member.client.logger.warn({ role, cachedRole }, 'attempted to assign dangerous role');
         continue;
       }
+
       if (!memberHasRole) {
         member.client.logger.debug({ roleId: role.id }, 'assigning role');
         await member.roles.add(role).catch((e) => {
@@ -106,7 +108,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 async function sendGratulationMessage(member: GuildMember, roleMessages: string[], level: number) {
   let gratulationMessage = '';
 
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
   const cachedMember = await guildMemberModel.cache.get(member);
 
   if (
@@ -197,7 +199,7 @@ const addRoleDeassignMessage = async (roleMessages: string[], member: GuildMembe
   let message = '';
 
   const cachedRole = await guildRoleModel.cache.get(role);
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
 
   if (cachedRole.db.deassignMessage != '') message = cachedRole.db.deassignMessage;
   else if (cachedGuild.db.roleDeassignMessage != '') message = cachedGuild.db.roleDeassignMessage;
@@ -211,7 +213,7 @@ const addRoleAssignMessage = async (roleMessages: string[], member: GuildMember,
   let message = '';
 
   const cachedRole = await guildRoleModel.cache.get(role);
-  const cachedGuild = await guildModel.cache.get(member.guild);
+  const cachedGuild = await getGuildModel(member.guild);
 
   if (cachedRole.db.assignMessage != '') message = cachedRole.db.assignMessage;
   else if (cachedGuild.db.roleAssignMessage != '') message = cachedGuild.db.roleAssignMessage;

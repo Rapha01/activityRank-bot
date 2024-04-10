@@ -1,6 +1,6 @@
 import shardDb from '../../models/shardDb/shardDb.js';
 import type { Guild } from 'discord.js';
-import guildModel from './guild/guildModel.js';
+import { getGuildModel } from './guild/guildModel.js';
 
 export interface LastActivities {
   textMessage: null | number;
@@ -11,7 +11,7 @@ export interface LastActivities {
 }
 
 async function getLastActivities(guild: Guild, userId: string): Promise<LastActivities> {
-  const { dbHost } = await guildModel.cache.get(guild);
+  const { dbHost } = await getGuildModel(guild);
   const keys = ['textMessage', 'voiceMinute', 'invite', 'vote', 'bonus'];
 
   const results = await Promise.all(
