@@ -53,8 +53,8 @@ const rankVoiceGuild = async (guild: Guild) => {
 
   if (!cachedGuild.db.voiceXp) return;
 
-  const voiceChannels = guild.channels.cache.filter<VoiceBasedChannel>(
-    (channel): channel is VoiceBasedChannel => channel.isVoiceBased(),
+  const voiceChannels = guild.channels.cache.filter((channel): channel is VoiceBasedChannel =>
+    channel.isVoiceBased(),
   );
 
   for (const channel of voiceChannels.values()) {
