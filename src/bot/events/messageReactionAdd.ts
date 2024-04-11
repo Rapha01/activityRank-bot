@@ -10,7 +10,7 @@ import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
 import fct from '../../util/fct.js';
 
-registerEvent(Events.MessageReactionAdd, async function (reaction) {
+registerEvent(Events.MessageReactionAdd, async function (reaction, user) {
   if (!reaction.message.guild) return;
   const guild = reaction.message.guild;
 
@@ -31,8 +31,8 @@ registerEvent(Events.MessageReactionAdd, async function (reaction) {
     if (`<:${reaction.emoji.name}:${reaction.emoji.id}>` != cachedGuild.db.voteEmote) return;
   }
 
-  let targetMember = await guild.members.fetch(reaction.message.author!.id);
-  let member = await guild.members.fetch(reaction.users.cache.last()!.id);
+  const targetMember = await guild.members.fetch(reaction.message.author!.id);
+  const member = await guild.members.fetch(user.id);
 
   if (!targetMember || !member || member.user.bot || targetMember.id == member.id) return;
 
