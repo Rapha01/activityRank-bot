@@ -8,8 +8,8 @@ export interface BonusSchema {
   month: Generated<number>;
   week: Generated<number>;
   day: Generated<number>;
-  changeDate: Generated<number>;
-  addDate: Generated<number>;
+  changeDate: Generated<string>;
+  addDate: Generated<string>;
 }
 export type Bonus = Selectable<BonusSchema>;
 export type NewBonus = Insertable<BonusSchema>;
@@ -79,7 +79,7 @@ export interface GuildSchema {
   resetHour: Generated<number>;
   joinedAtDate: Generated<number>;
   leftAtDate: Generated<number>;
-  addDate: Generated<number>;
+  addDate: Generated<string>;
   isBanned: Generated<number>;
 }
 export type Guild = Selectable<GuildSchema>;
@@ -129,8 +129,8 @@ export interface InviteSchema {
   month: Generated<number>;
   week: Generated<number>;
   day: Generated<number>;
-  changeDate: Generated<number>;
-  addDate: Generated<number>;
+  changeDate: Generated<string>;
+  addDate: Generated<string>;
 }
 export type Invite = Selectable<InviteSchema>;
 export type NewInvite = Insertable<InviteSchema>;
@@ -145,8 +145,8 @@ export interface TextMessageSchema {
   month: Generated<number>;
   week: Generated<number>;
   day: Generated<number>;
-  changeDate: Generated<number>;
-  addDate: Generated<number>;
+  changeDate: Generated<string>;
+  addDate: Generated<string>;
 }
 export type TextMessage = Selectable<TextMessageSchema>;
 export type NewTextMessage = Insertable<TextMessageSchema>;
@@ -160,7 +160,7 @@ export interface UserSchema {
   voteMultiplier: Generated<number>;
   voteMultiplierUntil: Generated<number>;
   lastAskForPremiumDate: Generated<number>;
-  addDate: Generated<number>;
+  addDate: Generated<string>;
   isBanned: Generated<number>;
   patreonTier: Generated<number>;
   patreonTierUntilDate: Generated<number>;
@@ -179,8 +179,8 @@ export interface VoiceMinuteSchema {
   month: Generated<number>;
   week: Generated<number>;
   day: Generated<number>;
-  changeDate: Generated<number>;
-  addDate: Generated<number>;
+  changeDate: Generated<string>;
+  addDate: Generated<string>;
 }
 export type VoiceMinute = Selectable<VoiceMinuteSchema>;
 export type NewVoiceMinute = Insertable<VoiceMinuteSchema>;
@@ -194,8 +194,8 @@ export interface VoteSchema {
   month: Generated<number>;
   week: Generated<number>;
   day: Generated<number>;
-  changeDate: Generated<number>;
-  addDate: Generated<number>;
+  changeDate: Generated<string>;
+  addDate: Generated<string>;
 }
 export type Vote = Selectable<VoteSchema>;
 export type NewVote = Insertable<VoteSchema>;
