@@ -428,14 +428,3 @@ function getGuildMemberRankSql(guildCache: GuildModel, guildId: string, userId: 
 
   return memberRankSql;
 }
-
-export default {
-  getGuildMemberRanks,
-  getGuildMemberRank,
-  getGuildMemberRankPosition,
-  getChannelRanks,
-  getChannelMemberRanks,
-  getGuildMemberTopChannels,
-  countGuildRanks,
-  getGuildMemberTotalScore,
-};
