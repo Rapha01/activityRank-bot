@@ -1,13 +1,13 @@
-import { SlashCommandBuilder, EmbedBuilder, time } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, time, type Guild } from 'discord.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
-import utilModel from '../models/utilModel.js';
 import nameUtil from '../util/nameUtil.js';
 import cooldownUtil from '../util/cooldownUtil.js';
 import { stripIndent } from 'common-tags';
 import fct from '../../util/fct.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
+import { getShardDb } from 'models/shardDb/shardDb.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -30,7 +30,7 @@ registerSlashCommand({
     const myTargetMember = await cachedMember.fetch();
     const targetMemberInfo = await nameUtil.getGuildMemberInfo(i.guild, member.id);
 
-    const lastActivities = await utilModel.storage.getLastActivities(i.guild, member.id);
+    const lastActivities = await getLastActivities(i.guild, member.id);
 
     const inviterInfo = await nameUtil.getGuildMemberInfo(i.guild, myTargetMember.inviter);
     if (inviterInfo.name == 'User left [0]')
@@ -96,3 +96,43 @@ registerSlashCommand({
     await i.reply({ embeds: [embed] });
   },
 });
+
+export interface LastActivities {
+  textMessage: null | number;
+  voiceMinute: null | number;
+  invite: null | number;
+  vote: null | number;
+  bonus: null | number;
+}
+
+export async function getLastActivities(guild: Guild, userId: string): Promise<LastActivities> {
+  const { dbHost } = await getGuildModel(guild);
+  const db = getShardDb(dbHost);
+  const keys = ['textMessage', 'voiceMinute', 'invite', 'vote', 'bonus'] as const;
+
+  const results = await Promise.all(
+    keys.map((k) =>
+      db
+        .selectFrom(k)
+        .select('changeDate')
+        .where('guildId', '=', guild.id)
+        .where('userId', '=', userId)
+        .orderBy('changeDate')
+        .limit(1)
+        .executeTakeFirst(),
+    ),
+  );
+
+  const getResult = (res: { changeDate: string } | undefined) =>
+    res?.changeDate ? parseInt(res.changeDate) : null;
+
+  const [textMessage, voiceMinute, invite, vote, bonus] = results;
+
+  return {
+    textMessage: getResult(textMessage),
+    voiceMinute: getResult(voiceMinute),
+    invite: getResult(invite),
+    vote: getResult(vote),
+    bonus: getResult(bonus),
+  };
+}
