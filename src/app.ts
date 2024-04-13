@@ -28,8 +28,10 @@ async function start() {
 // Process Exit
 process.on('SIGINT', () => {
   logger.warn('SIGINT signal received in Manager');
+  process.exit();
 });
 
 process.on('SIGTERM', () => {
   logger.warn('SIGTERM signal received in Manager');
+  process.exit();
 });
