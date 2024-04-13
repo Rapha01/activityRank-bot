@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ActivityRank Manager</title>
+    <style>
+      /* CSS reset */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        -moz-text-size-adjust: none;
+        -webkit-text-size-adjust: none;
+        text-size-adjust: none;
+      }
+      body,
+      h1,
+      h2 {
+        margin: 0;
+      }
+    </style>
+    <style>
+      /* Body styles */
+      html {
+        height: 100%;
+        font-family: sans-serif;
+      }
+      body {
+        height: 100%;
+        width: 100%;
+        background-color: #0f172a;
+        display: grid;
+        place-items: center;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+      h1 {
+        background-image: linear-gradient(to right, #f0abfc, #8b5cf6);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        font-weight: bold;
+      }
+      h2 {
+        background-image: linear-gradient(to right, #2dc8fd, #aafee5);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        font-family: monospace;
+      }
+      svg#check {
+        width: 16rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg
+        id="check"
+        fill="none"
+        stroke-width="0.75"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="Gradient" gradientTransform="rotate(90)">
+            <stop offset="0" stop-color="#2dc8fd" />
+            <stop offset="1" stop-color="#aafee5" />
+          </linearGradient>
+        </defs>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke="url(#Gradient)"
+          d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        ></path>
+      </svg>
+      <h1>Healthcheck Success</h1>
+      <h2>ActivityRank Manager</h2>
+    </main>
+  </body>
+</html>
