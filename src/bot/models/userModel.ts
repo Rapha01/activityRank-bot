@@ -5,8 +5,9 @@ import type { User as DBUser, UserSchema, UserUpdate } from 'models/types/kysely
 import { CachedModel } from './generic/model.js';
 
 let defaultCache: Pick<DBUser, (typeof cachedFields)[number]> | null = null;
+let defaultAll: DBUser | null = null;
 
-const cachedFields = ['userId', 'isBanned'] as const;
+const cachedFields = ['userId', 'isBanned'] as const satisfies (keyof DBUser)[];
 const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 
 interface UserCacheStorage {
@@ -23,15 +24,41 @@ export class UserModel extends CachedModel<
   typeof cachedFields,
   UserCacheStorage
 > {
-  async fetch() {
-    const member = await this.handle
+  async fetchOptional() {
+    const user = await this.handle
       .selectFrom('user')
       .selectAll()
       .where('userId', '=', this.object.id)
       .executeTakeFirst();
 
-    if (!member) throw new Error(`Could not find user ${this.object.id} in database`);
-    return member;
+    return user;
+  }
+
+  async fetch(error = false) {
+    const user = await this.fetchOptional();
+    if (user) return user;
+
+    if (error) throw new Error(`Could not find user ${this.object.id} in database`);
+    return await this.fetchDefault();
+  }
+
+  async fetchDefault() {
+    if (defaultAll) return defaultAll;
+
+    const db = getShardDb(this.dbHost);
+
+    let res = await db.selectFrom('user').selectAll().where('userId', '=', '0').executeTakeFirst();
+
+    if (!res) {
+      res = await db
+        .insertInto('user')
+        .values({ userId: '0' })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+    }
+
+    defaultAll = res;
+    return defaultAll;
   }
 
   async upsert(expr: UserUpdate) {

@@ -66,33 +66,31 @@ export class GuildMemberModel extends CachedModel<
 export async function getRankedUserIds(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
-  const textmessageUserIds = await shardDb.query<{ userId: string }[]>(
-    dbHost,
-    `SELECT DISTINCT userId FROM textMessage WHERE guildId = ${guild.id} AND alltime != 0`,
-  );
-  const voiceMinuteUserIds = await shardDb.query<{ userId: string }[]>(
-    dbHost,
-    `SELECT DISTINCT userId FROM voiceMinute WHERE guildId = ${guild.id} AND alltime != 0`,
-  );
-  const voteUserIds = await shardDb.query<{ userId: string }[]>(
-    dbHost,
-    `SELECT DISTINCT userId FROM vote WHERE guildId = ${guild.id} AND alltime != 0`,
-  );
-  const bonusUserIds = await shardDb.query<{ userId: string }[]>(
-    dbHost,
-    `SELECT DISTINCT userId FROM bonus WHERE guildId = ${guild.id} AND alltime != 0`,
-  );
+  const db = getShardDb(dbHost);
 
-  const ids = [
-    ...new Set([...textmessageUserIds, ...voiceMinuteUserIds, ...voteUserIds, ...bonusUserIds]),
-  ];
+  const xpTypes = ['voiceMinute', 'invite', 'vote', 'bonus'] as const;
 
-  let userIds = [];
-  for (let id of ids) {
-    userIds.push(id.userId);
+  let idQuery = db
+    .selectFrom('textMessage')
+    .distinct()
+    .select('userId')
+    .where('guildId', '=', guild.id)
+    .where('alltime', '!=', 0);
+
+  for (const type of xpTypes) {
+    idQuery = idQuery.union(
+      db
+        .selectFrom(type)
+        .distinct()
+        .select('userId')
+        .where('guildId', '=', guild.id)
+        .where('alltime', '!=', 0),
+    );
   }
 
-  return userIds;
+  const res = await idQuery.execute();
+
+  return res.map(({ userId }) => userId);
 }
 
 export async function getMemberModel(member: GuildMember): Promise<GuildMemberModel> {

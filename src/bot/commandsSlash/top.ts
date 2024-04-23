@@ -1,5 +1,9 @@
 import { GuildModel, getGuildModel } from '../models/guild/guildModel.js';
-import rankModel from '../models/rankModel.js';
+import {
+  getChannelMemberRanks,
+  getChannelRanks,
+  getGuildMemberRanks,
+} from 'bot/models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import cooldownUtil from '../util/cooldownUtil.js';
 import nameUtil, { getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
@@ -218,7 +222,7 @@ async function getTopChannels(
   time: StatTimeInterval,
   page: Pagination,
 ) {
-  const channelRanks = await rankModel.getChannelRanks(guild, type, time, page.from, page.to);
+  const channelRanks = await getChannelRanks(guild, type, time, page.from, page.to);
   if (!channelRanks || channelRanks.length == 0) return 'No entries found for this page.';
 
   const channelMention = (index: number) =>
@@ -261,7 +265,7 @@ async function generateChannelMembers(
 
   const header = `Toplist for channel ${state.channel.name} | ${_prettifyTime[state.time]}`;
 
-  const channelMemberRanks = await rankModel.getChannelMemberRanks(
+  const channelMemberRanks = await getChannelMemberRanks(
     guild,
     state.channel.id,
     type,
@@ -329,7 +333,7 @@ async function generateGuildMembers(
   else if (state.orderType === 'totalScore' || state.orderType === 'allScores')
     header += ' | By total XP';
 
-  const memberRanks = await rankModel.getGuildMemberRanks(
+  const memberRanks = await getGuildMemberRanks(
     guild,
     state.orderType === 'allScores' ? 'totalScore' : state.orderType,
     state.time,
@@ -596,7 +600,7 @@ export const sendMembersEmbed = async (
   else if (type === 'bonus') header += ' | By ' + cachedGuild.db.bonusTag;
   else header += ' | By total XP';
 
-  const memberRanks = await rankModel.getGuildMemberRanks(i.guild, type, time, page.from, page.to);
+  const memberRanks = await getGuildMemberRanks(i.guild, type, time, page.from, page.to);
   if (!memberRanks || memberRanks.length == 0) {
     return await i.editReply({ content: 'No entries found for this page.' });
   }

@@ -139,6 +139,10 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
       member.client.logger.debug(
         `Missing access to send gratulationMessage in guild ${member.guild.id}`,
       );
+    else if (err.code === RESTJSONErrorCodes.MissingPermissions)
+      member.client.logger.debug(
+        `Missing permissions to send gratulationMessage in guild ${member.guild.id}`,
+      );
     else member.client.logger.warn(err, 'Error while sending gratulationMessage');
   }
 

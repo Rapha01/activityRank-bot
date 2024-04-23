@@ -16,12 +16,16 @@ import {
 
 import cooldownUtil from '../util/cooldownUtil.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
-import rankModel from '../models/rankModel.js';
+import {
+  getGuildMemberRank,
+  getGuildMemberRankPosition,
+  getGuildMemberTopChannels,
+} from 'bot/models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
-import type { GuildSchema } from 'models/types/shard.js';
+import type { Guild as DBGuild } from 'models/types/kysely/shard.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
@@ -132,7 +136,7 @@ async function execCacheSet<T extends keyof CacheInstance>(
 async function generateCard(
   cache: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  myGuild: DBGuild,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   if (cache.window === 'rank') return await generateRankCard(cache, guild, myGuild, disabled);
@@ -152,7 +156,7 @@ const _prettifyTime: { [k in StatTimeInterval]: string } = {
 async function generateChannelCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  myGuild: DBGuild,
   disabled: boolean,
 ): Promise<InteractionEditReplyOptions> {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
@@ -233,7 +237,7 @@ async function getTopChannels(
   time: StatTimeInterval,
   type: StatType,
 ) {
-  const guildMemberTopChannels = await rankModel.getGuildMemberTopChannels(
+  const guildMemberTopChannels = await getGuildMemberTopChannels(
     guild,
     memberId,
     type,
@@ -263,10 +267,10 @@ async function getTopChannels(
 async function generateRankCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: GuildSchema,
+  myGuild: DBGuild,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
-  const rank = await rankModel.getGuildMemberRank(guild, state.targetUser.id);
+  const rank = await getGuildMemberRank(guild, state.targetUser.id);
   if (!rank) throw new Error();
   const guildCache = await getGuildModel(guild);
 
@@ -371,7 +375,7 @@ function getRankComponents(
 
 function getScoreStrings(
   myGuild: GuildModel,
-  ranks: NonNullable<Awaited<ReturnType<typeof rankModel.getGuildMemberRank>>>,
+  ranks: NonNullable<Awaited<ReturnType<typeof getGuildMemberRank>>>,
   positions: Record<string, number | null>,
   time: StatTimeInterval,
 ) {
@@ -404,7 +408,7 @@ async function getPositions<T extends string>(
     await Promise.all(
       types.map(async (t) => [
         t,
-        await rankModel.getGuildMemberRankPosition(guild, memberId, t + time),
+        await getGuildMemberRankPosition(guild, memberId, t + time),
       ]) as Promise<[T, number | null]>[],
     ),
   ) as Record<T, number | null>;

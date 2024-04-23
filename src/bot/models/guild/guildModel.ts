@@ -112,7 +112,7 @@ async function buildCache(guild: Guild): Promise<GuildModel> {
       .values({
         guildId: guild.id,
         joinedAtDate: Math.floor(guild.members.me!.joinedAt!.getTime() / 1000),
-        addDate: Math.floor(Date.now() / 1000),
+        addDate: Math.floor(Date.now() / 1000).toString(),
       })
       .executeTakeFirstOrThrow();
 
