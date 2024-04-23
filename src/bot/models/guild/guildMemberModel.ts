@@ -9,8 +9,9 @@ import { getGuildModel } from './guildModel.js';
 import { getGuildMemberTotalScore } from '../rankModel.js';
 import { CachedModel } from '../generic/model.js';
 
-const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const;
+const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const satisfies (keyof DBMember)[];
 let defaultCache: Pick<DBMember, (typeof cachedFields)[number]> | null = null;
+let defaultAll: DBMember | null = null;
 
 interface MemberCacheStorage {
   totalXp?: number;
@@ -29,19 +30,47 @@ export class GuildMemberModel extends CachedModel<
   typeof cachedFields,
   MemberCacheStorage
 > {
-  async fetch() {
+  async fetchOptional() {
     const member = await this.handle
       .selectFrom('guildMember')
       .selectAll()
-      .where('guildId', '=', this.object.guild.id)
       .where('userId', '=', this.object.id)
+      .where('guildId', '=', this.object.guild.id)
       .executeTakeFirst();
 
-    if (!member)
-      throw new Error(
-        `Could not find member ${this.object.id} [${this.object.guild.id}] in database`,
-      );
     return member;
+  }
+
+  async fetch(error = false) {
+    const member = await this.fetchOptional();
+    if (member) return member;
+
+    if (error) throw new Error(`Could not find member ${this.object.id} in database`);
+    return await this.fetchDefault();
+  }
+
+  async fetchDefault() {
+    if (defaultAll) return defaultAll;
+
+    const db = getShardDb(this.dbHost);
+
+    let res = await db
+      .selectFrom('guildMember')
+      .selectAll()
+      .where('userId', '=', '0')
+      .where('guildId', '=', '0')
+      .executeTakeFirst();
+
+    if (!res) {
+      res = await db
+        .insertInto('guildMember')
+        .values({ userId: '0', guildId: '0' })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+    }
+
+    defaultAll = res;
+    return defaultAll;
   }
 
   async upsert(expr: GuildMemberUpdate) {
