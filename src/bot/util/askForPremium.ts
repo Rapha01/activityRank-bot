@@ -24,9 +24,9 @@ export default async function (interaction: ChatInputCommandInteraction<'cached'
   const myUser = await userModel.fetch();
 
   const now = Math.floor(Date.now() / 1000);
-  if (now - myUser.lastAskForPremiumDate < askForPremiumCdUser) return;
+  if (now - parseInt(myUser.lastAskForPremiumDate) < askForPremiumCdUser) return;
 
-  await userModel.upsert({ lastAskForPremiumDate: now });
+  await userModel.upsert({ lastAskForPremiumDate: now.toString() });
   cachedGuild.cache.lastAskForPremiumDate = new Date();
 
   await sendAskForPremiumEmbed(interaction);
