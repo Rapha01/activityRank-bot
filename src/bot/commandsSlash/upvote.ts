@@ -84,7 +84,7 @@ registerSlashCommand({
       );
     } else {
       await interaction.reply(oneLine`You have successfully voted for ${targetMember}. 
-      Upvote the bot on top.gg or subscribe [on Patreon](https://www.patreon.com/rapha01) to increase your voting power!`);
+      Upvote the bot on top.gg or subscribe [on Patreon](<https://www.patreon.com/rapha01>) to increase your voting power!`);
     }
   },
 });
