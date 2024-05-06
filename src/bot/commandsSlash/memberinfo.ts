@@ -55,16 +55,17 @@ registerSlashCommand({
         ? targetMemberInfo.joinedAt
         : Math.ceil(targetMemberInfo.joinedAt / 1000);
 
+    console.warn('Tgt User', myTargetUser);
+
+    const patreonTierUntilDate = new Date(parseInt(myTargetUser.patreonTierUntilDate) * 1000);
+
     const patreonText =
-      myTargetUser.patreonTierUntilDate > Date.now() / 1000 && myTargetUser.patreonTier > 0
+      patreonTierUntilDate.getTime() > Date.now() / 1000 && myTargetUser.patreonTier > 0
         ? stripIndent`
           Active Tier: ${myTargetUser.patreonTier} (${fct.getPatreonTierName(
             myTargetUser.patreonTier,
           )})
-          Valid until: ${time(myTargetUser.patreonTierUntilDate, 'D')}, ${time(
-            myTargetUser.patreonTierUntilDate,
-            'R',
-          )}`
+          Valid until: ${time(patreonTierUntilDate, 'D')}, ${time(patreonTierUntilDate, 'R')}`
         : 'No active Tier';
 
     const embed = new EmbedBuilder()

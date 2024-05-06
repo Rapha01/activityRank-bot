@@ -22,6 +22,7 @@ import {
   type GuildChannel,
   type ActionRowData,
   type MessageActionRowComponentData,
+  time,
 } from 'discord.js';
 import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
@@ -290,8 +291,11 @@ async function generateChannelMembers(
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)`);
+  const bonusUntil = new Date(parseInt(cachedGuild.db.bonusUntilDate) * 1000);
+
+  if (bonusUntil.getTime() > Date.now()) {
+    e.setDescription(`**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`);
+  }
 
   let str = '',
     guildMemberName;
@@ -357,8 +361,11 @@ async function generateGuildMembers(
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)`);
+  const bonusUntil = new Date(parseInt(cachedGuild.db.bonusUntilDate) * 1000);
+
+  if (bonusUntil.getTime() > Date.now()) {
+    e.setDescription(`**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`);
+  }
 
   let i = 0;
   while (memberRanksWithNames.length > 0) {
@@ -589,9 +596,9 @@ export const sendMembersEmbed = async (
     i.options.getInteger('page') || 1,
     cachedGuild.db.entriesPerPage,
   );
-  const time = (i.options.getString('period') || 'Alltime') as keyof typeof _prettifyTime;
+  const timePeriod = (i.options.getString('period') || 'Alltime') as keyof typeof _prettifyTime;
 
-  let header = `Toplist for server ${i.guild.name} from ${page.from} to ${page.to} | ${_prettifyTime[time]}`;
+  let header = `Toplist for server ${i.guild.name} from ${page.from} to ${page.to} | ${_prettifyTime[timePeriod]}`;
 
   if (type === 'voiceMinute') header += ' | By voice (hours)';
   else if (type === 'textMessage') header += ' | By text (messages)';
@@ -600,7 +607,7 @@ export const sendMembersEmbed = async (
   else if (type === 'bonus') header += ' | By ' + cachedGuild.db.bonusTag;
   else header += ' | By total XP';
 
-  const memberRanks = await getGuildMemberRanks(i.guild, type, time, page.from, page.to);
+  const memberRanks = await getGuildMemberRanks(i.guild, type, timePeriod, page.from, page.to);
   if (!memberRanks || memberRanks.length == 0) {
     return await i.editReply({ content: 'No entries found for this page.' });
   }
@@ -609,8 +616,11 @@ export const sendMembersEmbed = async (
 
   const e = new EmbedBuilder().setTitle(header).setColor('#4fd6c8');
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
-    e.setDescription(`**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R> \n`);
+  const bonusUntil = new Date(parseInt(cachedGuild.db.bonusUntilDate) * 1000);
+
+  if (bonusUntil.getTime() > Date.now()) {
+    e.setDescription(`**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`);
+  }
 
   const settings = await getSettings();
   if (settings.footer) e.setFooter({ text: settings.footer });
@@ -621,21 +631,22 @@ export const sendMembersEmbed = async (
     const memberRank = memberRanksWithNames.shift()!;
 
     if (cachedGuild.db.textXp)
-      scoreStrings.push(`:writing_hand: ${memberRank[`textMessage${time}`]}`);
+      scoreStrings.push(`:writing_hand: ${memberRank[`textMessage${timePeriod}`]}`);
     if (cachedGuild.db.voiceXp)
       scoreStrings.push(
-        `:microphone2: ${Math.round((memberRank[`voiceMinute${time}`] / 60) * 10) / 10}`,
+        `:microphone2: ${Math.round((memberRank[`voiceMinute${timePeriod}`] / 60) * 10) / 10}`,
       );
-    if (cachedGuild.db.inviteXp) scoreStrings.push(`:envelope: ${memberRank[`invite${time}`]}`);
+    if (cachedGuild.db.inviteXp)
+      scoreStrings.push(`:envelope: ${memberRank[`invite${timePeriod}`]}`);
     if (cachedGuild.db.voteXp)
-      scoreStrings.push(cachedGuild.db.voteEmote + ' ' + memberRank[`vote${time}`]);
+      scoreStrings.push(cachedGuild.db.voteEmote + ' ' + memberRank[`vote${timePeriod}`]);
     if (cachedGuild.db.bonusXp)
-      scoreStrings.push(cachedGuild.db.bonusEmote + ' ' + memberRank[`bonus${time}`]);
+      scoreStrings.push(cachedGuild.db.bonusEmote + ' ' + memberRank[`bonus${timePeriod}`]);
     e.addFields({
       name: `**#${page.from + iter} ${memberRank.name}** \\🎖${Math.floor(
         memberRank.levelProgression,
       )}`,
-      value: `${memberRank[`totalScore${time}`]} XP \\⬄ ${scoreStrings.join(
+      value: `${memberRank[`totalScore${timePeriod}`]} XP \\⬄ ${scoreStrings.join(
         ':black_small_square:',
       )}`,
     });

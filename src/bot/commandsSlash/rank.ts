@@ -12,6 +12,7 @@ import {
   type InteractionEditReplyOptions,
   type ActionRowData,
   type MessageActionRowComponentData,
+  time,
 } from 'discord.js';
 
 import cooldownUtil from '../util/cooldownUtil.js';
@@ -292,12 +293,10 @@ async function generateRankCard(
     .setColor('#4fd6c8')
     .setThumbnail(state.targetUser.avatarURL());
 
-  if (myGuild.bonusUntilDate > Date.now() / 1000) {
-    embed.setDescription(
-      `**!! Bonus XP Active !!** (${Math.round(
-        (((myGuild.bonusUntilDate - Date.now() / 1000) / 60 / 60) * 10) / 10,
-      )}h left) \n`,
-    );
+  const bonusUntil = new Date(parseInt(myGuild.bonusUntilDate) * 1000);
+
+  if (bonusUntil.getTime() > Date.now()) {
+    embed.setDescription(`**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`);
   }
 
   const infoStrings = [
