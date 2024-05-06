@@ -13,7 +13,7 @@ registerSubCommand({
     const cachedGuild = await getGuildModel(i.guild);
 
     const bonusUntilDate = Math.floor(Date.now() / 1000 + i.options.getInteger('time', true) * 60);
-    await cachedGuild.upsert({ bonusUntilDate });
+    await cachedGuild.upsert({ bonusUntilDate: bonusUntilDate.toString() });
     await i.reply({ content: `Bonus time has started! It will end <t:${bonusUntilDate}:R>.` });
   },
   async executeAutocomplete(interaction) {

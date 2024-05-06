@@ -48,7 +48,7 @@ export interface GuildSchema {
   bonusPerVoiceMinute: Generated<number>;
   bonusPerVote: Generated<number>;
   bonusPerInvite: Generated<number>;
-  bonusUntilDate: Generated<number>;
+  bonusUntilDate: Generated<string>; // bigint
   reactionVote: Generated<number>;
   allowMutedXp: Generated<number>;
   allowDeafenedXp: Generated<number>;
@@ -73,12 +73,12 @@ export interface GuildSchema {
   voiceChanneleaveMessage: Generated<string>;
   roleAssignMessage: Generated<string>;
   roleDeassignMessage: Generated<string>;
-  lastCommandDate: Generated<number>;
-  lastTokenBurnDate: Generated<number>;
+  lastCommandDate: Generated<string>; // bigint
+  lastTokenBurnDate: Generated<string>; // bigint
   resetDay: Generated<number>;
   resetHour: Generated<number>;
-  joinedAtDate: Generated<number>;
-  leftAtDate: Generated<number>;
+  joinedAtDate: Generated<string>; // bigint
+  leftAtDate: Generated<string>; // bigint
   addDate: Generated<string>;
   isBanned: Generated<number>;
 }
@@ -159,12 +159,12 @@ export interface UserSchema {
   tokensGifted: Generated<number>;
   voteMultiplier: Generated<number>;
   voteMultiplierUntil: Generated<number>;
-  lastAskForPremiumDate: Generated<number>;
+  lastAskForPremiumDate: Generated<string>; // bigint
   addDate: Generated<string>;
   isBanned: Generated<number>;
   patreonTier: Generated<number>;
-  patreonTierUntilDate: Generated<number>;
-  lastTopggUpvoteDate: Generated<number>;
+  patreonTierUntilDate: Generated<string>;
+  lastTopggUpvoteDate: Generated<string>;
 }
 export type User = Selectable<UserSchema>;
 export type NewUser = Insertable<UserSchema>;

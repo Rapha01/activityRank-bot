@@ -62,12 +62,12 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   const myOwnerUser = await ownerModel.fetch();
 
   let userTier;
-  if (Date.now() / 1000 <= myUser.patreonTierUntilDate) {
+  if (Date.now() / 1000 <= parseInt(myUser.patreonTierUntilDate)) {
     userTier = myUser.patreonTier;
   } else userTier = 0;
 
   let ownerTier;
-  if (Date.now() / 1000 <= myOwnerUser.patreonTierUntilDate) {
+  if (Date.now() / 1000 <= parseInt(myOwnerUser.patreonTierUntilDate)) {
     ownerTier = myOwnerUser.patreonTier;
   } else ownerTier = 0;
 
@@ -75,15 +75,15 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
 };
 
 export const getVoteMultiplier = (myUser: {
-  lastTopggUpvoteDate: number;
-  patreonTierUntilDate: number;
+  lastTopggUpvoteDate: string;
+  patreonTierUntilDate: string;
   patreonTier: number;
 }) => {
   let multiplier = 1;
 
-  if (myUser.lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;
+  if (parseInt(myUser.lastTopggUpvoteDate) + 259200 > Date.now() / 1000) multiplier = 2;
 
-  if (myUser.patreonTierUntilDate > Date.now() / 1000 && myUser.patreonTier > 0) {
+  if (parseInt(myUser.patreonTierUntilDate) > Date.now() / 1000 && myUser.patreonTier > 0) {
     if (myUser.patreonTier == 1) multiplier = 2;
     else if (myUser.patreonTier == 2) multiplier = 3;
     else if (myUser.patreonTier == 3) multiplier = 4;

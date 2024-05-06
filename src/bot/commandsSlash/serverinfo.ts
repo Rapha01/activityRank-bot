@@ -205,7 +205,7 @@ const info: WindowFn = async ({ interaction, cachedGuild }) => {
   });
 
   let bonusTimeString = '';
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000) {
+  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000) {
     bonusTimeString = `**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)
     ${cachedGuild.db.bonusPerTextMessage * cachedGuild.db.xpPerBonus} Bonus XP per textmessage
     ${cachedGuild.db.bonusPerVoiceMinute * cachedGuild.db.xpPerBonus} Bonus XP per voiceminute

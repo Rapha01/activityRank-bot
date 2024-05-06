@@ -31,7 +31,7 @@ export async function addTextMessage(
 
   await addTotalXp(member, count * cachedGuild.db.xpPerTextMessage);
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerTextMessage);
 }
 
@@ -59,7 +59,7 @@ export async function addVoiceMinute(
 
   await addTotalXp(member, count * cachedGuild.db.xpPerVoiceMinute);
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerVoiceMinute);
 }
 
@@ -81,7 +81,7 @@ export const addInvite = async (member: GuildMember, count: number) => {
 
   await addTotalXp(member, count * cachedGuild.db.xpPerInvite);
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerInvite);
 };
 
@@ -103,7 +103,7 @@ export const addVote = async (member: GuildMember, count: number) => {
 
   await addTotalXp(member, count * cachedGuild.db.xpPerVote);
 
-  if (cachedGuild.db.bonusUntilDate > Date.now() / 1000)
+  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerVote);
 };
 
