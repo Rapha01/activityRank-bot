@@ -1,4 +1,4 @@
-import { Client, Options, GatewayIntentBits, Events } from 'discord.js';
+import { Client, Options, GatewayIntentBits, Events, Partials } from 'discord.js';
 import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
@@ -77,6 +77,8 @@ const client = new Client({
       filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
     },
   },
+  // Message and Reaction partials are required to listen for reactions on uncached messages (for reactionVotes).
+  partials: [Partials.Message, Partials.Reaction],
 });
 
 // Adjusts number of threads allocated by libuv
