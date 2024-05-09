@@ -1,13 +1,12 @@
 import fct from '../../util/fct.js';
-// import { users } from '../../const/privilegedUsers.js';
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { ChatInputCommandInteraction, InteractionReplyOptions } from 'discord.js';
 import { Time } from '@sapphire/duration';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { isPrivileged } from 'const/config.js';
 import { getMemberModel } from 'bot/models/guild/guildMemberModel.js';
+import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 
-const premiumLowersCooldownMessage =
-  'You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it here: https://patreon.com/rapha01/. ';
+const premiumLowersCooldownMessage = `You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it [on our Patreon](<${PATREON_URL}>).`;
 
 // TODO style with new timestamps
 const activeStatCommandCooldown = (cd: number, toWait: number) =>
@@ -27,7 +26,7 @@ export function getWaitTime(lastDate: Date | number | undefined | null, cooldown
   return { remaining, next: new Date(now + remaining) };
 }
 
-// * deprecated: prefer `getWaitTime()`
+/** @deprecated prefer {@link getWaitTime()} */
 // @ts-expect-error Type checking disabled for deprecated fn
 export const getCachedCooldown = (cache, field, cd) => {
   const nowDate = Date.now() / 1000;
@@ -50,22 +49,24 @@ export const checkStatCommandsCooldown = async (
   if (ownerTier == 3) cd = Time.Minute / 2;
   if (userTier == 2 || userTier == 3) cd = Time.Second * 5;
 
-  const premiumLowersCooldownString =
-    userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
-
   const cachedMember = await getMemberModel(interaction.member);
 
   const toWait = getWaitTime(cachedMember.cache.lastStatCommandDate, cd);
+
+  const reply: InteractionReplyOptions = {
+    content: activeStatCommandCooldown(cd, toWait.remaining),
+  };
+
+  if (userTier < 2) {
+    reply.content += premiumLowersCooldownMessage;
+    reply.components = PATREON_COMPONENTS;
+  }
+
   if (toWait.remaining > 0) {
     if (interaction.deferred) {
-      await interaction.editReply({
-        content: activeStatCommandCooldown(cd, toWait.remaining) + premiumLowersCooldownString,
-      });
+      await interaction.editReply(reply);
     } else {
-      await interaction.reply({
-        content: activeStatCommandCooldown(cd, toWait.remaining) + premiumLowersCooldownString,
-        ephemeral: true,
-      });
+      await interaction.reply({ ...reply, ephemeral: true });
     }
     return false;
   }

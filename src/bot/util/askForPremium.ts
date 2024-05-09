@@ -1,10 +1,10 @@
 import { getUserModel } from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
-import { ButtonStyle, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { type ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
-import { ComponentType } from 'discord.js';
+import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -44,24 +44,12 @@ async function sendAskForPremiumEmbed(interaction: ChatInputCommandInteraction<'
     value: oneLine`${interaction.user}, please consider helping us by becoming a Patron. 
       The bot is mostly free! Activating Premium for you or your server can unlock some new 
       features and gives you quality of life upgrades, like reduced cooldowns on commands. 
-      Simply [select your preferred tier and become a Patron!](<https://patreon.com/rapha01>). **Thank you!**`,
+      Simply [select your preferred tier and become a Patron!](<${PATREON_URL}>). **Thank you!**`,
   });
 
   await interaction.followUp({
     embeds: [e],
-    components: [
-      {
-        type: ComponentType.ActionRow,
-        components: [
-          {
-            type: ComponentType.Button,
-            style: ButtonStyle.Link,
-            url: 'https://www.patreon.com/rapha01',
-            label: 'Support us on Patreon!',
-          },
-        ],
-      },
-    ],
+    components: PATREON_COMPONENTS,
     ephemeral: true,
   });
 }
