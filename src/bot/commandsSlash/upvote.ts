@@ -7,6 +7,7 @@ import statFlushCache from '../statFlushCache.js';
 import { getUserModel } from '../models/userModel.js';
 import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
+import { PATREON_URL } from 'bot/util/constants.js';
 
 registerSlashCommand({
   data: new SlashCommandBuilder()
@@ -84,7 +85,7 @@ registerSlashCommand({
       );
     } else {
       await interaction.reply(oneLine`You have successfully voted for ${targetMember}. 
-      Upvote the bot on top.gg or subscribe [on Patreon](<https://www.patreon.com/rapha01>) to increase your voting power!`);
+      Upvote the bot on top.gg or subscribe [on Patreon](<${PATREON_URL}>) to increase your voting power!`);
     }
   },
 });

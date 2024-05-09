@@ -4,14 +4,15 @@ import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
-import { get as getEmoji } from 'node-emoji';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
 import fct from '../../util/fct.js';
+import { getEmoji, getNativeEmoji } from 'bot/util/emoji.js';
 
 registerEvent(Events.MessageReactionAdd, async function (reaction, user) {
-  if (!reaction.message.guild) return;
+  if (reaction.partial) reaction = await reaction.fetch();
+  if (!reaction.message.guild || !reaction.message.author) return;
   const guild = reaction.message.guild;
 
   if (skip(reaction.message.guild.id)) return;
@@ -21,20 +22,30 @@ registerEvent(Events.MessageReactionAdd, async function (reaction, user) {
 
   if (!cachedGuild.db.voteXp || !cachedGuild.db.reactionVote) return;
 
-  if (!reaction.emoji.id) {
-    if (
-      reaction.emoji.name != getEmoji(cachedGuild.db.voteEmote) &&
-      reaction.emoji.name != cachedGuild.db.voteEmote
-    )
-      return;
-  } else {
-    if (`<:${reaction.emoji.name}:${reaction.emoji.id}>` != cachedGuild.db.voteEmote) return;
+  const voteEmote = getEmoji(cachedGuild.db.voteEmote);
+
+  if (!voteEmote) {
+    reaction.client.logger.warn(
+      { emoji: reaction.emoji, guild: reaction.message.guild },
+      `Failed to parse voteEmoji for guild ${reaction.message.guildId}`,
+    );
+    return;
   }
 
-  const targetMember = await guild.members.fetch(reaction.message.author!.id);
+  if (reaction.emoji.id) {
+    // custom emoji
+    if (!voteEmote.custom || reaction.emoji.id !== voteEmote.id) return;
+  } else {
+    // unicode emoji
+    if (!reaction.emoji.name) return;
+    const parsedEmoji = getNativeEmoji(reaction.emoji.name);
+    if (voteEmote.custom || parsedEmoji?.emoji !== voteEmote.emoji) return;
+  }
+
+  const targetMember = await guild.members.fetch(reaction.message.author.id);
   const member = await guild.members.fetch(user.id);
 
-  if (!targetMember || !member || member.user.bot || targetMember.id == member.id) return;
+  if (!targetMember || !member || member.user.bot || targetMember.id === member.id) return;
 
   const cachedMember = await getMemberModel(member);
 

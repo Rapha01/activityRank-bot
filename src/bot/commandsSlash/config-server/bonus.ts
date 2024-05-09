@@ -2,6 +2,7 @@ import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
+import { parseEmojiString } from 'bot/util/emoji.js';
 
 registerSubCommand({
   async execute(interaction) {
@@ -14,8 +15,9 @@ registerSubCommand({
       });
     }
 
+    const rawBonusEmote = interaction.options.getString('emote');
     const items = {
-      bonusEmote: interaction.options.getString('emote') ?? undefined,
+      bonusEmote: (rawBonusEmote && parseEmojiString(rawBonusEmote)) ?? undefined,
       bonusTag: interaction.options.getString('tag') ?? undefined,
     };
 

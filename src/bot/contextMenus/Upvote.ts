@@ -8,6 +8,7 @@ import { getWaitTime } from '../util/cooldownUtil.js';
 import { registerContextMenu } from 'bot/util/commandLoader.js';
 import { ApplicationCommandType, time } from 'discord.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
+import { PATREON_URL } from 'bot/util/constants.js';
 
 registerContextMenu({
   data: new ContextMenuCommandBuilder().setName('Upvote').setType(ApplicationCommandType.User),
@@ -80,7 +81,7 @@ registerContextMenu({
       );
     } else {
       await interaction.reply(oneLine`You have successfully voted for ${targetMember}. 
-        Upvote the bot on top.gg or subscribe [on Patreon](<https://www.patreon.com/rapha01>) to increase your voting power!`);
+        Upvote the bot on top.gg or subscribe [on Patreon](<${PATREON_URL}>) to increase your voting power!`);
     }
   },
 });
