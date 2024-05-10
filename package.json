@@ -18,7 +18,7 @@
     "url": "git+https://github.com/Rapha01/activityRank-bot.git"
   },
   "dependencies": {
-    "@activityrank/lupus": "^0.1.10",
+    "@activityrank/lupus": "^0.1.11",
     "@discordjs/rest": "^2.2.0",
     "@sapphire/duration": "^1.1.2",
     "@sapphire/snowflake": "^3.5.3",
