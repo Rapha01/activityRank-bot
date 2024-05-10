@@ -1,9 +1,9 @@
-import { Client, Options, GatewayIntentBits, Events, Partials } from 'discord.js';
+import { Client, Options, GatewayIntentBits, Partials } from 'discord.js';
 import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
 import { loadCommandFiles } from './util/commandLoader.js';
-import { loadEventFiles, loadEvents } from './util/eventLoader.js';
+import { getFileCommandMap, loadEvents, registerEvents } from '@activityrank/lupus';
 import { ActivityType } from 'discord.js';
 import { updateTexts } from 'models/managerDb/textModel.js';
 import { updateSettings } from 'models/managerDb/settingModel.js';
@@ -94,21 +94,17 @@ async function start() {
 
     await initClientCaches(client);
 
-    try {
-      client.logger.info('Loading pieces...');
-      await loadCommandFiles();
-      await loadEventFiles();
-      loadEvents(client);
-      client.logger.info('Pieces loaded');
-    } catch (e) {
-      client.logger.warn(e, 'Error while loading in shard');
-      await fct.waitAndReboot(3_000);
-    }
+    client.logger.info('Loading pieces...');
+
+    await loadCommandFiles();
+    const commands = await getFileCommandMap({ paths: [] });
+    const events = await loadEvents({ paths: new URL('events', import.meta.url) });
+    await registerEvents(commands, events, client, false);
+
+    client.logger.info('Pieces loaded');
 
     client.logger.info('Logging in...');
-
     await client.login();
-
     client.logger.info('Initialized');
   } catch (e) {
     globalLogger.warn(e, 'Error while launching shard');

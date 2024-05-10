@@ -1,20 +1,20 @@
+import { event } from '@activityrank/lupus';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import askForPremium from '../util/askForPremium.js';
 import {
+  type Interaction,
+  type AutocompleteInteraction,
+  type ChatInputCommandInteraction,
+  type ContextMenuCommandInteraction,
   PermissionFlagsBits,
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  type Interaction,
-  type AutocompleteInteraction,
-  type ChatInputCommandInteraction,
-  type ContextMenuCommandInteraction,
   DiscordAPIError,
   RESTJSONErrorCodes,
-  Events,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import {
@@ -28,10 +28,9 @@ import {
   modalMap,
 } from 'bot/util/commandLoader.js';
 import { logger } from 'bot/util/logger.js';
-import { registerEvent } from 'bot/util/eventLoader.js';
 import { config, getPrivileges, hasPrivilege } from 'const/config.js';
 
-registerEvent(Events.InteractionCreate, async function (interaction) {
+export default event(event.discord.InteractionCreate, async function (interaction) {
   try {
     if (!interaction.inCachedGuild()) return;
 
@@ -70,10 +69,11 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
       cachedChannel.db.noCommand &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'This is a noCommand channel, and you are not an admin.',
         ephemeral: true,
       });
+      return;
     }
 
     // TODO: deprecate in favor of native Discord slash command configs
@@ -82,10 +82,11 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
       cachedGuild.db.commandOnlyChannel !== interaction.channel.id &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      await interaction.reply({
         content: `Commands can only be used in <#${cachedGuild.db.commandOnlyChannel}> unless you are an admin.`,
         ephemeral: true,
       });
+      return;
     }
 
     // TODO: refactor to clean up
@@ -181,11 +182,12 @@ registerEvent(Events.InteractionCreate, async function (interaction) {
         if (ref.privilege && !hasPrivilege(ref.privilege, getPrivileges()[interaction.user.id])) {
           interaction.client.logger.warn(interaction, 'Unauthorized admin command attempt');
 
-          return await interaction.reply({
+          await interaction.reply({
             content:
               'Sorry! This is an admin command you have no access to. Please report this to the developers of the bot.\n*[Have an xkcd for your troubles.](https://xkcd.com/838)*',
             ephemeral: true,
           });
+          return;
         }
         if (ref.execute) {
           await ref.execute(interaction);

@@ -1,9 +1,8 @@
-import { registerEvent } from 'bot/util/eventLoader.js';
-import { Events } from 'discord.js';
+import { event } from '@activityrank/lupus';
 import cronScheduler from '../cron/scheduler.js';
 
-registerEvent(
-  Events.ClientReady,
+export default event(
+  event.discord.ClientReady,
   async function (client) {
     client.logger.info(`Logged in as ${client.user!.tag}!`);
 

@@ -1,5 +1,4 @@
-import { registerEvent } from 'bot/util/eventLoader.js';
-import { Events } from 'discord.js';
+import { event } from '@activityrank/lupus';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
@@ -10,7 +9,7 @@ import skip from '../skip.js';
 import fct from '../../util/fct.js';
 import { getEmoji, getNativeEmoji } from 'bot/util/emoji.js';
 
-registerEvent(Events.MessageReactionAdd, async function (reaction, user) {
+export default event(event.discord.MessageReactionAdd, async function (reaction, user) {
   if (reaction.partial) reaction = await reaction.fetch();
   if (!reaction.message.guild || !reaction.message.author) return;
   const guild = reaction.message.guild;
