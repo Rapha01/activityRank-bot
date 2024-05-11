@@ -1,6 +1,5 @@
-import { registerEvent } from 'bot/util/eventLoader.js';
-import { Events } from 'discord.js';
+import { event } from '@activityrank/lupus';
 
-registerEvent(Events.Error, function (error) {
+export default event(event.discord.Error, function (error) {
   console.log('Client registered an error', error);
 });

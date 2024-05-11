@@ -1,8 +1,7 @@
-import { registerEvent } from 'bot/util/eventLoader.js';
-import { Events } from 'discord.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
+import { event } from '@activityrank/lupus';
+import { getGuildModel } from 'bot/models/guild/guildModel.js';
 
-registerEvent(Events.GuildCreate, async function (guild) {
+export default event(event.discord.GuildCreate, async function (guild) {
   guild.client.logger.info(`Joined guild ${guild.toString()}`);
   const cachedGuild = await getGuildModel(guild);
 
