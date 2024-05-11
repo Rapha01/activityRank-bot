@@ -118,7 +118,7 @@ export async function getLastActivities(guild: Guild, userId: string): Promise<L
         .select('changeDate')
         .where('guildId', '=', guild.id)
         .where('userId', '=', userId)
-        .orderBy('changeDate')
+        .orderBy('changeDate', 'desc')
         .limit(1)
         .executeTakeFirst(),
     ),
