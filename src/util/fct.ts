@@ -74,6 +74,7 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   return { userTier, ownerTier };
 };
 
+/** @deprecated prefer {@link getRawVoteMultiplier()} */
 export const getVoteMultiplier = (myUser: {
   lastTopggUpvoteDate: string;
   patreonTierUntilDate: string;
@@ -86,7 +87,7 @@ export const getVoteMultiplier = (myUser: {
   if (parseInt(myUser.patreonTierUntilDate) > Date.now() / 1000 && myUser.patreonTier > 0) {
     if (myUser.patreonTier == 1) multiplier = 2;
     else if (myUser.patreonTier == 2) multiplier = 3;
-    else if (myUser.patreonTier == 3) multiplier = 4;
+    else if (myUser.patreonTier == 3) multiplier = 4; // TODO remove: deprecated Patreon tier
   }
 
   return multiplier;
@@ -104,7 +105,7 @@ export const getRawVoteMultiplier = (
   if (patreonTierUntilDate > Date.now() / 1000 && patreonTier > 0) {
     if (patreonTier == 1) multiplier = 2;
     else if (patreonTier == 2) multiplier = 3;
-    else if (patreonTier == 3) multiplier = 4;
+    else if (patreonTier == 3) multiplier = 4; // TODO remove: deprecated Patreon tier
   }
 
   return multiplier;
