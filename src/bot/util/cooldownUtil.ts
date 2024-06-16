@@ -43,10 +43,10 @@ export const checkStatCommandsCooldown = async (
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
-  let cd = Time.Minute * 5;
-  if (userTier == 1) cd = Time.Minute;
-  if (ownerTier == 3) cd = Time.Minute / 2;
-  if (userTier == 2 || userTier == 3) cd = Time.Second * 5;
+  let cd = Time.Minute * 3;
+  if (userTier == 1) cd = Time.Minute / 2;
+  if (userTier == 2 || ownerTier == 2) cd = Time.Second * 5;
+  if (ownerTier === 3 || userTier === 3) cd = Time.Second; // TODO: remove; deprecated tier
 
   const cachedMember = await getMemberModel(interaction.member);
 

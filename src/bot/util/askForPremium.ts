@@ -19,7 +19,9 @@ export default async function (interaction: ChatInputCommandInteraction<'cached'
   if (onGuildCooldown) return;
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
-  if (userTier > 0 || ownerTier > 0) return;
+  // Users with any patreon subscription and
+  // servers where the owner is Tier 2 are exempt from ads
+  if (userTier > 0 || ownerTier > 1) return;
 
   const userModel = await getUserModel(interaction.user);
   const myUser = await userModel.fetch();
