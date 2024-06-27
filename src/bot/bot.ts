@@ -1,4 +1,4 @@
-import { Client, Options, GatewayIntentBits, Partials } from 'discord.js';
+import { Client, Options, GatewayIntentBits, Partials, type GuildMember } from 'discord.js';
 import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
@@ -7,6 +7,8 @@ import { getFileCommandMap, loadEvents, registerEvents } from '@activityrank/lup
 import { ActivityType } from 'discord.js';
 import { updateTexts } from 'models/managerDb/textModel.js';
 import { updateSettings } from 'models/managerDb/settingModel.js';
+import { memberCache } from './models/guild/guildMemberModel.js';
+import { Time } from '@sapphire/duration';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -36,6 +38,23 @@ const sweepers = {
   },
 };
 
+/**
+ * Decide whether or not a member should be kept cached.
+ * @param member the member to check if it will be kept cached
+ * @returns whether the member needs to remain cached.
+ */
+function keepMemberCached(member: GuildMember): boolean {
+  if (member.id === member.client.user.id) return true; // keep own client cached
+  if (member.voice.channelId !== null) return true; // keep users in voice cached so they can be counted
+
+  const lastVoteDate = memberCache.get(member)?.cache.lastVoteDate;
+  // Keep users that have voted in the last week so that they can't vote multiple times.
+  // We don't check how long the guild's vote timeout is here, or even whether the guild permits votes,
+  // because it would slow down the bot too much and the memory optimisation would be negligible at that point.
+  if (lastVoteDate && lastVoteDate.getTime() > Date.now() - Time.Week) return true;
+  return false;
+}
+
 const client = new Client({
   intents,
   presence: {
@@ -63,12 +82,7 @@ const client = new Client({
     GuildStickerManager: 0,
     ReactionManager: 0,
     ReactionUserManager: 0,
-    GuildMemberManager: {
-      maxSize: 200,
-      keepOverLimit: (member) =>
-        member.id === member.client.user.id || // keep own client cached
-        member.voice.channelId !== null, // keep users in voice cached so we can count them
-    },
+    GuildMemberManager: { maxSize: 200, keepOverLimit: keepMemberCached },
   }),
   sweepers: {
     ...Options.DefaultSweeperSettings,
