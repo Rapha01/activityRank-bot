@@ -6,50 +6,50 @@
   .setName('id').setDescription('The ID of the channel to modify'));
 */
 
-import { DiscordAPIError, type ChatInputCommandInteraction, RESTJSONErrorCodes } from 'discord.js';
+import type { ChatInputCommandInteraction, GuildBasedChannel, Role, GuildMember } from 'discord.js';
 
-export const parseChannel = async (interaction: ChatInputCommandInteraction<'cached'>) => {
-  let id = null;
-  if (interaction.options.get('channel')) id = interaction.options.get('channel')?.value as string;
-  if (interaction.options.getString('id')) id = interaction.options.getString('id');
+export enum ParserResponseStatus {
+  /** Successfully parsed the desired object. */
+  Success,
+  /** The user has provided different objects in the `id` and `object` fields. */
+  ConflictingInputs,
+  /** The user has not provided an object in either the `id` or `object` fields. */
+  NoInput,
+}
 
-  if (!id) return null;
+type ParsedResponse<T> =
+  | { status: ParserResponseStatus.Success; object: T | undefined; id: string }
+  | { status: ParserResponseStatus.ConflictingInputs }
+  | { status: ParserResponseStatus.NoInput };
 
-  const channel = interaction.guild.channels.cache.get(id);
+function parseObject<T>(
+  interaction: ChatInputCommandInteraction<'cached'>,
+  objectKey: string,
+  getObject: (s: string) => T | undefined,
+): ParsedResponse<T> {
+  const objectId = interaction.options.get(objectKey)?.value;
+  const id = interaction.options.getString('id');
 
-  return { id, channel };
-};
+  if (!objectId && !id) return { status: ParserResponseStatus.NoInput };
+  if (objectId !== id) return { status: ParserResponseStatus.ConflictingInputs };
 
-export const parseRole = async (interaction: ChatInputCommandInteraction<'cached'>) => {
-  let id = null;
-  if (interaction.options.get('role')) id = interaction.options.get('role')?.value as string;
-  if (interaction.options.getString('id')) id = interaction.options.getString('id');
+  return { object: getObject(objectId), id, status: ParserResponseStatus.Success };
+}
 
-  if (!id) return null;
+export function parseChannel(
+  interaction: ChatInputCommandInteraction<'cached'>,
+): ParsedResponse<GuildBasedChannel> {
+  return parseObject(interaction, 'channel', (id) => interaction.guild.channels.cache.get(id));
+}
 
-  const role = interaction.guild.roles.cache.get(id);
+export function parseRole(
+  interaction: ChatInputCommandInteraction<'cached'>,
+): ParsedResponse<Role> {
+  return parseObject(interaction, 'role', (id) => interaction.guild.roles.cache.get(id));
+}
 
-  return { id, role };
-};
-
-export const parseMember = async (interaction: ChatInputCommandInteraction<'cached'>) => {
-  let id = null;
-  if (interaction.options.get('member'))
-    id = interaction.options.get('member')?.value as string | undefined;
-  if (interaction.options.getString('id')) id = interaction.options.getString('id');
-
-  if (!id) return null;
-
-  const member = await interaction.guild.members.fetch(id).catch((e) => {
-    if (e instanceof DiscordAPIError && e.code === RESTJSONErrorCodes.UnknownMember) return null;
-    else throw e;
-  });
-
-  return { id, member };
-};
-
-export default {
-  parseChannel,
-  parseRole,
-  parseMember,
-};
+export function parseMember(
+  interaction: ChatInputCommandInteraction<'cached'>,
+): ParsedResponse<GuildMember> {
+  return parseObject(interaction, 'member', (id) => interaction.guild.members.cache.get(id));
+}

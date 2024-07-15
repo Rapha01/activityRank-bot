@@ -14,7 +14,7 @@ import { oneLine, stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
-import { parseChannel } from '../util/parser.js';
+import { ParserResponseStatus, parseChannel } from '../util/parser.js';
 import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { GuildChannelSchema } from 'models/types/shard.js';
 
@@ -144,9 +144,13 @@ registerSlashCommand({
     )
     .addStringOption((o) => o.setName('id').setDescription('The ID of the channel to modify')),
   execute: async function (interaction) {
-    const resolvedChannel = await parseChannel(interaction);
-
-    if (!resolvedChannel) {
+    const resolvedChannel = parseChannel(interaction);
+    if (resolvedChannel.status === ParserResponseStatus.ConflictingInputs) {
+      return await interaction.reply({
+        content: `You have specified both a channel and an ID, but they don't match.\nDid you mean: "/config-channel channel:${interaction.options.get('channel')!.value}"?`,
+        ephemeral: true,
+      });
+    } else if (resolvedChannel.status === ParserResponseStatus.NoInput) {
       return await interaction.reply({
         content: "You need to specify either a channel or a channel's ID!",
         ephemeral: true,
@@ -176,8 +180,8 @@ registerSlashCommand({
       });
 
     if (
-      !resolvedChannel.channel ||
-      [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.channel.type)
+      !resolvedChannel.object ||
+      [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.object.type)
     ) {
       e.addFields({
         name: 'No Commands',
@@ -208,7 +212,7 @@ registerSlashCommand({
           generateRow(
             interaction,
             resolvedChannel.id,
-            resolvedChannel.channel ? resolvedChannel.channel.type : null,
+            resolvedChannel.object ? resolvedChannel.object.type : null,
             cachedGuild,
             myChannel,
           ),
