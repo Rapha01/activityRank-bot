@@ -34,7 +34,7 @@ export class Registry {
       const handler = file.default;
       if (!(handler instanceof EventHandler)) {
         throw new Error(
-          `The default export of the event file ${eventFile} must be an EventHandler (found ${typeof handler}). It can be constructed with the event() function.`,
+          `The default export of the event file ${eventFile} must be an EventHandler (found ${handler}). It can be constructed with the event() function.`,
         );
       }
 
@@ -57,7 +57,7 @@ export class Registry {
       const handler = file.default;
       if (!(handler instanceof SlashCommand)) {
         throw new Error(
-          `The default export of the command file ${commandFile} must be a SlashCommand (found ${typeof handler}). It can be constructed with the command() function.`,
+          `The default export of the command file ${commandFile} must be a SlashCommand (found ${handler}). It can be constructed with the command() function.`,
         );
       }
 
