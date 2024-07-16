@@ -2,7 +2,7 @@ import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { commaListsAnd } from 'common-tags';
 import guildRoleModel from '../../models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { parseRole } from '../../util/parser.js';
+import { ParserResponseStatus, parseRole } from '../../util/parser.js';
 import { registerSubCommand } from 'bot/util/commandLoader.js';
 
 registerSubCommand({
@@ -18,9 +18,13 @@ registerSubCommand({
       });
     }
 
-    const resolvedRole = await parseRole(interaction);
-
-    if (!resolvedRole) {
+    const resolvedRole = parseRole(interaction);
+    if (resolvedRole.status === ParserResponseStatus.ConflictingInputs) {
+      return await interaction.reply({
+        content: `You have specified both a role and an ID, but they don't match.\nDid you mean: "/config-role levels role:${interaction.options.get('role')!.value}"?`,
+        ephemeral: true,
+      });
+    } else if (resolvedRole.status === ParserResponseStatus.NoInput) {
       return await interaction.reply({
         content: "You need to specify either a role or a role's ID!",
         ephemeral: true,
@@ -44,7 +48,7 @@ registerSubCommand({
 
     if (items.assignLevel && items.deassignLevel && items.assignLevel >= items.deassignLevel) {
       return await interaction.reply({
-        content: `Using an assignLevel higher than a deassignLevel will not work: the role gets removed as soon as it gets added!\n Did you mean: \`assign-level:${items.deassignLevel} deassign-level:${items.assignLevel}`,
+        content: `Using an assignLevel higher than or equal to a deassignLevel will not work: the role gets removed as soon as it gets added!\nDid you mean: \`assign-level:${items.deassignLevel} deassign-level:${items.assignLevel}\`?`,
         ephemeral: true,
       });
     }

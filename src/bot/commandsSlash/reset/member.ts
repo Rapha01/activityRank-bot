@@ -8,7 +8,7 @@ import {
   type Interaction,
 } from 'discord.js';
 import resetModel from '../../models/resetModel.js';
-import { parseMember } from '../../util/parser.js';
+import { ParserResponseStatus, parseMember } from '../../util/parser.js';
 import { ComponentKey, registerSubCommand } from 'bot/util/commandLoader.js';
 
 registerSubCommand({
@@ -22,9 +22,13 @@ registerSubCommand({
       });
     }
 
-    const resolvedMember = await parseMember(interaction);
-
-    if (!resolvedMember) {
+    const resolvedMember = parseMember(interaction);
+    if (resolvedMember.status === ParserResponseStatus.ConflictingInputs) {
+      return await interaction.reply({
+        content: `You have specified both a member and an ID, but they don't match.\nDid you mean: "/reset member member:${interaction.options.get('member')!.value}"?`,
+        ephemeral: true,
+      });
+    } else if (resolvedMember.status === ParserResponseStatus.NoInput) {
       return await interaction.reply({
         content: "You need to specify either a member or a member's ID!",
         ephemeral: true,
@@ -46,8 +50,8 @@ registerSubCommand({
 
     const msg = await interaction.reply({
       content: `Are you sure you want to reset all the statistics of ${
-        resolvedMember.member
-          ? resolvedMember.member.user.username
+        resolvedMember.object
+          ? resolvedMember.object.user.username
           : `Deleted [${resolvedMember.id}]`
       }?`,
       ephemeral: true,
