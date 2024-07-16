@@ -1,4 +1,5 @@
-import { event } from '@activityrank/lupus';
+import { event } from 'bot/util/registry/event.js';
+import { Events } from 'discord.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
@@ -30,7 +31,7 @@ import {
 import { logger } from 'bot/util/logger.js';
 import { config, getPrivileges, hasPrivilege } from 'const/config.js';
 
-export default event(event.discord.InteractionCreate, async function (interaction) {
+export default event(Events.InteractionCreate, async function (interaction) {
   try {
     if (!interaction.inCachedGuild()) return;
 

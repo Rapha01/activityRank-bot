@@ -1,11 +1,11 @@
-import { event } from '@activityrank/lupus';
+import { event } from 'bot/util/registry/event.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
-import { MessageType, ChannelType, type Message } from 'discord.js';
+import { Events, MessageType, ChannelType, type Message } from 'discord.js';
 
 const acceptedChannelTypes = [
   ChannelType.GuildText,
@@ -16,7 +16,7 @@ const acceptedChannelTypes = [
 ];
 const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
-export default event(event.discord.MessageCreate, async function (message) {
+export default event(Events.MessageCreate, async function (message) {
   if (
     message.author.bot == true ||
     message.system == true ||
