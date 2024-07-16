@@ -10,7 +10,6 @@ export async function createRegistry() {
     eventFiles: await glob('dist/bot/events/*.js'),
     commandFiles: await glob('dist/bot/commands/**/*.js'),
   };
-  console.debug('Found files', config);
   return new Registry(config);
 }
 
@@ -30,11 +29,14 @@ export class Registry {
 
   public async loadEvents() {
     for (const eventFile of this.config.eventFiles) {
-      console.debug('Importing event file ', eventFile);
       const file = await import(eventFile);
-      // TODO compare with instanceof
-      console.debug(file);
-      const handler = file.default as EventHandler;
+
+      const handler = file.default;
+      if (!(handler instanceof EventHandler)) {
+        throw new Error(
+          `The default export of the event file ${eventFile} must be an EventHandler. It can be constructed with the event() function.`,
+        );
+      }
 
       // Append to the corresponding array, or create a new one if it doesn't exist.
       this.#events.set(
@@ -51,8 +53,13 @@ export class Registry {
   public async loadCommands() {
     for (const commandFile of this.config.commandFiles) {
       const file = await import(commandFile);
-      // TODO compare with instanceof
-      const handler = file.default as SlashCommand;
+
+      const handler = file.default;
+      if (!(handler instanceof SlashCommand)) {
+        throw new Error(
+          `The default export of the command file ${commandFile} must be a SlashCommand. It can be constructed with the command() function.`,
+        );
+      }
 
       this.#commands.set(handler.data.name, handler);
     }
