@@ -7,6 +7,13 @@ registerSubCommand({
   execute: async (interaction) => {
     const member = interaction.options.getMember('member')!;
 
+    if (member.user.bot) {
+      return await interaction.reply({
+        content: 'You cannot add bonus XP to bots.',
+        ephemeral: true,
+      });
+    }
+
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
