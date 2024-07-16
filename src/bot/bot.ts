@@ -3,12 +3,12 @@ import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
 import { loadCommandFiles } from './util/commandLoader.js';
-import { getFileCommandMap, loadEvents, registerEvents } from '@activityrank/lupus';
 import { ActivityType } from 'discord.js';
 import { updateTexts } from 'models/managerDb/textModel.js';
 import { updateSettings } from 'models/managerDb/settingModel.js';
 import { memberCache } from './models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
+import { registry } from './util/registry/registry.js';
 
 const intents = [
   GatewayIntentBits.Guilds,
@@ -110,10 +110,13 @@ async function start() {
 
     client.logger.info('Loading pieces...');
 
-    await loadCommandFiles();
-    const commands = await getFileCommandMap({ paths: [] });
-    const events = await loadEvents({ paths: new URL('events', import.meta.url) });
-    await registerEvents(commands, events, client, false);
+    await registry.loadEvents();
+    console.log('Loaded %d events', registry.events.size);
+
+    // await loadCommandFiles();
+    // const commands = await getFileCommandMap({ paths: [] });
+    // const events = await loadEvents({ paths: new URL('events', import.meta.url) });
+    // await registerEvents(commands, events, client, false);
 
     client.logger.info('Pieces loaded');
 
