@@ -111,12 +111,10 @@ async function start() {
     client.logger.info('Loading pieces...');
 
     await registry.loadEvents();
-    console.log('Loaded %d events', registry.events.size);
+    client.logger.info(`Loaded ${registry.events.size} events`);
+    registry.attachEvents(client);
 
-    // await loadCommandFiles();
-    // const commands = await getFileCommandMap({ paths: [] });
-    // const events = await loadEvents({ paths: new URL('events', import.meta.url) });
-    // await registerEvents(commands, events, client, false);
+    await loadCommandFiles();
 
     client.logger.info('Pieces loaded');
 

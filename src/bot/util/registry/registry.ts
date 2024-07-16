@@ -2,6 +2,7 @@ import { EventHandler } from './event.js';
 import { AutocompleteIndex, CommandIndex, Predicate, SlashCommand } from './command.js';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 import fg from 'fast-glob';
+import type { EventEmitter } from 'node:events';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
@@ -43,6 +44,18 @@ export class Registry {
         handler.name,
         this.#events.has(handler.name) ? [...this.#events.get(handler.name)!, handler] : [handler],
       );
+    }
+  }
+
+  public attachEvents(emitter: EventEmitter) {
+    for (const [key, events] of this.#events) {
+      for (const event of events) {
+        if (event.once) {
+          emitter.once(key, event.callback);
+        } else {
+          emitter.on(key, event.callback);
+        }
+      }
     }
   }
 
