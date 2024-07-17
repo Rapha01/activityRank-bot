@@ -137,13 +137,14 @@ type PredicateCheck =
       callback: InvalidPredicateCallback;
     };
 
-interface PredicateConfig {
+export interface PredicateConfig {
   validate: (user: User) => Predicate;
   invalidCallback: InvalidPredicateCallback;
 }
 
 export abstract class SlashCommand {
   public abstract readonly data: RESTPostAPIChatInputApplicationCommandsJSONBody;
+  public abstract readonly permitGlobalDeployment: boolean;
   public abstract execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction,
@@ -175,6 +176,7 @@ class BasicSlashCommand extends SlashCommand {
   constructor(
     data: BasicSlashCommandData,
     private predicate: PredicateConfig | null,
+    public readonly permitGlobalDeployment: boolean,
     private executables: {
       execute: CommandExecutableFunction;
       autocomplete: AutocompleteMap<AutocompleteFunction>;
@@ -220,6 +222,7 @@ class ParentSlashCommand extends SlashCommand {
   constructor(
     baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>,
     commandPredicate: PredicateConfig | null,
+    public readonly permitGlobalDeployment: boolean,
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
   ) {
     super();
@@ -321,10 +324,11 @@ export const command = {
     predicate?: PredicateConfig;
     execute: CommandExecutableFunction;
     autocomplete?: AutocompleteMap<AutocompleteFunction>;
+    developmentOnly?: boolean;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
 
-    return new BasicSlashCommand(args.data, predicate, {
+    return new BasicSlashCommand(args.data, predicate, !args.developmentOnly, {
       execute: args.execute,
       autocomplete: args.autocomplete ?? new SerializableMap(),
     });
@@ -334,11 +338,12 @@ export const command = {
     predicate?: PredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];
+    developmentOnly?: boolean;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
     const components = { subcommands: args.subcommands ?? [], groups: args.groups ?? [] };
 
-    return new ParentSlashCommand(args.data, predicate, components);
+    return new ParentSlashCommand(args.data, predicate, !args.developmentOnly, components);
   },
 };
 
