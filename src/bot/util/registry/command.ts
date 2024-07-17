@@ -174,7 +174,7 @@ class BasicSlashCommand extends SlashCommand {
 
   constructor(
     data: BasicSlashCommandData,
-    private predicate: PredicateConfig,
+    private predicate: PredicateConfig | null,
     private executables: {
       execute: CommandExecutableFunction;
       autocomplete: AutocompleteMap<AutocompleteFunction>;
@@ -223,6 +223,10 @@ class ParentSlashCommand extends SlashCommand {
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
   ) {
     super();
+
+    if (options.subcommands.length < 1 && options.groups.length < 1) {
+      throw new Error('A parent slash command must have at least one child subcommand or group.');
+    }
 
     this.data = baseData;
     this.data.options = [];
@@ -292,16 +296,7 @@ export class SlashSubcommand {
   constructor(
     public readonly data: APIApplicationCommandSubcommandOption,
     public readonly predicate: PredicateConfig | null,
-    executables: {
-      execute: (args: {
-        interaction: ChatInputCommandInteraction;
-        client: Client;
-      }) => Promise<void> | void;
-      autocomplete?: (args: {
-        interaction: AutocompleteInteraction;
-        client: Client;
-      }) => Promise<void> | void;
-    },
+    executables: { execute: CommandExecutableFunction; autocomplete?: AutocompleteFunction },
   ) {
     this.execute = executables.execute;
     this.autocomplete = executables.autocomplete ?? null;
@@ -313,5 +308,56 @@ export class SlashSubcommandGroup {
     public readonly data: APIApplicationCommandSubcommandGroupOption,
     public readonly subcommands: SlashSubcommand[],
     public readonly predicate: PredicateConfig | null,
-  ) {}
+  ) {
+    if (subcommands.length < 1) {
+      throw new Error('A slash command subcommand group must have at least one child subcommand.');
+    }
+  }
+}
+
+export const command = {
+  basic: function (args: {
+    data: BasicSlashCommandData;
+    predicate?: PredicateConfig;
+    execute: CommandExecutableFunction;
+    autocomplete?: AutocompleteMap<AutocompleteFunction>;
+  }): SlashCommand {
+    const predicate = args.predicate ?? null;
+
+    return new BasicSlashCommand(args.data, predicate, {
+      execute: args.execute,
+      autocomplete: args.autocomplete ?? new SerializableMap(),
+    });
+  },
+  parent: function (args: {
+    data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>;
+    predicate?: PredicateConfig;
+    subcommands?: SlashSubcommand[];
+    groups?: SlashSubcommandGroup[];
+  }): SlashCommand {
+    const predicate = args.predicate ?? null;
+    const components = { subcommands: args.subcommands ?? [], groups: args.groups ?? [] };
+
+    return new ParentSlashCommand(args.data, predicate, components);
+  },
+};
+
+export function subcommand(args: {
+  data: APIApplicationCommandSubcommandOption;
+  predicate?: PredicateConfig;
+  execute: CommandExecutableFunction;
+  autocomplete?: AutocompleteFunction;
+}): SlashSubcommand {
+  const predicate = args.predicate ?? null;
+  const executables = { execute: args.execute, autocomplete: args.autocomplete };
+
+  return new SlashSubcommand(args.data, predicate, executables);
+}
+
+export function subcommandGroup(args: {
+  data: APIApplicationCommandSubcommandGroupOption;
+  predicate?: PredicateConfig;
+  subcommands: SlashSubcommand[];
+}): SlashSubcommandGroup {
+  return new SlashSubcommandGroup(args.data, args.subcommands, args.predicate ?? null);
 }
