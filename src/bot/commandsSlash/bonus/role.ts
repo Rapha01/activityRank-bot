@@ -209,7 +209,7 @@ async function getApplicableMembers(
       }
 
       for (const member of members.values()) {
-        if (member.roles.cache.has(roleId)) {
+        if (member.roles.cache.has(roleId) && !member.user.bot) {
           applicableMembers.add(member.id);
           console.debug(`Added ${member.id}`);
         }

@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 import resetModel from '../../models/resetModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { parseChannel } from '../../util/parser.js';
+import { ParserResponseStatus, parseChannel } from '../../util/parser.js';
 import { ComponentKey, registerSubCommand } from 'bot/util/commandLoader.js';
 
 registerSubCommand({
@@ -25,9 +25,13 @@ registerSubCommand({
       });
     }
 
-    const resolvedChannel = await parseChannel(interaction);
-
-    if (!resolvedChannel) {
+    const resolvedChannel = parseChannel(interaction);
+    if (resolvedChannel.status === ParserResponseStatus.ConflictingInputs) {
+      return await interaction.reply({
+        content: `You have specified both a channel and an ID, but they don't match.\nDid you mean: "/reset channel channel:${interaction.options.get('channel')!.value}"?`,
+        ephemeral: true,
+      });
+    } else if (resolvedChannel.status === ParserResponseStatus.NoInput) {
       return await interaction.reply({
         content: "You need to specify either a channel or a channel's ID!",
         ephemeral: true,

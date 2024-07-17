@@ -13,7 +13,7 @@ import {
 
 import guildRoleModel from '../../models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { parseRole } from '../../util/parser.js';
+import { ParserResponseStatus, parseRole } from '../../util/parser.js';
 import { registerComponent, registerModal, registerSubCommand } from 'bot/util/commandLoader.js';
 import type { GuildRoleSchema } from 'models/types/shard.js';
 
@@ -72,9 +72,13 @@ registerSubCommand({
       });
     }
 
-    const resolvedRole = await parseRole(interaction);
-
-    if (!resolvedRole) {
+    const resolvedRole = parseRole(interaction);
+    if (resolvedRole.status === ParserResponseStatus.ConflictingInputs) {
+      return await interaction.reply({
+        content: `You have specified both a role and an ID, but they don't match.\nDid you mean: "/config-role menu role:${interaction.options.get('role')!.value}"?`,
+        ephemeral: true,
+      });
+    } else if (resolvedRole.status === ParserResponseStatus.NoInput) {
       return await interaction.reply({
         content: "You need to specify either a role or a role's ID!",
         ephemeral: true,
