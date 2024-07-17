@@ -160,10 +160,16 @@ const loadDefaultCache = async (dbHost: string) => {
     .executeTakeFirst();
 
   if (!res) {
-    res = await db
+    await db
       .insertInto('guildMember')
       .values({ userId: '0', guildId: '0' })
-      .returning(cachedFields)
+      // .returning(cachedFields) RETURNING is not supported well in MySQL
+      .executeTakeFirstOrThrow();
+    res = await db
+      .selectFrom('guildMember')
+      .select(cachedFields)
+      .where('userId', '=', '0')
+      .where('guildId', '=', '0`')
       .executeTakeFirstOrThrow();
   }
 

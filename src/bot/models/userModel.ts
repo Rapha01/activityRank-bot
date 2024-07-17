@@ -134,10 +134,15 @@ async function loadDefaultCache(host: string) {
     .executeTakeFirst();
 
   if (!res) {
-    res = await db
+    await db
       .insertInto('user')
       .values({ userId: '0' })
-      .returning(cachedFields)
+      // .returning(cachedFields) RETURNING is not supported well in MySQL
+      .executeTakeFirstOrThrow();
+    res = await db
+      .selectFrom('user')
+      .select(cachedFields)
+      .where('userId', '=', '0')
       .executeTakeFirstOrThrow();
   }
 

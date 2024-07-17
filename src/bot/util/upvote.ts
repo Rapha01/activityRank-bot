@@ -9,6 +9,12 @@ import { PATREON_URL } from './constants.js';
 import { assertUnreachable } from './typescript.js';
 
 /**
+ * A cache of members in the format `guildId.userId` to the Date they can next upvote again.
+ * TODO: This is a temporary fix because other measures (caches on the GuildMember object) should already be sufficient.
+ */
+const upvoteCache = new Map<string, Date>();
+
+/**
  * The status of an attempt to upvote another member.
  */
 export enum UpvoteAttempt {
@@ -72,6 +78,16 @@ export async function attemptUpvote(
   if (toWait.remaining > 0)
     return { status: UpvoteAttempt.TimeoutNotElapsed, nextUpvote: toWait.next };
 
+  // TODO: [FIXME] TEMP FUNCTION
+  const cachedNextVote = upvoteCache.get(`${voter.guild.id}.${voter.id}`);
+  if (cachedNextVote && cachedNextVote.getTime() > Date.now()) {
+    voter.client.logger.warn(
+      { cachedMember, cachedGuild },
+      'vote cache caught by fallback measure',
+    );
+    return { status: UpvoteAttempt.TimeoutNotElapsed, nextUpvote: cachedNextVote };
+  }
+
   // Get author multiplier
   const userModel = await getUserModel(voter.user);
   const myUser = await userModel.fetch();
@@ -84,6 +100,10 @@ export async function attemptUpvote(
   cachedMember.cache.lastVoteDate = new Date();
 
   await statFlushCache.addVote(target, multiplier);
+  upvoteCache.set(
+    `${voter.guild.id}.${voter.id}`,
+    new Date(Date.now() + cachedGuild.db.voteCooldownSeconds * 1000),
+  );
 
   return { status: UpvoteAttempt.Success, multiplier };
 }
