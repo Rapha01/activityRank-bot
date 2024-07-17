@@ -23,7 +23,7 @@
     "@sapphire/snowflake": "^3.5.3",
     "callsites": "^4.1.0",
     "common-tags": "^1.8.2",
-    "discord.js": "^14.15.2",
+    "discord.js": "^14.15.3",
     "fast-glob": "^3.3.2",
     "glob": "^10.3.10",
     "kysely": "^0.27.3",
