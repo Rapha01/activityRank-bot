@@ -1,3 +1,4 @@
+import { PermissionFlagsBits } from 'discord.js';
 import type {
   APIApplicationCommandBasicOption,
   APIApplicationCommandSubcommandGroupOption,
@@ -7,6 +8,7 @@ import type {
   ChatInputCommandInteraction,
   Client,
   ContextMenuCommandInteraction,
+  PermissionFlags,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   User,
 } from 'discord.js';
@@ -366,3 +368,13 @@ export function subcommandGroup(args: {
 }): SlashSubcommandGroup {
   return new SlashSubcommandGroup(args.data, args.subcommands, args.predicate ?? null);
 }
+
+/**
+ * A utility to build permissions fields.
+ * @example
+ * default_member_permissions = permissions(permissions.KickMember, permissions.BanMember)
+ */
+export const permissions: PermissionFlags & ((...permissions: bigint[]) => string) = Object.assign(
+  (...permissions: bigint[]) => permissions.reduce((prev, current) => prev | current).toString(),
+  PermissionFlagsBits,
+);
