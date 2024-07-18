@@ -7,7 +7,6 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { $ } from 'execa';
 import { readFile } from 'node:fs/promises';
-import { createRegistryCLI } from './dist/bot/util/registry/registry.js';
 import { API } from '@discordjs/core';
 import { REST } from '@discordjs/rest';
 
@@ -80,6 +79,7 @@ async function getRegistry() {
   const build = await $`npm run build`;
 
   consola.start('Launching registry');
+  const { createRegistryCLI } = await import('./dist/bot/util/registry/registry.js');
   const registry = /** @type {Registry} */ (await createRegistryCLI());
   await registry.loadCommands();
 
@@ -212,7 +212,7 @@ const deploy = defineCommand({
       if (confirmation) {
         await api.applicationCommands.bulkOverwriteGlobalCommands(conf.keys.botId, globalCommands);
         consola.success(
-          `Wrote ${localCommands.length} commands globally. Commands that were not permitted to be deployed globally have been ignored.`,
+          `Wrote ${globalCommands.length} commands globally. Commands that were not permitted to be deployed globally have been ignored.`,
         );
       }
     } else {
@@ -222,7 +222,9 @@ const deploy = defineCommand({
           ...globalCommands,
         ]);
       }
-      consola.success(`Wrote ${localCommands.length} commands to ${guilds.length} guilds.`);
+      consola.success(
+        `Wrote ${localCommands.length + globalCommands.length} commands to ${guilds.length} guilds.`,
+      );
     }
   },
 });
