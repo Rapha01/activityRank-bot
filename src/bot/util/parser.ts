@@ -27,13 +27,22 @@ function parseObject<T>(
   objectKey: string,
   getObject: (s: string) => T | undefined,
 ): ParsedResponse<T> {
-  const objectId = interaction.options.get(objectKey)?.value;
+  const objectId = String(interaction.options.get(objectKey)?.value);
   const id = interaction.options.getString('id');
 
   if (!objectId && !id) return { status: ParserResponseStatus.NoInput };
-  if (objectId !== id) return { status: ParserResponseStatus.ConflictingInputs };
+  if (objectId && id) {
+    // both options are provided, but don't match
+    if (objectId !== id) return { status: ParserResponseStatus.ConflictingInputs };
+  }
 
-  return { object: getObject(objectId), id, status: ParserResponseStatus.Success };
+  if (objectId) {
+    return { object: getObject(objectId), id: objectId, status: ParserResponseStatus.Success };
+  } else if (id) {
+    return { object: undefined, id, status: ParserResponseStatus.Success };
+  } else {
+    throw new Error('unreachable');
+  }
 }
 
 export function parseChannel(
