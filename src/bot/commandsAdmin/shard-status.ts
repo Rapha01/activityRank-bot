@@ -1,17 +1,8 @@
-import {
-  SlashCommandBuilder,
-  PermissionFlagsBits,
-  AttachmentBuilder,
-  EmbedBuilder,
-  Status,
-} from 'discord.js';
-
+import { command, permissions } from 'bot/util/registry/command.js';
+import { HELPSTAFF_ONLY } from 'bot/util/predicates.js';
+import { AttachmentBuilder, EmbedBuilder, Status, ApplicationCommandOptionType } from 'discord.js';
 import { DurationFormatter } from '@sapphire/duration';
 import managerDb from '../../models/managerDb/managerDb.js';
-import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/config.js';
-
-export const activeCache = new Map();
 
 interface APIShard {
   shardId: number;
@@ -23,39 +14,64 @@ interface APIShard {
   changedHealthDate: Date;
 }
 
-registerAdminCommand({
-  data: new SlashCommandBuilder()
-    .setName('shard-status')
-    .setDescription('Check the shard statuses')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-    .addBooleanOption((o) => o.setName('full').setDescription('Send the full shard list'))
-    .addBooleanOption((o) => o.setName('eph').setDescription('Send as an ephemeral message'))
-    .addBooleanOption((o) => o.setName('filtered').setDescription('Find problematic shards'))
-    .addIntegerOption((o) => o.setName('page').setDescription('Find a page').setMaxValue(200))
-    .addIntegerOption((o) => o.setName('search').setDescription('Get a specific shard'))
-    .addStringOption((o) =>
-      o
-        .setName('search-guild')
-        .setDescription('Get the shard of a specific guild')
-        .setMinLength(17)
-        .setMaxLength(19),
-    )
-    .setDMPermission(false),
-  requiredPrivilege: PrivilegeLevel.HelpStaff,
-  execute: async function (i) {
-    const ephemeral = Boolean(i.options.getBoolean('eph'));
+export default command.basic({
+  developmentOnly: true,
+  data: {
+    name: 'shard-status',
+    description: 'Check the status of each shard.',
+    default_member_permissions: permissions(permissions.ModerateMembers),
+    dm_permission: false,
+    options: [
+      {
+        name: 'full',
+        description: 'Send the full shard list',
+        type: ApplicationCommandOptionType.Boolean,
+      },
+      {
+        name: 'eph',
+        description: 'Send as an ephemeral message',
+        type: ApplicationCommandOptionType.Boolean,
+      },
+      {
+        name: 'filtered',
+        description: 'Find problematic shards',
+        type: ApplicationCommandOptionType.Boolean,
+      },
+      {
+        name: 'page',
+        description: 'Find a page',
+        max_value: 200,
+        type: ApplicationCommandOptionType.Integer,
+      },
+      {
+        name: 'search',
+        description: 'Get a specific shard',
+        type: ApplicationCommandOptionType.Integer,
+      },
+      {
+        name: 'search-guild',
+        description: 'Get the shard of a specific guild',
+        min_length: 17,
+        max_length: 19,
+        type: ApplicationCommandOptionType.String,
+      },
+    ],
+  },
+  predicate: HELPSTAFF_ONLY,
+  async execute({ interaction }) {
+    const ephemeral = interaction.options.getBoolean('eph') ?? false;
 
-    await i.deferReply({ ephemeral });
+    await interaction.deferReply({ ephemeral });
 
     const { stats }: { stats: APIShard[] } = await managerDb.fetch(null, '/api/stats/', 'get');
 
-    const filtered = i.options.getBoolean('filtered');
+    const filtered = interaction.options.getBoolean('filtered');
 
     let data = stats.map(({ ip, ...keepAttrs }) => keepAttrs);
 
     if (filtered) data = data.filter(({ status }) => status !== Status.Ready);
 
-    const files = i.options.getBoolean('full')
+    const files = interaction.options.getBoolean('full')
       ? [
           new AttachmentBuilder(Buffer.from(JSON.stringify(data, null, 2), 'utf8'), {
             name: 'logs.json',
@@ -63,26 +79,27 @@ registerAdminCommand({
         ]
       : [];
 
-    const search = i.options.getInteger('search') ?? null;
+    const search = interaction.options.getInteger('search') ?? null;
 
     if (search !== null) {
       const found = data.find((s) => s.shardId === search);
-      return await i.editReply({
+      await interaction.editReply({
         content: found
           ? `Shard ${found.shardId}:\n${parseShardInfoContent(found)}`
-          : 'Could not find shard',
+          : `Could not find shard with id \`${search}\``,
         files,
       });
+      return;
     }
 
-    const guildSearch = i.options.getString('search-guild') ?? null;
+    const guildSearch = interaction.options.getString('search-guild') ?? null;
 
     if (guildSearch !== null) {
-      const totalShards = i.client.shard!.count;
+      const totalShards = interaction.client.shard!.count;
       const shardId = Number((BigInt(guildSearch) >> 22n) % BigInt(totalShards));
 
       const found = data.find((s) => s.shardId === shardId);
-      return await i.editReply({
+      await interaction.editReply({
         content:
           `Shard ID of guild \`${guildSearch}\`: \`${shardId}\`\n\n` +
           (found
@@ -90,17 +107,18 @@ registerAdminCommand({
             : '🔴 Could not find shard'),
         files,
       });
+      return;
     }
 
     if (!data.length) {
-      console.assert(filtered, JSON.stringify(stats, null, 2));
-      return await i.editReply({
+      await interaction.editReply({
         content: 'All shards are online!',
         files,
       });
+      return;
     }
 
-    const page = i.options.getInteger('page') ?? 0;
+    const page = interaction.options.getInteger('page') ?? 0;
 
     const e = new EmbedBuilder()
       .setTitle(`Shards ${page * 15} - ${(page + 1) * 15} (total ${data.length})`)
@@ -112,10 +130,7 @@ registerAdminCommand({
         })),
       );
 
-    await i.editReply({
-      embeds: [e],
-      files,
-    });
+    await interaction.editReply({ embeds: [e], files });
   },
 });
 
@@ -131,5 +146,3 @@ function parseShardInfoContent(shard: Omit<APIShard, 'ip'>) {
     `  **Last updated**: <t:${shard.changedHealthDate}:T>, <t:${shard.changedHealthDate}:R>`,
   ].join('\n');
 }
-
-export default { activeCache };
