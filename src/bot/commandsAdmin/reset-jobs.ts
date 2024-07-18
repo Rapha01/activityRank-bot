@@ -1,34 +1,43 @@
+import { command, permissions } from 'bot/util/registry/command.js';
+import { HELPSTAFF_ONLY } from 'bot/util/predicates.js';
 import {
-  SlashCommandBuilder,
-  PermissionFlagsBits,
   AttachmentBuilder,
+  ApplicationCommandOptionType,
   type InteractionReplyOptions,
 } from 'discord.js';
 import resetModel from '../models/resetModel.js';
-import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/config.js';
 
-registerAdminCommand({
-  data: new SlashCommandBuilder()
-    .setName('reset-jobs')
-    .setDescription('Check the reset job status')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
-    .addBooleanOption((o) =>
-      o.setName('full').setDescription('Send the full contents of resetJobs'),
-    )
-    .addBooleanOption((o) => o.setName('eph').setDescription('Send as an ephemeral message'))
-    .addStringOption((o) =>
-      o
-        .setName('search')
-        .setDescription('Get the current reset of the specified guild ID')
-        .setMinLength(17)
-        .setMaxLength(19),
-    )
-    .setDMPermission(false),
-  requiredPrivilege: PrivilegeLevel.HelpStaff,
-  execute: async function (i) {
-    const useFull = i.options.getBoolean('full') ?? false;
-    const search = i.options.getString('search');
+export default command.basic({
+  developmentOnly: true,
+  predicate: HELPSTAFF_ONLY,
+  data: {
+    name: 'reset-jobs',
+    description: 'Check the status of active reset jobs',
+    default_member_permissions: permissions(permissions.ModerateMembers),
+    dm_permission: false,
+    options: [
+      {
+        name: 'full',
+        description: 'Send the full contents of resetJobs',
+        type: ApplicationCommandOptionType.Boolean,
+      },
+      {
+        name: 'eph',
+        description: 'Send as an ephemeral message',
+        type: ApplicationCommandOptionType.Boolean,
+      },
+      {
+        name: 'search',
+        description: 'Get the current reset of the specified guild ID',
+        type: ApplicationCommandOptionType.String,
+        min_length: 17,
+        max_length: 20,
+      },
+    ],
+  },
+  async execute({ interaction, client }) {
+    const useFull = interaction.options.getBoolean('full') ?? false;
+    const search = interaction.options.getString('search');
     let content;
     if (search) {
       content = '**Reset information: **' + (resetModel.resetJobs[search] ?? '`No current job`');
@@ -46,20 +55,22 @@ registerAdminCommand({
         'bonusstats',
       ];
 
-      const typeDisplay = types.map(
-        (t) =>
-          `\n - ${t}: ${Object.values(resetModel.resetJobs).reduce(
-            (p, c) => (c.type === t ? ++p : p),
-            0,
-          )}`,
-      );
+      const typeDisplay = types
+        .map(
+          (t) =>
+            `- ${t}: ${Object.values(resetModel.resetJobs).reduce(
+              (p, c) => (c.type === t ? ++p : p),
+              0,
+            )}`,
+        )
+        .join('\n');
 
-      content = `Length: ${Object.keys(resetModel.resetJobs).length}\nTypes: ${typeDisplay}`;
+      content = `Length: ${Object.keys(resetModel.resetJobs).length}\nTypes:\n${typeDisplay}`;
     }
 
     const res: InteractionReplyOptions = {
       content,
-      ephemeral: i.options.getBoolean('eph') ?? false,
+      ephemeral: interaction.options.getBoolean('eph') ?? false,
     };
 
     if (useFull) {
@@ -70,6 +81,6 @@ registerAdminCommand({
       ];
     }
 
-    await i.reply(res);
+    await interaction.reply(res);
   },
 });

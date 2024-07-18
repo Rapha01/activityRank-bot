@@ -1,30 +1,47 @@
 import { EventHandler } from './event.js';
-import { AutocompleteIndex, CommandIndex, Predicate, SlashCommand } from './command.js';
-import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import { AutocompleteIndex, Command, CommandIndex, Predicate, SlashCommand } from './command.js';
+import {
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+  ContextMenuCommandInteraction,
+} from 'discord.js';
 import fg from 'fast-glob';
 import type { EventEmitter } from 'node:events';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
+const EVENT_PATHS = ['dist/bot/events/*.js'];
+const COMMAND_PATHS = [
+  'dist/bot/commands/*.js',
+  'dist/bot/commandsAdmin/*.js',
+  'dist/bot/contextMenus/*.js',
+];
+
 export async function createRegistry() {
   const config = {
-    eventFiles: await glob('dist/bot/events/*.js'),
-    commandFiles: await glob('dist/bot/commands/**/*.js'),
+    eventFiles: await glob(EVENT_PATHS),
+    commandFiles: await glob(COMMAND_PATHS),
   };
   return new Registry(config);
 }
 
 export async function createRegistryCLI() {
   const config = {
-    eventFiles: await glob('dist/bot/events/*.js'),
-    commandFiles: await glob('dist/bot/commands/**/*.js'),
+    eventFiles: await glob(EVENT_PATHS),
+    commandFiles: await glob(COMMAND_PATHS),
   };
   return new Registry(config);
 }
 
+export class CommandNotFoundError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+  }
+}
+
 export class Registry {
   #events: Map<string | symbol, EventHandler[]> = new Map();
-  #commands: Map<string, SlashCommand> = new Map();
+  #commands: Map<string, Command> = new Map();
 
   constructor(private config: { eventFiles: string[]; commandFiles: string[] }) {}
 
@@ -68,9 +85,9 @@ export class Registry {
       const file = await import(commandFile);
 
       const handler = file.default;
-      if (!(handler instanceof SlashCommand)) {
+      if (!(handler instanceof Command)) {
         throw new Error(
-          `The default export of the command file ${commandFile} must be a SlashCommand (found ${handler}). It can be constructed with the command() function.`,
+          `The default export of the command file ${commandFile} must be a Command (found ${handler}). It can be constructed with the command.basic(), command.parent(), context.user(), or context.message() functions.`,
         );
       }
 
@@ -78,24 +95,42 @@ export class Registry {
     }
   }
 
-  public get commands(): ReadonlyMap<string, SlashCommand> {
+  public get commands(): ReadonlyMap<string, Command> {
     return this.#commands;
   }
 
-  private getCommand(commandName: string): SlashCommand {
+  private getCommand(commandName: string): Command {
     const command = this.#commands.get(commandName);
     if (!command) {
-      throw new Error(`Command "${commandName}" not found.`);
+      throw new CommandNotFoundError(`Command "${commandName}" not found.`);
     }
     return command;
   }
 
   public async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
     const command = this.getCommand(interaction.commandName);
-    await command.autocomplete(new AutocompleteIndex(interaction), interaction);
+    const idx = new AutocompleteIndex(interaction);
+    if (command instanceof SlashCommand) {
+      await command.autocomplete(idx, interaction);
+    } else {
+      throw new Error(`Attempted to call autocomplete method of non-slash command ${idx}`);
+    }
   }
 
   public async handleSlashCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+    const command = this.getCommand(interaction.commandName);
+    const index = new CommandIndex(interaction);
+
+    const predicate = command.checkPredicate(index, interaction.user);
+    if (predicate.status !== Predicate.Allow) {
+      await predicate.callback(interaction);
+      return;
+    }
+
+    await command.execute(index, interaction);
+  }
+
+  public async handleContextCommand(interaction: ContextMenuCommandInteraction): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const index = new CommandIndex(interaction);
 

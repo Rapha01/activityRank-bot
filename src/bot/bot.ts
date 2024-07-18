@@ -114,6 +114,9 @@ async function start() {
     client.logger.info(`Loaded ${registry.events.size} events`);
     registry.attachEvents(client);
 
+    await registry.loadCommands();
+    client.logger.info(`Loaded ${registry.commands.size} commands`);
+
     await loadCommandFiles();
 
     client.logger.info('Pieces loaded');

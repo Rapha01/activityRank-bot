@@ -30,10 +30,12 @@ import {
 } from 'bot/util/commandLoader.js';
 import { logger } from 'bot/util/logger.js';
 import { config, getPrivileges, hasPrivilege } from 'const/config.js';
+import { CommandNotFoundError, registry } from 'bot/util/registry/registry.js';
 
 export default event(Events.InteractionCreate, async function (interaction) {
   try {
-    if (!interaction.inCachedGuild()) return;
+    if (!interaction.inCachedGuild())
+      throw new Error('Interaction recieved outside of cached guild.');
 
     if (interaction.isAutocomplete()) {
       const ref = commandMap.get(getCommandId(interaction));
@@ -153,22 +155,12 @@ export default event(Events.InteractionCreate, async function (interaction) {
         );
       }
     } else if (interaction.isContextMenuCommand()) {
-      const ref = contextMap.get(getCommandId(interaction));
-
       interaction.client.botShardStat.commandsTotal++;
-
       interaction.client.logger.debug(
         `Context command ${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
       );
 
-      if (ref) {
-        await ref(interaction);
-      } else {
-        logger.warn(
-          interaction,
-          `No command found in map for context menu with name ${interaction.commandName}`,
-        );
-      }
+      await registry.handleContextCommand(interaction);
     } else if (interaction.isChatInputCommand()) {
       const ref =
         commandMap.get(getCommandId(interaction)) ?? commandMap.get(interaction.commandName);
@@ -178,6 +170,13 @@ export default event(Events.InteractionCreate, async function (interaction) {
       interaction.client.logger.debug(
         `/${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
       );
+
+      try {
+        await registry.handleSlashCommand(interaction);
+        return;
+      } catch (e) {
+        if (!(e instanceof CommandNotFoundError)) throw e;
+      }
 
       if (ref) {
         if (ref.privilege && !hasPrivilege(ref.privilege, getPrivileges()[interaction.user.id])) {

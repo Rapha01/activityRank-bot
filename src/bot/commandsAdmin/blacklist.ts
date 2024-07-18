@@ -1,91 +1,90 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { command, permissions, subcommand } from 'bot/util/registry/command.js';
+import { MODERATOR_ONLY } from 'bot/util/predicates.js';
+import { ApplicationCommandOptionType } from 'discord.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from 'bot/models/userModel.js';
-import { registerAdminCommand } from 'bot/util/commandLoader.js';
-import { PrivilegeLevel } from 'const/config.js';
 
-registerAdminCommand({
-  data: new SlashCommandBuilder()
-    .setName('blacklist')
-    .setDescription('Blacklist a user or server from the bot.')
-    .addSubcommand((sc) =>
-      sc
-        .setName('user')
-        .setDescription('Blacklist a user from the bot')
-        .addUserOption((o) =>
-          o.setName('user').setDescription('The user to blacklist').setRequired(true),
-        ),
-    )
-    .addSubcommand((sc) =>
-      sc
-        .setName('server')
-        .setDescription('Blacklist a server from the bot')
-        .addStringOption((o) =>
-          o
-            .setName('server')
-            .setDescription('The ID of the server to blacklist')
-            .setMinLength(17)
-            .setMaxLength(19)
-            .setRequired(true),
-        ),
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers | PermissionFlagsBits.ManageGuild),
-  requiredPrivilege: PrivilegeLevel.Developer,
-  execute: async function (interaction) {
-    const sc = interaction.options.getSubcommand();
-    if (sc === 'user') {
-      const user = await interaction.client.users.fetch(interaction.options.getUser('user')!);
-      if (!user) {
-        return await interaction.reply({
-          content: 'This user does not exist.',
-          ephemeral: true,
-        });
-      }
+const user = subcommand({
+  data: {
+    name: 'user',
+    description: 'Blacklist a user from the bot.',
+    type: ApplicationCommandOptionType.Subcommand,
+    options: [
+      {
+        name: 'user',
+        description: 'The user to blacklist',
+        type: ApplicationCommandOptionType.User,
+        required: true,
+      },
+    ],
+  },
+  async execute({ interaction }) {
+    const user = interaction.options.getUser('user', true);
 
-      const targetUser = await getUserModel(user);
+    const targetUser = await getUserModel(user);
 
-      if (targetUser.db.isBanned) {
-        await targetUser.upsert({ isBanned: 0 });
-        return await interaction.reply({
-          content: `Unblacklisted user ${user} (\`${user.id}\`)`,
-          ephemeral: true,
-        });
-      } else {
-        await targetUser.upsert({ isBanned: 1 });
-        return await interaction.reply({
-          content: `Blacklisted user ${user} (\`${user.id}\`)`,
-          ephemeral: true,
-        });
-      }
-    }
-
-    if (sc === 'guild') {
-      const guild = await interaction.client.guilds.fetch({
-        guild: interaction.options.getString('guild')!,
-        withCounts: false,
+    if (targetUser.db.isBanned) {
+      await targetUser.upsert({ isBanned: 0 });
+      await interaction.reply({
+        content: `Unblacklisted user ${user} (\`${user.id}\`)`,
+        ephemeral: true,
       });
-      if (!guild) {
-        return await interaction.reply({
-          content: 'This guild does not exist.',
-          ephemeral: true,
-        });
-      }
-
-      const cachedGuild = await getGuildModel(guild);
-
-      if (cachedGuild.db.isBanned) {
-        await cachedGuild.upsert({ isBanned: 0 });
-        return await interaction.reply({
-          content: `Unblacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
-          ephemeral: true,
-        });
-      } else {
-        await cachedGuild.upsert({ isBanned: 1 });
-        return await interaction.reply({
-          content: `Blacklisted guild \`${guild.name}\` (\`${guild.id}\`)`,
-          ephemeral: true,
-        });
-      }
+    } else {
+      await targetUser.upsert({ isBanned: 1 });
+      await interaction.reply({
+        content: `Blacklisted user ${user} (\`${user.id}\`)`,
+        ephemeral: true,
+      });
     }
   },
+});
+
+const guild = subcommand({
+  data: {
+    name: 'guild',
+    description: 'Blacklist a guild from the bot.',
+    type: ApplicationCommandOptionType.Subcommand,
+    options: [
+      {
+        name: 'id',
+        description: 'The ID of the guild to blacklist',
+        type: ApplicationCommandOptionType.String,
+        min_length: 17,
+        max_length: 20,
+        required: true,
+      },
+    ],
+  },
+  async execute({ interaction, client }) {
+    const guildId = interaction.options.getString('id', true);
+    const guild = await client.guilds.fetch(guildId);
+
+    const targetGuild = await getGuildModel(guild);
+
+    if (targetGuild.db.isBanned) {
+      await targetGuild.upsert({ isBanned: 0 });
+      await interaction.reply({
+        content: `Unblacklisted guild ${guild} (\`${guild.id}\`)`,
+        ephemeral: true,
+      });
+    } else {
+      await targetGuild.upsert({ isBanned: 1 });
+      await interaction.reply({
+        content: `Blacklisted guild ${guild} (\`${guild.id}\`)`,
+        ephemeral: true,
+      });
+    }
+  },
+});
+
+export default command.parent({
+  developmentOnly: true,
+  data: {
+    name: 'blacklist',
+    description: 'Blacklist a user or server from the bot.',
+    default_member_permissions: permissions(permissions.KickMembers, permissions.BanMembers),
+    dm_permission: false,
+  },
+  predicate: MODERATOR_ONLY,
+  subcommands: [user, guild],
 });
