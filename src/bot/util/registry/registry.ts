@@ -10,20 +10,33 @@ import type { EventEmitter } from 'node:events';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
+const EVENT_PATHS = ['dist/bot/events/*.js'];
+const COMMAND_PATHS = [
+  'dist/bot/commands/*.js',
+  'dist/bot/commandsAdmin/*.js',
+  'dist/bot/contextMenus/*.js',
+];
+
 export async function createRegistry() {
   const config = {
-    eventFiles: await glob('dist/bot/events/*.js'),
-    commandFiles: await glob('dist/bot/commands/**/*.js'),
+    eventFiles: await glob(EVENT_PATHS),
+    commandFiles: await glob(COMMAND_PATHS),
   };
   return new Registry(config);
 }
 
 export async function createRegistryCLI() {
   const config = {
-    eventFiles: await glob('dist/bot/events/*.js'),
-    commandFiles: await glob('dist/bot/commands/**/*.js'),
+    eventFiles: await glob(EVENT_PATHS),
+    commandFiles: await glob(COMMAND_PATHS),
   };
   return new Registry(config);
+}
+
+export class CommandNotFoundError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+  }
 }
 
 export class Registry {
@@ -72,9 +85,9 @@ export class Registry {
       const file = await import(commandFile);
 
       const handler = file.default;
-      if (!(handler instanceof SlashCommand)) {
+      if (!(handler instanceof Command)) {
         throw new Error(
-          `The default export of the command file ${commandFile} must be a SlashCommand (found ${handler}). It can be constructed with the command() function.`,
+          `The default export of the command file ${commandFile} must be a Command (found ${handler}). It can be constructed with the command.basic(), command.parent(), context.user(), or context.message() functions.`,
         );
       }
 
@@ -89,7 +102,7 @@ export class Registry {
   private getCommand(commandName: string): Command {
     const command = this.#commands.get(commandName);
     if (!command) {
-      throw new Error(`Command "${commandName}" not found.`);
+      throw new CommandNotFoundError(`Command "${commandName}" not found.`);
     }
     return command;
   }
