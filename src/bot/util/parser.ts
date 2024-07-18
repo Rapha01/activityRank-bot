@@ -27,7 +27,7 @@ function parseObject<T>(
   objectKey: string,
   getObject: (s: string) => T | undefined,
 ): ParsedResponse<T> {
-  const objectId = String(interaction.options.get(objectKey)?.value);
+  const objectId = interaction.options.get(objectKey)?.value?.toString();
   const id = interaction.options.getString('id');
 
   if (!objectId && !id) return { status: ParserResponseStatus.NoInput };
