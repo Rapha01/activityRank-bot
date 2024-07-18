@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits, ApplicationCommandType } from 'discord.js';
 import type {
   APIApplicationCommandBasicOption,
   APIApplicationCommandSubcommandGroupOption,
@@ -9,7 +9,9 @@ import type {
   Client,
   ContextMenuCommandInteraction,
   PermissionFlags,
+  RESTPostAPIApplicationCommandsJSONBody,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
+  RESTPostAPIContextMenuApplicationCommandsJSONBody,
   User,
 } from 'discord.js';
 import { type Serializable, SerializableMap } from './serializableMap.js';
@@ -113,6 +115,11 @@ type CommandExecutableFunction = (args: {
   client: Client;
 }) => Promise<void> | void;
 
+type ContextCommandExecutableFunction = (args: {
+  interaction: ContextMenuCommandInteraction;
+  client: Client;
+}) => Promise<void> | void;
+
 type AutocompleteFunction = (args: {
   interaction: AutocompleteInteraction;
   client: Client;
@@ -125,7 +132,9 @@ type AutocompleteMap<V> = SerializableMap<AutocompleteIndex, V>;
  * A callback to be run after a predicate check is denied.
  * This is intended for logging the attempt, if necessary, and for responding to the user running the command.
  */
-type InvalidPredicateCallback = (interaction: ChatInputCommandInteraction) => Promise<void>;
+type InvalidPredicateCallback = (
+  interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction,
+) => Promise<void>;
 
 /**
  * The result of a predicate check.
@@ -144,17 +153,14 @@ export interface PredicateConfig {
   invalidCallback: InvalidPredicateCallback;
 }
 
-export abstract class SlashCommand {
-  public abstract readonly data: RESTPostAPIChatInputApplicationCommandsJSONBody;
+export abstract class Command {
+  public abstract readonly data: RESTPostAPIApplicationCommandsJSONBody;
   public abstract readonly permitGlobalDeployment: boolean;
   public abstract execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction,
   ): Promise<void>;
-  public abstract autocomplete(
-    index: AutocompleteIndex,
-    interaction: AutocompleteInteraction,
-  ): Promise<void>;
+
   public abstract checkPredicate(index: CommandIndex, user: User): PredicateCheck;
 
   protected evaluatePredicate(predicate: PredicateConfig | null, user: User): PredicateCheck {
@@ -166,6 +172,18 @@ export abstract class SlashCommand {
       ? { status }
       : { status, callback: predicate.invalidCallback };
   }
+}
+
+export abstract class SlashCommand extends Command {
+  public abstract execute(
+    index: CommandIndex,
+    interaction: ChatInputCommandInteraction,
+  ): Promise<void>;
+
+  public abstract autocomplete(
+    index: AutocompleteIndex,
+    interaction: AutocompleteInteraction,
+  ): Promise<void>;
 }
 
 type BasicSlashCommandData = Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'> & {
@@ -378,3 +396,50 @@ export const permissions: PermissionFlags & ((...permissions: bigint[]) => strin
   (...permissions: bigint[]) => permissions.reduce((prev, current) => prev | current).toString(),
   PermissionFlagsBits,
 );
+
+export class ContextCommand extends Command {
+  public data: RESTPostAPIContextMenuApplicationCommandsJSONBody;
+
+  constructor(
+    data: RESTPostAPIContextMenuApplicationCommandsJSONBody,
+    private predicate: PredicateConfig | null,
+    public readonly permitGlobalDeployment: boolean,
+    private executeFn: ContextCommandExecutableFunction,
+  ) {
+    super();
+    this.data = data;
+  }
+
+  public checkPredicate(_idx: CommandIndex, user: User) {
+    return this.evaluatePredicate(this.predicate, user);
+  }
+
+  public async execute(
+    _idx: CommandIndex,
+    interaction: ContextMenuCommandInteraction<CacheType>,
+  ): Promise<void> {
+    await this.executeFn({ interaction, client: interaction.client });
+  }
+}
+
+function contextConstructor(type: ApplicationCommandType.User | ApplicationCommandType.Message) {
+  return function (args: {
+    data: Omit<RESTPostAPIContextMenuApplicationCommandsJSONBody, 'type'>;
+    execute: ContextCommandExecutableFunction;
+    predicate?: PredicateConfig;
+    developmentOnly?: boolean;
+  }) {
+    const predicate = args.predicate ?? null;
+    return new ContextCommand(
+      { ...args.data, type },
+      predicate,
+      !args.developmentOnly,
+      args.execute,
+    );
+  };
+}
+
+export const context = {
+  user: contextConstructor(ApplicationCommandType.User),
+  message: contextConstructor(ApplicationCommandType.Message),
+};

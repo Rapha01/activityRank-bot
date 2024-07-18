@@ -1,6 +1,10 @@
 import { EventHandler } from './event.js';
-import { AutocompleteIndex, CommandIndex, Predicate, SlashCommand } from './command.js';
-import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import { AutocompleteIndex, Command, CommandIndex, Predicate, SlashCommand } from './command.js';
+import {
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+  ContextMenuCommandInteraction,
+} from 'discord.js';
 import fg from 'fast-glob';
 import type { EventEmitter } from 'node:events';
 
@@ -24,7 +28,7 @@ export async function createRegistryCLI() {
 
 export class Registry {
   #events: Map<string | symbol, EventHandler[]> = new Map();
-  #commands: Map<string, SlashCommand> = new Map();
+  #commands: Map<string, Command> = new Map();
 
   constructor(private config: { eventFiles: string[]; commandFiles: string[] }) {}
 
@@ -78,11 +82,11 @@ export class Registry {
     }
   }
 
-  public get commands(): ReadonlyMap<string, SlashCommand> {
+  public get commands(): ReadonlyMap<string, Command> {
     return this.#commands;
   }
 
-  private getCommand(commandName: string): SlashCommand {
+  private getCommand(commandName: string): Command {
     const command = this.#commands.get(commandName);
     if (!command) {
       throw new Error(`Command "${commandName}" not found.`);
@@ -92,10 +96,28 @@ export class Registry {
 
   public async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
     const command = this.getCommand(interaction.commandName);
-    await command.autocomplete(new AutocompleteIndex(interaction), interaction);
+    const idx = new AutocompleteIndex(interaction);
+    if (command instanceof SlashCommand) {
+      await command.autocomplete(idx, interaction);
+    } else {
+      throw new Error(`Attempted to call autocomplete method of non-slash command ${idx}`);
+    }
   }
 
   public async handleSlashCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+    const command = this.getCommand(interaction.commandName);
+    const index = new CommandIndex(interaction);
+
+    const predicate = command.checkPredicate(index, interaction.user);
+    if (predicate.status !== Predicate.Allow) {
+      await predicate.callback(interaction);
+      return;
+    }
+
+    await command.execute(index, interaction);
+  }
+
+  public async handleContextCommand(interaction: ContextMenuCommandInteraction): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const index = new CommandIndex(interaction);
 
