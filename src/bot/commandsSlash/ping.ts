@@ -1,16 +1,10 @@
-import {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js';
-import { registerSlashCommand } from 'bot/util/commandLoader.js';
+import { command } from 'bot/util/registry/command.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { config, isProduction } from 'const/config.js';
 
-registerSlashCommand({
-  data: new SlashCommandBuilder().setName('ping').setDescription("Checks the bot's latency"),
-  execute: async function (interaction) {
+export default command.basic({
+  data: { name: 'ping', description: "Checks the bot's latency" },
+  async execute({ interaction }) {
     const sent = await interaction.deferReply({ fetchReply: true, ephemeral: true });
 
     const pingEmbed = new EmbedBuilder()
@@ -24,7 +18,10 @@ registerSlashCommand({
         },
         {
           name: '💗 API Heartbeat 💗',
-          value: `\`\`\`${Math.round(interaction.client.ws.ping)}ms\`\`\``,
+          value:
+            interaction.client.ws.ping > 0
+              ? `\`\`\`${Math.round(interaction.client.ws.ping)}ms\`\`\``
+              : '*Not enough uptime*',
         },
       )
       .setTimestamp();
