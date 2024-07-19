@@ -111,17 +111,17 @@ export class AutocompleteIndex implements Serializable {
 }
 
 type CommandExecutableFunction = (args: {
-  interaction: ChatInputCommandInteraction;
+  interaction: ChatInputCommandInteraction<'cached'>;
   client: Client;
 }) => Promise<void> | void;
 
 type ContextCommandExecutableFunction = (args: {
-  interaction: ContextMenuCommandInteraction;
+  interaction: ContextMenuCommandInteraction<'cached'>;
   client: Client;
 }) => Promise<void> | void;
 
 type AutocompleteFunction = (args: {
-  interaction: AutocompleteInteraction;
+  interaction: AutocompleteInteraction<'cached'>;
   client: Client;
 }) => Promise<void> | void;
 
@@ -177,16 +177,19 @@ export abstract class Command {
 export abstract class SlashCommand extends Command {
   public abstract execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void>;
 
   public abstract autocomplete(
     index: AutocompleteIndex,
-    interaction: AutocompleteInteraction,
+    interaction: AutocompleteInteraction<'cached'>,
   ): Promise<void>;
 }
 
-type BasicSlashCommandData = Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'> & {
+type BasicSlashCommandData = Omit<
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+  'options' | 'dm_permission'
+> & {
   options?: APIApplicationCommandBasicOption[];
 };
 
@@ -203,7 +206,7 @@ class BasicSlashCommand extends SlashCommand {
     },
   ) {
     super();
-    this.data = data;
+    this.data = { ...data, dm_permission: false };
   }
 
   public checkPredicate(_idx: CommandIndex, user: User) {
@@ -212,14 +215,14 @@ class BasicSlashCommand extends SlashCommand {
 
   public async execute(
     _idx: CommandIndex,
-    interaction: ChatInputCommandInteraction<CacheType>,
+    interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void> {
     await this.executables.execute({ interaction, client: interaction.client });
   }
 
   public async autocomplete(
     idx: AutocompleteIndex,
-    interaction: AutocompleteInteraction<CacheType>,
+    interaction: AutocompleteInteraction<'cached'>,
   ): Promise<void> {
     const autocomplete = this.executables.autocomplete.get(idx);
     if (!autocomplete) {
@@ -251,7 +254,7 @@ class ParentSlashCommand extends SlashCommand {
       throw new Error('A parent slash command must have at least one child subcommand or group.');
     }
 
-    this.data = baseData;
+    this.data = { ...baseData, dm_permission: false };
     this.data.options = [];
 
     for (const subcommand of options.subcommands) {
@@ -290,7 +293,7 @@ class ParentSlashCommand extends SlashCommand {
 
   public async execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction<CacheType>,
+    interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void> {
     const command = this.subcommandMap.get(index);
     if (!command) {
@@ -301,7 +304,7 @@ class ParentSlashCommand extends SlashCommand {
 
   public async autocomplete(
     idx: AutocompleteIndex,
-    interaction: AutocompleteInteraction<CacheType>,
+    interaction: AutocompleteInteraction<'cached'>,
   ): Promise<void> {
     const autocomplete = this.autocompleteMap.get(idx);
     if (!autocomplete) {
@@ -416,7 +419,7 @@ export class ContextCommand extends Command {
 
   public async execute(
     _idx: CommandIndex,
-    interaction: ContextMenuCommandInteraction<CacheType>,
+    interaction: ContextMenuCommandInteraction<'cached'>,
   ): Promise<void> {
     await this.executeFn({ interaction, client: interaction.client });
   }
