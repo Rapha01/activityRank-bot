@@ -15,6 +15,9 @@
       "const/*": ["./const/*"],
       "models/*": ["./models/*"],
       "util/*": ["./util/*"]
+    },
+    "experimental": {
+      "keepImportAssertions": true
     }
   }
 }
