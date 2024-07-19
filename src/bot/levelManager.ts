@@ -51,7 +51,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   const cachedGuild = await getGuildModel(member.guild);
 
   member.client.logger.debug(
-    { memberId: member.id, guildId: member.guild.id, level },
+    { memberId: member.id, guildId: member.guild.id, checkedLevel: level },
     'checking roleAssigment',
   );
 
