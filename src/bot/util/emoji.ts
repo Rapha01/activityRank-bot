@@ -1,5 +1,8 @@
 import { formatEmoji } from 'discord.js';
-import * as emoji from 'node-emoji';
+import { find as findEmoji } from 'node-emoji';
+import orderedEmoji from 'unicode-emoji-json/data-ordered-emoji.json' assert { type: 'json' };
+
+const validEmoji = new Set(orderedEmoji);
 
 /** A representation of a Discord emoji */
 interface CustomEmoji {
@@ -21,9 +24,7 @@ interface NativeEmoji {
 
 type Emoji = CustomEmoji | NativeEmoji;
 
-const UNICODE_VARIANTS = /\p{Mark}+/u;
 const DISCORD_EMOJI_REGEX = /<?(?:(a):)?(\w{1,32}):(\d{17,19})?>?/;
-const DISCORD_SNOWFLAKE_REGEX = /\d{17,19}/;
 
 /**
  * Retrieves an emoji representation from the given text.
@@ -34,7 +35,8 @@ export function getEmoji(text: string): Emoji | null {
   /* text may be:
    * a Unicode emoji ('❤'),
    * a Unicode emoji with a variant mark ('❤️'),
-   * a text representation (':heart:'),
+   * a compound Unicode emoji ('❤️‍🔥'),
+   * a text representation ('heart' or ':heart:'),
    * a full custom emoji ('<:ThanksTeam:775119755618025512>')
    */
 
@@ -51,24 +53,24 @@ export function getEmoji(text: string): Emoji | null {
 
 /**
  * Retrieves a native Unicode emoji representation from the given text.
- * @param text The text representing the emoji, which can be a Unicode emoji (e.g., `'❤'`), a Unicode emoji with a variant mark (e.g., `'❤️'`), or a text representation (e.g., `':heart:'`).
- * @returns The native Unicode emoji representation if found, or null if the text does not represent a valid emoji. The returned representation will never have variant marks.
+ * @param text The text representing the emoji, which can be a Unicode emoji (e.g., `'❤'`), a Unicode emoji with a variant mark (e.g., `'❤️'`), or a text representation (e.g., `'heart'` or `':heart:'`).
+ * @returns The native Unicode emoji representation if found, or null if the text does not represent a valid emoji.
  */
 export function getNativeEmoji(text: string): NativeEmoji | null {
   /* text may be:
    * a Unicode emoji ('❤'),
    * a Unicode emoji with a variant mark ('❤️'),
-   * a text representation (':heart:'),
+   * a compound Unicode emoji ('❤️‍🔥'),
+   * a text representation ('heart' or ':heart:'),
    */
 
-  const stripVariants = (text: string) => text.replace(UNICODE_VARIANTS, '');
+  if (validEmoji.has(text)) {
+    return { custom: false, emoji: text };
+  }
 
-  // strip Unicode variant symbols
-  const native = emoji.find(stripVariants(text));
+  const native = findEmoji(text);
   if (native) {
-    // we need to strip variants again because text representations become variant emojis:
-    // for instance, ':heart:' becomes '❤️' instead of '❤'.
-    return { custom: false, emoji: stripVariants(native.emoji) };
+    return { custom: false, emoji: native.emoji };
   }
 
   return null;
