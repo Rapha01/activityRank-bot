@@ -92,8 +92,11 @@ export default event(Events.InteractionCreate, async function (interaction) {
       return;
     }
 
-    // TODO: refactor to clean up
     if (interaction.isMessageComponent()) {
+      if (registry.managesComponent(interaction)) {
+        await registry.handleComponent(interaction);
+        return;
+      }
       const [version, identifier, instance] = interaction.customId.split('.');
       if (identifier === ComponentKey.Ignore || version === ComponentKey.Ignore) return;
       if (identifier === ComponentKey.Throw) throw new Error('should never occur');

@@ -118,7 +118,7 @@ type AutocompleteFunction = (args: {
 type CommandMap<V> = SerializableMap<CommandIndex, V>;
 type AutocompleteMap<V> = SerializableMap<AutocompleteIndex, V>;
 
-interface CommandPredicateConfig {
+export interface CommandPredicateConfig {
   validate: (user: User) => Predicate;
   invalidCallback: InvalidPredicateCallback<
     ChatInputCommandInteraction | ContextMenuCommandInteraction

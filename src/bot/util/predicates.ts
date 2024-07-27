@@ -1,7 +1,14 @@
 import { getPrivileges, hasPrivilege } from 'const/config.js';
-import { Predicate, type CommandPredicateConfig } from './registry/command.js';
-import type { ChatInputCommandInteraction, ContextMenuCommandInteraction, User } from 'discord.js';
 import type { PrivilegeLevel } from 'const/config.types.js';
+import type { CommandPredicateConfig } from './registry/command.js';
+import { Predicate } from './registry/predicate.js';
+import type {
+  ChatInputCommandInteraction,
+  ContextMenuCommandInteraction,
+  GuildMember,
+  User,
+} from 'discord.js';
+import type { ComponentPredicateConfig } from './registry/component.js';
 
 function userHasPrivilege(user: User, privilege: PrivilegeLevel): Predicate {
   const userPrivileges = getPrivileges()[user.id];
@@ -39,3 +46,12 @@ export const HELPSTAFF_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'HELPSTAFF'),
   invalidCallback: INVALID_CALLBACK,
 };
+
+export const requireUser = (member: User | GuildMember): ComponentPredicateConfig => ({
+  async invalidCallback(interaction) {
+    await interaction.reply({ content: 'This component is not for you!', ephemeral: true });
+  },
+  validate(interaction) {
+    return interaction.user.id === member.id ? Predicate.Allow : Predicate.Deny;
+  },
+});
