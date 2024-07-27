@@ -10,6 +10,7 @@ import fg from 'fast-glob';
 import type { EventEmitter } from 'node:events';
 import { type ComponentInstance, Component, ComponentKey } from './component.js';
 import { Predicate } from './predicate.js';
+import TTLCache from '@isaacs/ttlcache';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
@@ -49,7 +50,10 @@ export class Registry {
   #events: Map<string | symbol, EventHandler[]> = new Map();
   #commands: Map<string, Command> = new Map();
   #components: Map<string, Component<unknown>> = new Map();
-  #activeComponents: Map<string, ComponentInstance<unknown>> = new Map();
+  #activeComponents: TTLCache<string, ComponentInstance<unknown>> = new TTLCache({
+    max: 10_000,
+    ttl: 1000 * 60 * 30,
+  });
 
   constructor(private config: { eventFiles: string[]; commandFiles: string[] }) {}
 
