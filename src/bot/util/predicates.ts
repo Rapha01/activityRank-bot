@@ -1,5 +1,5 @@
 import { getPrivileges, hasPrivilege } from 'const/config.js';
-import { Predicate, type PredicateConfig } from './registry/command.js';
+import { Predicate, type CommandPredicateConfig } from './registry/command.js';
 import type { ChatInputCommandInteraction, ContextMenuCommandInteraction, User } from 'discord.js';
 import type { PrivilegeLevel } from 'const/config.types.js';
 
@@ -20,22 +20,22 @@ async function INVALID_CALLBACK(
   });
 }
 
-export const OWNER_ONLY: PredicateConfig = {
+export const OWNER_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'OWNER'),
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const DEVELOPER_ONLY: PredicateConfig = {
+export const DEVELOPER_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'DEVELOPER'),
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const MODERATOR_ONLY: PredicateConfig = {
+export const MODERATOR_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'MODERATOR'),
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const HELPSTAFF_ONLY: PredicateConfig = {
+export const HELPSTAFF_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'HELPSTAFF'),
   invalidCallback: INVALID_CALLBACK,
 };
