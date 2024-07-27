@@ -158,7 +158,7 @@ export abstract class Command {
   public abstract readonly permitGlobalDeployment: boolean;
   public abstract execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction,
+    interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
   ): Promise<void>;
 
   public abstract checkPredicate(index: CommandIndex, user: User): PredicateCheck;

@@ -107,7 +107,7 @@ export class Registry {
     return command;
   }
 
-  public async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+  public async handleAutocomplete(interaction: AutocompleteInteraction<'cached'>): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const idx = new AutocompleteIndex(interaction);
     if (command instanceof SlashCommand) {
@@ -117,7 +117,9 @@ export class Registry {
     }
   }
 
-  public async handleSlashCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+  public async handleSlashCommand(
+    interaction: ChatInputCommandInteraction<'cached'>,
+  ): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const index = new CommandIndex(interaction);
 
@@ -130,7 +132,9 @@ export class Registry {
     await command.execute(index, interaction);
   }
 
-  public async handleContextCommand(interaction: ContextMenuCommandInteraction): Promise<void> {
+  public async handleContextCommand(
+    interaction: ContextMenuCommandInteraction<'cached'>,
+  ): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const index = new CommandIndex(interaction);
 
