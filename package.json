@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@discordjs/rest": "^2.2.0",
+    "@isaacs/ttlcache": "^1.4.1",
     "@sapphire/duration": "^1.1.2",
     "@sapphire/snowflake": "^3.5.3",
     "callsites": "^4.1.0",
