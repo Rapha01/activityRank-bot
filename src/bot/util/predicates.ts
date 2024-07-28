@@ -47,11 +47,18 @@ export const HELPSTAFF_ONLY: CommandPredicateConfig = {
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const requireUser = (member: User | GuildMember): ComponentPredicateConfig => ({
+export const requireUserId = (memberId: string): ComponentPredicateConfig => ({
   async invalidCallback(interaction) {
     await interaction.reply({ content: 'This component is not for you!', ephemeral: true });
   },
   validate(interaction) {
-    return interaction.user.id === member.id ? Predicate.Allow : Predicate.Deny;
+    return interaction.user.id === memberId ? Predicate.Allow : Predicate.Deny;
+  },
+});
+
+export const requireUser = (member: User | GuildMember): ComponentPredicateConfig => ({
+  invalidCallback: requireUserId(member.id).invalidCallback,
+  validate(interaction) {
+    return requireUserId(member.id).validate(interaction);
   },
 });
