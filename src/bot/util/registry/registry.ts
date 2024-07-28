@@ -22,6 +22,7 @@ const COMMAND_PATHS = [
   'dist/bot/commandsSlash/ping.js',
   'dist/bot/commandsSlash/inviter.js',
   'dist/bot/commandsSlash/help.js',
+  'dist/bot/commandsSlash/rank.js',
 ];
 
 export async function createRegistry() {
