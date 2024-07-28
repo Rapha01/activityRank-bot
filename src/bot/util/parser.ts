@@ -39,7 +39,7 @@ function parseObject<T>(
   if (objectId) {
     return { object: getObject(objectId), id: objectId, status: ParserResponseStatus.Success };
   } else if (id) {
-    return { object: undefined, id, status: ParserResponseStatus.Success };
+    return { object: getObject(id), id, status: ParserResponseStatus.Success };
   } else {
     throw new Error('unreachable');
   }

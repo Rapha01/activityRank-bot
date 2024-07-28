@@ -16,5 +16,6 @@
     "resolveJsonModule": true
   },
   "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts"],
   "files": ["src/discord.js.d.ts"]
 }
