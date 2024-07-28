@@ -26,7 +26,7 @@ export default event(Events.MessageReactionAdd, async function (reaction, user) 
 
   if (!voteEmote) {
     reaction.client.logger.warn(
-      { emoji: reaction.emoji, guild: reaction.message.guild },
+      { emoji: reaction.emoji },
       `Failed to parse voteEmoji for guild ${reaction.message.guildId}`,
     );
     return;

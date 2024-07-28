@@ -1,7 +1,7 @@
 import fct from '../util/fct.js';
 import nameUtil from './util/nameUtil.js';
 import guildRoleModel from './models/guild/guildRoleModel.js';
-import Discord, { DiscordAPIError, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
+import { DiscordAPIError, EmbedBuilder, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
@@ -51,7 +51,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   const cachedGuild = await getGuildModel(member.guild);
 
   member.client.logger.debug(
-    { memberId: member.id, guildId: member.guild.id, level },
+    { memberId: member.id, guildId: member.guild.id, checkedLevel: level },
     'checking roleAssigment',
   );
 
@@ -76,7 +76,10 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
       // User is within role. Assign or do nothing.
 
       if (role.permissions.any(DANGEROUS_PERMISSIONS)) {
-        member.client.logger.warn({ role, cachedRole }, 'attempted to assign dangerous role');
+        member.client.logger.warn(
+          { guild: role.guild, permissions: role.permissions, id: role.id, cachedRole },
+          'attempted to assign dangerous role',
+        );
         continue;
       }
 
@@ -125,7 +128,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
   gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 
-  const levelupEmbed = new Discord.EmbedBuilder()
+  const levelupEmbed = new EmbedBuilder()
     .setTitle(
       nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1) + ' 🎖' + level,
     )
@@ -135,15 +138,21 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
   function handleGratulationMessageError(_err: unknown) {
     const err = _err as DiscordAPIError;
-    if (err.code === RESTJSONErrorCodes.MissingAccess)
+    if (err.code === RESTJSONErrorCodes.MissingAccess) {
       member.client.logger.debug(
         `Missing access to send gratulationMessage in guild ${member.guild.id}`,
       );
-    else if (err.code === RESTJSONErrorCodes.MissingPermissions)
+    } else if (err.code === RESTJSONErrorCodes.MissingPermissions) {
       member.client.logger.debug(
         `Missing permissions to send gratulationMessage in guild ${member.guild.id}`,
       );
-    else member.client.logger.warn(err, 'Error while sending gratulationMessage');
+    } else if (err.code === RESTJSONErrorCodes.CannotSendMessagesToThisUser) {
+      member.client.logger.debug(
+        `Cannot send gratulationMessage in guild ${member.guild.id} to user ${member.id}`,
+      );
+    } else {
+      member.client.logger.warn(err, 'Error while sending gratulationMessage');
+    }
   }
 
   // Active Channel
