@@ -10,28 +10,6 @@
     },
     "development": {
       "$ref": "#/$defs/keyset"
-    },
-    "deploy": {
-      "type": "object",
-      "properties": {
-        "admin": {
-          "description": "Admin ID variables",
-          "type": "object",
-          "properties": {
-            "guildIds": {
-              "description": "The IDs of servers in which to register admin commands",
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            }
-          },
-          "required": ["guildIds"],
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
     }
   },
   "additionalProperties": false,
