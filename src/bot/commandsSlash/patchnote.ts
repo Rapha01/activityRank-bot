@@ -1,42 +1,57 @@
-import { registerSlashCommand } from 'bot/util/commandLoader.js';
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { command } from 'bot/util/registry/command.js';
+import { EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import { getTexts } from 'models/managerDb/textModel.js';
 import type { PatchnotesEntry, TextsPatchnotes } from 'models/types/external.js';
 
-registerSlashCommand({
-  data: new SlashCommandBuilder()
-    .setName('patchnote')
-    .setDescription('Show patchnotes. Omit the version parameter to see a generalized list.')
-    .addStringOption((o) =>
-      o
-        .setName('version')
-        .setDescription('The specific version to show. Defaults to the latest version.')
-        .setAutocomplete(true),
-    ),
-  execute: async (interaction) => {
+export default command.basic({
+  data: {
+    name: 'patchnote',
+    description: 'Show patchnotes.',
+    options: [
+      {
+        name: 'version',
+        description: 'The specific version to show. Defaults to the latest version.',
+        autocomplete: true,
+        type: ApplicationCommandOptionType.String,
+      },
+    ],
+  },
+  async execute({ interaction }) {
     const version = interaction.options.getString('version');
     const { patchnotes } = await getTexts();
-    const applicableVersions = patchnotes.map((o) => o.version);
+
+    const applicableVersions = patchnotes.map((note) => note.version);
     applicableVersions.push('latest');
-    let e;
 
-    if (!version || !applicableVersions.includes(version)) e = patchnotesMainEmbed(patchnotes);
-    else if (version == 'latest') e = patchnotesVersionEmbed(patchnotes[0]);
-    else e = patchnotesVersionEmbed(patchnotes.find((o) => o.version == version.toLowerCase())!);
+    let embed: EmbedBuilder;
 
-    await interaction.reply({ embeds: [e] });
+    if (!version || !applicableVersions.includes(version)) {
+      embed = patchnotesMainEmbed(patchnotes);
+    } else if (version == 'latest') {
+      embed = patchnotesVersionEmbed(patchnotes[0]);
+    } else {
+      const matchPatchnote = (note: PatchnotesEntry): boolean =>
+        note.version === version.toLowerCase();
+      // applicableVersions.includes(version) has already been checked above; this `find()` cannot fail
+      embed = patchnotesVersionEmbed(patchnotes.find(matchPatchnote)!);
+    }
+
+    await interaction.reply({ embeds: [embed] });
   },
-  executeAutocomplete: async (interaction) => {
-    const { patchnotes } = await getTexts();
+  autocomplete: {
+    async version({ interaction }) {
+      const { patchnotes } = await getTexts();
 
-    let patchnoteVersions = patchnotes.map((o) => o.version);
-    const focused = interaction.options.getFocused().replace('v', '').replace('.', '');
+      const focused = interaction.options.getFocused().replace('v', '').replace('.', '');
+      const versions = [
+        'latest',
+        ...patchnotes
+          .map((note) => note.version)
+          .filter((version) => version.replace('.', '').includes(focused)),
+      ];
 
-    patchnoteVersions = patchnoteVersions.filter((o) => o.replace('.', '').includes(focused));
-
-    patchnoteVersions.push('latest');
-
-    interaction.respond(patchnoteVersions.map((o) => ({ name: o, value: o })));
+      interaction.respond(versions.map((o) => ({ name: o, value: o })));
+    },
   },
 });
 

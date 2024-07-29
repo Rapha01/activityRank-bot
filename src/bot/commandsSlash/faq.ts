@@ -48,7 +48,7 @@ export default command.basic({
     await interaction.reply({ embeds: [embed] });
   },
   autocomplete: {
-    number: async function ({ interaction }) {
+    async number({ interaction }) {
       const { faqs } = await getTexts();
 
       const focused = interaction.options.getFocused();
