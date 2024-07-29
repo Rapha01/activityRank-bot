@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://activityrank.me/_meta/bot/json-schema/keys.schema.json",
+  "$id": "https://activityrank.me/_meta/bot/json-schema/privilege.schema.json",
   "title": "ActivityRank Privileged Users",
   "description": "The users that are able to use privileged commands",
   "type": "object",

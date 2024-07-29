@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://activityrank.me/_meta/bot/json-schema/keys.schema.json",
+  "$id": "https://activityrank.me/_meta/bot/json-schema/config.schema.json",
   "title": "ActivityRank Bot Config",
   "description": "The basic config to be provided to the Bot module of ActivityRank",
   "type": "object",
@@ -36,7 +36,16 @@
     },
     "disablePatreon": {
       "type": "boolean"
+    },
+    "developmentServers": {
+      "type": "array",
+      "description": "The IDs of servers in which to register development commands",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "required": ["developmentServers"]
 }
