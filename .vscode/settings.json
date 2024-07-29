@@ -3,6 +3,10 @@
     {
       "fileMatch": ["config/keys.json", "config/keys.example.json"],
       "url": "./config/keys.schema.json"
+    },
+    {
+      "fileMatch": ["config/config.json", "config/config.example.json"],
+      "url": "./config/config.schema.json"
     }
   ]
 }

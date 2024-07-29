@@ -8,11 +8,19 @@ const keyfile = readFileSync(
     ? '/run/secrets/keys'
     : new URL('../../config/keys.json', import.meta.url)
 );
+const conffile = readFileSync(
+  process.env.CONFFILE_PATH ?? isProduction
+    ? '/conf'
+    : new URL('../../config/config.json', import.meta.url)
+);
 
 const keys = JSON.parse(keyfile.toString());
+const config = JSON.parse(conffile.toString());
 
 export const getKeys = (prod: boolean = isProduction) =>
   keys[prod ? 'production' : 'development'] as KeyInstance;
+
+export const getConfig = () => config as ConfigInstance;
 
 export interface KeyInstance {
   botId: string;
@@ -30,4 +38,7 @@ export interface KeyInstance {
     dbPassword: string;
     dbUser: string;
   };
+}
+export interface ConfigInstance {
+  disablePatreon?: boolean;
 }

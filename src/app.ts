@@ -7,7 +7,7 @@ import {
 } from 'h3';
 import { readFile } from 'node:fs/promises';
 import { Cron } from 'croner';
-import { isProduction } from './const/keys.js';
+import { getConfig, isProduction } from './const/keys.js';
 import { apiRouter } from './routes/api.js';
 import { resetScoreByTime } from './models/resetModel.js';
 import { runPatreonTask } from './tasks/patreon.js';
@@ -30,7 +30,9 @@ new Cron('5 * * * *', () => resetScoreByTime('day'));
 new Cron('20 23 * * *', () => resetScoreByTime('week'));
 new Cron('30 23 1-7 * *', () => resetScoreByTime('month'));
 new Cron('30 23 1 1 *', () => resetScoreByTime('year'));
-if (isProduction) {
+
+const config = getConfig();
+if (isProduction && config.disablePatreon !== true) {
   new Cron('*/2 * * * *', runPatreonTask);
   new Cron('*/20 * * * *', () => runTopggTask);
 } else {

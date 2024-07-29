@@ -5,6 +5,10 @@ secrets:
   keys:
     file: ./config/keys.json
 
+configs:
+  conf:
+    file: ./config/config.json
+
 services:
   mysql:
     container_name: activityrank.manager.db
@@ -34,3 +38,5 @@ services:
       - '3005:3000'
     secrets:
       - keys
+    configs:
+      - conf
