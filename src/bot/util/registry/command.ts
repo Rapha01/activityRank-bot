@@ -325,14 +325,20 @@ export const command = {
     data: BasicSlashCommandData;
     predicate?: CommandPredicateConfig;
     execute: CommandExecutableFunction;
-    autocomplete?: AutocompleteMap<AutocompleteFunction>;
+    autocomplete?: Record<string, AutocompleteFunction>;
     developmentOnly?: boolean;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
 
+    const autocompleteMap: AutocompleteMap<AutocompleteFunction> = new SerializableMap();
+    for (const name in args.autocomplete) {
+      const fn = args.autocomplete[name];
+      autocompleteMap.set(new AutocompleteIndex([args.data.name], name), fn);
+    }
+
     return new BasicSlashCommand(args.data, predicate, !args.developmentOnly, {
       execute: args.execute,
-      autocomplete: args.autocomplete ?? new SerializableMap(),
+      autocomplete: autocompleteMap,
     });
   },
   parent: function (args: {
