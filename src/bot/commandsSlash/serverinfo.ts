@@ -1,6 +1,5 @@
 import {
   ButtonStyle,
-  SlashCommandBuilder,
   EmbedBuilder,
   ComponentType,
   type ActionRowData,
@@ -16,14 +15,17 @@ import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
-import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { GuildRoleSchema } from 'models/types/shard.js';
+import { command } from 'bot/util/registry/command.js';
+import { component, ComponentKey } from 'bot/util/registry/component.js';
+import { requireUserId } from 'bot/util/predicates.js';
 
-registerSlashCommand({
-  data: new SlashCommandBuilder()
-    .setName('serverinfo')
-    .setDescription('Information about your server!'),
-  execute: async function (interaction) {
+export default command.basic({
+  data: {
+    name: 'serverinfo',
+    description: 'Get information about your server.',
+  },
+  async execute({ interaction }) {
     const cachedGuild = await getGuildModel(interaction.guild);
 
     const page = fct.extractPageSimple(
@@ -31,7 +33,7 @@ registerSlashCommand({
       cachedGuild.db.entriesPerPage,
     );
 
-    const embed = await embeds['general']({
+    const embed = await embeds.general({
       interaction,
       cachedGuild,
       from: page.from,
@@ -55,8 +57,7 @@ type WindowFn = (args: {
   to: number;
 }) => Promise<EmbedBuilder>;
 
-const setWindow = registerComponent<{ window: string; page: number }>({
-  identifier: 'serverinfo.window',
+const windowSelect = component<{ window: string; page: number }>({
   type: ComponentType.StringSelect,
   async callback({ interaction, data }) {
     const cachedGuild = await getGuildModel(interaction.guild);
@@ -76,8 +77,7 @@ const setWindow = registerComponent<{ window: string; page: number }>({
   },
 });
 
-const setPage = registerComponent<{ window: string; page: number }>({
-  identifier: 'serverinfo.page',
+const pageButton = component<{ window: string; page: number }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     const cachedGuild = await getGuildModel(interaction.guild);
@@ -97,12 +97,12 @@ const setPage = registerComponent<{ window: string; page: number }>({
   },
 });
 
-const closeMsg = registerComponent({
-  identifier: 'serverinfo.close',
+const closeButton = component({
   type: ComponentType.Button,
-  async callback({ interaction }) {
+  async callback({ interaction, drop }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
+    drop();
   },
 });
 
@@ -112,13 +112,15 @@ const rows = (
   ownerId: string,
 ): ActionRowData<MessageActionRowComponentData>[] => {
   const paginationDisabled = ['general', 'messages'].includes(window);
+  const predicate = requireUserId(ownerId);
+
   return [
     {
       type: ComponentType.ActionRow,
       components: [
         {
           type: ComponentType.StringSelect,
-          customId: setWindow({ window, page }, { ownerId }),
+          customId: windowSelect.instanceId({ data: { window, page }, predicate }),
           options: [
             { label: 'General', value: 'general' },
             { label: 'Levels', value: 'levels' },
@@ -136,7 +138,7 @@ const rows = (
       components: [
         {
           type: ComponentType.Button,
-          customId: setPage({ window, page: page - 1 }, { ownerId }),
+          customId: pageButton.instanceId({ data: { window, page: page - 1 }, predicate }),
           style: ButtonStyle.Primary,
           emoji: '⬅',
           disabled: paginationDisabled || page < 2,
@@ -150,7 +152,7 @@ const rows = (
         },
         {
           type: ComponentType.Button,
-          customId: setPage({ window, page: page + 1 }, { ownerId }),
+          customId: pageButton.instanceId({ data: { window, page: page + 1 }, predicate }),
           style: ButtonStyle.Primary,
           emoji: '➡️',
           disabled: paginationDisabled || page > 100,
@@ -162,7 +164,7 @@ const rows = (
       components: [
         {
           type: ComponentType.Button,
-          customId: closeMsg(null, { ownerId }),
+          customId: closeButton.instanceId({ predicate }),
           style: ButtonStyle.Danger,
           label: 'Close',
         },
@@ -171,7 +173,7 @@ const rows = (
   ];
 };
 
-const info: WindowFn = async ({ interaction, cachedGuild }) => {
+const info: WindowFn = async function ({ interaction, cachedGuild }) {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Info for server ${interaction.guild.name}` })
     .setColor('#4fd6c8')
@@ -242,7 +244,7 @@ const info: WindowFn = async ({ interaction, cachedGuild }) => {
   return e;
 };
 
-const levels: WindowFn = async ({ interaction, cachedGuild, from, to }) => {
+const levels: WindowFn = async function ({ cachedGuild, from, to }) {
   const e = new EmbedBuilder()
     .setAuthor({ name: `Levels info from ${from + 1} to ${to + 1}` })
     .setColor('#4fd6c8')
@@ -271,7 +273,7 @@ const levels: WindowFn = async ({ interaction, cachedGuild, from, to }) => {
   return e;
 };
 
-const roles: WindowFn = async ({ interaction, from, to }) => {
+const roles: WindowFn = async function ({ interaction, from, to }) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'Roles info' })
     .setDescription("This server's activity roles and their respective levels.")
@@ -300,7 +302,7 @@ function getlevelString(myRole: GuildRoleSchema) {
 }
 
 // TODO: deprecate noCommandChannels in favour of Discord's native Integrations
-const noCommandChannels: WindowFn = async ({ interaction, from, to }) => {
+const noCommandChannels: WindowFn = async function ({ interaction, from, to }) {
   const cachedGuild = await getGuildModel(interaction.guild);
 
   let description = '';
@@ -332,7 +334,7 @@ const noCommandChannels: WindowFn = async ({ interaction, from, to }) => {
   return e;
 };
 
-const noXpChannels: WindowFn = async ({ interaction, from, to }) => {
+const noXpChannels: WindowFn = async function ({ interaction, from, to }) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP channels info' })
     .setColor('#4fd6c8')
@@ -354,7 +356,7 @@ const noXpChannels: WindowFn = async ({ interaction, from, to }) => {
   return e;
 };
 
-const noXpRoles: WindowFn = async ({ interaction, from, to }) => {
+const noXpRoles: WindowFn = async function ({ interaction, from, to }) {
   const e = new EmbedBuilder()
     .setAuthor({ name: 'NoXP roles info' })
     .setColor('#4fd6c8')
@@ -375,7 +377,7 @@ const noXpRoles: WindowFn = async ({ interaction, from, to }) => {
   return e;
 };
 
-const messages: WindowFn = async ({ interaction, cachedGuild, from, to }) => {
+const messages: WindowFn = async function ({ interaction, cachedGuild, from, to }) {
   let entries = [];
 
   entries.push({ title: 'levelupMessage', desc: cachedGuild.db.levelupMessage });
