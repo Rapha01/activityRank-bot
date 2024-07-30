@@ -19,7 +19,7 @@ export interface ComponentPredicateConfig {
 
 type ComponentPredicateCheck = PredicateCheck<MessageComponentInteraction>;
 
-type ComponentCallback<
+export type ComponentCallback<
   TInteraction extends MessageComponentInteraction<'cached'>,
   TData extends unknown,
 > = (args: { interaction: TInteraction; data: TData; drop: () => void }) => Promise<void> | void;
