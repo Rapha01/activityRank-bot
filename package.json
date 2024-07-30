@@ -10,7 +10,7 @@
     "developmentNodemon": "nodemon --exec \"npm run build && npm run dev\"",
     "format": "prettier -w src",
     "typecheck": "tsc --noEmit",
-    "build": "swc src --out-dir dist --copy-files",
+    "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
     "dev": "node --enable-source-maps ./dist/app.js"
   },
   "repository": {
