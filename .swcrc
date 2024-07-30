@@ -20,5 +20,5 @@
       "keepImportAssertions": true
     }
   },
-  "exclude": ["**/*.test.ts"]
+  "exclude": [".*\\.test\\.(?:t|j)s$"]
 }
