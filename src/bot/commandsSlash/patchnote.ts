@@ -48,9 +48,9 @@ export default command.basic({
         ...patchnotes
           .map((note) => note.version)
           .filter((version) => version.replace('.', '').includes(focused)),
-      ];
+      ].slice(0, 25);
 
-      interaction.respond(versions.map((o) => ({ name: o, value: o })));
+      await interaction.respond(versions.map((o) => ({ name: o, value: o })));
     },
   },
 });

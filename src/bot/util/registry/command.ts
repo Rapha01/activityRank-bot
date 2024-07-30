@@ -82,7 +82,7 @@ export class AutocompleteIndex implements Serializable {
         data.options.getSubcommandGroup(false),
         data.options.getSubcommand(false),
       ];
-      this.autocompleteName = data.options.getFocused();
+      this.autocompleteName = data.options.getFocused(true).name;
     }
 
     // TODO: modern versions of TS should allow this typedef to be inferred inline safely

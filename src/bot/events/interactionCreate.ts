@@ -38,6 +38,13 @@ export default event(Events.InteractionCreate, async function (interaction) {
       throw new Error('Interaction recieved outside of cached guild.');
 
     if (interaction.isAutocomplete()) {
+      try {
+        await registry.handleAutocomplete(interaction);
+        return;
+      } catch (e) {
+        if (!(e instanceof CommandNotFoundError)) throw e;
+      }
+
       const ref = commandMap.get(getCommandId(interaction));
 
       if (ref) {
