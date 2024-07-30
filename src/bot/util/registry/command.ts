@@ -237,18 +237,26 @@ class ParentSlashCommand extends SlashCommand {
     this.data.options = [];
 
     for (const subcommand of options.subcommands) {
-      const idx = new CommandIndex([this.data.name, subcommand.data.name]);
+      const idxKey = [this.data.name, subcommand.data.name];
+      const idx = new CommandIndex(idxKey);
+
       this.subcommandMap.set(idx, subcommand);
       // the predicate with the greatest level of specificity is selected.
       this.predicateMap.set(idx, subcommand.predicate ?? commandPredicate ?? null);
       this.data.options.push(subcommand.data);
+
+      for (const name in subcommand.autocomplete) {
+        const fn = subcommand.autocomplete[name];
+        this.autocompleteMap.set(new AutocompleteIndex(idxKey, name), fn);
+      }
     }
 
     for (const group of options.groups) {
       const groupData = group.data;
       groupData.options = [];
       for (const subcommand of group.subcommands) {
-        const idx = new CommandIndex([this.data.name, group.data.name, subcommand.data.name]);
+        const idxKey = [this.data.name, group.data.name, subcommand.data.name];
+        const idx = new CommandIndex(idxKey);
         this.subcommandMap.set(idx, subcommand);
 
         // the predicate with the greatest level of specificity is selected.
@@ -256,6 +264,11 @@ class ParentSlashCommand extends SlashCommand {
         this.predicateMap.set(idx, predicate);
 
         groupData.options.push(subcommand.data);
+
+        for (const name in subcommand.autocomplete) {
+          const fn = subcommand.autocomplete[name];
+          this.autocompleteMap.set(new AutocompleteIndex(idxKey, name), fn);
+        }
       }
       this.data.options.push(groupData);
     }
@@ -296,12 +309,15 @@ class ParentSlashCommand extends SlashCommand {
 
 export class SlashSubcommand {
   public readonly execute: CommandExecutableFunction;
-  public readonly autocomplete: AutocompleteFunction | null;
+  public readonly autocomplete: Record<string, AutocompleteFunction> | null;
 
   constructor(
     public readonly data: APIApplicationCommandSubcommandOption,
     public readonly predicate: CommandPredicateConfig | null,
-    executables: { execute: CommandExecutableFunction; autocomplete?: AutocompleteFunction },
+    executables: {
+      execute: CommandExecutableFunction;
+      autocomplete?: Record<string, AutocompleteFunction>;
+    },
   ) {
     this.execute = executables.execute;
     this.autocomplete = executables.autocomplete ?? null;
@@ -359,7 +375,7 @@ export function subcommand(args: {
   data: APIApplicationCommandSubcommandOption;
   predicate?: CommandPredicateConfig;
   execute: CommandExecutableFunction;
-  autocomplete?: AutocompleteFunction;
+  autocomplete?: Record<string, AutocompleteFunction>;
 }): SlashSubcommand {
   const predicate = args.predicate ?? null;
   const executables = { execute: args.execute, autocomplete: args.autocomplete };
