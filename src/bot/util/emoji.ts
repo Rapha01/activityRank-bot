@@ -9,7 +9,10 @@ interface CustomEmoji {
   custom: true;
   /** The Snowflake ID of the emoji */
   id: string;
-  /** The name of the emoji, when added to the database. */
+  /**
+   * The name of the emoji, when it was added to the database.
+   * Emojis on Discord are searched by ID; their name does not need to be the same as the one they're officially listed as.
+   */
   name: string;
   /** Whether or not the emoji is animated. */
   animated: boolean;
@@ -24,7 +27,7 @@ interface NativeEmoji {
 
 type Emoji = CustomEmoji | NativeEmoji;
 
-const DISCORD_EMOJI_REGEX = /<?(?:(a):)?(\w{1,32}):(\d{17,19})?>?/;
+const DISCORD_EMOJI_REGEX = /<?(?:(a):)?(\w{1,32}):(\d{17,19})>?/;
 
 /**
  * Retrieves an emoji representation from the given text.

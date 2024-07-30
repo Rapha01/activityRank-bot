@@ -28,7 +28,7 @@
     "fast-glob": "^3.3.2",
     "glob": "^10.3.10",
     "kysely": "^0.27.3",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.10.3",
     "nanoid": "^5.0.5",
     "node-cron": "^3.0.3",
     "node-emoji": "^2.1.3",
@@ -55,6 +55,8 @@
     "pino-pretty": "^10.3.1",
     "prettier": "^3.2.5",
     "typescript": "^5.3.3",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^2.0.3",
     "zod": "^3.23.8"
   },
   "nodemonConfig": {

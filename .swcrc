@@ -19,5 +19,6 @@
     "experimental": {
       "keepImportAssertions": true
     }
-  }
+  },
+  "exclude": ["**/*.test.ts"]
 }
