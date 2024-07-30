@@ -189,10 +189,14 @@ const { confirmButton, denyButton } = useConfirm<{ target: GuildMember }>({
     if (multiplier > 1) {
       await interaction.editReply({
         content: `You have successfully voted for ${data.target}. Your vote counts \`${multiplier}x\`.`,
+        components: [],
+        allowedMentions: { users: [data.target.id] },
       });
     } else {
       await interaction.editReply({
         content: `You have successfully voted for ${data.target}. Upvote the bot on top.gg or subscribe [on Patreon](<${PATREON_URL}>) to increase your voting power!`,
+        components: [],
+        allowedMentions: { users: [data.target.id] },
       });
     }
     drop();
