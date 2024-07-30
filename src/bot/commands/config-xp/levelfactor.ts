@@ -1,19 +1,38 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import resetModel from '../../models/resetModel.js';
-import { registerSubCommand } from 'bot/util/commandLoader.js';
+import { subcommand } from 'bot/util/registry/command.js';
 
-registerSubCommand({
-  async execute(interaction) {
+export const levelfactor = subcommand({
+  data: {
+    name: 'levelfactor',
+    description:
+      "Set your server's levelfactor. The levelfactor controls how quickly levels scale in difficulty.",
+    type: ApplicationCommandOptionType.Subcommand,
+    options: [
+      {
+        name: 'levelfactor',
+        description: 'The levelfactor to use in the server.',
+        min_value: 20,
+        max_value: 400,
+        required: true,
+        type: ApplicationCommandOptionType.Integer,
+      },
+    ],
+  },
+  async execute({ interaction }) {
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      // TODO replace with native system
+      await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',
         ephemeral: true,
       });
+      return;
     }
+
     const levelFactor = interaction.options.getInteger('levelfactor', true);
     const cachedGuild = await getGuildModel(interaction.guild);
     await cachedGuild.upsert({ levelFactor });
