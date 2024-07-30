@@ -1,51 +1,63 @@
-import { SlashCommandBuilder, EmbedBuilder, time, type Guild } from 'discord.js';
+import { ApplicationCommandOptionType, time, type APIEmbed, type Guild } from 'discord.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
-import nameUtil from '../util/nameUtil.js';
+import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
 import cooldownUtil from '../util/cooldownUtil.js';
 import { stripIndent } from 'common-tags';
 import fct from '../../util/fct.js';
-import { registerSlashCommand } from 'bot/util/commandLoader.js';
 import { getShardDb } from 'models/shardDb/shardDb.js';
+import { command } from 'bot/util/registry/command.js';
 
-registerSlashCommand({
-  data: new SlashCommandBuilder()
-    .setName('memberinfo')
-    .setDescription('Show information on a member.')
-    .addUserOption((o) =>
-      o.setName('member').setDescription('The member to show information about'),
-    ),
-  execute: async function (i) {
-    const member = i.options.getMember('member') ?? i.member;
+export default command.basic({
+  data: {
+    name: 'memberinfo',
+    description: 'Show information about a member.',
+    options: [
+      {
+        type: ApplicationCommandOptionType.User,
+        name: 'member',
+        description: 'The member to show information about.',
+      },
+    ],
+  },
+  async execute({ interaction }) {
+    const member = interaction.options.getMember('member') ?? interaction.member;
 
-    const cachedGuild = await getGuildModel(i.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
 
-    if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
+    if (!(await cooldownUtil.checkStatCommandsCooldown(interaction))) return;
 
     const userModel = await getUserModel(member.user);
     const myTargetUser = await userModel.fetch();
 
     const cachedMember = await getMemberModel(member);
     const myTargetMember = await cachedMember.fetch();
-    const targetMemberInfo = await nameUtil.getGuildMemberInfo(i.guild, member.id);
+    const targetMemberInfo = await nameUtil.getGuildMemberInfo(interaction.guild, member.id);
 
-    const lastActivities = await getLastActivities(i.guild, member.id);
+    const lastActivities = await getLastActivities(interaction.guild, member.id);
 
-    const inviterInfo = await nameUtil.getGuildMemberInfo(i.guild, myTargetMember.inviter);
+    const inviterInfo = await getGuildMemberInfo(interaction.guild, myTargetMember.inviter);
     if (inviterInfo.name == 'User left [0]')
       inviterInfo.name = 'No inviter set. Use `/inviter` to set one!';
 
-    const fmtActivity = (act: number | null) => (act ? `${time(act)}, ${time(act, 'R')}` : 'n/a');
+    const getActivityString = (
+      name: string,
+      // this is a number instead of a boolean because this is a value from the database. It will be either 1 or 0.
+      enabled: number,
+      lastTime: number | null,
+    ): string | null => {
+      if (!enabled) return null;
+      const timeString = lastTime ? `${time(lastTime)}, ${time(lastTime, 'R')}` : 'n/a';
+      return enabled ? `Last ${name}: ${timeString}` : null;
+    };
 
     const lastActivityStr = [
-      cachedGuild.db.textXp ? `Last textmessage: ${fmtActivity(lastActivities.textMessage)}` : null,
-      cachedGuild.db.voiceXp
-        ? `Last voiceminute: ${fmtActivity(lastActivities.voiceMinute)}`
-        : null,
-      cachedGuild.db.inviteXp ? `Last invite: ${fmtActivity(lastActivities.invite)}` : null,
-      cachedGuild.db.voteXp ? `Last vote: ${fmtActivity(lastActivities.vote)}` : null,
-      cachedGuild.db.bonusXp ? `Last bonus: ${fmtActivity(lastActivities.bonus)}` : null,
+      getActivityString('text message', cachedGuild.db.textXp, lastActivities.textMessage),
+      getActivityString('voice minute', cachedGuild.db.voiceXp, lastActivities.voiceMinute),
+      getActivityString('invite', cachedGuild.db.inviteXp, lastActivities.invite),
+      getActivityString('vote', cachedGuild.db.voteXp, lastActivities.vote),
+      getActivityString('bonus', cachedGuild.db.bonusXp, lastActivities.vote),
     ]
       .filter(Boolean)
       .join('\n');
@@ -54,8 +66,6 @@ registerSlashCommand({
       typeof targetMemberInfo.joinedAt === 'string'
         ? targetMemberInfo.joinedAt
         : Math.ceil(targetMemberInfo.joinedAt / 1000);
-
-    console.warn('Tgt User', myTargetUser);
 
     const patreonTierUntilDate = new Date(parseInt(myTargetUser.patreonTierUntilDate) * 1000);
 
@@ -68,33 +78,29 @@ registerSlashCommand({
           Valid until: ${time(patreonTierUntilDate, 'D')}, ${time(patreonTierUntilDate, 'R')}`
         : 'No active Tier';
 
-    const embed = new EmbedBuilder()
-      .setAuthor({
-        name: `Info for ${targetMemberInfo.name} in server ${i.guild.name}`,
-      })
-      .setColor('#4fd6c8')
-      .setThumbnail(targetMemberInfo.avatarUrl)
-      .addFields(
+    const embed: APIEmbed = {
+      author: { name: `Info for ${targetMemberInfo.name} in server ${interaction.guild.name}` },
+      color: 0x4fd6c8,
+      thumbnail: targetMemberInfo.avatarUrl ? { url: targetMemberInfo.avatarUrl } : undefined,
+      fields: [
         {
           name: 'General',
           value: stripIndent`
-          Joined: <t:${targetMemberInfo.joinedAt}:D>, <t:${targetMemberInfo.joinedAt}:R>
-          Inviter: ${inviterInfo.name}`,
+        Joined: <t:${targetMemberInfo.joinedAt}:D>, <t:${targetMemberInfo.joinedAt}:R>
+        Inviter: ${inviterInfo.name}`,
         },
-        {
-          name: 'Patreon',
-          value: patreonText,
-        },
+        { name: 'Patreon', value: patreonText },
         {
           name: 'Settings',
           value: stripIndent`
-          Notify levelup via Direct Message: ${cachedGuild.db.notifyLevelupDm ? 'Yes' : 'No'}
-          Reaction Vote: ${cachedGuild.db.reactionVote ? 'Yes' : 'No'}`,
+        Notify levelup via Direct Message: ${cachedGuild.db.notifyLevelupDm ? 'Yes' : 'No'}
+        Reaction Vote: ${cachedGuild.db.reactionVote ? 'Yes' : 'No'}`,
         },
         { name: 'Recent Activity', value: lastActivityStr },
-      );
+      ],
+    };
 
-    await i.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   },
 });
 
