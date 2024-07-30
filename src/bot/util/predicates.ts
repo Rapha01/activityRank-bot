@@ -1,7 +1,14 @@
 import { getPrivileges, hasPrivilege } from 'const/config.js';
-import { Predicate, type PredicateConfig } from './registry/command.js';
-import type { ChatInputCommandInteraction, ContextMenuCommandInteraction, User } from 'discord.js';
 import type { PrivilegeLevel } from 'const/config.types.js';
+import type { CommandPredicateConfig } from './registry/command.js';
+import { Predicate } from './registry/predicate.js';
+import type {
+  ChatInputCommandInteraction,
+  ContextMenuCommandInteraction,
+  GuildMember,
+  User,
+} from 'discord.js';
+import type { ComponentPredicateConfig } from './registry/component.js';
 
 function userHasPrivilege(user: User, privilege: PrivilegeLevel): Predicate {
   const userPrivileges = getPrivileges()[user.id];
@@ -20,22 +27,38 @@ async function INVALID_CALLBACK(
   });
 }
 
-export const OWNER_ONLY: PredicateConfig = {
+export const OWNER_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'OWNER'),
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const DEVELOPER_ONLY: PredicateConfig = {
+export const DEVELOPER_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'DEVELOPER'),
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const MODERATOR_ONLY: PredicateConfig = {
+export const MODERATOR_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'MODERATOR'),
   invalidCallback: INVALID_CALLBACK,
 };
 
-export const HELPSTAFF_ONLY: PredicateConfig = {
+export const HELPSTAFF_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'HELPSTAFF'),
   invalidCallback: INVALID_CALLBACK,
 };
+
+export const requireUserId = (memberId: string): ComponentPredicateConfig => ({
+  async invalidCallback(interaction) {
+    await interaction.reply({ content: 'This component is not for you!', ephemeral: true });
+  },
+  validate(interaction) {
+    return interaction.user.id === memberId ? Predicate.Allow : Predicate.Deny;
+  },
+});
+
+export const requireUser = (member: User | GuildMember): ComponentPredicateConfig => ({
+  invalidCallback: requireUserId(member.id).invalidCallback,
+  validate(interaction) {
+    return requireUserId(member.id).validate(interaction);
+  },
+});

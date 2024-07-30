@@ -8,16 +8,19 @@ import {
   ComponentType,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import { registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import type { TextsCommands, TextsEntry } from 'models/types/external.js';
 import { getTexts } from 'models/managerDb/textModel.js';
 import { config, version } from 'const/config.js';
+import { command } from 'bot/util/registry/command.js';
+import { component } from 'bot/util/registry/component.js';
+import { requireUser } from 'bot/util/predicates.js';
 
-registerSlashCommand({
-  data: new SlashCommandBuilder()
-    .setName('help')
-    .setDescription('Shows information for operating the bot'),
-  execute: async function (interaction) {
+export default command.basic({
+  data: {
+    name: 'help',
+    description: 'Show information for operating the bot',
+  },
+  async execute({ interaction }) {
     const { commands } = await getTexts();
     const helpEmbed = helpMainEmbed(commands);
     await interaction.reply({
@@ -25,7 +28,7 @@ registerSlashCommand({
       components: [
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
           new StringSelectMenuBuilder()
-            .setCustomId(selectId(null, { ownerId: interaction.user.id }))
+            .setCustomId(select.instanceId({ predicate: requireUser(interaction.user) }))
             .setPlaceholder('Nothing selected')
             .addOptions([
               { label: 'Server Statistics', value: 'stats' },
@@ -42,7 +45,7 @@ registerSlashCommand({
         ),
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId(closeId(null, { ownerId: interaction.user.id }))
+            .setCustomId(close.instanceId({ predicate: requireUser(interaction.user) }))
             .setLabel('Close')
             .setStyle(ButtonStyle.Danger),
         ),
@@ -51,23 +54,24 @@ registerSlashCommand({
   },
 });
 
-const selectId = registerComponent({
-  identifier: 'help.sel',
+const select = component({
   type: ComponentType.StringSelect,
   async callback({ interaction }) {
-    let e = interaction.message.embeds[0].toJSON();
     const { commands } = await getTexts();
-    e = helpFeatureEmbed(commands[interaction.values[0] as keyof TextsCommands]).toJSON();
-    interaction.update({ embeds: [e] });
+
+    const key = interaction.values[0] as keyof TextsCommands;
+    const embed = helpFeatureEmbed(commands[key]);
+
+    await interaction.update({ embeds: [embed] });
   },
 });
 
-const closeId = registerComponent({
-  identifier: 'help.cls',
+const close = component({
   type: ComponentType.Button,
-  async callback({ interaction }) {
+  async callback({ interaction, drop }) {
     await interaction.deferUpdate();
     await interaction.deleteReply();
+    drop();
   },
 });
 

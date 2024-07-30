@@ -1,12 +1,16 @@
 import { EventHandler } from './event.js';
-import { AutocompleteIndex, Command, CommandIndex, Predicate, SlashCommand } from './command.js';
+import { AutocompleteIndex, Command, CommandIndex, SlashCommand } from './command.js';
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   ContextMenuCommandInteraction,
+  MessageComponentInteraction,
 } from 'discord.js';
 import fg from 'fast-glob';
 import type { EventEmitter } from 'node:events';
+import { type ComponentInstance, Component, ComponentKey } from './component.js';
+import { Predicate } from './predicate.js';
+import TTLCache from '@isaacs/ttlcache';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
@@ -15,6 +19,13 @@ const COMMAND_PATHS = [
   'dist/bot/commands/*.js',
   'dist/bot/commandsAdmin/*.js',
   'dist/bot/contextMenus/*.js',
+  'dist/bot/commandsSlash/ping.js',
+  'dist/bot/commandsSlash/inviter.js',
+  'dist/bot/commandsSlash/help.js',
+  'dist/bot/commandsSlash/rank.js',
+  'dist/bot/commandsSlash/faq.js',
+  'dist/bot/commandsSlash/patchnote.js',
+  'dist/bot/commandsSlash/serverinfo.js',
 ];
 
 export async function createRegistry() {
@@ -42,6 +53,11 @@ export class CommandNotFoundError extends Error {
 export class Registry {
   #events: Map<string | symbol, EventHandler[]> = new Map();
   #commands: Map<string, Command> = new Map();
+  #components: Map<string, Component<unknown>> = new Map();
+  #activeComponents: TTLCache<string, ComponentInstance<unknown>> = new TTLCache({
+    max: 10_000,
+    ttl: 1000 * 60 * 30,
+  });
 
   constructor(private config: { eventFiles: string[]; commandFiles: string[] }) {}
 
@@ -107,7 +123,7 @@ export class Registry {
     return command;
   }
 
-  public async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+  public async handleAutocomplete(interaction: AutocompleteInteraction<'cached'>): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const idx = new AutocompleteIndex(interaction);
     if (command instanceof SlashCommand) {
@@ -117,7 +133,9 @@ export class Registry {
     }
   }
 
-  public async handleSlashCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+  public async handleSlashCommand(
+    interaction: ChatInputCommandInteraction<'cached'>,
+  ): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const index = new CommandIndex(interaction);
 
@@ -130,7 +148,9 @@ export class Registry {
     await command.execute(index, interaction);
   }
 
-  public async handleContextCommand(interaction: ContextMenuCommandInteraction): Promise<void> {
+  public async handleContextCommand(
+    interaction: ContextMenuCommandInteraction<'cached'>,
+  ): Promise<void> {
     const command = this.getCommand(interaction.commandName);
     const index = new CommandIndex(interaction);
 
@@ -141,6 +161,91 @@ export class Registry {
     }
 
     await command.execute(index, interaction);
+  }
+
+  public get components(): ReadonlyMap<string, Component<unknown>> {
+    return this.#components;
+  }
+
+  public registerComponent(component: Component<unknown>) {
+    if (this.#components.has(component.identifier)) {
+      throw new Error(`Duplicate component ID "${component.identifier}" registered`);
+    }
+    this.#components.set(component.identifier, component);
+  }
+
+  public registerComponentInstance(instance: ComponentInstance<unknown>) {
+    if (this.#components.has(instance.identifier)) {
+      throw new Error(`Duplicate component instance ID "${instance.identifier}" registered`);
+    }
+
+    this.#activeComponents.set(instance.identifier, instance);
+  }
+
+  public dropComponentInstance(instance: ComponentInstance<unknown>) {
+    this.#activeComponents.delete(instance.identifier);
+  }
+
+  public managesComponent(interaction: MessageComponentInteraction<'cached'>): boolean {
+    const split = Component.splitCustomId(interaction.customId);
+
+    return (
+      split.status === 'SPECIAL_KEY' ||
+      (split.status === 'SUCCESS' && this.#components.has(split.component))
+    );
+  }
+
+  public async handleComponent(interaction: MessageComponentInteraction<'cached'>): Promise<void> {
+    const split = Component.splitCustomId(interaction.customId);
+    if (split.status === 'INVALID_VERSION') {
+      if (interaction.isRepliable()) {
+        await interaction.reply({
+          content:
+            "Oops! It's been a while since this component was made. Try running the command again.",
+          ephemeral: true,
+        });
+      }
+      // this is only a warnable issue if the message the component was attached to was created recently
+      if (Date.now() - interaction.message.createdAt.getTime() < 1000 * 60 * 60) {
+        interaction.client.logger.warn(
+          { interaction, issue: split.errorText },
+          'Old component (created recently) used',
+        );
+      }
+      return;
+    }
+
+    if (split.status === 'SPECIAL_KEY') {
+      if (split.key === ComponentKey.Ignore) {
+        return;
+      } else if (split.key === ComponentKey.Throw) {
+        throw new Error('Component interaction with customId of ComponentKey.Throw recieved');
+      } else if (split.key === ComponentKey.Warn) {
+        interaction.client.logger.warn(
+          { interaction },
+          'Component interaction with customId of ComponentKey.Warn recieved',
+        );
+      }
+      return;
+    }
+
+    const component = this.#activeComponents.get(split.instance);
+    if (!component) {
+      // the component is too old and has timed out of the cache
+      await interaction.reply({
+        content: 'Oops! This component has timed out. Try running the command again.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const predicate = component.checkPredicate(interaction);
+    if (predicate.status !== Predicate.Allow) {
+      await predicate.callback(interaction);
+      return;
+    }
+
+    await component.execute(interaction);
   }
 }
 

@@ -4,7 +4,6 @@ import type {
   APIApplicationCommandSubcommandGroupOption,
   APIApplicationCommandSubcommandOption,
   AutocompleteInteraction,
-  CacheType,
   ChatInputCommandInteraction,
   Client,
   ContextMenuCommandInteraction,
@@ -15,16 +14,7 @@ import type {
   User,
 } from 'discord.js';
 import { type Serializable, SerializableMap } from './serializableMap.js';
-
-/**
- * The response from a command predicate.
- *
- * A response of Deny will block the command from being run, while a response of Allow will permit its execution.
- */
-export enum Predicate {
-  Deny,
-  Allow,
-}
+import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
 
 export class UnimplementedError extends TypeError {
   constructor(message: string, options?: ErrorOptions) {
@@ -92,7 +82,7 @@ export class AutocompleteIndex implements Serializable {
         data.options.getSubcommandGroup(false),
         data.options.getSubcommand(false),
       ];
-      this.autocompleteName = data.options.getFocused();
+      this.autocompleteName = data.options.getFocused(true).name;
     }
 
     // TODO: modern versions of TS should allow this typedef to be inferred inline safely
@@ -111,59 +101,48 @@ export class AutocompleteIndex implements Serializable {
 }
 
 type CommandExecutableFunction = (args: {
-  interaction: ChatInputCommandInteraction;
+  interaction: ChatInputCommandInteraction<'cached'>;
   client: Client;
 }) => Promise<void> | void;
 
 type ContextCommandExecutableFunction = (args: {
-  interaction: ContextMenuCommandInteraction;
+  interaction: ContextMenuCommandInteraction<'cached'>;
   client: Client;
 }) => Promise<void> | void;
 
 type AutocompleteFunction = (args: {
-  interaction: AutocompleteInteraction;
+  interaction: AutocompleteInteraction<'cached'>;
   client: Client;
 }) => Promise<void> | void;
 
 type CommandMap<V> = SerializableMap<CommandIndex, V>;
 type AutocompleteMap<V> = SerializableMap<AutocompleteIndex, V>;
 
-/**
- * A callback to be run after a predicate check is denied.
- * This is intended for logging the attempt, if necessary, and for responding to the user running the command.
- */
-type InvalidPredicateCallback = (
-  interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction,
-) => Promise<void>;
-
-/**
- * The result of a predicate check.
- * `status` indicates whether the predicate allows or denies the command's execution.
- * If `status` is `Deny`, `callback` should be called to send a reply to the user.
- */
-type PredicateCheck =
-  | { status: Predicate.Allow }
-  | {
-      status: Predicate.Deny;
-      callback: InvalidPredicateCallback;
-    };
-
-export interface PredicateConfig {
+export interface CommandPredicateConfig {
   validate: (user: User) => Predicate;
-  invalidCallback: InvalidPredicateCallback;
+  invalidCallback: InvalidPredicateCallback<
+    ChatInputCommandInteraction | ContextMenuCommandInteraction
+  >;
 }
+
+type CommandPredicateCheck = PredicateCheck<
+  ChatInputCommandInteraction | ContextMenuCommandInteraction
+>;
 
 export abstract class Command {
   public abstract readonly data: RESTPostAPIApplicationCommandsJSONBody;
   public abstract readonly permitGlobalDeployment: boolean;
   public abstract execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction,
+    interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
   ): Promise<void>;
 
-  public abstract checkPredicate(index: CommandIndex, user: User): PredicateCheck;
+  public abstract checkPredicate(index: CommandIndex, user: User): CommandPredicateCheck;
 
-  protected evaluatePredicate(predicate: PredicateConfig | null, user: User): PredicateCheck {
+  protected evaluatePredicate(
+    predicate: CommandPredicateConfig | null,
+    user: User,
+  ): CommandPredicateCheck {
     if (!predicate) return { status: Predicate.Allow };
 
     const status = predicate.validate(user);
@@ -177,16 +156,19 @@ export abstract class Command {
 export abstract class SlashCommand extends Command {
   public abstract execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction,
+    interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void>;
 
   public abstract autocomplete(
     index: AutocompleteIndex,
-    interaction: AutocompleteInteraction,
+    interaction: AutocompleteInteraction<'cached'>,
   ): Promise<void>;
 }
 
-type BasicSlashCommandData = Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'> & {
+type BasicSlashCommandData = Omit<
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+  'options' | 'dm_permission'
+> & {
   options?: APIApplicationCommandBasicOption[];
 };
 
@@ -195,7 +177,7 @@ class BasicSlashCommand extends SlashCommand {
 
   constructor(
     data: BasicSlashCommandData,
-    private predicate: PredicateConfig | null,
+    private predicate: CommandPredicateConfig | null,
     public readonly permitGlobalDeployment: boolean,
     private executables: {
       execute: CommandExecutableFunction;
@@ -203,7 +185,7 @@ class BasicSlashCommand extends SlashCommand {
     },
   ) {
     super();
-    this.data = data;
+    this.data = { ...data, dm_permission: false };
   }
 
   public checkPredicate(_idx: CommandIndex, user: User) {
@@ -212,14 +194,14 @@ class BasicSlashCommand extends SlashCommand {
 
   public async execute(
     _idx: CommandIndex,
-    interaction: ChatInputCommandInteraction<CacheType>,
+    interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void> {
     await this.executables.execute({ interaction, client: interaction.client });
   }
 
   public async autocomplete(
     idx: AutocompleteIndex,
-    interaction: AutocompleteInteraction<CacheType>,
+    interaction: AutocompleteInteraction<'cached'>,
   ): Promise<void> {
     const autocomplete = this.executables.autocomplete.get(idx);
     if (!autocomplete) {
@@ -237,11 +219,11 @@ class ParentSlashCommand extends SlashCommand {
   // It is likely that at runtime the CommandMap will include SlashSubcommands in their entirety; this is acceptable.
   private subcommandMap: CommandMap<Omit<SlashSubcommand, 'predicate'>> = new SerializableMap();
   private autocompleteMap: AutocompleteMap<AutocompleteFunction> = new SerializableMap();
-  private predicateMap: CommandMap<PredicateConfig | null> = new SerializableMap();
+  private predicateMap: CommandMap<CommandPredicateConfig | null> = new SerializableMap();
 
   constructor(
     baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>,
-    commandPredicate: PredicateConfig | null,
+    commandPredicate: CommandPredicateConfig | null,
     public readonly permitGlobalDeployment: boolean,
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
   ) {
@@ -251,7 +233,7 @@ class ParentSlashCommand extends SlashCommand {
       throw new Error('A parent slash command must have at least one child subcommand or group.');
     }
 
-    this.data = baseData;
+    this.data = { ...baseData, dm_permission: false };
     this.data.options = [];
 
     for (const subcommand of options.subcommands) {
@@ -290,7 +272,7 @@ class ParentSlashCommand extends SlashCommand {
 
   public async execute(
     index: CommandIndex,
-    interaction: ChatInputCommandInteraction<CacheType>,
+    interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void> {
     const command = this.subcommandMap.get(index);
     if (!command) {
@@ -301,7 +283,7 @@ class ParentSlashCommand extends SlashCommand {
 
   public async autocomplete(
     idx: AutocompleteIndex,
-    interaction: AutocompleteInteraction<CacheType>,
+    interaction: AutocompleteInteraction<'cached'>,
   ): Promise<void> {
     const autocomplete = this.autocompleteMap.get(idx);
     if (!autocomplete) {
@@ -318,7 +300,7 @@ export class SlashSubcommand {
 
   constructor(
     public readonly data: APIApplicationCommandSubcommandOption,
-    public readonly predicate: PredicateConfig | null,
+    public readonly predicate: CommandPredicateConfig | null,
     executables: { execute: CommandExecutableFunction; autocomplete?: AutocompleteFunction },
   ) {
     this.execute = executables.execute;
@@ -330,7 +312,7 @@ export class SlashSubcommandGroup {
   constructor(
     public readonly data: APIApplicationCommandSubcommandGroupOption,
     public readonly subcommands: SlashSubcommand[],
-    public readonly predicate: PredicateConfig | null,
+    public readonly predicate: CommandPredicateConfig | null,
   ) {
     if (subcommands.length < 1) {
       throw new Error('A slash command subcommand group must have at least one child subcommand.');
@@ -341,21 +323,27 @@ export class SlashSubcommandGroup {
 export const command = {
   basic: function (args: {
     data: BasicSlashCommandData;
-    predicate?: PredicateConfig;
+    predicate?: CommandPredicateConfig;
     execute: CommandExecutableFunction;
-    autocomplete?: AutocompleteMap<AutocompleteFunction>;
+    autocomplete?: Record<string, AutocompleteFunction>;
     developmentOnly?: boolean;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
 
+    const autocompleteMap: AutocompleteMap<AutocompleteFunction> = new SerializableMap();
+    for (const name in args.autocomplete) {
+      const fn = args.autocomplete[name];
+      autocompleteMap.set(new AutocompleteIndex([args.data.name], name), fn);
+    }
+
     return new BasicSlashCommand(args.data, predicate, !args.developmentOnly, {
       execute: args.execute,
-      autocomplete: args.autocomplete ?? new SerializableMap(),
+      autocomplete: autocompleteMap,
     });
   },
   parent: function (args: {
     data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>;
-    predicate?: PredicateConfig;
+    predicate?: CommandPredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];
     developmentOnly?: boolean;
@@ -369,7 +357,7 @@ export const command = {
 
 export function subcommand(args: {
   data: APIApplicationCommandSubcommandOption;
-  predicate?: PredicateConfig;
+  predicate?: CommandPredicateConfig;
   execute: CommandExecutableFunction;
   autocomplete?: AutocompleteFunction;
 }): SlashSubcommand {
@@ -381,7 +369,7 @@ export function subcommand(args: {
 
 export function subcommandGroup(args: {
   data: APIApplicationCommandSubcommandGroupOption;
-  predicate?: PredicateConfig;
+  predicate?: CommandPredicateConfig;
   subcommands: SlashSubcommand[];
 }): SlashSubcommandGroup {
   return new SlashSubcommandGroup(args.data, args.subcommands, args.predicate ?? null);
@@ -402,7 +390,7 @@ export class ContextCommand extends Command {
 
   constructor(
     data: RESTPostAPIContextMenuApplicationCommandsJSONBody,
-    private predicate: PredicateConfig | null,
+    private predicate: CommandPredicateConfig | null,
     public readonly permitGlobalDeployment: boolean,
     private executeFn: ContextCommandExecutableFunction,
   ) {
@@ -416,7 +404,7 @@ export class ContextCommand extends Command {
 
   public async execute(
     _idx: CommandIndex,
-    interaction: ContextMenuCommandInteraction<CacheType>,
+    interaction: ContextMenuCommandInteraction<'cached'>,
   ): Promise<void> {
     await this.executeFn({ interaction, client: interaction.client });
   }
@@ -426,7 +414,7 @@ function contextConstructor(type: ApplicationCommandType.User | ApplicationComma
   return function (args: {
     data: Omit<RESTPostAPIContextMenuApplicationCommandsJSONBody, 'type'>;
     execute: ContextCommandExecutableFunction;
-    predicate?: PredicateConfig;
+    predicate?: CommandPredicateConfig;
     developmentOnly?: boolean;
   }) {
     const predicate = args.predicate ?? null;
