@@ -1,14 +1,14 @@
-FROM node:18 as base
+FROM node:18 AS base
 WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY .swcrc ./
 
-FROM base as builder
+FROM base AS builder
 COPY src /usr/src/app/src
 RUN npm run build
 
-FROM node:18-slim as production
+FROM node:18-slim AS production
 ENV NODE_ENV production
 USER node
 WORKDIR /usr/src/app

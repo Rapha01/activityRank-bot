@@ -1,26 +1,31 @@
-import { registerSlashCommand } from 'bot/util/commandLoader.js';
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { command } from 'bot/util/registry/command.js';
+import { EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import { getTexts } from 'models/managerDb/textModel.js';
 import type { TextsFaqs } from 'models/types/external.js';
 
-registerSlashCommand({
-  data: new SlashCommandBuilder()
-    .setName('faq')
-    .setDescription('Displays the FAQ')
-    .addIntegerOption((o) =>
-      o.setName('number').setDescription('The specific FAQ to show').setAutocomplete(true),
-    ),
-  execute: async function (interaction) {
+export default command.basic({
+  data: {
+    name: 'faq',
+    description: 'Display a list of Frequently Asked Questions',
+    options: [
+      {
+        name: 'number',
+        description: 'The specific FAQ to show',
+        autocomplete: true,
+        type: ApplicationCommandOptionType.Integer,
+        min_value: 1,
+        max_value: 50,
+      },
+    ],
+  },
+  async execute({ interaction }) {
     const faq = interaction.options.getInteger('number');
     const { faqs } = await getTexts();
 
-    if (!faq) return await interaction.reply({ embeds: [faqReducedEmbed(faqs)] });
-
-    if (faq < 1 || faq > 100)
-      return await interaction.reply({
-        content: 'The FAQ must be within 1 and 100.',
-        ephemeral: true,
-      });
+    if (!faq) {
+      await interaction.reply({ embeds: [faqReducedEmbed(faqs)] });
+      return;
+    }
 
     const item = faqs.find((o) => o.id == faq);
     const embed = new EmbedBuilder().setTitle(`**ActivityRank FAQ #${faq}**`).setColor(0x00ae86);
@@ -42,17 +47,19 @@ registerSlashCommand({
 
     await interaction.reply({ embeds: [embed] });
   },
-  executeAutocomplete: async function (interaction) {
-    const { faqs } = await getTexts();
+  autocomplete: {
+    async number({ interaction }) {
+      const { faqs } = await getTexts();
 
-    const focused = interaction.options.getFocused();
+      const focused = interaction.options.getFocused();
 
-    interaction.respond(
-      faqs
-        .filter((faq) => faq.title.includes(focused) || focused.includes(faq.id.toString()))
-        .map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id }))
-        .slice(0, 20),
-    );
+      interaction.respond(
+        faqs
+          .filter((faq) => faq.title.includes(focused) || focused.includes(faq.id.toString()))
+          .map((o) => ({ name: `#${o.id}: ${o.title}`, value: o.id }))
+          .slice(0, 20),
+      );
+    },
   },
 });
 

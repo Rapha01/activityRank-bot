@@ -1,5 +1,4 @@
 import {
-  SlashCommandBuilder,
   EmbedBuilder,
   ButtonStyle,
   RESTJSONErrorCodes,
@@ -24,9 +23,12 @@ import {
 } from 'bot/models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
-import { ComponentKey, registerComponent, registerSlashCommand } from 'bot/util/commandLoader.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
 import type { Guild as DBGuild } from 'models/types/kysely/shard.js';
+import { command } from 'bot/util/registry/command.js';
+import { ApplicationCommandOptionType } from 'discord.js';
+import { component, ComponentKey } from 'bot/util/registry/component.js';
+import { requireUserId } from 'bot/util/predicates.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
@@ -37,44 +39,54 @@ interface CacheInstance {
   interaction: ChatInputCommandInteraction<'cached'>;
 }
 
-export const activeCache = new Map();
+const activeCache = new Map();
 
-registerSlashCommand({
-  data: new SlashCommandBuilder()
-    .setName('rank')
-    .setDescription("Find your or another member's rank")
-    .addUserOption((o) => o.setName('member').setDescription('The member to check the rank of')),
-  execute: async function (i) {
-    await i.deferReply();
+export default command.basic({
+  data: {
+    name: 'rank',
+    description: "Find your or another member's rank",
+    options: [
+      {
+        name: 'member',
+        description: 'The member to check the rank of',
+        type: ApplicationCommandOptionType.User,
+      },
+    ],
+  },
+  async execute({ interaction, client }) {
+    await interaction.deferReply();
 
-    if (!(await cooldownUtil.checkStatCommandsCooldown(i))) return;
+    if (!(await cooldownUtil.checkStatCommandsCooldown(interaction))) return;
 
-    const cachedGuild = await getGuildModel(i.guild);
+    const cachedGuild = await getGuildModel(interaction.guild);
     const myGuild = await cachedGuild.fetch();
 
-    const targetUser = i.options.getUser('member') ?? i.user;
+    const targetUser = interaction.options.getUser('member') ?? interaction.user;
 
     const initialState: CacheInstance = {
       window: 'rank',
       time: 'Alltime',
-      owner: i.member.id,
+      owner: interaction.member.id,
       targetUser,
       page: 1,
-      interaction: i,
+      interaction,
     };
 
-    const { id } = await i.editReply(await generateCard(initialState, i.guild, myGuild));
+    const { id } = await interaction.editReply(
+      await generateCard(initialState, interaction.guild, myGuild),
+    );
 
     const cleanCache = async () => {
       const state = activeCache.get(id);
       activeCache.delete(id);
-      if (!i.guild) return i.client.logger.debug({ i }, '/rank tried to update uncached guild');
+      if (!interaction.guild)
+        return client.logger.debug({ interaction }, '/rank tried to update uncached guild');
       try {
-        await i.editReply(await generateCard(state, i.guild, myGuild, true));
+        await interaction.editReply(await generateCard(state, interaction.guild, myGuild, true));
       } catch (_err) {
         const err = _err as DiscordAPIError;
         if (err.code === RESTJSONErrorCodes.UnknownMessage)
-          i.client.logger.debug({ i }, '/rank tried to update Unknown message');
+          client.logger.debug({ interaction }, '/rank tried to update unknown message');
         else throw err;
       }
     };
@@ -84,24 +96,21 @@ registerSlashCommand({
   },
 });
 
-const pageId = registerComponent<{ page: number }>({
-  identifier: 'rank.page',
+const pageButton = component<{ page: number }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     await execCacheSet(interaction, 'page', data.page);
   },
 });
 
-const windowId = registerComponent<CacheInstance['window']>({
-  identifier: 'rank.window',
+const windowButton = component<CacheInstance['window']>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     await execCacheSet(interaction, 'window', data);
   },
 });
 
-const timeId = registerComponent({
-  identifier: 'rank.time',
+const timeSelect = component({
   type: ComponentType.StringSelect,
   async callback({ interaction }) {
     const time = interaction.values[0];
@@ -209,7 +218,10 @@ function getPaginationComponents(
       {
         type: ComponentType.Button,
         emoji: '⬅',
-        customId: pageId({ page: state.page - 1 }, { ownerId: state.owner }),
+        customId: pageButton.instanceId({
+          data: { page: state.page - 1 },
+          predicate: requireUserId(state.owner),
+        }),
         style: ButtonStyle.Secondary,
         disabled: state.page <= 1 || disabled,
       },
@@ -223,9 +235,12 @@ function getPaginationComponents(
       {
         type: ComponentType.Button,
         emoji: '➡️',
-        customId: pageId({ page: state.page + 1 }, { ownerId: state.owner }),
+        customId: pageButton.instanceId({
+          data: { page: state.page + 1 },
+          predicate: requireUserId(state.owner),
+        }),
         style: ButtonStyle.Secondary,
-        disabled: disabled,
+        disabled,
       },
     ],
   };
@@ -327,37 +342,30 @@ function getGlobalComponents(
   state: CacheInstance,
   disabled: boolean,
 ): ActionRowData<MessageActionRowComponentData>[] {
+  const component = (id: 'rank' | 'topChannels', label: string): MessageActionRowComponentData => ({
+    type: ComponentType.Button,
+    style: state.window === id ? ButtonStyle.Primary : ButtonStyle.Secondary,
+    disabled: disabled || state.window === id,
+    customId: windowButton.instanceId({ data: id, predicate: requireUserId(state.owner) }),
+    label,
+  });
+
   return [
     {
       type: ComponentType.ActionRow,
-      components: [
-        {
-          type: ComponentType.Button,
-          style: state.window === 'rank' ? ButtonStyle.Primary : ButtonStyle.Secondary,
-          disabled: disabled || state.window === 'rank',
-          customId: windowId('rank', { ownerId: state.owner }),
-          label: 'Stats',
-        },
-        {
-          type: ComponentType.Button,
-          style: state.window === 'topChannels' ? ButtonStyle.Primary : ButtonStyle.Secondary,
-          disabled: disabled || state.window === 'topChannels',
-          customId: windowId('topChannels', { ownerId: state.owner }),
-          label: 'Top Channels',
-        },
-      ],
+      components: [component('rank', 'Stats'), component('topChannels', 'Top Channels')],
     },
     {
       type: ComponentType.ActionRow,
       components: [
         {
           type: ComponentType.StringSelect,
-          customId: timeId(null, { ownerId: state.owner }),
+          customId: timeSelect.instanceId({ predicate: requireUserId(state.owner) }),
           disabled,
-          options: statTimeIntervals.map((i) => ({
-            label: i,
-            value: i,
-            default: state.time === i,
+          options: statTimeIntervals.map((interval) => ({
+            label: interval,
+            value: interval,
+            default: state.time === interval,
           })),
         },
       ],
@@ -434,5 +442,3 @@ function getTypes(
     | 'totalScore'
   )[];
 }
-
-export default { activeCache };

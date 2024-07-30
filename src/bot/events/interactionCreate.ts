@@ -38,6 +38,13 @@ export default event(Events.InteractionCreate, async function (interaction) {
       throw new Error('Interaction recieved outside of cached guild.');
 
     if (interaction.isAutocomplete()) {
+      try {
+        await registry.handleAutocomplete(interaction);
+        return;
+      } catch (e) {
+        if (!(e instanceof CommandNotFoundError)) throw e;
+      }
+
       const ref = commandMap.get(getCommandId(interaction));
 
       if (ref) {
@@ -92,8 +99,11 @@ export default event(Events.InteractionCreate, async function (interaction) {
       return;
     }
 
-    // TODO: refactor to clean up
     if (interaction.isMessageComponent()) {
+      if (registry.managesComponent(interaction)) {
+        await registry.handleComponent(interaction);
+        return;
+      }
       const [version, identifier, instance] = interaction.customId.split('.');
       if (identifier === ComponentKey.Ignore || version === ComponentKey.Ignore) return;
       if (identifier === ComponentKey.Throw) throw new Error('should never occur');
