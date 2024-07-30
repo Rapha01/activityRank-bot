@@ -7,65 +7,60 @@ import type {
   StringSelectMenuInteraction,
   UserSelectMenuInteraction,
   MessageComponentInteraction,
+  ModalSubmitInteraction,
 } from 'discord.js';
 import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
 import { nanoid } from 'nanoid';
 import { registry } from './registry.js';
 
-export interface ComponentPredicateConfig {
-  validate: (interaction: MessageComponentInteraction) => Predicate;
-  invalidCallback: InvalidPredicateCallback<MessageComponentInteraction>;
+interface PredicateConfig<I extends ComponentInteraction> {
+  validate: (interaction: I) => Predicate;
+  invalidCallback: InvalidPredicateCallback<I>;
 }
 
-type ComponentPredicateCheck = PredicateCheck<MessageComponentInteraction>;
+export type ComponentInteraction =
+  | MessageComponentInteraction<'cached'>
+  | ModalSubmitInteraction<'cached'>;
 
-export type ComponentCallback<
-  TInteraction extends MessageComponentInteraction<'cached'>,
-  TData extends unknown,
-> = (args: { interaction: TInteraction; data: TData; drop: () => void }) => Promise<void> | void;
+type ComponentPredicateConfig = PredicateConfig<ComponentInteraction>;
+type ComponentPredicateCheck = PredicateCheck<ComponentInteraction>;
 
-export class ComponentInstance<D extends unknown> {
+type ComponentCallback<TInteraction extends ComponentInteraction, TData extends unknown> = (args: {
+  interaction: TInteraction;
+  data: TData;
+  drop: () => void;
+}) => Promise<void> | void;
+
+export abstract class ComponentInstance<I extends ComponentInteraction, D> {
   public readonly identifier: string;
 
   constructor(
-    private readonly parent: Component<D>,
-    public readonly data: unknown,
-    public readonly predicate: ComponentPredicateConfig | null,
+    protected readonly parent: Component<I, D>,
+    public readonly data: D,
   ) {
     this.identifier = nanoid(20);
     registry.registerComponentInstance(this);
   }
 
-  public checkPredicate(interaction: MessageComponentInteraction): ComponentPredicateCheck {
-    if (!this.predicate) return { status: Predicate.Allow };
+  public abstract checkPredicate(
+    interaction: MessageComponentInteraction | ModalSubmitInteraction,
+  ): ComponentPredicateCheck;
 
-    const status = this.predicate.validate(interaction);
+  public abstract execute(
+    interaction: MessageComponentInteraction | ModalSubmitInteraction,
+  ): Promise<void>;
 
-    return status === Predicate.Allow
-      ? { status }
-      : { status, callback: this.predicate.invalidCallback };
-  }
-
-  // this needs to be an arrow function because the scope of `this` is lost (and evaluates to `undefined`) in normal methods.
+  // drop() needs to be an arrow function because the scope of `this` is lost (and evaluates to `undefined`) in normal methods.
   public drop = () => {
     registry.dropComponentInstance(this);
   };
-
-  async execute(interaction: MessageComponentInteraction<'cached'>): Promise<void> {
-    await this.parent.callback({
-      interaction,
-      data: this.data,
-      drop: this.drop,
-    });
-  }
 }
 
-export class Component<D extends unknown> {
+export abstract class Component<I extends ComponentInteraction, D> {
   public readonly identifier: string;
-  constructor(
-    public readonly componentType: ComponentType,
-    public readonly callback: ComponentCallback<MessageComponentInteraction<'cached'>, any>,
-  ) {
+  public abstract readonly callback: ComponentCallback<I, any>;
+
+  constructor() {
     this.identifier = nanoid(20);
     registry.registerComponent(this);
   }
@@ -75,21 +70,14 @@ export class Component<D extends unknown> {
    * @param data The data to store in this component
    * @returns {string} a customId to use in the component.
    */
-  public instanceId(
+  public abstract instanceId(
     args: D extends void
-      ? { predicate?: ComponentPredicateConfig }
-      : { data: D; predicate?: ComponentPredicateConfig },
-  ): string {
-    const component = new ComponentInstance<D>(
-      this,
-      'data' in args ? args.data : undefined,
-      args?.predicate ?? null,
-    );
-    return this.constructCustomId(component.identifier);
-  }
+      ? { predicate?: PredicateConfig<I> }
+      : { data: D; predicate?: PredicateConfig<I> },
+  ): string;
 
-  private constructCustomId(instance: string): string {
-    return Component.constructCustomId(this.identifier, instance);
+  protected constructCustomId(instanceIdentifier: string): string {
+    return Component.constructCustomId(this.identifier, instanceIdentifier);
   }
 
   static COMPONENT_VERSION = '1.0';
@@ -128,30 +116,132 @@ export enum ComponentKey {
   Ignore = '__IGNORE_IF_PRESSED__',
 }
 
+class MessageComponentInstance<
+  I extends MessageComponentInteraction<'cached'>,
+  D,
+> extends ComponentInstance<I, D> {
+  constructor(
+    parent: Component<I, D>,
+    data: D,
+    public readonly predicate: ComponentPredicateConfig | null,
+  ) {
+    super(parent, data);
+  }
+
+  public checkPredicate(
+    interaction: MessageComponentInteraction<'cached'>,
+  ): ComponentPredicateCheck {
+    if (!this.predicate) return { status: Predicate.Allow };
+
+    const status = this.predicate.validate(interaction);
+
+    return status === Predicate.Allow
+      ? { status }
+      : { status, callback: this.predicate.invalidCallback };
+  }
+
+  public async execute(interaction: I): Promise<void> {
+    await this.parent.callback({
+      interaction,
+      data: this.data,
+      drop: this.drop,
+    });
+  }
+}
+
+class ModalComponentInstance<
+  I extends ModalSubmitInteraction<'cached'>,
+  D,
+> extends ComponentInstance<I, D> {
+  constructor(
+    parent: Component<I, D>,
+    data: D,
+    public readonly predicate: ComponentPredicateConfig | null,
+  ) {
+    super(parent, data);
+  }
+
+  public checkPredicate(interaction: ModalSubmitInteraction<'cached'>): ComponentPredicateCheck {
+    if (!this.predicate) return { status: Predicate.Allow };
+
+    const status = this.predicate.validate(interaction);
+
+    return status === Predicate.Allow
+      ? { status }
+      : { status, callback: this.predicate.invalidCallback };
+  }
+
+  public async execute(interaction: I): Promise<void> {
+    await this.parent.callback({
+      interaction,
+      data: this.data,
+      drop: this.drop,
+    });
+  }
+}
+
+class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> extends Component<I, D> {
+  constructor(public readonly callback: ComponentCallback<I, any>) {
+    super();
+  }
+
+  public instanceId(
+    args: D extends void
+      ? { predicate?: ComponentPredicateConfig }
+      : { data: D; predicate?: ComponentPredicateConfig },
+  ): string {
+    const component = new MessageComponentInstance(
+      this,
+      'data' in args ? args.data : undefined,
+      args?.predicate ?? null,
+    );
+    return this.constructCustomId(component.identifier);
+  }
+}
+
+class ModalComponent<I extends ModalSubmitInteraction<'cached'>, D> extends Component<I, D> {
+  constructor(public readonly callback: ComponentCallback<I, any>) {
+    super();
+  }
+
+  public instanceId(
+    args: D extends void
+      ? { predicate?: ComponentPredicateConfig }
+      : { data: D; predicate?: ComponentPredicateConfig },
+  ): string {
+    const component = new ModalComponentInstance(
+      this,
+      'data' in args ? args.data : undefined,
+      args?.predicate ?? null,
+    );
+    return this.constructCustomId(component.identifier);
+  }
+}
+
 export function component<D extends unknown = void>(args: {
   type: ComponentType.Button;
   callback: ComponentCallback<ButtonInteraction<'cached'>, D>;
-}): Component<D>;
+}): Component<ButtonInteraction<'cached'>, D>;
 export function component<D extends unknown = void>(args: {
   type: ComponentType.ChannelSelect;
   callback: ComponentCallback<ChannelSelectMenuInteraction<'cached'>, D>;
-}): Component<D>;
+}): Component<ChannelSelectMenuInteraction<'cached'>, D>;
 export function component<D extends unknown = void>(args: {
   type: ComponentType.MentionableSelect;
   callback: ComponentCallback<MentionableSelectMenuInteraction<'cached'>, D>;
-}): Component<D>;
+}): Component<MentionableSelectMenuInteraction<'cached'>, D>;
 export function component<D extends unknown = void>(args: {
   type: ComponentType.RoleSelect;
   callback: ComponentCallback<RoleSelectMenuInteraction<'cached'>, D>;
-}): Component<D>;
+}): Component<RoleSelectMenuInteraction<'cached'>, D>;
 export function component<D extends unknown = void>(args: {
   type: ComponentType.StringSelect;
   callback: ComponentCallback<StringSelectMenuInteraction<'cached'>, D>;
-}): Component<D>;
+}): Component<StringSelectMenuInteraction<'cached'>, D>;
 export function component<D extends unknown = void>(args: {
   type: ComponentType.UserSelect;
   callback: ComponentCallback<UserSelectMenuInteraction<'cached'>, D>;
-}): Component<D>;
+}): Component<UserSelectMenuInteraction<'cached'>, D>;
 
 export function component<D extends unknown = void>(args: {
   type: ComponentType;
@@ -162,11 +252,16 @@ export function component<D extends unknown = void>(args: {
     | ComponentCallback<RoleSelectMenuInteraction<'cached'>, D>
     | ComponentCallback<StringSelectMenuInteraction<'cached'>, D>
     | ComponentCallback<UserSelectMenuInteraction<'cached'>, D>;
-}): Component<D> {
+}): Component<MessageComponentInteraction<'cached'>, D> {
   // Type-checking is only needed for the function, not the Component class constructor;
   // therefore this coersion is safe.
-  return new Component(
-    args.type,
+  return new MessageComponent(
     args.callback as ComponentCallback<MessageComponentInteraction<'cached'>, D>,
   );
+}
+
+export function modal<D extends unknown = void>(args: {
+  callback: ComponentCallback<ModalSubmitInteraction<'cached'>, D>;
+}) {
+  return new ModalComponent(args.callback);
 }

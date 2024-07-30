@@ -140,6 +140,11 @@ export default event(Events.InteractionCreate, async function (interaction) {
         );
       }
     } else if (interaction.isModalSubmit()) {
+      if (registry.managesComponent(interaction)) {
+        await registry.handleComponent(interaction);
+        return;
+      }
+
       const [version, identifier, instance] = interaction.customId.split('.');
       const ref = modalMap.get(identifier);
       if (version !== INTERACTION_MAP_VERSION) {
