@@ -222,7 +222,7 @@ class ParentSlashCommand extends SlashCommand {
   private predicateMap: CommandMap<CommandPredicateConfig | null> = new SerializableMap();
 
   constructor(
-    baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>,
+    baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options' | 'dm_permission'>,
     commandPredicate: CommandPredicateConfig | null,
     public readonly permitGlobalDeployment: boolean,
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
@@ -342,7 +342,7 @@ export const command = {
     });
   },
   parent: function (args: {
-    data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>;
+    data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options' | 'dm_permission'>;
     predicate?: CommandPredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];

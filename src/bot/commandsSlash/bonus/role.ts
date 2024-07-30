@@ -4,6 +4,7 @@ import {
   PermissionFlagsBits,
   Events,
   GatewayOpcodes,
+  ApplicationCommandOptionType,
   type ChatInputCommandInteraction,
   type Role,
   type Client,
@@ -12,17 +13,47 @@ import {
   type Guild,
 } from 'discord.js';
 import { DiscordSnowflake } from '@sapphire/snowflake';
-import { registerSubCommand } from 'bot/util/commandLoader.js';
+import { subcommand } from 'bot/util/registry/command.js';
+import { Time } from '@sapphire/duration';
+
 export const currentJobs = new Set();
 
-registerSubCommand({
-  name: 'role',
-  execute: async (interaction) => {
+export const role = subcommand({
+  data: {
+    name: 'role',
+    description: 'Change the bonus XP of all members with a given role',
+    type: ApplicationCommandOptionType.Subcommand,
+    options: [
+      {
+        name: 'role',
+        description: 'The role to modify',
+        required: true,
+        type: ApplicationCommandOptionType.Role,
+      },
+      {
+        name: 'change',
+        description:
+          'The amount of XP to give to each member with the role. This option may be negative.',
+        min_value: -1_000_000,
+        max_value: 1_000_000,
+        type: ApplicationCommandOptionType.Integer,
+        required: true,
+      },
+      {
+        name: 'use-beta',
+        description:
+          'Enables the beta method of giving bonus to roles. Warning: will not send levelUpMessages',
+        type: ApplicationCommandOptionType.Boolean,
+      },
+    ],
+  },
+  async execute({ interaction, client }) {
     if (currentJobs.has(interaction.guild.id)) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'This server already has a mass role operation running.',
         ephemeral: true,
       });
+      return;
     }
 
     const role = interaction.options.getRole('role', true);
@@ -30,10 +61,12 @@ registerSubCommand({
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      // TODO: remove this check in favour of native solution
+      await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',
         ephemeral: true,
       });
+      return;
     }
 
     const change = interaction.options.getInteger('change', true);
@@ -41,18 +74,15 @@ registerSubCommand({
     currentJobs.add(interaction.guild.id);
     // backup removes after 1h
     const clean = () => {
-      let rm;
-      try {
-        rm = currentJobs.delete(interaction.guild.id);
-      } catch (e) {
-        interaction.client.logger.debug('Guild left before bonus role job sweep');
-      }
-      if (rm)
-        interaction.client.logger.warn(
+      if (currentJobs.delete(interaction.guild.id)) {
+        client.logger.warn(
           `role bonus job removed during sweep from guild ${interaction.guild.id}`,
         );
+      } else {
+        client.logger.debug(`Guild ${interaction.guild.id} left before bonus role job sweep`);
+      }
     };
-    setTimeout(clean, 36e5);
+    setTimeout(clean, Time.Hour);
 
     if (interaction.options.getBoolean('use-beta'))
       return await betaSystem(interaction, role, change);
@@ -67,9 +97,7 @@ async function oldSystem(
 ) {
   await interaction.deferReply();
 
-  const members = await interaction.guild.members.fetch({
-    withPresences: false,
-  });
+  const members = await interaction.guild.members.fetch({ withPresences: false });
 
   interaction.client.logger.debug(`Old role give to ${members.size} members`);
 
@@ -79,13 +107,13 @@ async function oldSystem(
   });
 
   let affected = 0;
-  for (const _member of members) {
-    const member = _member[1];
+  for (const member of members.values()) {
     if (member.roles.cache.has(role.id)) {
       await statFlushCache.addBonus(member, changeAmount);
       affected++;
     }
   }
+
   currentJobs.delete(interaction.guild.id);
 
   interaction.client.logger.debug(`Old role give affected ${affected} members`);
@@ -238,5 +266,3 @@ function progressBar(index: number, max: number, len = 40) {
     Math.round(fraction * 1_000) / 10
   }%`;
 }
-
-export default { currentJobs };

@@ -14,7 +14,6 @@ export default command.basic({
     name: 'reset-jobs',
     description: 'Check the status of active reset jobs',
     default_member_permissions: permissions(permissions.ModerateMembers),
-    dm_permission: false,
     options: [
       {
         name: 'full',

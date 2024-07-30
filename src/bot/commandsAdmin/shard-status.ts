@@ -20,7 +20,6 @@ export default command.basic({
     name: 'shard-status',
     description: 'Check the status of each shard.',
     default_member_permissions: permissions(permissions.ModerateMembers),
-    dm_permission: false,
     options: [
       {
         name: 'full',

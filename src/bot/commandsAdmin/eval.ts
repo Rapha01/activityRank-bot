@@ -14,7 +14,6 @@ export default command.basic({
   data: {
     name: 'eval',
     description: "Evaluates an arbitrary script in the shard's environment.",
-    dm_permission: false,
     default_member_permissions: permissions(permissions.BanMembers),
     options: [
       {
