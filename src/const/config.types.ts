@@ -3,6 +3,7 @@ export interface ConfigInstance {
   supportServer: {
     id: string;
     invite: string;
+    supportHook: string;
     patreonRoles: { tier: number; id: string }[];
   };
   invite: {

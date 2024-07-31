@@ -13,18 +13,23 @@
       ]
     },
     "supportServer": {
-      "id": { "type": "string" },
-      "invite": { "type": "string" },
-      "patreonRoles": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": { "type": "string" },
-            "tier": { "type": "integer" }
+      "properties": {
+        "id": { "type": "string" },
+        "invite": { "type": "string" },
+        "supportHook": { "type": "string" },
+        "patreonRoles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "tier": { "type": "integer" }
+            }
           }
         }
-      }
+      },
+      "required": ["id", "invite"],
+      "additionalProperties": false
     },
     "invite": {
       "type": "object",
