@@ -1,15 +1,19 @@
 import {
   ButtonStyle,
-  EmbedBuilder,
   PermissionFlagsBits,
   ComponentType,
   type Interaction,
   type ButtonComponentData,
   type ActionRowData,
+  ApplicationCommandOptionType,
+  type APIEmbed,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { registerComponent, registerSubCommand } from 'bot/util/commandLoader.js';
+import { subcommand } from 'bot/util/registry/command.js';
+import { closeButton } from 'bot/util/component.js';
+import { requireUser } from 'bot/util/predicates.js';
+import { component } from 'bot/util/registry/component.js';
 
 type BooleanGuildKey =
   | 'showNicknames'
@@ -63,7 +67,10 @@ const generateRows = async (
         style: cachedGuild.db[item.key] === 1 ? ButtonStyle.Success : ButtonStyle.Danger,
         label: item.label,
         emoji: item.emoji,
-        customId: setId({ key: item.key }, { ownerId: interaction.user.id }),
+        customId: setButton.instanceId({
+          data: { key: item.key },
+          predicate: requireUser(interaction.user),
+        }),
       }),
     ),
   );
@@ -82,12 +89,7 @@ const generateRows = async (
   }
 
   return [
-    ...items.map(
-      (row): ActionRowData<ButtonComponentData> => ({
-        type: ComponentType.ActionRow,
-        components: row,
-      }),
-    ),
+    ...items.map((row) => ({ type: ComponentType.ActionRow, components: row })),
     {
       type: ComponentType.ActionRow,
       components: [
@@ -95,30 +97,36 @@ const generateRows = async (
           type: ComponentType.Button,
           style: ButtonStyle.Danger,
           label: 'Close',
-          customId: closeId(null, { ownerId: interaction.user.id }),
+          customId: closeButton.instanceId({ predicate: requireUser(interaction.user) }),
         },
       ],
     },
   ];
 };
 
-registerSubCommand({
-  async execute(interaction) {
+export const set = subcommand({
+  data: {
+    name: 'set',
+    description: 'Open a menu to configure server settings.',
+    type: ApplicationCommandOptionType.Subcommand,
+  },
+  async execute({ interaction }) {
     if (
       !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',
         ephemeral: true,
       });
+      return;
     }
 
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: 'Server Settings' })
-      .setColor(0x00ae86)
-      .addFields(
+    const embed: APIEmbed = {
+      author: { name: 'Server Settings' },
+      color: 0x00ae86,
+      fields: [
         {
           name: 'Use Nicknames',
           value:
@@ -172,7 +180,8 @@ registerSubCommand({
           These will enable or disable text, voice, invite, and upvoteXP respectively.
           You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`,
         },
-      );
+      ],
+    };
 
     await interaction.reply({
       embeds: [embed],
@@ -181,8 +190,7 @@ registerSubCommand({
   },
 });
 
-const setId = registerComponent<{ key: BooleanGuildKey }>({
-  identifier: 'config-server.set',
+const setButton = component<{ key: BooleanGuildKey }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     const cachedGuild = await getGuildModel(interaction.guild);
@@ -191,14 +199,5 @@ const setId = registerComponent<{ key: BooleanGuildKey }>({
     else await cachedGuild.upsert({ [data.key]: 1 });
 
     await interaction.update({ components: await generateRows(interaction) });
-  },
-});
-
-const closeId = registerComponent({
-  identifier: 'config-server.close',
-  type: ComponentType.Button,
-  async callback({ interaction }) {
-    await interaction.deferUpdate();
-    await interaction.deleteReply();
   },
 });

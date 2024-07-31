@@ -1,17 +1,33 @@
-import { PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { registerSubCommand } from 'bot/util/commandLoader.js';
+import { subcommand } from 'bot/util/registry/command.js';
 
-registerSubCommand({
-  async execute(interaction) {
+export const entriesPerPage = subcommand({
+  data: {
+    name: 'entries-per-page',
+    description: 'Set the number of entries per page in embeds sent by the bot.',
+    type: ApplicationCommandOptionType.Subcommand,
+    options: [
+      {
+        name: 'value',
+        description: 'The number of entries per page.',
+        type: ApplicationCommandOptionType.Integer,
+        min_value: 4,
+        max_value: 20,
+        required: true,
+      },
+    ],
+  },
+  async execute({ interaction }) {
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',
         ephemeral: true,
       });
+      return;
     }
 
     const entriesPerPage = interaction.options.getInteger('value', true);

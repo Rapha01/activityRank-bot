@@ -1,18 +1,36 @@
-import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { registerSubCommand } from 'bot/util/commandLoader.js';
 import { parseEmojiString } from 'bot/util/emoji.js';
+import { subcommand } from 'bot/util/registry/command.js';
 
-registerSubCommand({
-  async execute(interaction) {
+export const vote = subcommand({
+  data: {
+    name: 'vote',
+    description: 'Set your voteTag and emote.',
+    type: ApplicationCommandOptionType.Subcommand,
+    options: [
+      {
+        name: 'tag',
+        description: 'The voteTag to set.',
+        type: ApplicationCommandOptionType.String,
+      },
+      {
+        name: 'emote',
+        description: 'The voteEmote to set.',
+        type: ApplicationCommandOptionType.String,
+      },
+    ],
+  },
+  async execute({ interaction }) {
     if (
       !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
     ) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',
         ephemeral: true,
       });
+      return;
     }
 
     const rawVoteEmote = interaction.options.getString('emote');
@@ -22,10 +40,11 @@ registerSubCommand({
     };
 
     if (Object.values(items).every((x) => x === undefined)) {
-      return await interaction.reply({
+      await interaction.reply({
         content: 'You must specify at least one option for this command to do anything!',
         ephemeral: true,
       });
+      return;
     }
 
     const cachedGuild = await getGuildModel(interaction.guild);
@@ -33,13 +52,16 @@ registerSubCommand({
 
     await interaction.reply({
       embeds: [
-        new EmbedBuilder().setAuthor({ name: 'Vote Tag/Emote' }).setColor(0x00ae86)
-          .setDescription(stripIndent`
-        Modified the server's settings!
-
-        Vote Tag: \`${cachedGuild.db.voteTag}\`
-        Vote Emote: ${cachedGuild.db.voteEmote}
-        `),
+        {
+          author: { name: 'Vote Tag/Emote' },
+          color: 0x00ae86,
+          description: stripIndent`
+            Modified the server's settings!
+      
+            Vote Tag: \`${cachedGuild.db.voteTag}\`
+            Vote Emote: ${cachedGuild.db.voteEmote}
+            `,
+        },
       ],
       ephemeral: true,
     });
