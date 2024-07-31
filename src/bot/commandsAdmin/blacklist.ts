@@ -83,7 +83,6 @@ export default command.parent({
     name: 'blacklist',
     description: 'Blacklist a user or server from the bot.',
     default_member_permissions: permissions(permissions.KickMembers, permissions.BanMembers),
-    dm_permission: false,
   },
   predicate: MODERATOR_ONLY,
   subcommands: [user, guild],

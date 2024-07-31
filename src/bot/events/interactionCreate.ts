@@ -7,8 +7,6 @@ import askForPremium from '../util/askForPremium.js';
 import {
   type Interaction,
   type AutocompleteInteraction,
-  type ChatInputCommandInteraction,
-  type ContextMenuCommandInteraction,
   PermissionFlagsBits,
   EmbedBuilder,
   ActionRowBuilder,
@@ -18,19 +16,8 @@ import {
   RESTJSONErrorCodes,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import {
-  ComponentKey,
-  INTERACTION_MAP_VERSION,
-  commandMap,
-  componentMap,
-  contextMap,
-  customIdMap,
-  getCustomIdDropper,
-  modalMap,
-} from 'bot/util/commandLoader.js';
-import { logger } from 'bot/util/logger.js';
-import { config, getPrivileges, hasPrivilege } from 'const/config.js';
-import { CommandNotFoundError, registry } from 'bot/util/registry/registry.js';
+import { config } from 'const/config.js';
+import { registry } from 'bot/util/registry/registry.js';
 
 export default event(Events.InteractionCreate, async function (interaction) {
   try {
@@ -38,30 +25,7 @@ export default event(Events.InteractionCreate, async function (interaction) {
       throw new Error('Interaction recieved outside of cached guild.');
 
     if (interaction.isAutocomplete()) {
-      try {
-        await registry.handleAutocomplete(interaction);
-        return;
-      } catch (e) {
-        if (!(e instanceof CommandNotFoundError)) throw e;
-      }
-
-      const ref = commandMap.get(getCommandId(interaction));
-
-      if (ref) {
-        if (ref.executeAutocomplete) {
-          await ref.executeAutocomplete(interaction);
-        } else {
-          logger.warn(
-            interaction,
-            `No autocomplete method found on command ${interaction.commandName}`,
-          );
-        }
-      } else {
-        logger.warn(
-          interaction,
-          `No command found in map for command with name ${interaction.commandName} (checking autocomplete)`,
-        );
-      }
+      await registry.handleAutocomplete(interaction);
       return;
     }
 
@@ -100,70 +64,11 @@ export default event(Events.InteractionCreate, async function (interaction) {
     }
 
     if (interaction.isMessageComponent()) {
-      if (registry.managesComponent(interaction)) {
-        await registry.handleComponent(interaction);
-        return;
-      }
-      const [version, identifier, instance] = interaction.customId.split('.');
-      if (identifier === ComponentKey.Ignore || version === ComponentKey.Ignore) return;
-      if (identifier === ComponentKey.Throw) throw new Error('should never occur');
-      const ref = componentMap.get(identifier);
-
-      if (version !== INTERACTION_MAP_VERSION) {
-        await interaction.reply({
-          content: 'Oops! This is an old menu. Make a new one by re-running the command!',
-          ephemeral: true,
-        });
-      } else if (ref) {
-        const data = customIdMap.get(instance);
-        if (!data) {
-          await interaction.reply({
-            content: 'Oops! This menu timed out. Try again!',
-            ephemeral: true,
-          });
-        } else if (data.options.ownerId && interaction.user.id !== data.options.ownerId) {
-          await interaction.reply({
-            content: "Sorry, this menu isn't for you.",
-            ephemeral: true,
-          });
-        } else {
-          const dropCustomId = getCustomIdDropper(interaction);
-          // Typescript is weird and hard :(
-          // https://github.com/Microsoft/TypeScript/issues/13995#issuecomment-363265172
-          // @ts-expect-error
-          await ref.callback({ interaction, data: data.data, dropCustomId });
-        }
-      } else {
-        logger.warn(
-          interaction,
-          `No component found in map for interaction with customId ${interaction.customId}`,
-        );
-      }
+      await registry.handleComponent(interaction);
+      return;
     } else if (interaction.isModalSubmit()) {
-      const [version, identifier, instance] = interaction.customId.split('.');
-      const ref = modalMap.get(identifier);
-      if (version !== INTERACTION_MAP_VERSION) {
-        await interaction.reply({
-          content: 'Oops! This is an old menu. Make a new one by re-running the command!',
-          ephemeral: true,
-        });
-      } else if (ref) {
-        const data = customIdMap.get(instance);
-        if (!data) {
-          await interaction.reply({
-            content: 'Oops! This menu timed out. Try again!',
-            ephemeral: true,
-          });
-        } else {
-          const dropCustomId = getCustomIdDropper(interaction);
-          await ref.callback({ interaction, data: data.data, dropCustomId });
-        }
-      } else {
-        logger.warn(
-          interaction,
-          `No modal found in map for interaction with customId ${interaction.customId}`,
-        );
-      }
+      await registry.handleComponent(interaction);
+      return;
     } else if (interaction.isContextMenuCommand()) {
       interaction.client.botShardStat.commandsTotal++;
       interaction.client.logger.debug(
@@ -172,47 +77,15 @@ export default event(Events.InteractionCreate, async function (interaction) {
 
       await registry.handleContextCommand(interaction);
     } else if (interaction.isChatInputCommand()) {
-      const ref =
-        commandMap.get(getCommandId(interaction)) ?? commandMap.get(interaction.commandName);
-
       interaction.client.botShardStat.commandsTotal++;
 
       interaction.client.logger.debug(
         `/${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
       );
 
-      try {
-        await registry.handleSlashCommand(interaction);
-        return;
-      } catch (e) {
-        if (!(e instanceof CommandNotFoundError)) throw e;
-      }
-
-      if (ref) {
-        if (ref.privilege && !hasPrivilege(ref.privilege, getPrivileges()[interaction.user.id])) {
-          interaction.client.logger.warn(interaction, 'Unauthorized admin command attempt');
-
-          await interaction.reply({
-            content:
-              'Sorry! This is an admin command you have no access to. Please report this to the developers of the bot.\n*[Have an xkcd for your troubles.](https://xkcd.com/838)*',
-            ephemeral: true,
-          });
-          return;
-        }
-        if (ref.execute) {
-          await ref.execute(interaction);
-          if (!ref.privilege) await askForPremium(interaction);
-        } else {
-          logger.warn(interaction, `No execute method found on command ${interaction.commandName}`);
-        }
-      } else {
-        logger.warn(
-          interaction,
-          `No command found in map for command with name ${interaction.commandName}`,
-        );
-      }
-    } else {
-      throw new Error('unhandled interaction');
+      await registry.handleSlashCommand(interaction);
+      await askForPremium(interaction);
+      return;
     }
   } catch (e) {
     try {
@@ -241,24 +114,6 @@ export default event(Events.InteractionCreate, async function (interaction) {
     interaction.client.logger.warn({ err: e, interaction }, 'Command error');
   }
 });
-
-function getCommandId(
-  interaction:
-    | ChatInputCommandInteraction
-    | ContextMenuCommandInteraction
-    | AutocompleteInteraction,
-) {
-  const src =
-    interaction.isChatInputCommand() || interaction.isAutocomplete()
-      ? [
-          interaction.commandName,
-          interaction.options.getSubcommandGroup(false),
-          interaction.options.getSubcommand(false),
-        ]
-      : [interaction.commandName];
-
-  return src.filter(Boolean).join('.');
-}
 
 async function executeBans(
   interaction: Exclude<Interaction<'cached'>, AutocompleteInteraction<'cached'>>,

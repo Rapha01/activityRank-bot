@@ -5,12 +5,19 @@ import {
   ChatInputCommandInteraction,
   ContextMenuCommandInteraction,
   MessageComponentInteraction,
+  ModalSubmitInteraction,
 } from 'discord.js';
 import fg from 'fast-glob';
 import type { EventEmitter } from 'node:events';
-import { type ComponentInstance, Component, ComponentKey } from './component.js';
+import {
+  type ComponentInstance,
+  type ComponentInteraction,
+  Component,
+  ComponentKey,
+} from './component.js';
 import { Predicate } from './predicate.js';
 import TTLCache from '@isaacs/ttlcache';
+import { Time } from '@sapphire/duration';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
@@ -19,13 +26,6 @@ const COMMAND_PATHS = [
   'dist/bot/commands/*.js',
   'dist/bot/commandsAdmin/*.js',
   'dist/bot/contextMenus/*.js',
-  'dist/bot/commandsSlash/ping.js',
-  'dist/bot/commandsSlash/inviter.js',
-  'dist/bot/commandsSlash/help.js',
-  'dist/bot/commandsSlash/rank.js',
-  'dist/bot/commandsSlash/faq.js',
-  'dist/bot/commandsSlash/patchnote.js',
-  'dist/bot/commandsSlash/serverinfo.js',
 ];
 
 export async function createRegistry() {
@@ -53,11 +53,12 @@ export class CommandNotFoundError extends Error {
 export class Registry {
   #events: Map<string | symbol, EventHandler[]> = new Map();
   #commands: Map<string, Command> = new Map();
-  #components: Map<string, Component<unknown>> = new Map();
-  #activeComponents: TTLCache<string, ComponentInstance<unknown>> = new TTLCache({
-    max: 10_000,
-    ttl: 1000 * 60 * 30,
-  });
+  #components: Map<string, Component<ComponentInteraction, unknown>> = new Map();
+  #activeComponents: TTLCache<string, ComponentInstance<ComponentInteraction, unknown>> =
+    new TTLCache({
+      max: 10_000,
+      ttl: 1000 * 60 * 30,
+    });
 
   constructor(private config: { eventFiles: string[]; commandFiles: string[] }) {}
 
@@ -84,8 +85,10 @@ export class Registry {
     for (const [key, events] of this.#events) {
       for (const event of events) {
         if (event.once) {
+          // @ts-expect-error incorrect discord.js typings: for some reason they've made the `once` and `on` methods static on EventEmitter.
           emitter.once(key, event.callback);
         } else {
+          // @ts-expect-error incorrect discord.js typings: for some reason they've made the `once` and `on` methods static on EventEmitter.
           emitter.on(key, event.callback);
         }
       }
@@ -163,18 +166,18 @@ export class Registry {
     await command.execute(index, interaction);
   }
 
-  public get components(): ReadonlyMap<string, Component<unknown>> {
+  public get components(): ReadonlyMap<string, Component<ComponentInteraction, unknown>> {
     return this.#components;
   }
 
-  public registerComponent(component: Component<unknown>) {
+  public registerComponent(component: Component<any, unknown>) {
     if (this.#components.has(component.identifier)) {
       throw new Error(`Duplicate component ID "${component.identifier}" registered`);
     }
     this.#components.set(component.identifier, component);
   }
 
-  public registerComponentInstance(instance: ComponentInstance<unknown>) {
+  public registerComponentInstance(instance: ComponentInstance<any, unknown>) {
     if (this.#components.has(instance.identifier)) {
       throw new Error(`Duplicate component instance ID "${instance.identifier}" registered`);
     }
@@ -182,11 +185,13 @@ export class Registry {
     this.#activeComponents.set(instance.identifier, instance);
   }
 
-  public dropComponentInstance(instance: ComponentInstance<unknown>) {
+  public dropComponentInstance(instance: ComponentInstance<any, unknown>) {
     this.#activeComponents.delete(instance.identifier);
   }
 
-  public managesComponent(interaction: MessageComponentInteraction<'cached'>): boolean {
+  public managesComponent(
+    interaction: MessageComponentInteraction<'cached'> | ModalSubmitInteraction<'cached'>,
+  ): boolean {
     const split = Component.splitCustomId(interaction.customId);
 
     return (
@@ -195,7 +200,9 @@ export class Registry {
     );
   }
 
-  public async handleComponent(interaction: MessageComponentInteraction<'cached'>): Promise<void> {
+  public async handleComponent(
+    interaction: MessageComponentInteraction<'cached'> | ModalSubmitInteraction<'cached'>,
+  ): Promise<void> {
     const split = Component.splitCustomId(interaction.customId);
     if (split.status === 'INVALID_VERSION') {
       if (interaction.isRepliable()) {
@@ -206,7 +213,7 @@ export class Registry {
         });
       }
       // this is only a warnable issue if the message the component was attached to was created recently
-      if (Date.now() - interaction.message.createdAt.getTime() < 1000 * 60 * 60) {
+      if (interaction.message && Date.now() - interaction.message.createdAt.getTime() < Time.Hour) {
         interaction.client.logger.warn(
           { interaction, issue: split.errorText },
           'Old component (created recently) used',

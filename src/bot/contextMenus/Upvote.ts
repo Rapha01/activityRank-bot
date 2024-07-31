@@ -1,5 +1,5 @@
 import { context } from 'bot/util/registry/command.js';
-import { attemptUpvote, getUpvoteMessage } from 'bot/util/upvote.js';
+import { checkUpvote, handleUpvoteAttempt } from 'bot/util/upvote.js';
 
 export default context.user({
   data: {
@@ -20,8 +20,8 @@ export default context.user({
       return;
     }
 
-    const result = await attemptUpvote(interaction.member, targetMember);
+    const result = await checkUpvote(interaction.member, targetMember);
 
-    await interaction.reply(getUpvoteMessage(result, targetMember));
+    await handleUpvoteAttempt(interaction, targetMember, result);
   },
 });

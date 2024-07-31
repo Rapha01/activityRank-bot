@@ -131,7 +131,7 @@ type CommandPredicateCheck = PredicateCheck<
 
 export abstract class Command {
   public abstract readonly data: RESTPostAPIApplicationCommandsJSONBody;
-  public abstract readonly permitGlobalDeployment: boolean;
+  public abstract readonly deploymentMode: DeploymentMode;
   public abstract execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
@@ -165,7 +165,7 @@ export abstract class SlashCommand extends Command {
   ): Promise<void>;
 }
 
-type BasicSlashCommandData = Omit<
+export type BasicSlashCommandData = Omit<
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   'options' | 'dm_permission'
 > & {
@@ -178,7 +178,7 @@ class BasicSlashCommand extends SlashCommand {
   constructor(
     data: BasicSlashCommandData,
     private predicate: CommandPredicateConfig | null,
-    public readonly permitGlobalDeployment: boolean,
+    public readonly deploymentMode: DeploymentMode,
     private executables: {
       execute: CommandExecutableFunction;
       autocomplete: AutocompleteMap<AutocompleteFunction>;
@@ -222,9 +222,9 @@ class ParentSlashCommand extends SlashCommand {
   private predicateMap: CommandMap<CommandPredicateConfig | null> = new SerializableMap();
 
   constructor(
-    baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>,
+    baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options' | 'dm_permission'>,
     commandPredicate: CommandPredicateConfig | null,
-    public readonly permitGlobalDeployment: boolean,
+    public readonly deploymentMode: DeploymentMode,
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
   ) {
     super();
@@ -237,18 +237,26 @@ class ParentSlashCommand extends SlashCommand {
     this.data.options = [];
 
     for (const subcommand of options.subcommands) {
-      const idx = new CommandIndex([this.data.name, subcommand.data.name]);
+      const idxKey = [this.data.name, subcommand.data.name];
+      const idx = new CommandIndex(idxKey);
+
       this.subcommandMap.set(idx, subcommand);
       // the predicate with the greatest level of specificity is selected.
       this.predicateMap.set(idx, subcommand.predicate ?? commandPredicate ?? null);
       this.data.options.push(subcommand.data);
+
+      for (const name in subcommand.autocomplete) {
+        const fn = subcommand.autocomplete[name];
+        this.autocompleteMap.set(new AutocompleteIndex(idxKey, name), fn);
+      }
     }
 
     for (const group of options.groups) {
       const groupData = group.data;
       groupData.options = [];
       for (const subcommand of group.subcommands) {
-        const idx = new CommandIndex([this.data.name, group.data.name, subcommand.data.name]);
+        const idxKey = [this.data.name, group.data.name, subcommand.data.name];
+        const idx = new CommandIndex(idxKey);
         this.subcommandMap.set(idx, subcommand);
 
         // the predicate with the greatest level of specificity is selected.
@@ -256,6 +264,11 @@ class ParentSlashCommand extends SlashCommand {
         this.predicateMap.set(idx, predicate);
 
         groupData.options.push(subcommand.data);
+
+        for (const name in subcommand.autocomplete) {
+          const fn = subcommand.autocomplete[name];
+          this.autocompleteMap.set(new AutocompleteIndex(idxKey, name), fn);
+        }
       }
       this.data.options.push(groupData);
     }
@@ -296,12 +309,15 @@ class ParentSlashCommand extends SlashCommand {
 
 export class SlashSubcommand {
   public readonly execute: CommandExecutableFunction;
-  public readonly autocomplete: AutocompleteFunction | null;
+  public readonly autocomplete: Record<string, AutocompleteFunction> | null;
 
   constructor(
     public readonly data: APIApplicationCommandSubcommandOption,
     public readonly predicate: CommandPredicateConfig | null,
-    executables: { execute: CommandExecutableFunction; autocomplete?: AutocompleteFunction },
+    executables: {
+      execute: CommandExecutableFunction;
+      autocomplete?: Record<string, AutocompleteFunction>;
+    },
   ) {
     this.execute = executables.execute;
     this.autocomplete = executables.autocomplete ?? null;
@@ -320,15 +336,32 @@ export class SlashSubcommandGroup {
   }
 }
 
+/** Defines the behaviour of where commands are deployed. */
+export const Deploy = {
+  /** This command can only be deployed manually. */
+  Never: 'NEVER',
+  /** This command will be ignored when deploying globally. */
+  LocalOnly: 'LOCAL_ONLY',
+  /** This command can be automatically deployed to any guild. */
+  Global: 'GLOBAL',
+} as const;
+
+export type DeploymentMode = (typeof Deploy)[keyof typeof Deploy];
+
 export const command = {
   basic: function (args: {
     data: BasicSlashCommandData;
     predicate?: CommandPredicateConfig;
     execute: CommandExecutableFunction;
     autocomplete?: Record<string, AutocompleteFunction>;
+    /** @deprecated prefer specifying deploymentMode: DeploymentMode.LocalOnly */
     developmentOnly?: boolean;
+    deploymentMode?: DeploymentMode;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
+
+    const deploymentMode =
+      args.deploymentMode ?? (args.developmentOnly ? Deploy.LocalOnly : null) ?? Deploy.Global;
 
     const autocompleteMap: AutocompleteMap<AutocompleteFunction> = new SerializableMap();
     for (const name in args.autocomplete) {
@@ -336,22 +369,27 @@ export const command = {
       autocompleteMap.set(new AutocompleteIndex([args.data.name], name), fn);
     }
 
-    return new BasicSlashCommand(args.data, predicate, !args.developmentOnly, {
+    return new BasicSlashCommand(args.data, predicate, deploymentMode, {
       execute: args.execute,
       autocomplete: autocompleteMap,
     });
   },
   parent: function (args: {
-    data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options'>;
+    data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options' | 'dm_permission'>;
     predicate?: CommandPredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];
+    /** @deprecated prefer specifying deploymentMode: DeploymentMode.LocalOnly */
     developmentOnly?: boolean;
+    deploymentMode?: DeploymentMode;
   }): SlashCommand {
+    const deploymentMode =
+      args.deploymentMode ?? (args.developmentOnly ? Deploy.LocalOnly : null) ?? Deploy.Global;
+
     const predicate = args.predicate ?? null;
     const components = { subcommands: args.subcommands ?? [], groups: args.groups ?? [] };
 
-    return new ParentSlashCommand(args.data, predicate, !args.developmentOnly, components);
+    return new ParentSlashCommand(args.data, predicate, deploymentMode, components);
   },
 };
 
@@ -359,7 +397,7 @@ export function subcommand(args: {
   data: APIApplicationCommandSubcommandOption;
   predicate?: CommandPredicateConfig;
   execute: CommandExecutableFunction;
-  autocomplete?: AutocompleteFunction;
+  autocomplete?: Record<string, AutocompleteFunction>;
 }): SlashSubcommand {
   const predicate = args.predicate ?? null;
   const executables = { execute: args.execute, autocomplete: args.autocomplete };
@@ -391,7 +429,7 @@ export class ContextCommand extends Command {
   constructor(
     data: RESTPostAPIContextMenuApplicationCommandsJSONBody,
     private predicate: CommandPredicateConfig | null,
-    public readonly permitGlobalDeployment: boolean,
+    public readonly deploymentMode: DeploymentMode,
     private executeFn: ContextCommandExecutableFunction,
   ) {
     super();
@@ -415,13 +453,13 @@ function contextConstructor(type: ApplicationCommandType.User | ApplicationComma
     data: Omit<RESTPostAPIContextMenuApplicationCommandsJSONBody, 'type'>;
     execute: ContextCommandExecutableFunction;
     predicate?: CommandPredicateConfig;
-    developmentOnly?: boolean;
+    deploymentMode?: DeploymentMode;
   }) {
     const predicate = args.predicate ?? null;
     return new ContextCommand(
       { ...args.data, type },
       predicate,
-      !args.developmentOnly,
+      args.deploymentMode ?? Deploy.Global,
       args.execute,
     );
   };

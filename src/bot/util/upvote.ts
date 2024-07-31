@@ -1,12 +1,21 @@
 import { getMemberModel } from 'bot/models/guild/guildMemberModel.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { getUserModel } from 'bot/models/userModel.js';
-import { time, type GuildMember } from 'discord.js';
+import {
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  ComponentType,
+  ContextMenuCommandInteraction,
+  time,
+  type GuildMember,
+} from 'discord.js';
 import { getRawVoteMultiplier, hasNoXpRole } from 'util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
 import statFlushCache from 'bot/statFlushCache.js';
 import { PATREON_URL } from './constants.js';
 import { assertUnreachable } from './typescript.js';
+import { requireUser } from './predicates.js';
+import { useConfirm } from './component.js';
 
 /**
  * A cache of members in the format `guildId.userId` to the Date they can next upvote again.
@@ -18,8 +27,8 @@ const upvoteCache = new Map<string, Date>();
  * The status of an attempt to upvote another member.
  */
 export enum UpvoteAttempt {
-  /** Successfully upvoted the target */
-  Success,
+  /** The target may be safely upvoted. */
+  Allow,
   /** The guild has upvotes disabled globally. */
   DisabledGuild,
   /** Attempted to upvote a bot. */
@@ -33,7 +42,7 @@ export enum UpvoteAttempt {
 }
 
 type UpvoteAttemptResult =
-  | { status: UpvoteAttempt.Success; multiplier: number }
+  | { status: UpvoteAttempt.Allow }
   | {
       status:
         | UpvoteAttempt.DisabledGuild
@@ -47,12 +56,12 @@ type UpvoteAttemptResult =
     };
 
 /**
- * Attempt to upvote a member. Fails if `voter` is on cooldown.
+ * Check if an upvote is possible. Fails if `voter` is on cooldown.
  * @param voter The member attempting to upvote the `target`
  * @param target The member that is being upvoted
- * @returns Whether the upvote succeeded
+ * @returns Whether the upvote is possible
  */
-export async function attemptUpvote(
+export async function checkUpvote(
   voter: GuildMember,
   target: GuildMember,
 ): Promise<UpvoteAttemptResult> {
@@ -78,7 +87,7 @@ export async function attemptUpvote(
   if (toWait.remaining > 0)
     return { status: UpvoteAttempt.TimeoutNotElapsed, nextUpvote: toWait.next };
 
-  // TODO: [FIXME] TEMP FUNCTION
+  // TODO: [FIXME] - the upvoteCache check should not be necessary as toWait should already handle this
   const cachedNextVote = upvoteCache.get(`${voter.guild.id}.${voter.id}`);
   if (cachedNextVote && cachedNextVote.getTime() > Date.now()) {
     voter.client.logger.warn(
@@ -88,63 +97,113 @@ export async function attemptUpvote(
     return { status: UpvoteAttempt.TimeoutNotElapsed, nextUpvote: cachedNextVote };
   }
 
-  // Get author multiplier
-  const userModel = await getUserModel(voter.user);
-  const myUser = await userModel.fetch();
-  const multiplier = getRawVoteMultiplier(
-    parseInt(myUser.lastTopggUpvoteDate),
-    parseInt(myUser.patreonTierUntilDate),
-    myUser.patreonTier,
-  );
-
-  cachedMember.cache.lastVoteDate = new Date();
-
-  await statFlushCache.addVote(target, multiplier);
-  upvoteCache.set(
-    `${voter.guild.id}.${voter.id}`,
-    new Date(Date.now() + cachedGuild.db.voteCooldownSeconds * 1000),
-  );
-
-  return { status: UpvoteAttempt.Success, multiplier };
+  return { status: UpvoteAttempt.Allow };
 }
 
-export function getUpvoteMessage(
-  result: UpvoteAttemptResult,
-  target: GuildMember,
-): { content: string; ephemeral: boolean } {
-  const { status } = result;
-  if (status === UpvoteAttempt.DisabledGuild)
-    return { content: 'Voting is disabled on this server.', ephemeral: true };
-  else if (status === UpvoteAttempt.TargetBot)
-    return { content: 'You cannot upvote bots.', ephemeral: true };
-  else if (status === UpvoteAttempt.TargetSelf)
-    return { content: 'You cannot upvote yourself.', ephemeral: true };
-  else if (status === UpvoteAttempt.TargetHasNoXP)
-    return {
-      content:
-        'The member you are trying to upvote cannot be upvoted, because of an assigned noXp role.',
-      ephemeral: true,
-    };
-  else if (status === UpvoteAttempt.TimeoutNotElapsed) {
-    const next = time(result.nextUpvote, 'R');
-    return {
-      content: `You already voted recently. You will be able to vote again ${next}.`,
-      ephemeral: true,
-    };
-  } else if (status === UpvoteAttempt.Success) {
-    const { multiplier } = result;
-    if (multiplier > 1) {
-      return {
-        content: `You have successfully voted for ${target}. Your vote counts \`${multiplier}x\`.`,
-        ephemeral: false,
-      };
-    } else {
-      return {
-        content: `You have successfully voted for ${target}. Upvote the bot on top.gg or subscribe [on Patreon](<${PATREON_URL}>) to increase your voting power!`,
-        ephemeral: false,
-      };
-    }
+export async function handleUpvoteAttempt(
+  interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
+  targetMember: GuildMember,
+  attempt: UpvoteAttemptResult,
+) {
+  const { status } = attempt;
+  let errorResponse: string;
+
+  if (status === UpvoteAttempt.DisabledGuild) {
+    errorResponse = 'Voting is disabled on this server.';
+  } else if (status === UpvoteAttempt.TargetBot) {
+    errorResponse = 'You cannot upvote bots.';
+  } else if (status === UpvoteAttempt.TargetSelf) {
+    errorResponse = 'You cannot upvote yourself.';
+  } else if (status === UpvoteAttempt.TargetHasNoXP) {
+    errorResponse =
+      'The member you are trying to upvote cannot be upvoted, because of an assigned noXp role.';
+  } else if (status === UpvoteAttempt.TimeoutNotElapsed) {
+    const next = time(attempt.nextUpvote, 'R');
+    errorResponse = `You already voted recently. You will be able to vote again ${next}.`;
+  } else if (status === UpvoteAttempt.Allow) {
+    await confirmInviter(interaction, targetMember);
+    return;
   } else {
     assertUnreachable(status);
   }
+
+  await interaction.reply({ content: errorResponse, ephemeral: true });
 }
+
+async function confirmInviter(
+  interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
+  targetMember: GuildMember,
+) {
+  await interaction.reply({
+    content: `Are you sure that ${targetMember} was the person who invited you?\n-# **You cannot change this setting once you confirm it.**`,
+    components: [
+      {
+        type: ComponentType.ActionRow,
+        components: [
+          {
+            type: ComponentType.Button,
+            customId: confirmButton.instanceId({
+              data: { target: targetMember },
+              predicate: requireUser(interaction.user),
+            }),
+            style: ButtonStyle.Primary,
+            label: 'Confirm',
+          },
+          {
+            type: ComponentType.Button,
+            customId: denyButton.instanceId({ predicate: requireUser(interaction.user) }),
+            style: ButtonStyle.Secondary,
+            label: 'Cancel',
+          },
+        ],
+      },
+    ],
+    allowedMentions: { users: [] },
+  });
+}
+
+const { confirmButton, denyButton } = useConfirm<{ target: GuildMember }>({
+  async confirmFn({ interaction, data, drop }) {
+    await interaction.deferUpdate();
+
+    // Get author multiplier
+    const userModel = await getUserModel(interaction.user);
+    const myUser = await userModel.fetch();
+    const multiplier = getRawVoteMultiplier(
+      parseInt(myUser.lastTopggUpvoteDate),
+      parseInt(myUser.patreonTierUntilDate),
+      myUser.patreonTier,
+    );
+
+    const cachedMember = await getMemberModel(interaction.member);
+    const cachedGuild = await getGuildModel(interaction.guild);
+
+    cachedMember.cache.lastVoteDate = new Date();
+
+    await statFlushCache.addVote(data.target, multiplier);
+    upvoteCache.set(
+      `${interaction.guild.id}.${interaction.user.id}`,
+      new Date(Date.now() + cachedGuild.db.voteCooldownSeconds * 1000),
+    );
+
+    if (multiplier > 1) {
+      await interaction.editReply({
+        content: `You have successfully voted for ${data.target}. Your vote counts \`${multiplier}x\`.`,
+        components: [],
+        allowedMentions: { users: [data.target.id] },
+      });
+    } else {
+      await interaction.editReply({
+        content: `You have successfully voted for ${data.target}. Upvote the bot on top.gg or subscribe [on Patreon](<${PATREON_URL}>) to increase your voting power!`,
+        components: [],
+        allowedMentions: { users: [data.target.id] },
+      });
+    }
+    drop();
+  },
+  async denyFn({ interaction, drop }) {
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+    drop();
+  },
+});
