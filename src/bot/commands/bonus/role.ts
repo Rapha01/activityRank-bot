@@ -11,6 +11,7 @@ import {
   type InteractionEditReplyOptions,
   type GuildMember,
   type Guild,
+  type ReadonlyCollection,
 } from 'discord.js';
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { subcommand } from 'bot/util/registry/command.js';
@@ -216,7 +217,7 @@ async function getApplicableMembers(
     let i = 0;
 
     const handler = async (
-      members: Map<string, GuildMember>,
+      members: ReadonlyCollection<string, GuildMember>,
       _guild: Guild,
       chunk: { index: number; count: number; nonce?: string },
     ) => {
@@ -244,7 +245,7 @@ async function getApplicableMembers(
       }
 
       if (members.size < 1_000 || i === chunk.count) {
-        client.removeListener(Events.GuildMembersChunk, handler);
+        client.off(Events.GuildMembersChunk, handler);
         // @ts-expect-error decrementMaxListeners is private but properly handled here
         client.decrementMaxListeners();
 

@@ -22,7 +22,7 @@ export type ComponentInteraction =
   | MessageComponentInteraction<'cached'>
   | ModalSubmitInteraction<'cached'>;
 
-type ComponentPredicateConfig = PredicateConfig<ComponentInteraction>;
+export type ComponentPredicateConfig = PredicateConfig<ComponentInteraction>;
 type ComponentPredicateCheck = PredicateCheck<ComponentInteraction>;
 
 export type ComponentCallback<
