@@ -1,9 +1,17 @@
 import { command } from 'bot/util/registry/command.js';
-import { ApplicationCommandOptionType } from 'discord.js';
+import {
+  ApplicationCommandOptionType,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  ComponentType,
+  GuildMember,
+} from 'discord.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import fct from '../../util/fct.js';
+import { useConfirm } from 'bot/util/component.js';
+import { requireUser } from 'bot/util/predicates.js';
 
 export default command.basic({
   data: {
@@ -81,16 +89,62 @@ export default command.basic({
       return;
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await confirmInviter(interaction, member);
+  },
+});
 
-    await cachedMember.upsert({ inviter: member.id });
+async function confirmInviter(
+  interaction: ChatInputCommandInteraction<'cached'>,
+  inviter: GuildMember,
+) {
+  const predicate = requireUser(interaction.user);
+  await interaction.reply({
+    content: `Are you sure that ${inviter} was the person who invited you?\n-# **You cannot change this setting once you confirm it.**`,
+    components: [
+      {
+        type: ComponentType.ActionRow,
+        components: [
+          {
+            type: ComponentType.Button,
+            customId: confirmButton.instanceId({ data: { inviter }, predicate }),
+            style: ButtonStyle.Primary,
+            label: 'Confirm',
+          },
+          {
+            type: ComponentType.Button,
+            customId: denyButton.instanceId({ predicate }),
+            style: ButtonStyle.Secondary,
+            label: 'Cancel',
+          },
+        ],
+      },
+    ],
+    allowedMentions: { users: [] },
+  });
+}
 
-    await statFlushCache.addInvite(member, 1);
+const { confirmButton, denyButton } = useConfirm<{
+  inviter: GuildMember;
+}>({
+  async confirmFn({ interaction, data, drop }) {
+    await interaction.deferUpdate();
+
+    const cachedMember = await getMemberModel(interaction.member);
+    await cachedMember.upsert({ inviter: data.inviter.id });
+
+    await statFlushCache.addInvite(data.inviter, 1);
     await statFlushCache.addInvite(interaction.member, 1);
 
     await interaction.editReply({
       content:
         'Your inviter has been set successfully. You will both get 1 invite added to your stats.',
+      components: [],
     });
+    drop();
+  },
+  async denyFn({ interaction, drop }) {
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+    drop();
   },
 });
