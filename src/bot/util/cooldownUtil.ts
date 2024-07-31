@@ -18,6 +18,21 @@ const activeResetServerCommandCooldown = (cd: number, next: Date) =>
     cd / 1000,
   )} seconds. You can start another reset ${time(next, 'R')}.`;
 
+/**
+ * Calculates the remaining wait time and the next trigger time based on the last recorded date and a cooldown period.
+ *
+ * @param lastDate - The last date when the event occurred. It can be a `Date` object, a timestamp (number), `undefined`, or `null`. If `undefined` or `null`, it defaults to 0 - i.e. having never occurred before.
+ * @param cooldown - The cooldown period in milliseconds that must elapse before the next event can occur.
+ *
+ * @returns An object containing:
+ * - `remaining`: The remaining wait time in milliseconds before the cooldown period elapses.
+ * - `next`: A `Date` object representing the next possible trigger time.
+ *
+ * @example
+ * const result = getWaitTime(new Date(), 10000);
+ * console.log(result.remaining); // Logs remaining wait time in milliseconds
+ * console.log(result.next); // Logs the next trigger date
+ */
 export function getWaitTime(lastDate: Date | number | undefined | null, cooldown: number) {
   const now = Date.now();
   const then = lastDate instanceof Date ? lastDate.getTime() : lastDate ?? 0;
@@ -91,13 +106,13 @@ export const checkResetServerCommandCooldown = async (
 
   const toWait = getWaitTime(cachedGuild.cache.lastResetServer, cd);
   if (toWait.remaining > 0) {
-    await interaction.channel?.send(
-      activeResetServerCommandCooldown(cd, toWait.next) + premiumLowersCooldownString,
-    );
+    await interaction.reply({
+      content: activeResetServerCommandCooldown(cd, toWait.next) + premiumLowersCooldownString,
+      ephemeral: true,
+    });
     return false;
   }
 
-  cachedGuild.cache.lastResetServer = new Date();
   return true;
 };
 

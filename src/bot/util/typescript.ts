@@ -15,3 +15,13 @@ export function assertUnreachable(_: never): never {
     'Reached an assertUnreachable() statement. This should never happen at runtime because TypeScript should check it.',
   );
 }
+
+/**
+ * Reverts readonly modifiers set on an object or array.
+ *
+ * @example
+ * const x = ['a'] as const;
+ * type A = typeof x;             // readonly ["a"]
+ * type B = Writeable<typeof x>;  // ["a"]
+ */
+export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
