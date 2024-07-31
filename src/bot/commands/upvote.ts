@@ -1,4 +1,4 @@
-import { checkUpvote, handleUpvoteAttempt } from 'bot/util/upvote.js';
+import { attemptUpvote, getUpvoteMessage } from 'bot/util/upvote.js';
 import { command } from 'bot/util/registry/command.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 
@@ -25,8 +25,8 @@ export default command.basic({
       return;
     }
 
-    const result = await checkUpvote(interaction.member, targetMember);
+    const result = await attemptUpvote(interaction.member, targetMember);
 
-    await handleUpvoteAttempt(interaction, targetMember, result);
+    await interaction.reply(getUpvoteMessage(result, targetMember));
   },
 });
