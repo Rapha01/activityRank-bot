@@ -55,6 +55,7 @@ const cachedFields = [
 interface GuildCacheStorage {
   lastAskForPremiumDate?: Date;
   lastResetServer?: Date;
+  debugMode: boolean;
 }
 export const guildCache = new WeakMap<Guild, GuildModel>();
 
@@ -119,7 +120,7 @@ async function buildCache(guild: Guild): Promise<GuildModel> {
     cache = await fetch.executeTakeFirstOrThrow();
   }
 
-  const built = new GuildModel(guild, host, cache, {});
+  const built = new GuildModel(guild, host, cache, { debugMode: false });
 
   guildCache.set(guild, built);
   return built;
