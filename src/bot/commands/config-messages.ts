@@ -9,7 +9,6 @@ import {
 } from 'discord.js';
 
 import { getGuildModel } from '../models/guild/guildModel.js';
-import { registerModal } from 'bot/util/commandLoader.js';
 import { ComponentType } from 'discord.js';
 import { command, permissions } from 'bot/util/registry/command.js';
 import { component, modal } from 'bot/util/registry/component.js';

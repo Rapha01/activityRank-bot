@@ -2,7 +2,6 @@ import { Client, Options, GatewayIntentBits, Partials, type GuildMember } from '
 import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
-import { loadCommandFiles } from './util/commandLoader.js';
 import { ActivityType } from 'discord.js';
 import { updateTexts } from 'models/managerDb/textModel.js';
 import { updateSettings } from 'models/managerDb/settingModel.js';
@@ -116,10 +115,6 @@ async function start() {
 
     await registry.loadCommands();
     client.logger.info(`Loaded ${registry.commands.size} commands`);
-
-    await loadCommandFiles();
-
-    client.logger.info('Pieces loaded');
 
     client.logger.info('Logging in...');
     await client.login();
