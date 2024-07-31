@@ -19,7 +19,16 @@ export default command.basic({
     ],
   },
   async execute({ interaction }) {
-    const member = interaction.options.getMember('member')!;
+    const member = interaction.options.getMember('member');
+
+    if (!member) {
+      await interaction.reply({
+        content: 'The specified member is not on the server.',
+        ephemeral: true,
+      });
+      return;
+    }
+
     const cachedGuild = await getGuildModel(interaction.guild);
 
     if (!cachedGuild.db.inviteXp) {
