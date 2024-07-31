@@ -31,6 +31,7 @@ const keyInstanceSchema = z.object({
  */
 
 /** @typedef {import('./src/bot/util/registry/registry.js').Registry} Registry */
+/** @typedef {typeof import('./src/bot/util/registry/command.js').Deploy} Deploy */
 
 /**
  * Load and parse the configuration from a set of optionally provided config paths.
@@ -87,8 +88,8 @@ async function getRegistry() {
 }
 
 /**
- *
- * @param {Awaited<ReturnType<typeof getConfig>>} conf
+ * Create a new API interface.
+ * @param {Awaited<ReturnType<typeof getConfig>>} conf a configuration object
  */
 function getAPI(conf) {
   const rest = new REST();
@@ -117,6 +118,10 @@ const deployProd = defineCommand({
 
     const registry = await getRegistry();
 
+    const Deploy = /** @type {Deploy} */ (
+      (await import('./dist/bot/util/registry/command.js')).Deploy
+    );
+
     const GLOBAL = 'Update globally deployed commands';
     const ADMIN = 'Update administrative commands';
     const type = await consola.prompt(
@@ -129,7 +134,7 @@ const deployProd = defineCommand({
       const globalCommands = [];
 
       for (const command of registry.commands.values()) {
-        if (command.permitGlobalDeployment) {
+        if (command.deploymentMode === Deploy.Global) {
           globalCommands.push(command.data);
         }
       }
@@ -140,7 +145,7 @@ const deployProd = defineCommand({
       const localCommands = [];
 
       for (const command of registry.commands.values()) {
-        if (!command.permitGlobalDeployment) {
+        if (command.deploymentMode === Deploy.LocalOnly) {
           localCommands.push(command.data);
         }
       }
@@ -188,15 +193,20 @@ const deploy = defineCommand({
       : conf.config.developmentServers;
 
     const registry = await getRegistry();
+
+    const Deploy = /** @type {Deploy} */ (
+      (await import('./dist/bot/util/registry/command.js')).Deploy
+    );
+
     /** @type {import('@discordjs/core').RESTPutAPIApplicationGuildCommandsJSONBody} */
     const localCommands = [];
     /** @type {import('@discordjs/core').RESTPutAPIApplicationGuildCommandsJSONBody} */
     const globalCommands = [];
 
     for (const command of registry.commands.values()) {
-      if (command.permitGlobalDeployment) {
+      if (command.deploymentMode === Deploy.Global) {
         globalCommands.push(command.data);
-      } else {
+      } else if (command.deploymentMode === Deploy.LocalOnly) {
         localCommands.push(command.data);
       }
     }

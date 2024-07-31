@@ -131,7 +131,7 @@ type CommandPredicateCheck = PredicateCheck<
 
 export abstract class Command {
   public abstract readonly data: RESTPostAPIApplicationCommandsJSONBody;
-  public abstract readonly permitGlobalDeployment: boolean;
+  public abstract readonly deploymentMode: DeploymentMode;
   public abstract execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
@@ -165,7 +165,7 @@ export abstract class SlashCommand extends Command {
   ): Promise<void>;
 }
 
-type BasicSlashCommandData = Omit<
+export type BasicSlashCommandData = Omit<
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   'options' | 'dm_permission'
 > & {
@@ -178,7 +178,7 @@ class BasicSlashCommand extends SlashCommand {
   constructor(
     data: BasicSlashCommandData,
     private predicate: CommandPredicateConfig | null,
-    public readonly permitGlobalDeployment: boolean,
+    public readonly deploymentMode: DeploymentMode,
     private executables: {
       execute: CommandExecutableFunction;
       autocomplete: AutocompleteMap<AutocompleteFunction>;
@@ -224,7 +224,7 @@ class ParentSlashCommand extends SlashCommand {
   constructor(
     baseData: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options' | 'dm_permission'>,
     commandPredicate: CommandPredicateConfig | null,
-    public readonly permitGlobalDeployment: boolean,
+    public readonly deploymentMode: DeploymentMode,
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
   ) {
     super();
@@ -336,15 +336,32 @@ export class SlashSubcommandGroup {
   }
 }
 
+/** Defines the behaviour of where commands are deployed. */
+export const Deploy = {
+  /** This command can only be deployed manually. */
+  Never: 'NEVER',
+  /** This command will be ignored when deploying globally. */
+  LocalOnly: 'LOCAL_ONLY',
+  /** This command can be automatically deployed to any guild. */
+  Global: 'GLOBAL',
+} as const;
+
+export type DeploymentMode = (typeof Deploy)[keyof typeof Deploy];
+
 export const command = {
   basic: function (args: {
     data: BasicSlashCommandData;
     predicate?: CommandPredicateConfig;
     execute: CommandExecutableFunction;
     autocomplete?: Record<string, AutocompleteFunction>;
+    /** @deprecated prefer specifying deploymentMode: DeploymentMode.LocalOnly */
     developmentOnly?: boolean;
+    deploymentMode?: DeploymentMode;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
+
+    const deploymentMode =
+      args.deploymentMode ?? (args.developmentOnly ? Deploy.LocalOnly : null) ?? Deploy.Global;
 
     const autocompleteMap: AutocompleteMap<AutocompleteFunction> = new SerializableMap();
     for (const name in args.autocomplete) {
@@ -352,7 +369,7 @@ export const command = {
       autocompleteMap.set(new AutocompleteIndex([args.data.name], name), fn);
     }
 
-    return new BasicSlashCommand(args.data, predicate, !args.developmentOnly, {
+    return new BasicSlashCommand(args.data, predicate, deploymentMode, {
       execute: args.execute,
       autocomplete: autocompleteMap,
     });
@@ -362,12 +379,17 @@ export const command = {
     predicate?: CommandPredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];
+    /** @deprecated prefer specifying deploymentMode: DeploymentMode.LocalOnly */
     developmentOnly?: boolean;
+    deploymentMode?: DeploymentMode;
   }): SlashCommand {
+    const deploymentMode =
+      args.deploymentMode ?? (args.developmentOnly ? Deploy.LocalOnly : null) ?? Deploy.Global;
+
     const predicate = args.predicate ?? null;
     const components = { subcommands: args.subcommands ?? [], groups: args.groups ?? [] };
 
-    return new ParentSlashCommand(args.data, predicate, !args.developmentOnly, components);
+    return new ParentSlashCommand(args.data, predicate, deploymentMode, components);
   },
 };
 
@@ -407,7 +429,7 @@ export class ContextCommand extends Command {
   constructor(
     data: RESTPostAPIContextMenuApplicationCommandsJSONBody,
     private predicate: CommandPredicateConfig | null,
-    public readonly permitGlobalDeployment: boolean,
+    public readonly deploymentMode: DeploymentMode,
     private executeFn: ContextCommandExecutableFunction,
   ) {
     super();
@@ -431,13 +453,13 @@ function contextConstructor(type: ApplicationCommandType.User | ApplicationComma
     data: Omit<RESTPostAPIContextMenuApplicationCommandsJSONBody, 'type'>;
     execute: ContextCommandExecutableFunction;
     predicate?: CommandPredicateConfig;
-    developmentOnly?: boolean;
+    deploymentMode?: DeploymentMode;
   }) {
     const predicate = args.predicate ?? null;
     return new ContextCommand(
       { ...args.data, type },
       predicate,
-      !args.developmentOnly,
+      args.deploymentMode ?? Deploy.Global,
       args.execute,
     );
   };
