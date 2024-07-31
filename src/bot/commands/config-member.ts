@@ -3,7 +3,7 @@ import { oneLine } from 'common-tags';
 import { type GuildMemberModel, getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel, type GuildModel } from 'bot/models/guild/guildModel.js';
 import { command } from 'bot/util/registry/command.js';
-import { actionrow } from 'bot/util/component.js';
+import { actionrow, closeButton } from 'bot/util/component.js';
 import { component } from 'bot/util/registry/component.js';
 import { requireUser } from 'bot/util/predicates.js';
 
@@ -63,15 +63,6 @@ export default command.basic({
       embeds: [{ author: { name: 'Personal Settings' }, fields }],
       components: [generateRow(interaction, cachedMember, cachedGuild), closeRow(interaction)],
     });
-  },
-});
-
-const closeButton = component({
-  type: ComponentType.Button,
-  async callback({ interaction, drop }) {
-    await interaction.deferUpdate();
-    await interaction.deleteReply();
-    drop();
   },
 });
 

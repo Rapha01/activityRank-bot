@@ -19,6 +19,7 @@ import type { GuildChannelSchema } from 'models/types/shard.js';
 import { command, permissions } from 'bot/util/registry/command.js';
 import { component } from 'bot/util/registry/component.js';
 import { requireUser, requireUserId } from 'bot/util/predicates.js';
+import { closeButton } from 'bot/util/component.js';
 
 type Setting =
   | 'noXp'
@@ -121,15 +122,6 @@ const generateRow = (
 
   return r;
 };
-
-const closeButton = component({
-  type: ComponentType.Button,
-  async callback({ interaction, drop }) {
-    await interaction.deferUpdate();
-    await interaction.deleteReply();
-    drop();
-  },
-});
 
 const _close = (ownerId: string) =>
   new ActionRowBuilder<ButtonBuilder>().addComponents(

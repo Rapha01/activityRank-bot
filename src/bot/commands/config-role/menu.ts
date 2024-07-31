@@ -17,7 +17,7 @@ import nameUtil from '../../util/nameUtil.js';
 import { ParserResponseStatus, parseRole } from '../../util/parser.js';
 import type { GuildRoleSchema } from 'models/types/shard.js';
 import { subcommand } from 'bot/util/registry/command.js';
-import { actionrow } from 'bot/util/component.js';
+import { actionrow, closeButton } from 'bot/util/component.js';
 import { component, modal } from 'bot/util/registry/component.js';
 import { requireUser } from 'bot/util/predicates.js';
 
@@ -240,16 +240,6 @@ const modalButton = component<{ roleId: string; type: AssignType }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     await interaction.showModal(_modal(data.roleId, data.type));
-  },
-});
-
-// FIXME TODO: extract close into componentKeyss
-const closeButton = component({
-  type: ComponentType.Button,
-  async callback({ interaction, drop }) {
-    await interaction.deferUpdate();
-    await interaction.deleteReply();
-    drop();
   },
 });
 

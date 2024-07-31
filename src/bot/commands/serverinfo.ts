@@ -19,6 +19,7 @@ import type { GuildRoleSchema } from 'models/types/shard.js';
 import { command } from 'bot/util/registry/command.js';
 import { component, ComponentKey } from 'bot/util/registry/component.js';
 import { requireUserId } from 'bot/util/predicates.js';
+import { closeButton } from 'bot/util/component.js';
 
 export default command.basic({
   data: {
@@ -94,15 +95,6 @@ const pageButton = component<{ window: string; page: number }>({
       embeds: [embed],
       components: rows(data.window, data.page, interaction.user.id),
     });
-  },
-});
-
-const closeButton = component({
-  type: ComponentType.Button,
-  async callback({ interaction, drop }) {
-    await interaction.deferUpdate();
-    await interaction.deleteReply();
-    drop();
   },
 });
 

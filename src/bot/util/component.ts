@@ -43,3 +43,15 @@ export function actionrow(
   // the function overrides do all necessary type validation; coersion is fine here.
   return { type: ComponentType.ActionRow, components } as any;
 }
+
+/**
+ * Create a button that deletes the current message when pressed.
+ */
+export const closeButton = component({
+  type: ComponentType.Button,
+  async callback({ interaction, drop }) {
+    await interaction.deferUpdate();
+    await interaction.deleteReply();
+    drop();
+  },
+});
