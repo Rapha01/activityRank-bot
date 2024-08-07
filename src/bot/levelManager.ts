@@ -23,7 +23,6 @@ export async function checkLevelUp(
 
   member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
 
-  if (oldLevel >= newLevel) return;
   if (oldLevel != newLevel) {
     const roleMessages = await checkRoleAssignment(member, newLevel);
     await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
