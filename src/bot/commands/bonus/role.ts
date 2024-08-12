@@ -98,6 +98,10 @@ async function oldSystem(
 ) {
   await interaction.deferReply();
 
+  interaction.client.logger.debug(
+    `Starting old role give; fetching ${interaction.guild.memberCount} members`,
+  );
+
   const members = await interaction.guild.members.fetch({ withPresences: false });
 
   interaction.client.logger.debug(`Old role give to ${members.size} members`);
