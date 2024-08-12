@@ -17,11 +17,14 @@ XP and statistics may be reset independently.
 ## Todo
 
 - [x] Add `alltime`, `year`, `month`, `week`, and `day` columns to the `dbShard`.`guildMember` table
-- [ ] Begin attributing XP to the `guildMember` columns.<br/>**This should be executed incrementally:**
+- [ ] Begin attributing XP to the `guildMember` columns.<br />**This should be executed incrementally:**
   - [x] on 10% of servers
   - [ ] on 25% of servers
   - [ ] on 50% of servers
   - [ ] on all servers
+- [ ] On servers where XP is added to the `guildMember` columns,
+      run a migration to ensure that XP in `guildMember` columns is equivalent to the calculated value. <br />
+      **This will need to be run each time the above step is applied to more servers.**
 - [ ] On servers where XP is added to the `guildMember` columns,
       ensure that resets of statistics also affect the `guildMember` columns.
       At a later date, resets of statistics should be separated from resets of XP.
