@@ -30,3 +30,19 @@ XP and statistics may be reset independently.
       At a later date, resets of statistics should be separated from resets of XP.
 - [ ] Verify that calculated XP and XP stored in the `guildMember` columns are identical.
 - [ ] Begin displaying XP from the `guildMember` columns instead of calculating it from statistics. **This should be executed incrementally.**
+
+## replace-vars
+
+`replace-vars` is a script that allows running SQL files while validating their required args. It can be run as so:
+
+```sh
+$ ./migration/replace-vars.mjs filename.sql arg1="a" arg2="b c d" | mysql -h 127.0.0.1 -u activityrank -pPASSWORD > result.tsv
+```
+
+For instance, to run [get-calculated-value](./get-calculated-value.sql) into a `.tsv` file (tab-separated values), a command might be:
+
+```sh
+./migration/replace-vars.mjs migration/get-calculated-value.sql guildId='"905898879785005106"' userId='"774660568728469585"' | \
+mysql -h 127.0.0.1 -u activityrank -pPASSWORD > \
+migration/result.tsv
+```
