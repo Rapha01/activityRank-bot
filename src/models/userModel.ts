@@ -3,7 +3,6 @@ import { queryShard } from './shardDb.js';
 import { queryManager } from './managerDb.js';
 import { isProduction } from '../const/keys.js';
 
-const hostField = isProduction ? 'hostIntern' : 'hostExtern';
 let defaultAll: any = null;
 
 export async function setUser(userId: string, field: string, value: unknown) {
@@ -36,13 +35,13 @@ export async function getUser(userId: string) {
 
 async function getDbHost(userId: string) {
   let res = await queryManager<{ host: string }[]>(
-    `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`
+    `SELECT host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`
   );
 
   if (res.length < 1) {
     await queryManager(`INSERT INTO userRoute (userId) VALUES (${userId})`);
     res = await queryManager(
-      `SELECT ${hostField} AS host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`
+      `SELECT host FROM userRoute LEFT JOIN dbShard ON userRoute.dbShardId = dbShard.id WHERE userId = ${userId}`
     );
   }
 

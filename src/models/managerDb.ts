@@ -15,10 +15,8 @@ export async function getConnection() {
 }
 
 export async function getAllDbHosts() {
-  const hostField = isProduction ? 'hostIntern' : 'hostExtern';
-
   const res = await queryManager<{ host: string }[]>(
-    `SELECT ${hostField} AS host FROM dbShard`
+    `SELECT host FROM dbShard`
   );
 
   return res.map((row) => row.host);

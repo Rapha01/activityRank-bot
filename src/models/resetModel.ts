@@ -18,15 +18,13 @@ const queryConstraints = (thisHour: number, thisDay: number) => ({
   year: ``,
 });
 
-const hostField = isProduction ? 'hostIntern' : 'hostExtern';
-
 export async function resetScoreByTime(
   time: 'day' | 'week' | 'month' | 'year'
 ) {
   console.log(`[reset] Resetting score (${time})`);
   const dbShards = await queryManager<
-    { hostIntern: string; hostExtern: string; id: number }[]
-  >(`SELECT * FROM dbShard ORDER BY id ASC`);
+    { host: string; id: number }[]
+  >(`SELECT id,host FROM dbShard ORDER BY id ASC`);
 
   let errorCount = 0;
   const currentSnowflake = DiscordSnowflake.generate();
@@ -47,7 +45,7 @@ export async function resetScoreByTime(
           do {
             try {
               await queryShard(
-                shard[hostField],
+                shard.host,
                 `UPDATE ${statsTable} ` +
                   `INNER JOIN guild ON ${statsTable}.guildId = guild.guildId ` +
                   `SET ${time} = 0 ` +
@@ -71,7 +69,7 @@ export async function resetScoreByTime(
 
       const sec = Math.ceil(process.hrtime(hrstart)[0]);
       console.log(
-        `[reset] Reset Score by ${time} finished for DB ${shard.id} ${shard[hostField]} after ${sec}s with ${errorCount} errors.`
+        `[reset] Reset Score by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errorCount} errors.`
       );
     } catch (e) {
       console.log(e);

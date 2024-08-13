@@ -1,1 +1,1 @@
-INSERT INTO shardDb (dbShard,hostIntern,hostExtern) VALUES (0,'someInternalAddress','someExternalIp');
+INSERT INTO shardDb (dbShard,host) VALUES (0,'someExternalAddress');
