@@ -21,7 +21,7 @@ export async function checkLevelUp(
   const oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, cachedGuild.db.levelFactor));
   const newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, cachedGuild.db.levelFactor));
 
-  member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
+  // member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
 
   if (oldLevel != newLevel) {
     const roleMessages = await checkRoleAssignment(member, newLevel);
