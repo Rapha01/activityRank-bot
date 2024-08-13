@@ -38,8 +38,7 @@ export interface BotStatSchema {
 /** @deprecated use `kysely` types instead. */
 export interface DbShardSchema {
   id: string;
-  hostExtern: string;
-  hostIntern: string;
+  host: string;
 }
 
 /** @deprecated use `kysely` types instead. */

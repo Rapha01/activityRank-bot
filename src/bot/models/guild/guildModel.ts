@@ -4,7 +4,7 @@ import type { GuildSchema, GuildUpdate } from 'models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
 
-const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
+
 const cachedFields = [
   //'tokens',
   'showNicknames',
@@ -132,7 +132,7 @@ const getDbHost = async (guildId: string): Promise<string> => {
   const getRoute = db
     .selectFrom('guildRoute')
     .leftJoin('dbShard', 'guildRoute.dbShardId', 'dbShard.id')
-    .select(`${hostField} as host`)
+    .select(`host`)
     .where('guildId', '=', guildId);
 
   let res = await getRoute.executeTakeFirst();
