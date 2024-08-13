@@ -24,7 +24,7 @@ export async function handleMemberJoin(member: GuildMember) {
 
   const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
 
-  member.client.logger.debug({ roleAssignmentString }, `RAS`);
+  // member.client.logger.debug({ roleAssignmentString }, `RAS`);
 
   // AutoPost serverjoin
   if (cachedGuild.db.autopost_serverJoin !== '0')
