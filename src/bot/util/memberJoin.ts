@@ -12,7 +12,7 @@ export async function handleMemberJoin(member: GuildMember) {
   const cachedGuild = await getGuildModel(member.guild);
   const cachedMember = await getMemberModel(member);
 
-  member.client.logger.debug({ cachedGuild, cachedMember }, `cache objects`);
+  //member.client.logger.debug({ cachedGuild, cachedMember }, `cache objects`);
 
   // Roleassignments
   const level = fct.getLevel(
