@@ -18,8 +18,6 @@ const queryConstraints = (thisHour: number, thisDay: number) => ({
   year: ``,
 });
 
-const hostField = isProduction ? 'hostIntern' : 'hostExtern';
-
 export async function resetScoreByTime(
   time: 'day' | 'week' | 'month' | 'year'
 ): Promise<{ errorCount: number }> {
@@ -41,8 +39,8 @@ async function resetStatsByTime(
   time: 'day' | 'week' | 'month' | 'year'
 ): Promise<{ errorCount: number }> {
   const dbShards = await queryManager<
-    { hostIntern: string; hostExtern: string; id: number }[]
-  >(`SELECT * FROM dbShard ORDER BY id ASC`);
+    { host: string; id: number }[]
+  >(`SELECT id,host FROM dbShard ORDER BY id ASC`);
 
   let errorCount = 0;
   const currentSnowflake = DiscordSnowflake.generate();
@@ -63,7 +61,7 @@ async function resetStatsByTime(
           do {
             try {
               await queryShard(
-                shard[hostField],
+                shard.host,
                 `UPDATE ${statsTable} ` +
                   `INNER JOIN guild ON ${statsTable}.guildId = guild.guildId ` +
                   `SET ${time} = 0 ` +
@@ -87,7 +85,7 @@ async function resetStatsByTime(
 
       const sec = Math.ceil(process.hrtime(hrstart)[0]);
       console.log(
-        `[reset] Reset stats by ${time} finished for DB ${shard.id} ${shard[hostField]} after ${sec}s with ${errorCount} errors.`
+        `[reset] Reset stats by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errorCount} errors.`
       );
     } catch (e) {
       console.log(e);
@@ -122,7 +120,7 @@ async function resetMemberScoreByTime(
         do {
           try {
             await queryShard(
-              shard[hostField],
+              shard.host,
               `UPDATE guildMember ` +
                 `INNER JOIN guild ON guildMember.guildId = guild.guildId ` +
                 `SET ${time} = 0 ` +
@@ -145,7 +143,7 @@ async function resetMemberScoreByTime(
 
       const sec = Math.ceil(process.hrtime(hrstart)[0]);
       console.log(
-        `[reset] Reset member scores by ${time} finished for DB ${shard.id} ${shard[hostField]} after ${sec}s with ${errorCount} errors.`
+        `[reset] Reset member scores by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errorCount} errors.`
       );
     } catch (e) {
       console.log(e);
