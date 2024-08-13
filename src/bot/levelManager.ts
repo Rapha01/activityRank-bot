@@ -56,7 +56,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 
   for (const role of roles.values()) {
     const cachedRole = await guildRoleModel.cache.get(role);
-    member.client.logger.debug({ cachedRole, role }, 'processing role');
+    //member.client.logger.debug({ cachedRole, role }, 'processing role');
 
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
@@ -83,7 +83,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
       }
 
       if (!memberHasRole) {
-        member.client.logger.debug({ roleId: role.id }, 'assigning role');
+        //member.client.logger.debug({ roleId: role.id }, 'assigning role');
         await member.roles.add(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });
