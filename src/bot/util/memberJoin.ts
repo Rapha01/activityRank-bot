@@ -6,7 +6,7 @@ import { DiscordAPIError, RESTJSONErrorCodes, type GuildMember } from 'discord.j
 import { EmbedBuilder } from 'discord.js';
 
 export async function handleMemberJoin(member: GuildMember) {
-  member.client.logger.debug(`Handling member ${member.id} join`);
+  // member.client.logger.debug(`Handling member ${member.id} join`);
   if (member.user.bot) return;
 
   const cachedGuild = await getGuildModel(member.guild);
