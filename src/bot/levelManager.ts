@@ -11,10 +11,10 @@ export async function checkLevelUp(
   oldTotalScore: number,
   newTotalScore: number,
 ) {
-  member.client.logger.debug(
+  /* member.client.logger.debug(
     { memberId: member.id, oldTotalScore, newTotalScore },
     'checking levelup',
-  );
+  ); */
 
   const cachedGuild = await getGuildModel(member.guild);
 
