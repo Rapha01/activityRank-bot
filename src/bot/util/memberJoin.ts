@@ -18,9 +18,9 @@ export async function handleMemberJoin(member: GuildMember) {
   const level = fct.getLevel(
     fct.getLevelProgression(cachedMember.cache.totalScore!, cachedGuild.db.levelFactor),
   );
-  member.client.logger.debug(
+  /*member.client.logger.debug(
     `level ${level} ${cachedMember.cache.totalScore} ${cachedGuild.db.levelFactor}`,
-  );
+  );*/
 
   const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
 
