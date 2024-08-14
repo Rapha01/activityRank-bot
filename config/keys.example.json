@@ -1,36 +1,17 @@
 {
-  "production": {
-    "botAuth": "",
-    "botId": "534589798267224065",
-    "managerApiAuth": "",
-    "managerHost": "",
-    "managerPort": null,
-    "managerDb": {
-      "dbName": "",
-      "dbPassword": "",
-      "dbUser": ""
-    },
-    "shardDb": {
-      "dbName": "",
-      "dbPassword": "",
-      "dbUser": ""
-    }
+  "botAuth": "",
+  "botId": "888488557352747020",
+  "managerApiAuth": "",
+  "managerHost": "",
+  "managerPort": null,
+  "managerDb": {
+    "dbName": "",
+    "dbPassword": "",
+    "dbUser": ""
   },
-  "development": {
-    "botAuth": "",
-    "botId": "888488557352747020",
-    "managerApiAuth": "",
-    "managerHost": "",
-    "managerPort": null,
-    "managerDb": {
-      "dbName": "",
-      "dbPassword": "",
-      "dbUser": ""
-    },
-    "shardDb": {
-      "dbName": "",
-      "dbPassword": "",
-      "dbUser": ""
-    }
+  "shardDb": {
+    "dbName": "",
+    "dbPassword": "",
+    "dbUser": ""
   }
 }

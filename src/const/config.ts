@@ -40,11 +40,9 @@ export function isPrivileged(userId: string) {
 }
 
 export const config = JSON.parse(conffile.toString()) as ConfigInstance;
-const keys = JSON.parse(keyfile.toString());
+export const keys = JSON.parse(keyfile.toString()) as KeyInstance;
 const privileges = JSON.parse(privfile.toString());
 
-export const getKeys = (prod: boolean = isProduction) =>
-  keys[prod ? 'production' : 'development'] as KeyInstance;
 export const getPrivileges = (prod: boolean = isProduction) =>
   privileges[prod ? 'production' : 'development'] as PrivilegeInstance;
 

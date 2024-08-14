@@ -5,67 +5,55 @@
   "description": "The keys to be provided to the Bot module of ActivityRank",
   "type": "object",
   "properties": {
-    "production": {
-      "$ref": "#/$defs/keyset"
+    "botAuth": {
+      "description": "The Discord token of the bot",
+      "type": "string"
     },
-    "development": {
-      "$ref": "#/$defs/keyset"
+    "botId": {
+      "description": "The Discord ID of the bot",
+      "type": "string"
+    },
+    "managerApiAuth": {
+      "description": "The password required by the Manager API",
+      "type": "string"
+    },
+    "managerHost": {
+      "description": "The host of the Manager API",
+      "type": "string"
+    },
+    "managerPort": {
+      "description": "The port of the Manager API",
+      "oneOf": [
+        {
+          "type": "number",
+          "minimumExclusive": 0,
+          "maximum": 65535
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "managerDb": {
+      "description": "Properties concerning manager DB connections",
+      "$ref": "#/$defs/dbConnection"
+    },
+    "shardDb": {
+      "description": "Properties concerning shard DB connections",
+      "$ref": "#/$defs/dbConnection"
     }
   },
+  "required": [
+    "botAuth",
+    "botId",
+    "managerApiAuth",
+    "managerHost",
+    "managerPort",
+    "managerDb",
+    "shardDb"
+  ],
   "additionalProperties": false,
   "$defs": {
-    "keyset": {
-      "type": "object",
-      "properties": {
-        "botAuth": {
-          "description": "The Discord token of the bot",
-          "type": "string"
-        },
-        "botId": {
-          "description": "The Discord ID of the bot",
-          "type": "string"
-        },
-        "managerApiAuth": {
-          "description": "The password required by the Manager API",
-          "type": "string"
-        },
-        "managerHost": {
-          "description": "The host of the Manager API",
-          "type": "string"
-        },
-        "managerPort": {
-          "description": "The port of the Manager API",
-          "oneOf": [
-            {
-              "type": "number",
-              "minimumExclusive": 0,
-              "maximum": 65535
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "managerDb": {
-          "description": "Properties concerning manager DB connections",
-          "$ref": "#/$defs/dbConnection"
-        },
-        "shardDb": {
-          "description": "Properties concerning shard DB connections",
-          "$ref": "#/$defs/dbConnection"
-        }
-      },
-      "required": [
-        "botAuth",
-        "botId",
-        "managerApiAuth",
-        "managerHost",
-        "managerPort",
-        "managerDb",
-        "shardDb"
-      ],
-      "additionalProperties": false
-    },
     "dbConnection": {
       "type": "object",
       "properties": {

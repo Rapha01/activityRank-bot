@@ -1,10 +1,9 @@
 import { createPool, type Pool } from 'mysql2/promise';
 import managerDb, { getAllDbHosts } from '../managerDb/managerDb.js';
-import { getKeys } from 'const/config.js';
 import { Kysely, MysqlDialect, type CompiledQuery } from 'kysely';
 import type { ShardDB } from 'models/types/kysely/shard.js';
+import { keys } from 'const/config.js';
 
-const keys = getKeys();
 const pools: Map<string, Pool> = new Map();
 const instances: Map<string, { db: Kysely<ShardDB>; pool: Pool }> = new Map();
 
