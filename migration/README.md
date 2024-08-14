@@ -31,17 +31,17 @@ XP and statistics may be reset independently.
 
 - [ ] on 25% of guilds:
 
-  - [ ] Enable adding XP to the `guildMember` columns.
+  - [x] Enable adding XP to the `guildMember` columns.
   - [ ] Run the migration to sync the `guildMember` and statistic tables.
 
 - [ ] on 50% of guilds:
 
-  - [ ] Enable adding XP to the `guildMember` columns.
+  - [x] Enable adding XP to the `guildMember` columns.
   - [ ] Run the migration to sync the `guildMember` and statistic tables.
 
 - [ ] on 100% of guilds:
 
-  - [ ] Enable adding XP to the `guildMember` columns.
+  - [x] Enable adding XP to the `guildMember` columns.
   - [ ] Run the migration to sync the `guildMember` and statistic tables.
 
 - [ ] Parallel to the above step, on servers where XP is added to the `guildMember` columns,
