@@ -21,7 +21,10 @@ export function hasFeature(
 
   if (featureMap[feature].overrides?.has(id)) return true;
 
-  const hash = id % 100n;
+  // hash the timestamp of the snowflake, not the increment
+  // the increment is less likely to be consistent - roughly
+  // 80% of all Discord snowflakes % 100 are <= 10.
+  const hash = (id >> 22n) % 100n;
   const offset = featureMap[feature].offset ?? 0n;
 
   if (offset + featureMap[feature].percent > 100n)
