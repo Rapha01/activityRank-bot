@@ -1,36 +1,15 @@
 {
-  "production": {
-    "dblApiKey": "",
-    "botId": "",
-    "managerApiAuth": "",
-    "managerHost": "",
-    "managerDb": {
-      "dbUser": "",
-      "dbPassword": "",
-      "dbName": ""
-    },
-    "shardDb": {
-      "dbUser": "",
-      "dbPassword": "",
-      "dbName": ""
-    },
-    "patreonAccessToken": ""
+  "botId": "",
+  "managerApiAuth": "",
+  "managerHost": "",
+  "managerDb": {
+    "dbUser": "",
+    "dbPassword": "",
+    "dbName": ""
   },
-  "development": {
-    "dblApiKey": "",
-    "botId": "",
-    "managerApiAuth": "",
-    "managerHost": "",
-    "managerDb": {
-      "dbUser": "",
-      "dbPassword": "",
-      "dbName": ""
-    },
-    "shardDb": {
-      "dbUser": "",
-      "dbPassword": "",
-      "dbName": ""
-    },
-    "patreonAccessToken": ""
+  "shardDb": {
+    "dbUser": "",
+    "dbPassword": "",
+    "dbName": ""
   }
 }

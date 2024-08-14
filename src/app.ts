@@ -7,7 +7,7 @@ import {
 } from 'h3';
 import { readFile } from 'node:fs/promises';
 import { Cron } from 'croner';
-import { getConfig, isProduction } from './const/keys.js';
+import { config, isProduction } from './const/keys.js';
 import { apiRouter } from './routes/api.js';
 import { resetScoreByTime } from './models/resetModel.js';
 import { runPatreonTask } from './tasks/patreon.js';
@@ -31,12 +31,11 @@ new Cron('20 23 * * *', () => resetScoreByTime('week'));
 new Cron('30 23 1-7 * *', () => resetScoreByTime('month'));
 new Cron('30 23 1 1 *', () => resetScoreByTime('year'));
 
-const config = getConfig();
 if (isProduction && config.disablePatreon !== true) {
-  new Cron('*/2 * * * *', runPatreonTask);
+  new Cron('*/3 * * * *', runPatreonTask);
   new Cron('*/20 * * * *', () => runTopggTask);
 } else {
-  console.warn('Ignoring top.gg and Patreon requests due to environment');
+  console.warn('[!] Ignoring top.gg and Patreon requests due to environment');
 }
 
 app.use(router);

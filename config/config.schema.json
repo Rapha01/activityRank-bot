@@ -7,7 +7,8 @@
   "properties": {
     "disablePatreon": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "description": "Disables the Patreon and Top.GG tasks of the bot. Enabled by default in development."
     }
   },
   "additionalProperties": false

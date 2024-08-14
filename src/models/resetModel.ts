@@ -1,7 +1,6 @@
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { queryManager } from './managerDb.js';
 import { queryShard } from './shardDb.js';
-import { isProduction } from '../const/keys.js';
 
 const statsTables = [
   'textMessage',
@@ -38,9 +37,9 @@ export async function resetScoreByTime(
 async function resetStatsByTime(
   time: 'day' | 'week' | 'month' | 'year'
 ): Promise<{ errorCount: number }> {
-  const dbShards = await queryManager<
-    { host: string; id: number }[]
-  >(`SELECT id,host FROM dbShard ORDER BY id ASC`);
+  const dbShards = await queryManager<{ host: string; id: number }[]>(
+    `SELECT id,host FROM dbShard ORDER BY id ASC`
+  );
 
   let errorCount = 0;
   const currentSnowflake = DiscordSnowflake.generate();
@@ -98,9 +97,9 @@ async function resetStatsByTime(
 async function resetMemberScoreByTime(
   time: 'day' | 'week' | 'month' | 'year'
 ): Promise<{ errorCount: number }> {
-  const dbShards = await queryManager<
-    { hostIntern: string; hostExtern: string; id: number }[]
-  >(`SELECT * FROM dbShard ORDER BY id ASC`);
+  const dbShards = await queryManager<{ id: number; host: string }[]>(
+    `SELECT id, host FROM dbShard ORDER BY id ASC`
+  );
 
   let errorCount = 0;
   const currentSnowflake = DiscordSnowflake.generate();

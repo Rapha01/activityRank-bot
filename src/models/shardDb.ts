@@ -1,7 +1,6 @@
 import mysql from 'promise-mysql';
-import { getKeys } from '../const/keys.js';
 import { getAllDbHosts } from './managerDb.js';
-const keys = getKeys();
+import { keys } from '../const/keys.js';
 
 const pools = new Map<string, mysql.Pool>();
 

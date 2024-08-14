@@ -1,6 +1,5 @@
 import mysql from 'promise-mysql';
-import { getKeys, isProduction } from '../const/keys.js';
-const keys = getKeys();
+import { keys } from '../const/keys.js';
 
 let pool: mysql.Pool | null = null;
 

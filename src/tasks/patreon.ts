@@ -1,8 +1,7 @@
-import { getKeys } from '../const/keys.js';
+import { keys } from '../const/keys.js';
 import { queryAllHosts } from '../models/shardDb.js';
 import { setUser } from '../models/userModel.js';
 import { ofetch } from 'ofetch';
-const keys = getKeys();
 
 const baseURL = new URL(
   'https://www.patreon.com/api/oauth2/v2/campaigns/2925711/members'
