@@ -39,6 +39,8 @@ XP and statistics may be reset independently.
 $ ./migration/replace-vars.mjs filename.sql arg1="a" arg2="b c d" | mysql -h 127.0.0.1 -u activityrank -pPASSWORD > result.tsv
 ```
 
+### Directly running a script
+
 For instance, to run [get-calculated-value](./get-calculated-value.sql) into a `.tsv` file (tab-separated values), a command might be:
 
 ```sh
@@ -46,3 +48,27 @@ For instance, to run [get-calculated-value](./get-calculated-value.sql) into a `
 mysql -h 127.0.0.1 -u activityrank -pPASSWORD > \
 migration/result.tsv
 ```
+
+### Preparing a script
+
+To compile a script into a file that could be run with the `mysql` tool (via `\. <scriptpath>`), you could use the command:
+
+```sh
+./migration/replace-vars.mjs migration/guild-migrate-statxp-memberxp.sql guildId='"905898879785005106"' > migration/migrate.sql
+```
+
+```sh
+mysql> \. ./migration/migrate.sql
+```
+
+## migrate-set
+
+`migrate-set` is a tool to incrementally run the `guild-migrate-statxp-memberxp-condensed`
+script - which is a condensed version of the
+[`guild-migrate-statxp-memberxp.sql`](./guild-migrate-statxp-memberxp.sql) file.
+
+The `HOST` environment variable is required, and should be set to the target database host.
+All other credentials are fetched from the `'production'` segment of the [keys.json file](../config/keys.example.json).
+
+It writes a log of its actions to [`migrate-set.log`](./migrate-set.log), in the format `{guild id} {affected rows} {changed rows}`.
+It writes to STDOUT after every 1000 guilds processed.
