@@ -34,15 +34,12 @@ export function hasPrivilege(requirement: PL, testCase: PL | undefined) {
   return privilegeLevels[testCase] >= privilegeLevels[requirement];
 }
 export function isPrivileged(userId: string) {
-  return Object.keys(getPrivileges()).includes(userId);
+  return Object.keys(privileges).includes(userId);
 }
 
 export const config = JSON.parse(conffile.toString()) as ConfigInstance;
 export const keys = JSON.parse(keyfile.toString()) as KeyInstance;
-const privileges = JSON.parse(privfile.toString());
-
-export const getPrivileges = (prod: boolean = isProduction) =>
-  privileges[prod ? 'production' : 'development'] as PrivilegeInstance;
+export const privileges = JSON.parse(privfile.toString()) as PrivilegeInstance;
 
 const pkg = JSON.parse(pkgfile.toString());
 export const version = pkg.version as string;
