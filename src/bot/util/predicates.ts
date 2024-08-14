@@ -27,11 +27,6 @@ async function INVALID_CALLBACK(
   });
 }
 
-export const OWNER_ONLY: CommandPredicateConfig = {
-  validate: (user) => userHasPrivilege(user, 'OWNER'),
-  invalidCallback: INVALID_CALLBACK,
-};
-
 export const DEVELOPER_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'DEVELOPER'),
   invalidCallback: INVALID_CALLBACK,

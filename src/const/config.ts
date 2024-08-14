@@ -19,13 +19,11 @@ const [conffile, privfile, keyfile, pkgfile] = await Promise.all([
 
 export const isProduction = process.env.NODE_ENV === 'production';
 export const PrivilegeLevel = {
-  Owner: 'OWNER',
   Developer: 'DEVELOPER',
   Moderator: 'MODERATOR',
   HelpStaff: 'HELPSTAFF',
 } as const;
 const privilegeLevels: { [k in PL]: number } = {
-  OWNER: 4,
   DEVELOPER: 3,
   MODERATOR: 2,
   HELPSTAFF: 1,
