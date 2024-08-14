@@ -95,5 +95,5 @@ script - which is a condensed version of the
 The `HOST` environment variable is required, and should be set to the target database host.
 All other credentials are fetched from the `'production'` segment of the [keys.json file](../config/keys.example.json).
 
-It writes a log of its actions to [`migrate-set.log`](./migrate-set.log), in the format `{guild id} {affected rows} {changed rows}`.
+It writes a log of its actions to [`migrate-set.log`](./migrate-set.log), in the format `{guild id} {affected rows}`.
 It writes to STDOUT after every 1000 guilds processed.
