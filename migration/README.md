@@ -16,20 +16,45 @@ XP and statistics may be reset independently.
 
 ## Todo
 
-- [x] Add `alltime`, `year`, `month`, `week`, and `day` columns to the `dbShard`.`guildMember` table
-- [ ] Begin attributing XP to the `guildMember` columns.<br />**This should be executed incrementally:**
-  - [x] on 10% of servers
-  - [ ] on 25% of servers
-  - [ ] on 50% of servers
-  - [ ] on all servers
-- [ ] On servers where XP is added to the `guildMember` columns,
-      run a migration to ensure that XP in `guildMember` columns is equivalent to the calculated value. <br />
-      **This will need to be run each time the above step is applied to more servers.**
-- [ ] On servers where XP is added to the `guildMember` columns,
+- [x] Add `alltime`, `year`, `month`, `week`, and `day` columns to the `dbShard`.`guildMember` table.
+
+> [!IMPORTANT]
+> The following actions need to be rolled out slowly,
+> to ensure that there are no unforseen infrastructure limitations.
+
+- [ ] on 10% of guilds:
+
+  - [x] Allow the bot to add XP to the `guildMember` columns, in addition to the statistic tables.
+  - [ ] Run a migration to ensure that XP in `guildMember` columns is equivalent
+        to the calculated value from the statistic tables: otherwise, the XP would
+        only be counted from the day the bot began using the `guildMember` table.
+
+- [ ] on 25% of guilds:
+
+  - [ ] Enable adding XP to the `guildMember` columns.
+  - [ ] Run the migration to sync the `guildMember` and statistic tables.
+
+- [ ] on 50% of guilds:
+
+  - [ ] Enable adding XP to the `guildMember` columns.
+  - [ ] Run the migration to sync the `guildMember` and statistic tables.
+
+- [ ] on 100% of guilds:
+
+  - [ ] Enable adding XP to the `guildMember` columns.
+  - [ ] Run the migration to sync the `guildMember` and statistic tables.
+
+- [ ] Parallel to the above step, on servers where XP is added to the `guildMember` columns,
       ensure that resets of statistics also affect the `guildMember` columns.
-      At a later date, resets of statistics should be separated from resets of XP.
-- [ ] Verify that calculated XP and XP stored in the `guildMember` columns are identical.
-- [ ] Begin displaying XP from the `guildMember` columns instead of calculating it from statistics. **This should be executed incrementally.**
+      Separating resets of statistics from those of XP is out of the scope of this step.
+
+- [ ] Periodically, verify that calculated XP and XP stored in
+      the `guildMember` columns are identical on a random subset of guilds.
+
+- [ ] Begin displaying XP from the `guildMember` columns instead of
+      calculating it from statistics. **This should likely be executed incrementally.**
+
+- [ ] Separate the options to reset statistics and XP.
 
 ## replace-vars
 
