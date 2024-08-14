@@ -75,8 +75,14 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
       // User is within role. Assign or do nothing.
 
       if (role.permissions.any(DANGEROUS_PERMISSIONS)) {
-        member.client.logger.warn(
-          { guild: role.guild, permissions: role.permissions, id: role.id, cachedRole },
+        member.client.logger.debug(
+          {
+            guild: role.guild.id,
+            permissions: role.permissions,
+            id: role.id,
+            memberId: member.id,
+            cachedRole,
+          },
           'attempted to assign dangerous role',
         );
         continue;
