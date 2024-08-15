@@ -4,24 +4,10 @@
   "title": "ActivityRank Privileged Users",
   "description": "The users that are able to use privileged commands",
   "type": "object",
-  "properties": {
-    "production": {
-      "$ref": "#/$defs/privset"
-    },
-    "development": {
-      "$ref": "#/$defs/privset"
+  "patternProperties": {
+    "^\\d+$": {
+      "enum": ["DEVELOPER", "MODERATOR", "HELPSTAFF"]
     }
   },
-  "additionalProperties": false,
-  "$defs": {
-    "privset": {
-      "type": "object",
-      "patternProperties": {
-        "^\\d+$": {
-          "enum": ["OWNER", "DEVELOPER", "MODERATOR", "HELPSTAFF"]
-        }
-      },
-      "additionalProperties": false
-    }
-  }
+  "additionalProperties": false
 }

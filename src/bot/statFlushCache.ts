@@ -130,10 +130,11 @@ const addTotalXp = async (member: GuildMember, xp: number) => {
   const cachedMember = await getMemberModel(member);
 
   const oldTotalXp = cachedMember.cache.totalXp ?? 0;
-  cachedMember.cache.totalXp = oldTotalXp + xp;
-  const newTotalXp = cachedMember.cache.totalXp;
+  const newTotalXp = oldTotalXp + xp;
+  cachedMember.cache.totalXp = newTotalXp;
 
-  if (hasFeature(member.guild, Feature.XPFlush)) await addXp(member, xp);
+  // add XP to the guildMember table
+  await addXp(member, xp);
 
   await levelManager.checkLevelUp(member, oldTotalXp, newTotalXp);
 };

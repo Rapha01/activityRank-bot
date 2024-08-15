@@ -19,13 +19,11 @@ const [conffile, privfile, keyfile, pkgfile] = await Promise.all([
 
 export const isProduction = process.env.NODE_ENV === 'production';
 export const PrivilegeLevel = {
-  Owner: 'OWNER',
   Developer: 'DEVELOPER',
   Moderator: 'MODERATOR',
   HelpStaff: 'HELPSTAFF',
 } as const;
 const privilegeLevels: { [k in PL]: number } = {
-  OWNER: 4,
   DEVELOPER: 3,
   MODERATOR: 2,
   HELPSTAFF: 1,
@@ -36,17 +34,12 @@ export function hasPrivilege(requirement: PL, testCase: PL | undefined) {
   return privilegeLevels[testCase] >= privilegeLevels[requirement];
 }
 export function isPrivileged(userId: string) {
-  return Object.keys(getPrivileges()).includes(userId);
+  return Object.keys(privileges).includes(userId);
 }
 
 export const config = JSON.parse(conffile.toString()) as ConfigInstance;
-const keys = JSON.parse(keyfile.toString());
-const privileges = JSON.parse(privfile.toString());
-
-export const getKeys = (prod: boolean = isProduction) =>
-  keys[prod ? 'production' : 'development'] as KeyInstance;
-export const getPrivileges = (prod: boolean = isProduction) =>
-  privileges[prod ? 'production' : 'development'] as PrivilegeInstance;
+export const keys = JSON.parse(keyfile.toString()) as KeyInstance;
+export const privileges = JSON.parse(privfile.toString()) as PrivilegeInstance;
 
 const pkg = JSON.parse(pkgfile.toString());
 export const version = pkg.version as string;

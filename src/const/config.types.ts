@@ -31,7 +31,7 @@ export interface KeyInstance {
   };
 }
 
-const privilegeTypes = ['OWNER', 'DEVELOPER', 'MODERATOR', 'HELPSTAFF'] as const;
+const privilegeTypes = ['DEVELOPER', 'MODERATOR', 'HELPSTAFF'] as const;
 export type PrivilegeLevel = (typeof privilegeTypes)[number];
 
 export type PrivilegeInstance = { [k in string]?: PrivilegeLevel };

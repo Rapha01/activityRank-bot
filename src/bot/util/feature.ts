@@ -1,4 +1,5 @@
 export enum Feature {
+  /** @deprecated enabled by default */
   XPFlush,
 }
 
@@ -13,6 +14,15 @@ const featureMap: {
   },
 };
 
+/**
+ * Check if a given object with an ID field parseable to a bigint, preferably a Snowflake, can use a given feature.
+ *
+ * Assumes that the given ID is greater than 4194303 (1 << 22), to parse the timestamp segment from Snowflakes.
+ *
+ * @param obj An ID that can be parseable to a BigInt, or an object with a BigInt-parseable `id` field
+ * @param feature The feature to test
+ * @returns `true` if the ID or object should use the given feature
+ */
 export function hasFeature(
   obj: number | bigint | string | { id: number | bigint | string },
   feature: Feature,
@@ -21,7 +31,10 @@ export function hasFeature(
 
   if (featureMap[feature].overrides?.has(id)) return true;
 
-  const hash = id % 100n;
+  // hash the timestamp of the snowflake, not the increment
+  // the increment is less likely to be consistent - roughly
+  // 80% of all Discord snowflakes % 100 are <= 10.
+  const hash = (id >> 22n) % 100n;
   const offset = featureMap[feature].offset ?? 0n;
 
   if (offset + featureMap[feature].percent > 100n)

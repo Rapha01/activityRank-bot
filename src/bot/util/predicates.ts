@@ -1,4 +1,4 @@
-import { getPrivileges, hasPrivilege } from 'const/config.js';
+import { hasPrivilege, privileges } from 'const/config.js';
 import type { PrivilegeLevel } from 'const/config.types.js';
 import type { CommandPredicateConfig } from './registry/command.js';
 import { Predicate } from './registry/predicate.js';
@@ -11,7 +11,7 @@ import type {
 import type { ComponentPredicateConfig } from './registry/component.js';
 
 function userHasPrivilege(user: User, privilege: PrivilegeLevel): Predicate {
-  const userPrivileges = getPrivileges()[user.id];
+  const userPrivileges = privileges[user.id];
   return hasPrivilege(privilege, userPrivileges) ? Predicate.Allow : Predicate.Deny;
 }
 
@@ -26,11 +26,6 @@ async function INVALID_CALLBACK(
     content: `Sorry! This command is only accessible to ActivityRank staff. [This incident will be reported.](https://xkcd.com/838)`,
   });
 }
-
-export const OWNER_ONLY: CommandPredicateConfig = {
-  validate: (user) => userHasPrivilege(user, 'OWNER'),
-  invalidCallback: INVALID_CALLBACK,
-};
 
 export const DEVELOPER_ONLY: CommandPredicateConfig = {
   validate: (user) => userHasPrivilege(user, 'DEVELOPER'),
