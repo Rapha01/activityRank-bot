@@ -103,6 +103,11 @@ export interface GuildMemberSchema {
   tokensBurned: Generated<number>;
   reactionVote: Generated<number>;
   inviter: Generated<string>;
+  alltime: Generated<number>;
+  year: Generated<number>;
+  month: Generated<number>;
+  week: Generated<number>;
+  day: Generated<number>;
 }
 export type GuildMember = Selectable<GuildMemberSchema>;
 export type NewGuildMember = Insertable<GuildMemberSchema>;
