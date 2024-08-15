@@ -22,27 +22,27 @@ XP and statistics may be reset independently.
 > The following actions need to be rolled out slowly,
 > to ensure that there are no unforseen infrastructure limitations.
 
-- [ ] on 10% of guilds:
+- [x] on 10% of guilds:
 
   - [x] Allow the bot to add XP to the `guildMember` columns, in addition to the statistic tables.
-  - [ ] Run a migration to ensure that XP in `guildMember` columns is equivalent
+  - [x] Run a migration to ensure that XP in `guildMember` columns is equivalent
         to the calculated value from the statistic tables: otherwise, the XP would
         only be counted from the day the bot began using the `guildMember` table.
 
-- [ ] on 25% of guilds:
+- [x] on 25% of guilds:
 
   - [x] Enable adding XP to the `guildMember` columns.
-  - [ ] Run the migration to sync the `guildMember` and statistic tables.
+  - [x] Run the migration to sync the `guildMember` and statistic tables.
 
-- [ ] on 50% of guilds:
-
-  - [x] Enable adding XP to the `guildMember` columns.
-  - [ ] Run the migration to sync the `guildMember` and statistic tables.
-
-- [ ] on 100% of guilds:
+- [x] on 50% of guilds:
 
   - [x] Enable adding XP to the `guildMember` columns.
-  - [ ] Run the migration to sync the `guildMember` and statistic tables.
+  - [x] Run the migration to sync the `guildMember` and statistic tables.
+
+- [x] on 100% of guilds:
+
+  - [x] Enable adding XP to the `guildMember` columns.
+  - [x] Run the migration to sync the `guildMember` and statistic tables.
 
 - [ ] Parallel to the above step, on servers where XP is added to the `guildMember` columns,
       ensure that resets of statistics also affect the `guildMember` columns.
