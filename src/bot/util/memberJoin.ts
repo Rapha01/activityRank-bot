@@ -16,13 +16,14 @@ export async function handleMemberJoin(member: GuildMember) {
 
   // Roleassignments
   const level = fct.getLevel(
-    fct.getLevelProgression(cachedMember.cache.totalScore!, cachedGuild.db.levelFactor),
+    fct.getLevelProgression(cachedMember.cache.totalXp!, cachedGuild.db.levelFactor),
   );
   /*member.client.logger.debug(
-    `level ${level} ${cachedMember.cache.totalScore} ${cachedGuild.db.levelFactor}`,
-  );*/
+    `level ${level} ${cachedMember.cache.totalXp} ${cachedGuild.db.levelFactor}`,
+    );*/
 
   const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
+  if (level > 1) await levelManager.checkLevelUp(member, 0, cachedMember.cache.totalXp!);
 
   // member.client.logger.debug({ roleAssignmentString }, `RAS`);
 
