@@ -19,7 +19,7 @@ import type { GuildChannelSchema } from 'models/types/shard.js';
 import { command, permissions } from 'bot/util/registry/command.js';
 import { component } from 'bot/util/registry/component.js';
 import { requireUser, requireUserId } from 'bot/util/predicates.js';
-import { closeButton } from 'bot/util/component.js';
+import { actionrow, closeButton } from 'bot/util/component.js';
 
 type Setting =
   | 'noXp'
@@ -27,6 +27,41 @@ type Setting =
   | 'commandOnlyChannel'
   | 'autopost_serverJoin'
   | 'autopost_levelup';
+
+const noCommandButton = component<{ channelId: string; type: ChannelType | null }>({
+  type: ComponentType.Button,
+  async callback({ interaction, data }) {
+    const { channelId, type } = data;
+
+    let myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
+    const cachedGuild = await getGuildModel(interaction.guild);
+
+    if (myChannel.noCommand) {
+      await guildChannelModel.storage.set(interaction.guild, channelId, 'noCommand', 0);
+    } else {
+      await interaction.reply({
+        embeds: [
+          {
+            title: 'Oops!',
+            description:
+              '## No-Command Channels are __deprecated__.\n\nManage Application Command permissions in **[Server Settings](discord://-/guilds/${interaction.guild.id}/settings)** > **Integrations** > **ActivityRank** instead!\n\n*You can still **disable** No-Command channels.*',
+            color: 0xfe5326,
+          },
+        ],
+      });
+      return;
+    }
+
+    myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
+
+    await interaction.update({
+      components: [
+        actionrow(generateRow(interaction, channelId, type, cachedGuild, myChannel)),
+        _close(interaction.user.id),
+      ],
+    });
+  },
+});
 
 const settingButton = component<{
   channelId: string;
@@ -70,7 +105,6 @@ const generateRow = (
   myGuild: GuildModel,
   myChannel: GuildChannelSchema,
 ) => {
-  const ownerId = interaction.user.id;
   const r = [
     new ButtonBuilder().setLabel('No XP'),
     new ButtonBuilder().setLabel('No Commands'),
@@ -99,7 +133,12 @@ const generateRow = (
   r[0].setCustomId(getButton('noXp'));
   r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  r[1].setCustomId(getButton('noCommand'));
+  r[1].setCustomId(
+    noCommandButton.instanceId({
+      data: { channelId, type },
+      predicate: requireUser(interaction.user),
+    }),
+  );
   r[1].setDisabled(Boolean(parseInt(myGuild.db.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
   // r[1].setDisabled(type !== ChannelType.GuildText);
