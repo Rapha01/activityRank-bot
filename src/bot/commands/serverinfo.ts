@@ -274,9 +274,9 @@ const levels: Window = {
 
     const roleAssignments = await guildRoleModel.storage.getRoleAssignments(interaction.guild);
 
-    function levelValue(level: number, localXp: number, totalXp: number): string {
+    function levelValue(header: string, level: number): string {
       return [
-        `**${localXp}** (${totalXp})`,
+        header,
         // TODO(style): consider replacing `-` and `+` with emojis
         roleAssignments
           .filter((r) => r.deassignLevel === level)
@@ -294,15 +294,16 @@ const levels: Window = {
       },
       color: 0x4fd6c8,
       description: `Levelfactor: ${cachedGuild.db.levelFactor}\n-# The levelfactor is the amount of extra XP each level needs.\n*XP needed to reach the next level (xp needed to reach this level from Level 1)*`,
-      fields: levels.map((level) =>
-        level.number < 2
-          ? { name: '🎖1', value: '*All members start at Level 1.*', inline: true }
-          : {
-              name: `🎖${level.number}`,
-              value: levelValue(level.number, level.localXp, level.totalXp),
-              inline: true,
-            },
-      ),
+      fields: levels.map((level) => ({
+        name: `🎖${level.number}`,
+        value: levelValue(
+          level.number < 2
+            ? '*All members start at Level 1.*'
+            : `**${level.localXp}** (${level.totalXp})`,
+          level.number,
+        ),
+        inline: true,
+      })),
     };
   },
 };
