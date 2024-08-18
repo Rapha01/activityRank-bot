@@ -48,6 +48,7 @@ const cachedFields = [
   'serverJoinMessage',
   'addDate',
   'isBanned',
+  'resetDeletedMembers',
 ] as const;
 
 // TODO convert to dates

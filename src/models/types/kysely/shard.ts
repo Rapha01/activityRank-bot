@@ -81,6 +81,7 @@ export interface GuildSchema {
   leftAtDate: Generated<string>; // bigint
   addDate: Generated<string>;
   isBanned: Generated<number>;
+  resetDeletedMembers: Generated<number>;
 }
 export type Guild = Selectable<GuildSchema>;
 export type NewGuild = Insertable<GuildSchema>;
