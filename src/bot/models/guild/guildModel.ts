@@ -4,7 +4,6 @@ import type { GuildSchema, GuildUpdate } from 'models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
 
-
 const cachedFields = [
   //'tokens',
   'showNicknames',
