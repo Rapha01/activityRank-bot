@@ -70,7 +70,7 @@ function faqReducedEmbed(faqs: TextsFaqs) {
 
   const titles = faqs.map((faq) => `**${faq.id}.** ${faq.title} \n`);
   embed.setDescription(
-    'Check frequently asked questions for ActivityRank bot. You can find a specific FAQ with its number.\n\n' +
+    'Check frequently asked questions for ActivityRank bot. Run /faq again with the `number` option set to select a specific FAQ.\n\n' +
       titles.join(''),
   );
 

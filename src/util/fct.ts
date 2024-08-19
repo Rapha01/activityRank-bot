@@ -26,7 +26,17 @@ export const hasNoXpRole = async (member: GuildMember) => {
   return false;
 };
 
-export type Pagination = { page: number; from: number; to: number };
+/**
+ * An object describing the entries that should be provided to a page.
+ */
+export interface Pagination {
+  /** The page to display. Indexed from 1. */
+  page: number;
+  /** The index of the first entry to display. */
+  from: number;
+  /** The index of the last entry to display. */
+  to: number;
+}
 
 export const extractPageSimple = (page: number, entriesPerPage: number): Pagination => {
   const from = Math.max((page - 1) * entriesPerPage + 1);

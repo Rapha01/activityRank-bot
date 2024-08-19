@@ -28,7 +28,8 @@ type BooleanGuildKey =
   | 'textXp'
   | 'voiceXp'
   | 'inviteXp'
-  | 'voteXp';
+  | 'voteXp'
+  | 'resetDeletedMembers';
 
 const generateRows = async (
   interaction: Interaction<'cached'>,
@@ -58,6 +59,7 @@ const generateRows = async (
       { emoji: '✉️', key: 'inviteXp' },
       { emoji: '❤️', key: 'voteXp' },
     ],
+    [{ label: 'Reset Deleted Members', key: 'resetDeletedMembers' }],
   ];
 
   const items = rows.map((group) =>
@@ -179,6 +181,10 @@ export const set = subcommand({
           value: stripIndent`
           These will enable or disable text, voice, invite, and upvoteXP respectively.
           You may want to reset these categories, as disabling them will only hide them and prevent more from being added.`,
+        },
+        {
+          name: 'Reset Deleted Members',
+          value: 'This will reset the XP of members when they leave the server.',
         },
       ],
     };

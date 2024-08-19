@@ -4,7 +4,6 @@ import type { GuildSchema, GuildUpdate } from 'models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
 
-
 const cachedFields = [
   //'tokens',
   'showNicknames',
@@ -49,6 +48,7 @@ const cachedFields = [
   'serverJoinMessage',
   'addDate',
   'isBanned',
+  'resetDeletedMembers',
 ] as const;
 
 // TODO convert to dates
