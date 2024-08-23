@@ -1,9 +1,6 @@
 import cron from 'node-cron';
 import voiceXpRound from './voiceXpRound.js';
 import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
-import resetJob from './resetJob.js';
-import fct from '../../util/fct.js';
-import util from 'util';
 import type { Client } from 'discord.js';
 import { config } from 'const/config.js';
 
@@ -12,12 +9,10 @@ const isProd = process.env.NODE_ENV === 'production';
 const logShardDiagnostics = isProd ? '0 */10 * * * *' : '*/20 * * * * *';
 const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
 const autoAssignPatreonRolesInterval = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
-const resetJobInterval = 3_000;
 
 export const start = (client: Client) => {
   // Loops
   startVoiceXp(client);
-  startResetJob(client);
 
   /*
   cron.schedule(logHighestGuildsInterval, async () => {
@@ -91,15 +86,6 @@ export const start = (client: Client) => {
 const startVoiceXp = async (client: Client) => {
   while (true) {
     await voiceXpRound(client).catch((e) => client.logger.warn(e, 'Error in voiceXpRound'));
-  }
-};
-
-const startResetJob = async (client: Client) => {
-  while (true) {
-    await resetJob().catch((e) => client.logger.warn(e, 'Error in resetJob'));
-    await fct
-      .sleep(resetJobInterval)
-      .catch((e) => client.logger.warn(e, 'Error sleeping in resetJob interval'));
   }
 };
 
