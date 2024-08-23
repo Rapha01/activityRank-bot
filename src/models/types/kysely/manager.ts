@@ -41,8 +41,7 @@ export type BotStatUpdate = Updateable<BotStatSchema>;
 
 export interface DbShardSchema {
   id: Generated<string>;
-  hostExtern: Generated<string>;
-  hostIntern: Generated<string>;
+  host: Generated<string>;
 }
 export type DbShard = Selectable<DbShardSchema>;
 export type NewDbShard = Insertable<DbShardSchema>;

@@ -28,9 +28,8 @@ export async function getConnection() {
 }
 
 export async function getAllDbHosts() {
-  const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
   const db = getManagerDb();
-  const res = await db.selectFrom('dbShard').select(`${hostField} as host`).execute();
+  const res = await db.selectFrom('dbShard').select(`host`).execute();
 
   return res.map((r) => r.host);
 }

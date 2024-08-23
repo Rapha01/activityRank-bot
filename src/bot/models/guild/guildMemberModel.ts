@@ -15,7 +15,6 @@ let defaultAll: DBMember | null = null;
 
 interface MemberCacheStorage {
   totalXp?: number;
-  totalScore?: number;
   lastVoteDate?: Date | null;
   lastTextMessageDate?: Date | null;
   lastStatCommandDate?: Date | null;

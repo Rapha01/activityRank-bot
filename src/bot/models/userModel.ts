@@ -8,7 +8,6 @@ let defaultCache: Pick<DBUser, (typeof cachedFields)[number]> | null = null;
 let defaultAll: DBUser | null = null;
 
 const cachedFields = ['userId', 'isBanned'] as const satisfies (keyof DBUser)[];
-const hostField = process.env.NODE_ENV == 'production' ? 'hostIntern' : 'hostExtern';
 
 interface UserCacheStorage {
   patreonTier?: number;
@@ -107,7 +106,7 @@ async function getDbHost(userId: string): Promise<string> {
   const getRoute = db
     .selectFrom('userRoute')
     .leftJoin('dbShard', 'userRoute.dbShardId', 'dbShard.id')
-    .select(`${hostField} as host`)
+    .select(`host`)
     .where('userId', '=', userId);
 
   let res = await getRoute.executeTakeFirst();

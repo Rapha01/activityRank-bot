@@ -19,7 +19,7 @@ import type { GuildChannelSchema } from 'models/types/shard.js';
 import { command, permissions } from 'bot/util/registry/command.js';
 import { component } from 'bot/util/registry/component.js';
 import { requireUser, requireUserId } from 'bot/util/predicates.js';
-import { closeButton } from 'bot/util/component.js';
+import { actionrow, closeButton } from 'bot/util/component.js';
 
 type Setting =
   | 'noXp'
@@ -41,12 +41,44 @@ const settingButton = component<{
 
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    if (setting === 'noXp' || setting === 'noCommand') {
-      if (myChannel[setting])
-        await guildChannelModel.storage.set(interaction.guild, channelId, setting, 0);
-      else await guildChannelModel.storage.set(interaction.guild, channelId, setting, 1);
+    if (setting === 'noXp') {
+      if (myChannel.noXp)
+        await guildChannelModel.storage.set(interaction.guild, channelId, 'noXp', 0);
+      else await guildChannelModel.storage.set(interaction.guild, channelId, 'noXp', 1);
 
       myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
+    } else if (setting === 'noCommand') {
+      if (myChannel.noCommand) {
+        await guildChannelModel.storage.set(interaction.guild, channelId, 'noCommand', 0);
+      } else {
+        await interaction.reply({
+          embeds: [
+            {
+              title: 'Oops!',
+              description:
+                '## No-Command Channels are __deprecated__.\n\nManage Application Command permissions in **[Server Settings](discord://-/guilds/${interaction.guild.id}/settings)** > **Integrations** > **ActivityRank** instead!\n\n*You can still **disable** No-Command channels.*',
+              color: 0xfe5326,
+            },
+          ],
+        });
+        return;
+      }
+    } else if (setting === 'commandOnlyChannel') {
+      if (cachedGuild.db.commandOnlyChannel === channelId) {
+        await cachedGuild.upsert({ commandOnlyChannel: '0' });
+      } else {
+        await interaction.reply({
+          embeds: [
+            {
+              title: 'Oops!',
+              description:
+                '## Command-Only Channels are __deprecated__.\n\nManage Application Command permissions in **[Server Settings](discord://-/guilds/${interaction.guild.id}/settings)** > **Integrations** > **ActivityRank** instead!\n\n*You can still **disable** Command-Only channels.*',
+              color: 0xfe5326,
+            },
+          ],
+        });
+        return;
+      }
     } else {
       if (cachedGuild.db[setting] == channelId) await cachedGuild.upsert({ [setting]: '0' });
       else await cachedGuild.upsert({ [setting]: channelId });
@@ -70,7 +102,6 @@ const generateRow = (
   myGuild: GuildModel,
   myChannel: GuildChannelSchema,
 ) => {
-  const ownerId = interaction.user.id;
   const r = [
     new ButtonBuilder().setLabel('No XP'),
     new ButtonBuilder().setLabel('No Commands'),

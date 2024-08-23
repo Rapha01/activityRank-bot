@@ -11,17 +11,17 @@ export async function checkLevelUp(
   oldTotalScore: number,
   newTotalScore: number,
 ) {
-  member.client.logger.debug(
+  /* member.client.logger.debug(
     { memberId: member.id, oldTotalScore, newTotalScore },
     'checking levelup',
-  );
+  ); */
 
   const cachedGuild = await getGuildModel(member.guild);
 
   const oldLevel = fct.getLevel(fct.getLevelProgression(oldTotalScore, cachedGuild.db.levelFactor));
   const newLevel = fct.getLevel(fct.getLevelProgression(newTotalScore, cachedGuild.db.levelFactor));
 
-  member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
+  // member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
 
   if (oldLevel != newLevel) {
     const roleMessages = await checkRoleAssignment(member, newLevel);
@@ -49,14 +49,14 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
 
   const cachedGuild = await getGuildModel(member.guild);
 
-  member.client.logger.debug(
+  /* member.client.logger.debug(
     { memberId: member.id, guildId: member.guild.id, checkedLevel: level },
     'checking roleAssigment',
-  );
+  ); */
 
   for (const role of roles.values()) {
     const cachedRole = await guildRoleModel.cache.get(role);
-    member.client.logger.debug({ cachedRole, role }, 'processing role');
+    //member.client.logger.debug({ cachedRole, role }, 'processing role');
 
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
     if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
@@ -89,7 +89,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
       }
 
       if (!memberHasRole) {
-        member.client.logger.debug({ roleId: role.id }, 'assigning role');
+        //member.client.logger.debug({ roleId: role.id }, 'assigning role');
         await member.roles.add(role).catch((e) => {
           if (e.code !== 50013) throw e; // Missing Permissions
         });

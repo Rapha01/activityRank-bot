@@ -51,8 +51,18 @@ const generateMainRow = (
   ]);
 };
 
-const generateCloseRow = (interaction: Interaction<'cached'>) =>
+const generateCloseRow = (interaction: Interaction<'cached'>, roleId: string) =>
   actionrow([
+    {
+      label: 'Clear a message',
+      style: ButtonStyle.Danger,
+      customId: clearButton.instanceId({
+        data: { roleId },
+        predicate: requireUser(interaction.user),
+      }),
+      type: ComponentType.Button,
+    },
+
     {
       label: 'Close',
       style: ButtonStyle.Danger,
@@ -152,18 +162,7 @@ export const menu = subcommand({
       embeds: [embed],
       components: [
         generateMainRow(interaction, resolvedRole.id, myRole),
-        generateCloseRow(interaction),
-        actionrow([
-          {
-            label: 'Clear a message',
-            style: ButtonStyle.Danger,
-            customId: clearButton.instanceId({
-              data: { roleId: resolvedRole.id },
-              predicate: requireUser(interaction.user),
-            }),
-            type: ComponentType.Button,
-          },
-        ]),
+        generateCloseRow(interaction, resolvedRole.id),
       ],
     });
   },
@@ -227,11 +226,10 @@ const noXpButton = component<{ roleId: string }>({
     await interaction.update({
       components: [
         generateMainRow(interaction, data.roleId, myRole),
-        generateCloseRow(interaction),
-        // TODO shouldn't there be another row here??
+        generateCloseRow(interaction, data.roleId),
       ],
     });
-    // TODO check if this is correct
+
     drop();
   },
 });

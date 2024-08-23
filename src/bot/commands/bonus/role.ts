@@ -113,7 +113,7 @@ async function oldSystem(
 
   let affected = 0;
   for (const member of members.values()) {
-    if (member.roles.cache.has(role.id)) {
+    if (member.roles.cache.has(role.id) && !member.user.bot) {
       await statFlushCache.addBonus(member, changeAmount);
       affected++;
     }
