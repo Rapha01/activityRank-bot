@@ -1,7 +1,6 @@
 import { escape } from 'promise-mysql';
 import { queryShard } from './shardDb.js';
 import { queryManager } from './managerDb.js';
-import { isProduction } from '../const/keys.js';
 
 let defaultAll: any = null;
 

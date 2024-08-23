@@ -1,62 +1,48 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
   "$id": "https://activityrank.me/_meta/manager/json-schema/keys.schema.json",
-  "title": "ActivityRank Bot Keys",
+  "title": "ActivityRank Manager Keys",
   "description": "The keys to be provided to the Manager module of ActivityRank",
   "type": "object",
   "properties": {
-    "production": {
-      "$ref": "#/$defs/keyset"
+    "dblApiKey": {
+      "description": "The API key used for Top.GG.\nOnly required if config.disablePatreon is set to 'false'.",
+      "type": "string"
     },
-    "development": {
-      "$ref": "#/$defs/keyset"
+    "patreonAccessToken": {
+      "description": "The API key used for Patreon.\nOnly required if config.disablePatreon is set to 'false'.",
+      "type": "string"
+    },
+    "botId": {
+      "description": "The Discord ID of the bot",
+      "type": "string"
+    },
+    "managerApiAuth": {
+      "description": "The password required by the Manager API",
+      "type": "string"
+    },
+    "managerHost": {
+      "description": "The hostname of the Manager Database",
+      "type": "string"
+    },
+    "managerDb": {
+      "description": "Properties concerning manager DB connections",
+      "$ref": "#/$defs/dbConnection"
+    },
+    "shardDb": {
+      "description": "Properties concerning shard DB connections",
+      "$ref": "#/$defs/dbConnection"
     }
   },
+  "required": [
+    "botId",
+    "managerApiAuth",
+    "managerHost",
+    "managerDb",
+    "shardDb"
+  ],
   "additionalProperties": false,
   "$defs": {
-    "keyset": {
-      "type": "object",
-      "properties": {
-        "dblApiKey": {
-          "description": "The API key used for top.gg",
-          "type": "string"
-        },
-        "patreonAccessToken": {
-          "description": "The API key used for Patreon",
-          "type": "string"
-        },
-        "botId": {
-          "description": "The Discord ID of the bot",
-          "type": "string"
-        },
-        "managerApiAuth": {
-          "description": "The password required by the Manager API",
-          "type": "string"
-        },
-        "managerHost": {
-          "description": "The host of the Manager Database",
-          "type": "string"
-        },
-        "managerDb": {
-          "description": "Properties concerning manager DB connections",
-          "$ref": "#/$defs/dbConnection"
-        },
-        "shardDb": {
-          "description": "Properties concerning shard DB connections",
-          "$ref": "#/$defs/dbConnection"
-        }
-      },
-      "required": [
-        "dblApiKey",
-        "patreonAccessToken",
-        "botId",
-        "managerApiAuth",
-        "managerHost",
-        "managerDb",
-        "shardDb"
-      ],
-      "additionalProperties": false
-    },
     "dbConnection": {
       "type": "object",
       "properties": {

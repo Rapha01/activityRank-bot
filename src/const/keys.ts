@@ -14,13 +14,8 @@ const conffile = readFileSync(
     : new URL('../../config/config.json', import.meta.url)
 );
 
-const keys = JSON.parse(keyfile.toString());
-const config = JSON.parse(conffile.toString());
-
-export const getKeys = (prod: boolean = isProduction) =>
-  keys[prod ? 'production' : 'development'] as KeyInstance;
-
-export const getConfig = () => config as ConfigInstance;
+export const keys = JSON.parse(keyfile.toString()) as KeyInstance;
+export const config = JSON.parse(conffile.toString()) as ConfigInstance;
 
 export interface KeyInstance {
   botId: string;

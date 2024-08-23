@@ -1,22 +1,22 @@
-FROM node:20-slim as base
+FROM node:20-slim AS base
 ENV NODE_ENV=production
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn/releases ./.yarn/releases
 
 # base dependencies
-FROM base as deps
+FROM base AS deps
 RUN yarn install --immutable
 
 # Install production dependencies
-FROM base as production-deps
+FROM base AS production-deps
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
 RUN yarn workspaces focus --production
 
 # Build
-FROM base as build
+FROM base AS build
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules

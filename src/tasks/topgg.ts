@@ -1,7 +1,6 @@
 import { ofetch } from 'ofetch';
-import { getKeys } from '../const/keys.js';
 import { getShardServerCounts } from '../models/botShardStatModel.js';
-const keys = getKeys();
+import { keys } from '../const/keys.js';
 
 const headers = new Headers();
 headers.set('Authorization', keys.dblApiKey);
