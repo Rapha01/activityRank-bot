@@ -58,7 +58,8 @@ export const statistics = subcommand({
           {
             label: 'Votes',
             value: 'vote',
-            emoji: cachedGuild.db.voteEmote,
+            // TODO: emoji: cachedGuild.db.voteEmote,
+            emoji: '❤️',
           },
           {
             label: 'Invites',
