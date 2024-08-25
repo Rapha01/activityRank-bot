@@ -524,22 +524,6 @@ function getMembersComponents(
       },
     ]),
     getPaginationComponents(state, disabled),
-    /*
-    TODO
-    BLOCKED(d.js 14.8): Deselection kills bot process
-    new ActionRowBuilder().setComponents(
-      new ChannelSelectMenuBuilder()
-        .setCustomId('top channel')
-        .setDisabled(disabled)
-        .setChannelTypes(
-          ChannelType.GuildText,
-          ChannelType.GuildVoice,
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildForum,
-        )
-        .setMinValues(0)
-        .setMaxValues(1),
-    ), */
   ];
 }
 
