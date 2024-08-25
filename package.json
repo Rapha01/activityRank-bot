@@ -24,7 +24,7 @@
     "@sapphire/duration": "^1.1.2",
     "@sapphire/snowflake": "^3.5.3",
     "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.7.3",
+    "@swc/core": "^1.7.18",
     "callsites": "^4.2.0",
     "common-tags": "^1.8.2",
     "discord.js": "^14.15.3",
@@ -36,8 +36,8 @@
     "node-cron": "^3.0.3",
     "node-emoji": "^2.1.3",
     "pino": "^8.21.0",
-    "pretty-ms": "^8.0.0",
-    "public-ip": "^6.0.2",
+    "pretty-ms": "^9.1.0",
+    "public-ip": "^7.0.1",
     "unicode-emoji-json": "^0.6.0"
   },
   "devDependencies": {
@@ -51,13 +51,13 @@
     "defu": "^6.1.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "execa": "^9.3.0",
+    "execa": "^9.3.1",
     "nodemon": "^3.1.4",
     "pino-pretty": "^10.3.1",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4",
-    "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^2.0.4",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.0.5",
     "zod": "^3.23.8"
   },
   "nodemonConfig": {
