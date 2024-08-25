@@ -36,10 +36,9 @@ const keyInstanceSchema = z.object({
 /**
  * Load and parse the configuration from a set of optionally provided config paths.
  * @param {ConfigPaths} paths A set of configuration paths to load.
- * @param {"development" | "production"} keyContext Which set of keys to load from the file.
  * @returns A set of validated configuration objects
  */
-async function getConfig(paths, keyContext) {
+async function getConfig(paths) {
   /** @type any[] */
   const configElements = [];
 
@@ -55,7 +54,7 @@ async function getConfig(paths, keyContext) {
 
   return {
     config: configSchema.parse(config),
-    keys: keyInstanceSchema.parse(keys[keyContext]),
+    keys: keyInstanceSchema.parse(keys),
   };
 }
 
@@ -113,7 +112,7 @@ const deployProd = defineCommand({
   meta: { name: 'production', description: 'Update Discord production application commands' },
   args: { ...globalArgs },
   async run({ args }) {
-    const conf = await getConfig(argToPaths(args), 'production');
+    const conf = await getConfig(argToPaths(args));
     const api = getAPI(conf);
 
     const registry = await getRegistry();
@@ -185,7 +184,7 @@ const deploy = defineCommand({
   async run({ args }) {
     const overrideGuilds = args._.length > 0;
 
-    const conf = await getConfig(argToPaths(args), 'development');
+    const conf = await getConfig(argToPaths(args));
     const api = getAPI(conf);
     const guilds = overrideGuilds
       ? // citty doesn't support variadic arguments yet; ctx.args._ is a workaround
@@ -243,7 +242,7 @@ const clearProd = defineCommand({
   meta: { name: 'production', description: 'Clear Discord production application commands' },
   args: { ...globalArgs },
   async run({ args }) {
-    const conf = await getConfig(argToPaths(args), 'production');
+    const conf = await getConfig(argToPaths(args));
     const api = getAPI(conf);
 
     const GLOBAL = 'Clear globally deployed commands';
@@ -294,7 +293,7 @@ const clear = defineCommand({
   async run({ args }) {
     const overrideGuilds = args._.length > 0;
 
-    const conf = await getConfig(argToPaths(args), 'development');
+    const conf = await getConfig(argToPaths(args));
     const api = getAPI(conf);
     const guilds = overrideGuilds
       ? // citty doesn't support variadic arguments yet; ctx.args._ is a workaround
@@ -348,7 +347,7 @@ const get = defineCommand({
     ...globalArgs,
   },
   async run({ args }) {
-    const conf = await getConfig(argToPaths(args), args.production ? 'production' : 'development');
+    const conf = await getConfig(argToPaths(args));
     const api = getAPI(conf);
 
     const botInfo = await api.applications.getCurrent();

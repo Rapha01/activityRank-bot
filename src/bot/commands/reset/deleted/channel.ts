@@ -3,11 +3,9 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  ChannelType,
-  ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
-import nameUtil from '../../util/nameUtil.js';
+import nameUtil from 'bot/util/nameUtil.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
@@ -16,20 +14,16 @@ import { ResetGuildChannelsStatistics } from 'bot/models/resetModel.js';
 export const channel = subcommand({
   data: {
     name: 'channel',
-    description: "Reset a channel's statistics.",
+    description: "Reset a deleted channel's statistics.",
     type: ApplicationCommandOptionType.Subcommand,
     options: [
       {
-        name: 'channel',
-        description: 'The channel to reset.',
-        type: ApplicationCommandOptionType.Channel,
+        name: 'id',
+        description: 'The ID of the channel to reset.',
+        type: ApplicationCommandOptionType.String,
+        min_length: 17,
+        max_length: 20,
         required: true,
-        channel_types: [
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildForum,
-          ChannelType.GuildText,
-          ChannelType.GuildVoice,
-        ],
       },
     ],
   },
@@ -46,19 +40,17 @@ export const channel = subcommand({
       return;
     }
 
-    // because `channel` is a required argument, this will always be the submitted channel ID.
-    // https://discord.dev/interactions/receiving-and-responding#interaction-object-application-command-interaction-data-option-structure
-    const channelId = interaction.options.get('channel', true).value as string;
+    const channelId = interaction.options.getString('id', true);
+    if (!/^\d*$/.test(channelId)) {
+      await interaction.reply({ content: 'Discord IDs are always numbers.', ephemeral: true });
+      return;
+    }
+
     const predicate = requireUser(interaction.user);
 
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(
-          confirmButton.instanceId({
-            data: { initialInteraction: interaction, targetId: channelId },
-            predicate,
-          }),
-        )
+        .setCustomId(confirmButton.instanceId({ data: { targetId: channelId }, predicate }))
         .setLabel('Reset')
         .setEmoji('✅')
         .setStyle(ButtonStyle.Danger),
@@ -79,10 +71,7 @@ export const channel = subcommand({
   },
 });
 
-const { confirmButton, denyButton } = useConfirm<{
-  initialInteraction: ChatInputCommandInteraction<'cached'>;
-  targetId: string;
-}>({
+const { confirmButton, denyButton } = useConfirm<{ targetId: string }>({
   async confirmFn({ interaction, data }) {
     const job = new ResetGuildChannelsStatistics(interaction.guild, [data.targetId]);
 

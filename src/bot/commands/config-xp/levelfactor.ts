@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import resetModel from '../../models/resetModel.js';
 import { subcommand } from 'bot/util/registry/command.js';
+import { resetGuildCache } from 'bot/models/resetModel.js';
 
 export const levelfactor = subcommand({
   data: {
@@ -37,10 +37,10 @@ export const levelfactor = subcommand({
     const cachedGuild = await getGuildModel(interaction.guild);
     await cachedGuild.upsert({ levelFactor });
 
-    resetModel.cache.resetGuildMembersAll(interaction.guild);
+    resetGuildCache(interaction.guild).allMembers();
 
     await interaction.reply({
-      content: `Your levelfactor is now set to \`${levelFactor}\``,
+      content: `Your server's levelfactor is now set to \`${levelFactor}\`.`,
       ephemeral: true,
     });
   },

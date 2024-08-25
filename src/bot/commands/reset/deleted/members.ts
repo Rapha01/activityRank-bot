@@ -3,35 +3,18 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  ChannelType,
-  ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
-import nameUtil from '../../util/nameUtil.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildChannelsStatistics } from 'bot/models/resetModel.js';
+import { fetchDeletedUserIds, ResetGuildMembersStatistics } from 'bot/models/resetModel.js';
 
-export const channel = subcommand({
+export const members = subcommand({
   data: {
-    name: 'channel',
-    description: "Reset a channel's statistics.",
+    name: 'members',
+    description: 'Reset the statistics of all members that have left the server.',
     type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'channel',
-        description: 'The channel to reset.',
-        type: ApplicationCommandOptionType.Channel,
-        required: true,
-        channel_types: [
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildForum,
-          ChannelType.GuildText,
-          ChannelType.GuildVoice,
-        ],
-      },
-    ],
   },
   async execute({ interaction }) {
     // TODO deprecate in favour of native Discord slash command permissions
@@ -45,20 +28,18 @@ export const channel = subcommand({
       });
       return;
     }
+    const userIds = await fetchDeletedUserIds(interaction.guild);
 
-    // because `channel` is a required argument, this will always be the submitted channel ID.
-    // https://discord.dev/interactions/receiving-and-responding#interaction-object-application-command-interaction-data-option-structure
-    const channelId = interaction.options.get('channel', true).value as string;
+    if (userIds.length < 1) {
+      await interaction.reply({ content: 'There are no users to reset.' });
+      return;
+    }
+
     const predicate = requireUser(interaction.user);
 
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(
-          confirmButton.instanceId({
-            data: { initialInteraction: interaction, targetId: channelId },
-            predicate,
-          }),
-        )
+        .setCustomId(confirmButton.instanceId({ data: { userIds }, predicate }))
         .setLabel('Reset')
         .setEmoji('✅')
         .setStyle(ButtonStyle.Danger),
@@ -69,22 +50,17 @@ export const channel = subcommand({
         .setStyle(ButtonStyle.Secondary),
     );
 
-    const channelMention = nameUtil.getChannelMention(interaction.guild.channels.cache, channelId);
-
     await interaction.reply({
-      content: `Are you sure you want to reset all the statistics of ${channelMention}?`,
+      content: `Are you sure you want to reset all the statistics of **all ${userIds.length} users that have left the server**?\n\n**This cannot be undone.**`,
       ephemeral: true,
       components: [confirmRow],
     });
   },
 });
 
-const { confirmButton, denyButton } = useConfirm<{
-  initialInteraction: ChatInputCommandInteraction<'cached'>;
-  targetId: string;
-}>({
+const { confirmButton, denyButton } = useConfirm<{ userIds: string[] }>({
   async confirmFn({ interaction, data }) {
-    const job = new ResetGuildChannelsStatistics(interaction.guild, [data.targetId]);
+    const job = new ResetGuildMembersStatistics(interaction.guild, data.userIds);
 
     await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
 

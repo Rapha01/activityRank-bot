@@ -20,6 +20,7 @@
   "dependencies": {
     "@discordjs/rest": "^2.3.0",
     "@isaacs/ttlcache": "^1.4.1",
+    "@sapphire/async-queue": "^1.5.3",
     "@sapphire/duration": "^1.1.2",
     "@sapphire/snowflake": "^3.5.3",
     "@swc/cli": "^0.4.0",

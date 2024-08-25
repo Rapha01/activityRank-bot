@@ -5,7 +5,7 @@ import {
   ApplicationCommandOptionType,
   type InteractionReplyOptions,
 } from 'discord.js';
-import resetModel from '../models/resetModel.js';
+import { RESET_JOBS, RESET_QUEUE } from 'bot/models/resetModel.js';
 
 export default command.basic({
   developmentOnly: true,
@@ -34,37 +34,17 @@ export default command.basic({
       },
     ],
   },
-  async execute({ interaction, client }) {
+  async execute({ interaction }) {
     const useFull = interaction.options.getBoolean('full') ?? false;
     const search = interaction.options.getString('search');
     let content;
     if (search) {
-      content = '**Reset information: **' + (resetModel.resetJobs[search] ?? '`No current job`');
+      const job = [...RESET_JOBS].find((job) => job.guild.id === search);
+      content =
+        '**Reset information: **' +
+        (job ? JSON.stringify({ ...job, guild: search }, null, 2) : '`No job running in guild`');
     } else {
-      const types = [
-        'guildMembersStats',
-        'guildChannelsStats',
-        'all',
-        'stats',
-        'settings',
-        'textstats',
-        'voicestats',
-        'invitestats',
-        'votestats',
-        'bonusstats',
-      ];
-
-      const typeDisplay = types
-        .map(
-          (t) =>
-            `- ${t}: ${Object.values(resetModel.resetJobs).reduce(
-              (p, c) => (c.type === t ? ++p : p),
-              0,
-            )}`,
-        )
-        .join('\n');
-
-      content = `Length: ${Object.keys(resetModel.resetJobs).length}\nTypes:\n${typeDisplay}`;
+      content = `${RESET_QUEUE.remaining} remaining jobs in queue. ${RESET_JOBS.size} cached jobs.\n`;
     }
 
     const res: InteractionReplyOptions = {
@@ -74,8 +54,8 @@ export default command.basic({
 
     if (useFull) {
       res.files = [
-        new AttachmentBuilder(Buffer.from(JSON.stringify(resetModel.resetJobs, null, 2), 'utf8'), {
-          name: 'logs.json',
+        new AttachmentBuilder(Buffer.from(JSON.stringify([...RESET_JOBS], null, 2), 'utf8'), {
+          name: 'reset-jobs.json',
         }),
       ];
     }

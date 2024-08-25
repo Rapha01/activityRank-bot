@@ -5,9 +5,9 @@ import { createWriteStream, readFileSync } from 'node:fs';
 async function main() {
   const conn = await createConnection({
     host: process.env.HOST,
-    user: keys.production.shardDb.dbUser,
-    password: keys.production.shardDb.dbPassword,
-    database: keys.production.shardDb.dbName,
+    user: keys.managerDb.dbUser,
+    password: keys.managerDb.dbPassword,
+    database: keys.managerDb.dbName,
     namedPlaceholders: true,
     bigNumberStrings: true,
     supportBigNumbers: true,
@@ -24,9 +24,23 @@ async function main() {
   );
 
   let highestId = 0n;
+  let guildCount = 0;
+  let rowCount = 0n;
+  let lastTime = Date.now();
 
+  /** @type (i: any, pad: number) => string */
+  const pad = (i, pad) => i.toString().padStart(pad);
+
+  console.log('=====                  ActivityRank Migration Utility                  =====');
+  console.log('+-----------------------+------------------+------------------+------------+');
+  console.log('| Next Guild ID         | Guilds Processed | Rows Changed     | Time Taken |');
+  console.log('+-----------------------+------------------+------------------+------------+');
   while (true) {
-    console.log(`Processing ${highestId}`);
+    const timeDiff = Date.now() - lastTime;
+    console.log(
+      `| ${pad(highestId, 21)} | ${pad(guildCount, 16)} | ${pad(rowCount, 16)} | ${pad(`${Math.floor(timeDiff / 1000)}s`, 10)} |`,
+    );
+    console.log('+-----------------------+------------------+------------------+------------+');
     // get all guild IDs managed by the bot, cursor-paginated by ID
     /** @type {string[]} */
     const guildIds = (
@@ -47,7 +61,7 @@ async function main() {
       const [[{ xpPerVoiceMinute, xpPerTextMessage, xpPerVote, xpPerInvite, xpPerBonus }]] =
         await getGuildInfo.execute([guildId]);
 
-      const [{ affectedRows, changedRows }] = await mainQuery.execute(
+      const [{ affectedRows }] = await mainQuery.execute(
         [
           // ! ORDER IS VERY IMPORTANT HERE
           guildId,
@@ -60,9 +74,12 @@ async function main() {
         ].flat(),
       );
 
-      logStream.write(`${guildId} ${affectedRows} ${changedRows}\n`, (err) => {
+      logStream.write(`${guildId} ${affectedRows}\n`, (err) => {
         if (err) throw err;
       });
+
+      guildCount++;
+      rowCount += BigInt(affectedRows);
     }
   }
 
