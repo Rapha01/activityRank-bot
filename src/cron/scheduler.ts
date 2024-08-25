@@ -11,8 +11,6 @@ import { updateSettings } from 'models/managerDb/settingModel.js';
 const isProd = process.env.NODE_ENV == 'production';
 // TODO: represent with Time.*
 const settings = {
-  restartDelay: isProd ? 86_400_000 * 7 : 86_400_000,
-  // statFlushCacheInterval: isProd ? 15_000 : 5_000,
   updateSettingsInterval: isProd ? 300_000 : 10_000,
   updateTextsInterval: isProd ? 300_000 : 10_000,
   saveBotShardHealthInterval: isProd ? 180_000 : 8_000,
@@ -29,15 +27,6 @@ export async function start(manager: ShardingManager) {
   startCheckForDeadShards(manager);
 
   if (isProd) startCheckQueuedShardRestarts(manager);
-
-  // Periodical Restart
-  setTimeout(() => {
-    try {
-      process.exit();
-    } catch (e) {
-      console.log(e);
-    }
-  }, settings.restartDelay);
 
   cron.schedule(settings.statFlushCacheCronInterval, async () => {
     try {
