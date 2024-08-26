@@ -14,7 +14,7 @@ import {
   time,
 } from 'discord.js';
 
-import cooldownUtil from '../util/cooldownUtil.js';
+import cooldownUtil, { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import {
   getGuildMemberRank,
@@ -56,7 +56,7 @@ export default command.basic({
   async execute({ interaction, client }) {
     await interaction.deferReply();
 
-    if (!(await cooldownUtil.checkStatCommandsCooldown(interaction))) return;
+    if ((await handleStatCommandsCooldown(interaction)).denied) return;
 
     const cachedGuild = await getGuildModel(interaction.guild);
     const myGuild = await cachedGuild.fetch();

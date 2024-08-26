@@ -1,6 +1,6 @@
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import { getUserModel } from '../bot/models/userModel.js';
-import type { GuildMember, Interaction } from 'discord.js';
+import type { BaseInteraction, GuildMember } from 'discord.js';
 
 // System
 export const waitAndReboot = async (milliseconds: number) => {
@@ -61,7 +61,7 @@ function solve(a: number, b: number, c: number) {
   else return null;
 }
 
-export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
+export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
   const ownerUser = (
     await interaction.guild.members.fetch({ user: interaction.guild.ownerId, cache: true })
   ).user;
@@ -82,7 +82,7 @@ export const getPatreonTiers = async (interaction: Interaction<'cached'>) => {
   } else ownerTier = 0;
 
   return { userTier, ownerTier };
-};
+}
 
 /** @deprecated prefer {@link getRawVoteMultiplier()} */
 export const getVoteMultiplier = (myUser: {

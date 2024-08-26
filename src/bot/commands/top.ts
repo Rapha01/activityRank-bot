@@ -5,7 +5,7 @@ import {
   getGuildMemberRanks,
 } from 'bot/models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
-import cooldownUtil from '../util/cooldownUtil.js';
+import cooldownUtil, { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import nameUtil, {
   addGuildMemberNamesToRanks,
   getGuildMemberNamesWithRanks,
@@ -79,7 +79,7 @@ export default command.basic({
 
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    if (!(await cooldownUtil.checkStatCommandsCooldown(interaction))) return;
+    if ((await handleStatCommandsCooldown(interaction)).denied) return;
 
     const initialState: CacheInstance = {
       window: 'members',

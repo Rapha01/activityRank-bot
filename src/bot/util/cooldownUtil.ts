@@ -1,5 +1,10 @@
 import fct from '../../util/fct.js';
-import { time, type ChatInputCommandInteraction, type InteractionReplyOptions } from 'discord.js';
+import {
+  BaseInteraction,
+  time,
+  type ChatInputCommandInteraction,
+  type InteractionReplyOptions,
+} from 'discord.js';
 import { Time } from '@sapphire/duration';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { isPrivileged } from 'const/config.js';
@@ -35,7 +40,7 @@ const activeResetServerCommandCooldown = (cd: number, next: Date) =>
  */
 export function getWaitTime(lastDate: Date | number | undefined | null, cooldown: number) {
   const now = Date.now();
-  const then = lastDate instanceof Date ? lastDate.getTime() : lastDate ?? 0;
+  const then = lastDate instanceof Date ? lastDate.getTime() : (lastDate ?? 0);
   const remaining = cooldown - (now - then);
   return { remaining, next: new Date(now + remaining) };
 }
@@ -51,21 +56,28 @@ export const getCachedCooldown = (cache, field, cd) => {
   return remaining;
 };
 
-export const checkStatCommandsCooldown = async (
+export async function handleStatCommandsCooldown(
   interaction: ChatInputCommandInteraction<'cached'>,
-) => {
-  if (isPrivileged(interaction.user.id)) return true;
+): Promise<{ denied: boolean; allowed: boolean }> {
+  const res = (allowed: boolean) => ({ allowed, denied: !allowed });
+
+  if (isPrivileged(interaction.user.id)) return res(true);
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
-  let cd = Time.Minute * 3;
-  if (userTier == 1) cd = Time.Minute / 2;
-  if (userTier == 2 || ownerTier == 2) cd = Time.Second * 5;
-  if (ownerTier === 3 || userTier === 3) cd = Time.Second; // TODO: remove; deprecated tier
+  let cd = Time.Minute * 2;
+  if (userTier == 1) cd = Time.Second * 20;
+  if (userTier >= 2 || ownerTier >= 2) cd = Time.Second * 3;
 
   const cachedMember = await getMemberModel(interaction.member);
 
   const toWait = getWaitTime(cachedMember.cache.lastStatCommandDate, cd);
+
+  // no need to wait any longer: set now as last command usage and allow
+  if (toWait.remaining <= 0) {
+    cachedMember.cache.lastStatCommandDate = new Date();
+    return res(true);
+  }
 
   const reply: InteractionReplyOptions = {
     content: activeStatCommandCooldown(cd, toWait.next),
@@ -76,18 +88,13 @@ export const checkStatCommandsCooldown = async (
     reply.components = PATREON_COMPONENTS;
   }
 
-  if (toWait.remaining > 0) {
-    if (interaction.deferred) {
-      await interaction.editReply(reply);
-    } else {
-      await interaction.reply({ ...reply, ephemeral: true });
-    }
-    return false;
+  if (interaction.deferred) {
+    await interaction.editReply(reply);
+  } else {
+    await interaction.reply({ ...reply, ephemeral: true });
   }
-
-  cachedMember.cache.lastStatCommandDate = new Date();
-  return true;
-};
+  return res(false);
+}
 
 export const checkResetServerCommandCooldown = async (
   interaction: ChatInputCommandInteraction<'cached'>,
@@ -118,6 +125,5 @@ export const checkResetServerCommandCooldown = async (
 
 export default {
   getCachedCooldown,
-  checkStatCommandsCooldown,
   checkResetServerCommandCooldown,
 };
