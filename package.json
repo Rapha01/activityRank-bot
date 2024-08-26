@@ -29,7 +29,6 @@
     "common-tags": "^1.8.2",
     "discord.js": "^14.15.3",
     "fast-glob": "^3.3.2",
-    "glob": "^10.4.5",
     "kysely": "^0.27.4",
     "mysql2": "^3.11.0",
     "nanoid": "^5.0.7",
