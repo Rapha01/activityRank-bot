@@ -101,7 +101,23 @@ abstract class ResetJob {
     return this._resetStatus;
   }
 
-  /** Determine the number of rows that need to be modified, and set {@link this.rowEstimation}. */
+  /** Skip the planning step, avoiding the cost of calling {@link plan}. Always returns a rowEstimation of 0. */
+  public skipPlan() {
+    if (this.status !== ResetStatus.Waiting) {
+      throw new Error(
+        `ResetJob.skipPlan() called during stage ${this.status} (expected ${ResetStatus.Waiting})`,
+      );
+    }
+
+    logger.debug(`Skipping plan of reset job ${this.jobId}`);
+
+    this.rowEstimation = 0;
+    this._resetStatus = ResetStatus.Ready;
+
+    return { rowEstimation: 0 };
+  }
+
+  /** Determine the number of rows that need to be modified, and set {@link this.rowEstimation}. This will not always be called; {@link skipPlan} may be called instead. */
   public async plan(): Promise<{ rowEstimation: number }> {
     if (this.status !== ResetStatus.Waiting) {
       throw new Error(
@@ -119,6 +135,7 @@ abstract class ResetJob {
     this._resetStatus = ResetStatus.Ready;
     return { rowEstimation };
   }
+  /** Warning: This will not always be called; {@link skipPlan} may be called instead. */
   protected abstract getPlan(): Promise<{ rowEstimation: number }>;
 
   protected abstract getStatusContent(): string;
