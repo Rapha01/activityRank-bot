@@ -46,10 +46,7 @@ export class CommandIndex implements Serializable {
       }
     }
 
-    // TODO: modern versions of TS should allow this typedef to be inferred inline safely
-    const isStr = (x: string | null): x is string => x !== null;
-
-    this.key = key.filter(isStr);
+    this.key = key.filter(x => x !== null);
   }
 
   get serialized(): string {
@@ -85,10 +82,7 @@ export class AutocompleteIndex implements Serializable {
       this.autocompleteName = data.options.getFocused(true).name;
     }
 
-    // TODO: modern versions of TS should allow this typedef to be inferred inline safely
-    const isStr = (x: string | null): x is string => x !== null;
-
-    this.commandKey = key.filter(isStr);
+    this.commandKey = key.filter(x => x !== null);
   }
 
   get serialized(): string {
