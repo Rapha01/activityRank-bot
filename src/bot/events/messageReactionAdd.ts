@@ -15,7 +15,7 @@ export default event(Events.MessageReactionAdd, async function (reaction, user) 
   if (!reaction.message.guild || !reaction.message.author) return;
   const guild = reaction.message.guild;
 
-  if (skip(reaction.message.guild.id)) return;
+  if (skip()) return;
   if (reaction.message.author?.bot) return;
 
   const cachedGuild = await getGuildModel(guild);

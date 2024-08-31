@@ -24,7 +24,7 @@ export default async (client: Client) => {
     try {
       await fct.sleep(200);
 
-      if (!skip(guild.id)) await rankVoiceGuild(guild);
+      if (!skip()) await rankVoiceGuild(guild);
     } catch (err) {
       client.logger.warn({ err, guild }, 'Error in voiceXpRound');
     }
