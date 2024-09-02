@@ -9,14 +9,16 @@
     "serve": "node ./dist/server.js"
   },
   "dependencies": {
+    "@hono/node-server": "^1.12.2",
+    "@hono/zod-validator": "^0.2.2",
     "@sapphire/snowflake": "^3.2.2",
     "croner": "^8.0.1",
-    "h3": "^1.11.1",
+    "hono": "^4.5.10",
     "ofetch": "^1.3.4",
-    "promise-mysql": "^5.2.0"
+    "promise-mysql": "^5.2.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "listhen": "^1.7.2",
     "typescript": "^5.4.4"
   },
   "prettier": {
