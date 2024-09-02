@@ -29,11 +29,10 @@ WORKDIR /app
 
 COPY --from=production-deps /app/node_modules /app/node_modules
 
-COPY --from=build /app/src/assets /app/dist/assets
 COPY --from=build /app/dist /app/dist
 COPY --from=build /app/package.json /app/package.json
 
 EXPOSE 3000
 ENV PORT 3000
 
-ENTRYPOINT [ "yarn", "serve" ]
+ENTRYPOINT [ "yarn", "start" ]
