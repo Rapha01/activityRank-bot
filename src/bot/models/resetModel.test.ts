@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderProgressBar, ResetGuildSettings, ResetStatus } from './resetModel';
 import type { ChatInputCommandInteraction, Guild } from 'discord.js';
 
@@ -8,7 +8,7 @@ describe('ResetJob', () => {
     const job = new ResetGuildSettings(guild);
 
     expect(job['guild']).toBe(guild);
-    expect(job.rowsAffected).toBe(0);
+    expect(job.totalRowsAffected).toBe(0);
     expect(job.status).toBe(ResetStatus.Waiting);
   });
 
@@ -95,14 +95,17 @@ describe('ResetJob', () => {
 
     await job.run();
     expect(job.status).toBe(ResetStatus.Executing);
-    expect(job['_rowsAffected']).toBe(0);
+    expect(job.totalRowsAffected).toBe(0);
+    expect(job['rowEstimation']).toBe(100);
 
     // @ts-ignore testing (protected method)
     vi.spyOn(job, 'runIter').mockResolvedValue(true);
 
     await job.run();
     expect(job.status).toBe(ResetStatus.Complete);
-    expect(job['_rowsAffected']).toBe(100);
+    expect(job.totalRowsAffected).toBe(0);
+    // job.rowEstimation should be equal to totalRowsAffected when done
+    expect(job['rowEstimation']).toBe(0);
   });
 });
 
@@ -123,7 +126,7 @@ describe('ResetGuildSettings', () => {
 
   it('getStatusContent returns correct status message', () => {
     // partially completed
-    resetGuildSettings['_rowsAffected'] = 50;
+    resetGuildSettings['_totalRowsAffected'] = 50;
     resetGuildSettings['rowEstimation'] = 100;
 
     const statusContent = resetGuildSettings['getStatusContent']();
@@ -132,7 +135,7 @@ describe('ResetGuildSettings', () => {
     expect(statusContent).toContain('\u001b[1;33m');
 
     // fully completed
-    resetGuildSettings['_rowsAffected'] = 100;
+    resetGuildSettings['_totalRowsAffected'] = 100;
 
     const statusContent2 = resetGuildSettings['getStatusContent']();
     expect(statusContent2).toContain('Reset complete!');
@@ -141,7 +144,7 @@ describe('ResetGuildSettings', () => {
   });
 
   it('calls interaction.editReply in logStatus()', async () => {
-    resetGuildSettings['_rowsAffected'] = 50;
+    resetGuildSettings['_totalRowsAffected'] = 50;
     resetGuildSettings['rowEstimation'] = 100;
 
     await resetGuildSettings.logStatus(interaction);
@@ -158,6 +161,13 @@ describe('Reset Queue', () => {
   const sleep = (milliseconds: number) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
   };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it('lets multiple jobs plan concurrently', async () => {
     const job1 = new ResetGuildSettings(guild);
@@ -177,7 +187,9 @@ describe('Reset Queue', () => {
 
     // check that planning is concurrent
     const start = Date.now();
-    await Promise.all([job1.plan(), job2.plan()]);
+    const promises = [job1.plan(), job2.plan()];
+    await vi.runOnlyPendingTimersAsync();
+    await Promise.all(promises);
     const end = Date.now();
     const duration = end - start;
 
@@ -225,7 +237,9 @@ describe('Reset Queue', () => {
 
     // check that running is not concurrent
     const start = Date.now();
-    await Promise.all([job1.runUntilComplete(), job2.runUntilComplete()]);
+    const promises = [job1.runUntilComplete(), job2.runUntilComplete()];
+    await vi.runAllTimersAsync();
+    await Promise.all(promises);
     const end = Date.now();
     const duration = end - start;
 
@@ -278,11 +292,28 @@ describe('Reset Queue', () => {
 
     // check that running is not concurrent
     const start = Date.now();
-    expect(await job1.run()).toBe(false);
-    expect(await job2.run()).toBe(false);
-    expect(await job1.run()).toBe(true);
-    expect(await job2.run()).toBe(false);
-    expect(await job2.run()).toBe(true);
+    let promise = job1.run();
+    await vi.runOnlyPendingTimersAsync();
+    expect(await promise).toBe(false);
+
+    promise = job2.run();
+    await vi.runOnlyPendingTimersAsync();
+    expect(await promise).toBe(false);
+
+    promise = job1.run();
+    await vi.runOnlyPendingTimersAsync();
+    expect(await promise).toBe(true);
+
+    promise = job2.run();
+    await vi.runOnlyPendingTimersAsync();
+    expect(await promise).toBe(false);
+
+    promise = job2.run();
+    await vi.runOnlyPendingTimersAsync();
+    expect(await promise).toBe(true);
+
+    await vi.runOnlyPendingTimersAsync();
+
     const end = Date.now();
     const duration = end - start;
 
@@ -335,11 +366,37 @@ describe('Reset Queue', () => {
 
     // check that running is not concurrent
     const start = Date.now();
-    expect(await job1.run({ bufferTime: 200 })).toBe(false);
-    expect(await job2.run()).toBe(false);
-    expect(await job1.run()).toBe(true);
-    expect(await job2.run({ bufferTime: 300 })).toBe(false);
-    expect(await job2.run()).toBe(true);
+
+    let promise = job1.run({ bufferTime: 200 });
+    await vi.runAllTimersAsync();
+    expect(await promise).toBe(false);
+
+    promise = job2.run();
+    await vi.runAllTimersAsync();
+    expect(await promise).toBe(false);
+
+    promise = job1.run();
+    await vi.runAllTimersAsync();
+    expect(await promise).toBe(true);
+
+    promise = job2.run({ bufferTime: 300 });
+    await vi.runAllTimersAsync();
+    expect(await promise).toBe(false);
+
+    promise = job2.run();
+    await vi.runAllTimersAsync();
+    expect(await promise).toBe(true);
+
+    /*
+     * Global bufferTimes pause the entire queue.
+     *      0ms                 500ms               1000ms              1500ms              2000ms
+     *      v                   v                   v                   v                   v
+     * Time |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+     * Job1 |EXECUTE--------------->|BUF--->|   |EXECUTE----------->|
+     * Job2 |                               |EXE|                   |EXE|BUF------->|EXE------->|
+     */
+
+    await vi.runAllTimersAsync();
     const end = Date.now();
     const duration = end - start;
 
@@ -387,10 +444,20 @@ describe('Reset Queue', () => {
 
     // check that running is not concurrent
     const start = Date.now();
-    await Promise.all([
-      job1.runUntilComplete({ jobBufferTime: 100 }), // this should have no effect because it should run while job2's first phase (200ms) is running
-      job2.runUntilComplete({ jobBufferTime: 700 }), // this will have an effect of 200 ms, because it will run during the second stage of job2 (500ms) and still have to wait for 200ms.
-    ]);
+    const promises = [
+      job1.runUntilComplete({ jobBufferTime: 100 }), // this jobBufferTime should have no effect because it should run while job2's first phase (200ms) is running
+      job2.runUntilComplete({ jobBufferTime: 700 }), // this jobBufferTime will have an effect of 200 ms, because it will run during the second stage of job1 (500ms) and still have to wait for 200ms.
+    ];
+    /*
+     * Jobs should never run in parallel, but a jobBufferTime can be parallel with another job.
+     *      0ms                 500ms               1000ms
+     *      v                   v                   v
+     * Time |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+     * Job1 |EXECUTE--------------->|BUF|   |EXECUTE----------->|
+     * Job2 |                       |EXECUTE|BUF----------------------->|EXECUTE--->|
+     */
+    await vi.runAllTimersAsync();
+    await Promise.all(promises);
     const end = Date.now();
     const duration = end - start;
 

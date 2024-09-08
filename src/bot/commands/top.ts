@@ -5,7 +5,7 @@ import {
   getGuildMemberRanks,
 } from 'bot/models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
-import cooldownUtil from '../util/cooldownUtil.js';
+import cooldownUtil, { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import nameUtil, {
   addGuildMemberNamesToRanks,
   getGuildMemberNamesWithRanks,
@@ -79,7 +79,7 @@ export default command.basic({
 
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    if (!(await cooldownUtil.checkStatCommandsCooldown(interaction))) return;
+    if ((await handleStatCommandsCooldown(interaction)).denied) return;
 
     const initialState: CacheInstance = {
       window: 'members',
@@ -524,22 +524,6 @@ function getMembersComponents(
       },
     ]),
     getPaginationComponents(state, disabled),
-    /*
-    TODO
-    BLOCKED(d.js 14.8): Deselection kills bot process
-    new ActionRowBuilder().setComponents(
-      new ChannelSelectMenuBuilder()
-        .setCustomId('top channel')
-        .setDisabled(disabled)
-        .setChannelTypes(
-          ChannelType.GuildText,
-          ChannelType.GuildVoice,
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildForum,
-        )
-        .setMinValues(0)
-        .setMaxValues(1),
-    ), */
   ];
 }
 

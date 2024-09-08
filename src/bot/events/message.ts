@@ -20,7 +20,7 @@ export default event(Events.MessageCreate, async function (message) {
   if (
     message.author.bot == true ||
     message.system == true ||
-    skip(message.guildId!) ||
+    skip() ||
     !acceptedMessageTypes.includes(message.type) ||
     !message.inGuild()
   )

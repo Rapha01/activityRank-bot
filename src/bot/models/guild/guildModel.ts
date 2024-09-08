@@ -51,7 +51,6 @@ const cachedFields = [
   'resetDeletedMembers',
 ] as const;
 
-// TODO convert to dates
 interface GuildCacheStorage {
   lastAskForPremiumDate?: Date;
   lastResetServer?: Date;

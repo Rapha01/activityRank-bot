@@ -14,6 +14,7 @@ export default event(Events.GuildMemberRemove, async function (member) {
   member.client.logger.debug(`Resetting left member ${member.id} (${member.guild.id})`);
   const job = new ResetGuildMembersStatistics(member.guild, [member.id]);
 
+  job.skipPlan();
   await job.runUntilComplete({ globalBufferTime: 100 });
 
   member.client.logger.debug(`Finished reset of left member ${member.id} (${member.guild.id})`);
