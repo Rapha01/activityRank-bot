@@ -17,7 +17,7 @@ app.get('/healthcheck', (c) => {
   c.status(204);
   return c.body(null);
 });
-app.route('/api/v1', apiRouter);
+app.route('/api', apiRouter);
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
 serve({ fetch: app.fetch, port });
