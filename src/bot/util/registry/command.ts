@@ -46,7 +46,7 @@ export class CommandIndex implements Serializable {
       }
     }
 
-    this.key = key.filter(x => x !== null);
+    this.key = key.filter((x) => x !== null);
   }
 
   get serialized(): string {
@@ -82,7 +82,7 @@ export class AutocompleteIndex implements Serializable {
       this.autocompleteName = data.options.getFocused(true).name;
     }
 
-    this.commandKey = key.filter(x => x !== null);
+    this.commandKey = key.filter((x) => x !== null);
   }
 
   get serialized(): string {

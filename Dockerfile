@@ -9,7 +9,8 @@ COPY src /usr/src/app/src
 RUN npm run build
 
 FROM node:20-slim AS production
-ENV NODE_ENV production
+LABEL org.opencontainers.image.description "ActivityRank's Bot module"
+ENV NODE_ENV=production
 USER node
 WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
