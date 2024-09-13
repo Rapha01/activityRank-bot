@@ -30,10 +30,10 @@ describe('SerializableMap', () => {
 
     smap.set(key1, 'value1');
     expect(smap.get(key2)).toBe('value1');
-    
+
     smap.set(key2, 'value2');
     expect(smap.get(key1)).toBe('value2');
-  })
+  });
 
   it('should handle has correctly', () => {
     const smap = new SerializableMap<Key, string>();

@@ -1,0 +1,37 @@
+name: Linting Quality checks
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+concurrency:
+  # Immediately rerun when the PR is updated.
+  # https://stackoverflow.com/a/72408109
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Install dependencies
+        run: npm install -D
+      - name: Check formatting with Prettier
+        run: npm run format:check
+
+      

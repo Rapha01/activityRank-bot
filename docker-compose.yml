@@ -15,7 +15,7 @@ services:
     restart: always
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: base
     volumes:
       - ./src:/usr/src/app/src

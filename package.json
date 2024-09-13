@@ -8,7 +8,8 @@
     "production": "NODE_ENV=production node ./src/app.js",
     "development": "NODE_ENV=development node ./src/app.js",
     "developmentNodemon": "nodemon --exec \"npm run build && npm run dev\"",
-    "format": "prettier -w src",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
     "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
     "dev": "node --enable-source-maps ./dist/app.js"
