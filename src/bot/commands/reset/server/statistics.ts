@@ -9,9 +9,8 @@ import {
 import { subcommand } from 'bot/util/registry/command.js';
 import { actionrow, useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildStatisticsAndXP } from 'bot/models/resetModel.js';
+import { ResetGuildStatistics } from 'bot/models/resetModel.js';
 import cooldownUtil from 'bot/util/cooldownUtil.js';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { component } from 'bot/util/registry/component.js';
 import { commaListsAnd } from 'common-tags';
 
@@ -38,8 +37,9 @@ export const statistics = subcommand({
 
     const predicate = requireUser(interaction.user);
 
-    const cachedGuild = await getGuildModel(interaction.guild);
-
+    // TODO: should admins be able to reset `bonus` statistics?
+    // If so, should it be subtracted from users since it's fixed at 1 XP per bonus?
+    // Alternatively, should `bonus` be reset along with user XP?
     const typesRow = actionrow([
       {
         type: ComponentType.StringSelect,
@@ -108,7 +108,7 @@ const xpTypeselect = component({
     };
 
     await interaction.reply({
-      content: commaListsAnd`Are you sure you want to reset all the **${values.map((v) => prettify[v])}** statistics?\n\n**This will also reset all XP associated with those statistics. This cannot be undone.**`,
+      content: commaListsAnd`Are you sure you want to reset all the **${values.map((v) => prettify[v])}** statistics?\n\nXP associated with those statistics will not be reset - use \`/reset server xp\`! **This cannot be undone.**`,
       ephemeral: true,
       components: [confirmRow],
     });
@@ -117,7 +117,7 @@ const xpTypeselect = component({
 
 const { confirmButton, denyButton } = useConfirm<{ tables: Table[] }>({
   async confirmFn({ interaction, data }) {
-    const job = new ResetGuildStatisticsAndXP(interaction.guild, data.tables);
+    const job = new ResetGuildStatistics(interaction.guild, data.tables);
 
     await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
 

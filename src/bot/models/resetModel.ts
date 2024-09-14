@@ -570,9 +570,6 @@ export class ResetGuildStatistics extends ResetJob {
     guild: Guild,
     private tables: readonly ('textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus')[],
   ) {
-    // TODO: should admins be able to reset `bonus` statistics?
-    // If so, should it be subtracted from users since it's fixed at 1 XP per bonus?
-    // Alternatively, should `bonus` be reset along with user XP?
     if (tables.length < 1) {
       throw new Error('A statistic reset must reset at least one table');
     }
