@@ -1,7 +1,7 @@
 import { event } from 'bot/util/registry/event.js';
 import { Events } from 'discord.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
-import { ResetGuildMembersStatistics } from 'bot/models/resetModel.js';
+import { ResetGuildMembersStatisticsAndXp } from 'bot/models/resetModel.js';
 
 export default event(Events.GuildMemberRemove, async function (member) {
   const cachedGuild = await getGuildModel(member.guild);
@@ -12,7 +12,7 @@ export default event(Events.GuildMemberRemove, async function (member) {
   if (!member.user.bot && !cachedGuild.db.resetDeletedMembers) return;
 
   member.client.logger.debug(`Resetting left member ${member.id} (${member.guild.id})`);
-  const job = new ResetGuildMembersStatistics(member.guild, [member.id]);
+  const job = new ResetGuildMembersStatisticsAndXp(member.guild, [member.id]);
 
   job.skipPlan();
   await job.runUntilComplete({ globalBufferTime: 100 });

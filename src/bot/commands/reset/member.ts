@@ -9,7 +9,7 @@ import {
 import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildMembersStatistics } from 'bot/models/resetModel.js';
+import { ResetGuildMembersStatisticsAndXp } from 'bot/models/resetModel.js';
 
 export const member = subcommand({
   data: {
@@ -70,7 +70,7 @@ const { confirmButton, denyButton } = useConfirm<{
   targetId: string;
 }>({
   async confirmFn({ interaction, data }) {
-    const job = new ResetGuildMembersStatistics(interaction.guild, [data.targetId]);
+    const job = new ResetGuildMembersStatisticsAndXp(interaction.guild, [data.targetId]);
 
     await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
 
