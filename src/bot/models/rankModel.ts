@@ -1,7 +1,7 @@
 import shardDb, { getShardDb } from '../../models/shardDb/shardDb.js';
 import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
-import type { StatTimeInterval, StatType } from 'models/types/enums.js';
+import type { StatTimeInterval, StatTimeInterval_V2, StatType } from 'models/types/enums.js';
 import { getGuildModel, type GuildModel } from './guild/guildModel.js';
 import type { ExpressionBuilder } from 'kysely';
 import type { ShardDB } from 'models/types/kysely/shard.js';
@@ -33,6 +33,135 @@ export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
     levelProgression: fct.getLevelProgression(r.totalScoreAlltime, cachedGuild.db.levelFactor),
   }));
 };
+
+/**
+ * Fetch the XP values of a specified member of a given guild.
+ * @param guild The guild to fetch XP scores from.
+ * @param userId The ID of the member whose XP scores are to be fetched.
+ * @returns An object containing the XP totals for the member categorized by `alltime`, `year`, `month`, `week`, and `day`.
+ * If no record is found, the function resolves to `undefined`.
+ */
+export async function fetchGuildMemberScores(guild: Guild, userId: string) {
+  const cachedGuild = await getGuildModel(guild);
+
+  const db = getShardDb(cachedGuild.dbHost);
+
+  return await db
+    .selectFrom('guildMember')
+    .select(['alltime', 'year', 'month', 'week', 'day'])
+    .where('guildId', '=', guild.id)
+    .where('userId', '=', userId)
+    .executeTakeFirst();
+}
+
+/**
+ * Fetches various statistics of a specified member from a given guild.
+ * Does not throw if the member is not in the guild - instead, it returns values of 0 for all stats.
+ * @param guild The guild to fetch XP scores from.
+ * @param userId The ID of the member whose XP scores are to be fetched.
+ * @returns An object containing the statistic totals for the member categorized by `alltime`, `year`, `month`, `week`, and `day`.
+ * If the member is not in the guild or if there are no statistics, values default to 0 for each category.
+ */
+export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
+  const cachedGuild = await getGuildModel(guild);
+
+  const db = getShardDb(cachedGuild.dbHost);
+
+  const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
+  const times = ['alltime', 'year', 'month', 'week', 'day'] as const;
+
+  // SUM is required for textMessage and voiceMinute because their primary key is not entirely fulfilled:
+  // textMessage and voiceMinute have the channelId attribute while the other statistics are scoped per-guild.
+  const selectPartialPK = <T extends 'textMessage' | 'voiceMinute'>(
+    table: T,
+    eb: ExpressionBuilder<ShardDB, T>,
+  ) => [
+    `${table}.userId` as const,
+    ...times.map((t) => eb.fn.sum<number>(`${table}.${t}`).as(`${table}_${t}`)),
+  ];
+
+  // For these tables, the primary key is fully satisfied so SUMming woud have no effect.
+  // It's omitted to avoid obfuscating the purpose of the query.
+  // Practically, its inclusion would not change the result of a query.
+  const selectFullPK = <T extends 'vote' | 'invite' | 'bonus'>(
+    table: T,
+    eb: ExpressionBuilder<ShardDB, T>,
+  ) => [
+    `${table}.userId` as const,
+    ...times.map((t) => eb.ref(`${table}.${t}`).as(`${table}_${t}`)),
+  ];
+
+  return await db
+    .selectFrom(db.selectNoFrom((s) => s.val(userId).as('userId')).as('userIds'))
+    .leftJoin(
+      (eb) =>
+        eb
+          .selectFrom('textMessage')
+          .select((eb) => selectPartialPK<'textMessage'>('textMessage', eb))
+          .where('guildId', '=', guild.id)
+          .where('userId', '=', userId)
+          .where('alltime', '!=', eb.lit(0))
+          .as('textMessage'),
+      (join) => join.onRef('userIds.userId', '=', 'textMessage.userId'),
+    )
+    .leftJoin(
+      (eb) =>
+        eb
+          .selectFrom('voiceMinute')
+          .select((eb) => selectPartialPK<'voiceMinute'>('voiceMinute', eb))
+          .where('guildId', '=', guild.id)
+          .where('userId', '=', userId)
+          .where('alltime', '!=', eb.lit(0))
+          .as('voiceMinute'),
+      (join) => join.onRef('userIds.userId', '=', 'voiceMinute.userId'),
+    )
+    .leftJoin(
+      (eb) =>
+        eb
+          .selectFrom('vote')
+          .select((eb) => selectFullPK<'vote'>('vote', eb))
+          .where('guildId', '=', guild.id)
+          .where('userId', '=', userId)
+          .where('alltime', '!=', eb.lit(0))
+          .as('vote'),
+      (join) => join.onRef('userIds.userId', '=', 'vote.userId'),
+    )
+    .leftJoin(
+      (eb) =>
+        eb
+          .selectFrom('invite')
+          .select((eb) => selectFullPK<'invite'>('invite', eb))
+          .where('guildId', '=', guild.id)
+          .where('userId', '=', userId)
+          .where('alltime', '!=', eb.lit(0))
+          .as('invite'),
+      (join) => join.onRef('userIds.userId', '=', 'invite.userId'),
+    )
+    .leftJoin(
+      (eb) =>
+        eb
+          .selectFrom('bonus')
+          .select((eb) => selectFullPK<'bonus'>('bonus', eb))
+          .where('guildId', '=', guild.id)
+          .where('userId', '=', userId)
+          .where('alltime', '!=', eb.lit(0))
+          .as('bonus'),
+      (join) => join.onRef('userIds.userId', '=', 'bonus.userId'),
+    )
+    .select((eb) =>
+      tables.flatMap((table) =>
+        jsonBuildObject({
+          alltime: eb.fn.coalesce(`${table}_alltime`, eb.lit(0)),
+          year: eb.fn.coalesce(`${table}_year`, eb.lit(0)),
+          month: eb.fn.coalesce(`${table}_month`, eb.lit(0)),
+          week: eb.fn.coalesce(`${table}_week`, eb.lit(0)),
+          day: eb.fn.coalesce(`${table}_day`, eb.lit(0)),
+        }).as(table),
+      ),
+    )
+    .select('userIds.userId')
+    .executeTakeFirstOrThrow();
+}
 
 // All scores for one member
 export const getGuildMemberRank = async function (guild: Guild, userId: string) {
@@ -164,29 +293,33 @@ export const getChannelMemberRanks = async <T extends StatTimeInterval>(
   return ranks;
 };
 
-// Most active channels of a certain member
-export const getGuildMemberTopChannels = async function <T extends StatTimeInterval>(
+/**
+ * Retrieves the channels of a given type the specified member has been most active in.
+ *
+ * @returns An array of {channelId, entries} objects, sorted in descending order.
+ */
+export async function getGuildMemberTopChannels(
   guild: Guild,
   userId: string,
   type: StatType,
-  time: T,
+  time: StatTimeInterval_V2,
   from: number,
   to: number,
 ) {
   const { dbHost } = await getGuildModel(guild);
+  const db = getShardDb(dbHost);
 
-  const res = await shardDb.query<({ channelId: string } & Record<T, number>)[]>(
-    dbHost,
-    `SELECT channelId,${time} FROM ${type}
-          WHERE guildId = ${guild.id} AND userId = ${userId} AND ${time} != 0
-          ORDER BY ${time} DESC
-          LIMIT ${from - 1},${to - (from - 1)}`,
-  );
-
-  if (res.length == 0) return null;
-
-  return res;
-};
+  return await db
+    .selectFrom(type)
+    .where('guildId', '=', guild.id)
+    .where('userId', '=', userId)
+    .where(time, '!=', 0)
+    .orderBy(`${time} desc`)
+    .offset(from - 1)
+    .limit(to - (from - 1))
+    .select(['channelId', `${time} as entries`])
+    .execute();
+}
 
 /**
  * Retrieves the total XP accumulated by a specified member in a given guild.
