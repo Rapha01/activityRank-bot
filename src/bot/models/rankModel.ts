@@ -135,16 +135,6 @@ export const getGuildMemberTopChannels = async function <T extends StatTimeInter
   return res;
 };
 
-export const countGuildRanks = async function (guild: Guild) {
-  const cachedGuild = await getGuildModel(guild);
-
-  const res = await shardDb.query<{ count: number }[]>(
-    cachedGuild.dbHost,
-    `SELECT COUNT(*) AS count FROM ${getGuildMemberRanksSql(cachedGuild, guild.id)} AS alias1`,
-  );
-  return res[0].count;
-};
-
 /**
  * Retrieves the total XP accumulated by a specified member in a given guild.
  *
@@ -159,7 +149,6 @@ export async function fetchMemberTotalXp(guild: Guild, userId: string) {
   const cachedGuild = await getGuildModel(guild);
   const db = getShardDb(cachedGuild.dbHost);
 
-      LEFT JOIN ${inviterankSql} ON userIds.userId = inviterank.userId
   const result = await db
     .selectFrom('guildMember')
     .select('alltime')
