@@ -50,25 +50,78 @@ export const getGuildMemberRank = async function (guild: Guild, userId: string) 
   return res[0];
 };
 
-// Positions of one type of one member within a guild
-export const getGuildMemberRankPosition = async function (
+/**
+ * Retrieve the rank of a single member in the guild, ranked by total XP over a given time period.
+ * @returns The rank of the specified member: `1` represents the member with the most XP over the given time period.
+ */
+export async function getGuildMemberScorePosition(
   guild: Guild,
   userId: string,
-  typeTime: string,
+  time: StatTimeInterval_V2,
 ) {
   const cachedGuild = await getGuildModel(guild);
 
-  const res = await shardDb.query<{ count: number }[]>(
-    cachedGuild.dbHost,
-    `SELECT (COUNT(*) + 1) AS count FROM ${getGuildMemberRanksSql(cachedGuild, guild.id)}
-      AS memberranks WHERE memberranks.${typeTime} >
-      (SELECT ${typeTime} FROM ${getGuildMemberRankSql(cachedGuild, guild.id, userId)} AS alias2)`,
-  );
+  const db = getShardDb(cachedGuild.dbHost);
 
-  if (res.length == 0) return null;
+  const myRank = db
+    .selectFrom('guildMember')
+    .select(`${time} as score`)
+    .where('guildId', '=', guild.id)
+    .where('userId', '=', userId)
+    .as('member_rank');
+  const guildRanks = db
+    .selectFrom('guildMember')
+    .select(`${time} as score`)
+    .where('guildId', '=', guild.id)
+    .as('guild_ranks');
 
-  return res[0].count;
-};
+  // SELECT COUNT of all ranks where their rank > this member's rank
+  const { count } = await db
+    .selectFrom([myRank, guildRanks])
+    .select((eb) => eb.fn.countAll<number>().as('count'))
+    .whereRef('guild_ranks.score', '>', 'member_rank.score')
+    .executeTakeFirstOrThrow();
+
+  // make it 1-indexed
+  return count + 1;
+}
+
+/**
+ * Retrieve the rank of a single member in the guild, ranked by a given statistic over a given time period.
+ * @returns The rank of the specified member: `1` represents the member with the most instances of the statistic over the given time period.
+ */
+export async function getGuildMemberStatPosition(
+  guild: Guild,
+  userId: string,
+  statistic: StatType,
+  time: StatTimeInterval_V2,
+) {
+  const cachedGuild = await getGuildModel(guild);
+
+  const db = getShardDb(cachedGuild.dbHost);
+
+  const myRank = db
+    .selectFrom(statistic)
+    .select(`${time} as count`)
+    .where('guildId', '=', guild.id)
+    .where('userId', '=', userId)
+    .as('member_rank');
+  const guildRanks = db
+    .selectFrom(statistic)
+    .select(`${time} as count`)
+    .where('guildId', '=', guild.id)
+    .as('guild_ranks');
+
+  // SELECT COUNT of all ranks where their rank > this member's rank
+  const { count } = await db
+    .selectFrom([myRank, guildRanks])
+    .select((eb) => eb.fn.countAll<number>().as('count'))
+    .whereRef('guild_ranks.count', '>', 'member_rank.count')
+    .executeTakeFirstOrThrow();
+
+  // make it 1-indexed
+  return count + 1;
+}
 
 // Most active channels within a guild
 export const getChannelRanks = async function <T extends StatTimeInterval>(
