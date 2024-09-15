@@ -6,7 +6,7 @@ import type {
   GuildMemberUpdate,
 } from 'models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
-import { getGuildMemberTotalScore } from '../rankModel.js';
+import { fetchMemberTotalXp } from '../rankModel.js';
 import { CachedModel } from '../generic/model.js';
 
 const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const satisfies (keyof DBMember)[];
@@ -140,7 +140,7 @@ async function buildCache(member: GuildMember): Promise<GuildMemberModel> {
   const cache = foundCache ?? { ...(await loadDefaultCache(dbHost)) };
 
   const built = new GuildMemberModel(member, dbHost, cache, {
-    totalXp: parseInt(await getGuildMemberTotalScore(member.guild, member.id)),
+    totalXp: await fetchMemberTotalXp(member.guild, member.id),
   });
 
   memberCache.set(member, built);

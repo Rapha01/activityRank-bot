@@ -1,8 +1,11 @@
-import shardDb from '../../models/shardDb/shardDb.js';
+import shardDb, { getShardDb } from '../../models/shardDb/shardDb.js';
 import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
 import type { StatTimeInterval, StatType } from 'models/types/enums.js';
 import { getGuildModel, type GuildModel } from './guild/guildModel.js';
+import type { ExpressionBuilder } from 'kysely';
+import type { ShardDB } from 'models/types/kysely/shard.js';
+import { jsonBuildObject } from 'kysely/helpers/mysql';
 
 // Toplist
 export const getGuildMemberRanks = async function <T extends StatTimeInterval>(
@@ -142,70 +145,29 @@ export const countGuildRanks = async function (guild: Guild) {
   return res[0].count;
 };
 
-export const getGuildMemberTotalScore = async function (guild: Guild, userId: string) {
+/**
+ * Retrieves the total XP accumulated by a specified member in a given guild.
+ *
+ * This function queries the database for the member's total XP (`alltime`) within the specified guild.
+ * If no record is found for the member, the function returns `0` as the default value.
+ *
+ * @param guild - The guild from which to fetch the XP data.
+ * @param userId - The ID of the member whose total XP is to be retrieved.
+ * @returns The total XP accumulated by the member. If no record is found, this resolves to `0`.
+ */
+export async function fetchMemberTotalXp(guild: Guild, userId: string) {
   const cachedGuild = await getGuildModel(guild);
+  const db = getShardDb(cachedGuild.dbHost);
 
-  const res = await shardDb.query<{ totalScoreAlltime: string }[]>(
-    cachedGuild.dbHost,
-    getGuildMemberTotalScoreSql(cachedGuild, guild.id, userId),
-  );
-
-  if (res.length == 0) return '0';
-
-  return res[0].totalScoreAlltime;
-};
-
-/* exports.getRankedGuildMemberIds = function(guildId) {
-  return new Promise(async function (resolve, reject) {
-    db.query(`(SELECT userId FROM voiceMinute WHERE guildId = '${guildId}' AND alltime != 0)
-        UNION (SELECT userId FROM textMessage WHERE guildId = '${guildId}' AND alltime != 0)
-        UNION (SELECT userId FROM vote WHERE guildId = '${guildId}' AND alltime != 0)
-        UNION (SELECT userId FROM bonus WHERE guildId = '${guildId}' AND alltime != 0)`,
-      function (err, results, fields) {
-      if (err) return reject(err);
-
-      return resolve(results);
-    });
-  });
-} */
-
-function getGuildMemberTotalScoreSql(guildCache: GuildModel, guildId: string, userId: string) {
-  const voicerankSql = `(SELECT userId,
-        SUM(alltime) AS voiceMinuteAlltime
-        FROM voiceMinute WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
-        GROUP BY userId) AS voicerank`;
-  const textrankSql = `(SELECT userId,
-        SUM(alltime) AS textMessageAlltime
-        FROM textMessage WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0
-        GROUP BY userId) AS textrank`;
-  const voterankSql = `(SELECT userId,
-        alltime AS voteAlltime
-        FROM vote WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS voterank`;
-  const inviterankSql = `(SELECT userId,
-        alltime AS inviteAlltime
-        FROM invite WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS inviterank`;
-  const bonusrankSql = `(SELECT userId,
-        alltime AS bonusAlltime
-        FROM bonus WHERE guildId = ${guildId} AND userId = ${userId} AND alltime != 0) AS bonusrank`;
-  const memberIdSql = `(SELECT ${userId} AS userId) AS userIds`;
-
-  const memberRankRawSql = `(SELECT
-      userIds.userId AS userId,
-      IFNULL(voiceMinuteAlltime,0) * ${guildCache.db.xpPerVoiceMinute} AS voiceMinuteScoreAlltime,
-      IFNULL(textMessageAlltime,0) * ${guildCache.db.xpPerTextMessage} AS textMessageScoreAlltime,
-      IFNULL(voteAlltime,0) * ${guildCache.db.xpPerVote} AS voteScoreAlltime,
-      IFNULL(inviteAlltime,0) * ${guildCache.db.xpPerInvite} AS inviteScoreAlltime,
-      IFNULL(bonusAlltime,0) AS bonusScoreAlltime
-      FROM ${memberIdSql}
-      LEFT JOIN ${voicerankSql} ON userIds.userId = voicerank.userId
-      LEFT JOIN ${textrankSql} ON userIds.userId = textrank.userId
-      LEFT JOIN ${voterankSql} ON userIds.userId = voterank.userId
       LEFT JOIN ${inviterankSql} ON userIds.userId = inviterank.userId
-      LEFT JOIN ${bonusrankSql} ON userIds.userId = bonusrank.userId) AS memberrankraw`;
+  const result = await db
+    .selectFrom('guildMember')
+    .select('alltime')
+    .where('guildId', '=', guild.id)
+    .where('userId', '=', userId)
+    .executeTakeFirst();
 
-  const memberTotalScoreAlltimeSql = `SELECT (voiceMinuteScoreAlltime + textMessageScoreAlltime + voteScoreAlltime + inviteScoreAlltime + bonusScoreAlltime) AS totalScoreAlltime FROM ${memberRankRawSql}`;
-
-  return memberTotalScoreAlltimeSql;
+  return result?.alltime ?? 0;
 }
 
 function getGuildMemberRanksSql(guildCache: GuildModel, guildId: string) {
