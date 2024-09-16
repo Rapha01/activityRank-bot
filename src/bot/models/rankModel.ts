@@ -3,7 +3,7 @@ import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
 import type { StatTimeInterval, StatType } from 'models/types/enums.js';
 import { getGuildModel } from './guild/guildModel.js';
-import type { ExpressionBuilder } from 'kysely';
+import { expressionBuilder, type ExpressionBuilder } from 'kysely';
 import type { ShardDB } from 'models/types/kysely/shard.js';
 import { jsonBuildObject } from 'kysely/helpers/mysql';
 
@@ -24,47 +24,27 @@ export async function getGuildMemberRanks(
 
   const db = getShardDb(cachedGuild.dbHost);
 
+  const makeUnionSelect = (table: StatType, eb: ExpressionBuilder<ShardDB, never>) =>
+    eb
+      .selectFrom(table)
+      .select('userId')
+      .where('guildId', '=', guild.id)
+      .where('alltime', '!=', eb.lit(0));
+
   const ranks = await db
     .selectFrom((eb) =>
-      eb
-        .selectFrom('textMessage')
-        .select('userId')
-        .where('guildId', '=', guild.id)
-        .where('alltime', '!=', eb.lit(0))
-        .union(
-          eb
-            .selectFrom('voiceMinute')
-            .select('userId')
-            .where('guildId', '=', guild.id)
-            .where('alltime', '!=', eb.lit(0)),
-        )
-        .union(
-          eb
-            .selectFrom('vote')
-            .select('userId')
-            .where('guildId', '=', guild.id)
-            .where('alltime', '!=', eb.lit(0)),
-        )
-        .union(
-          eb
-            .selectFrom('invite')
-            .select('userId')
-            .where('guildId', '=', guild.id)
-            .where('alltime', '!=', eb.lit(0)),
-        )
-        .union(
-          eb
-            .selectFrom('bonus')
-            .select('userId')
-            .where('guildId', '=', guild.id)
-            .where('alltime', '!=', eb.lit(0)),
-        )
+      makeUnionSelect('textMessage', eb)
+        .union(makeUnionSelect('voiceMinute', eb))
+        .union(makeUnionSelect('vote', eb))
+        .union(makeUnionSelect('invite', eb))
+        .union(makeUnionSelect('bonus', eb))
         .as('userIds'),
     )
     .leftJoin(
       (eb) =>
         eb
           .selectFrom('textMessage')
+          // See fetchGuildMemberStatistics for an explanation as to only the textMessage and voiceMinute columns use SUM.
           .select((eb) => ['userId', eb.fn.sum<number>(time).as(`value`)])
           .where('guildId', '=', guild.id)
           .where('alltime', '!=', eb.lit(0))
@@ -204,6 +184,13 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
     ...times.map((t) => eb.ref(`${table}.${t}`).as(`${table}_${t}`)),
   ];
 
+  const validRowEB = expressionBuilder<ShardDB, StatType>();
+  const validRow = validRowEB.and([
+    validRowEB('guildId', '=', guild.id),
+    validRowEB('userId', '=', userId),
+    validRowEB('alltime', '!=', validRowEB.lit(0)),
+  ]);
+
   return await db
     .selectFrom(db.selectNoFrom((s) => s.val(userId).as('userId')).as('userIds'))
     .leftJoin(
@@ -211,9 +198,7 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
         eb
           .selectFrom('textMessage')
           .select((eb) => selectPartialPK<'textMessage'>('textMessage', eb))
-          .where('guildId', '=', guild.id)
-          .where('userId', '=', userId)
-          .where('alltime', '!=', eb.lit(0))
+          .where(validRow)
           .as('textMessage'),
       (join) => join.onRef('userIds.userId', '=', 'textMessage.userId'),
     )
@@ -222,9 +207,7 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
         eb
           .selectFrom('voiceMinute')
           .select((eb) => selectPartialPK<'voiceMinute'>('voiceMinute', eb))
-          .where('guildId', '=', guild.id)
-          .where('userId', '=', userId)
-          .where('alltime', '!=', eb.lit(0))
+          .where(validRow)
           .as('voiceMinute'),
       (join) => join.onRef('userIds.userId', '=', 'voiceMinute.userId'),
     )
@@ -233,9 +216,7 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
         eb
           .selectFrom('vote')
           .select((eb) => selectFullPK<'vote'>('vote', eb))
-          .where('guildId', '=', guild.id)
-          .where('userId', '=', userId)
-          .where('alltime', '!=', eb.lit(0))
+          .where(validRow)
           .as('vote'),
       (join) => join.onRef('userIds.userId', '=', 'vote.userId'),
     )
@@ -244,9 +225,7 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
         eb
           .selectFrom('invite')
           .select((eb) => selectFullPK<'invite'>('invite', eb))
-          .where('guildId', '=', guild.id)
-          .where('userId', '=', userId)
-          .where('alltime', '!=', eb.lit(0))
+          .where(validRow)
           .as('invite'),
       (join) => join.onRef('userIds.userId', '=', 'invite.userId'),
     )
@@ -255,9 +234,7 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
         eb
           .selectFrom('bonus')
           .select((eb) => selectFullPK<'bonus'>('bonus', eb))
-          .where('guildId', '=', guild.id)
-          .where('userId', '=', userId)
-          .where('alltime', '!=', eb.lit(0))
+          .where(validRow)
           .as('bonus'),
       (join) => join.onRef('userIds.userId', '=', 'bonus.userId'),
     )
