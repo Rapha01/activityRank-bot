@@ -24,11 +24,7 @@ import {
 } from 'bot/models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
-import {
-  statTimeIntervals_v2,
-  type StatTimeInterval_V2,
-  type StatType,
-} from 'models/types/enums.js';
+import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
 import type { Guild as DBGuild } from 'models/types/kysely/shard.js';
 import { command } from 'bot/util/registry/command.js';
 import { ApplicationCommandOptionType } from 'discord.js';
@@ -37,7 +33,7 @@ import { requireUserId } from 'bot/util/predicates.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
-  time: StatTimeInterval_V2;
+  time: StatTimeInterval;
   owner: string;
   targetUser: User;
   page: number;
@@ -119,7 +115,7 @@ const timeSelect = component({
   type: ComponentType.StringSelect,
   async callback({ interaction }) {
     const time = interaction.values[0];
-    await execCacheSet(interaction, 'time', time as StatTimeInterval_V2);
+    await execCacheSet(interaction, 'time', time as StatTimeInterval);
   },
 });
 
@@ -160,7 +156,7 @@ async function generateCard(
   else throw new Error();
 }
 
-const _prettifyTime: { [k in StatTimeInterval_V2]: string } = {
+const _prettifyTime: { [k in StatTimeInterval]: string } = {
   day: 'Today',
   week: 'This week',
   month: 'This month',
@@ -255,7 +251,7 @@ async function getTopChannels(
   page: { from: number; to: number },
   guild: Guild,
   memberId: string,
-  time: StatTimeInterval_V2,
+  time: StatTimeInterval,
   type: StatType,
 ) {
   const guildMemberTopChannels = await getGuildMemberTopChannels(
@@ -365,7 +361,7 @@ function getGlobalComponents(
           type: ComponentType.StringSelect,
           customId: timeSelect.instanceId({ predicate: requireUserId(state.owner) }),
           disabled,
-          options: statTimeIntervals_v2.map((interval) => ({
+          options: statTimeIntervals.map((interval) => ({
             label: interval,
             value: interval,
             default: state.time === interval,
@@ -387,7 +383,7 @@ function getStatisticStrings(
   myGuild: GuildModel,
   stats: NonNullable<Awaited<ReturnType<typeof fetchGuildMemberStatistics>>>,
   positions: Record<string, number | null>,
-  time: StatTimeInterval_V2,
+  time: StatTimeInterval,
 ) {
   const scoreStrings = [];
   if (myGuild.db.textXp)
@@ -410,7 +406,7 @@ async function getPositions<T extends StatType[]>(
   guild: Guild,
   memberId: string,
   types: T,
-  time: StatTimeInterval_V2,
+  time: StatTimeInterval,
 ): Promise<Record<T[number] | 'xp', number>> {
   return Object.fromEntries(
     await Promise.all([

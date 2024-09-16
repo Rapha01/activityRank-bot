@@ -5,13 +5,12 @@ import {
   getGuildMemberRanks,
 } from 'bot/models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
-import cooldownUtil, { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import nameUtil, {
   addGuildMemberNamesToRanks,
   getGuildMemberNamesWithRanks,
 } from '../util/nameUtil.js';
 import {
-  EmbedBuilder,
   ButtonStyle,
   ChannelType,
   RESTJSONErrorCodes,
@@ -40,11 +39,11 @@ import {
 import { requireUser } from 'bot/util/predicates.js';
 
 const _prettifyTime = {
-  Day: 'Today',
-  Week: 'This week',
-  Month: 'This month',
-  Year: 'This year',
-  Alltime: 'Forever',
+  day: 'Today',
+  week: 'This week',
+  month: 'This month',
+  year: 'This year',
+  alltime: 'Forever',
 };
 
 export const activeCache = new Map<string, CacheInstance>();
@@ -83,7 +82,7 @@ export default command.basic({
 
     const initialState: CacheInstance = {
       window: 'members',
-      time: 'Alltime',
+      time: 'alltime',
       componentPredicate: requireUser(interaction.user),
       page: 1,
       orderType: 'allScores',
@@ -238,8 +237,8 @@ async function getTopChannels(
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
   const channelValue = (index: number) =>
     type === 'voiceMinute'
-      ? Math.round((channelRanks[index][time] / 60) * 10) / 10
-      : channelRanks[index][time];
+      ? Math.round((channelRanks[index].total / 60) * 10) / 10
+      : channelRanks[index].total;
 
   const s = [];
   for (let i = 0; i < channelRanks.length; i++)
@@ -302,8 +301,8 @@ async function generateChannelMembers(
   for (let i = 0; i < channelMemberRanks.length; i++) {
     const value =
       type === 'voiceMinute'
-        ? `:microphone2: ${Math.round((channelMemberRanks[i][state.time] / 60) * 10) / 10}`
-        : `:writing_hand: ${channelMemberRanks[i][state.time]}`;
+        ? `:microphone2: ${Math.round((channelMemberRanks[i].total / 60) * 10) / 10}`
+        : `:writing_hand: ${channelMemberRanks[i].total}`;
 
     const guildMemberName = (await nameUtil.getGuildMemberInfo(guild, channelMemberRanks[i].userId))
       .name;
@@ -372,17 +371,15 @@ async function generateGuildMembers(
     const memberRank = memberRanksWithNames.shift()!;
 
     const getScoreString = (type: StatType) => {
-      const { time } = state;
       if (type === 'textMessage' && cachedGuild.db.textXp)
-        return `:writing_hand: ${memberRank[`textMessage${time}`]}`;
+        return `:writing_hand: ${memberRank.textMessage}`;
       if (type === 'voiceMinute' && cachedGuild.db.voiceXp)
-        return `:microphone2: ${Math.round((memberRank[`voiceMinute${time}`] / 60) * 10) / 10}`;
-      if (type === 'invite' && cachedGuild.db.inviteXp)
-        return `:envelope: ${memberRank[`invite${time}`]}`;
+        return `:microphone2: ${Math.round((memberRank.voiceMinute / 60) * 10) / 10}`;
+      if (type === 'invite' && cachedGuild.db.inviteXp) return `:envelope: ${memberRank.invite}`;
       if (type === 'vote' && cachedGuild.db.voteXp)
-        return `${cachedGuild.db.voteEmote} ${memberRank[`vote${time}`]}`;
+        return `${cachedGuild.db.voteEmote} ${memberRank.vote}`;
       if (type === 'bonus' && cachedGuild.db.bonusXp)
-        return `${cachedGuild.db.bonusEmote} ${memberRank[`bonus${time}`]}`;
+        return `${cachedGuild.db.bonusEmote} ${memberRank.bonus}`;
       return null;
     };
 
@@ -392,7 +389,7 @@ async function generateGuildMembers(
       getScoreString('invite'),
       getScoreString('vote'),
       getScoreString('bonus'),
-    ].filter((s) => s);
+    ].filter((s) => s !== null);
 
     const getFieldScoreString = (type: StatType | 'totalScore' | 'allScores') => {
       if (type === 'totalScore') return '';
@@ -406,9 +403,7 @@ async function generateGuildMembers(
         name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
           memberRank.levelProgression,
         )}`,
-        value: `Total: ${memberRank[`totalScore${state.time}`]} XP ${getFieldScoreString(
-          state.orderType,
-        )}`,
+        value: `Total: ${memberRank.totalScore} XP ${getFieldScoreString(state.orderType)}`,
       },
     ];
     i++;
@@ -453,7 +448,11 @@ function getGlobalComponents(
       {
         type: ComponentType.StringSelect,
         customId: timeSelect.instanceId({ predicate: state.componentPredicate }),
-        options: statTimeIntervals.map((i) => ({ label: i, value: i, default: state.time === i })),
+        options: statTimeIntervals.map((i) => ({
+          label: i,
+          value: i,
+          default: state.time === i,
+        })),
         disabled,
       },
     ]),
@@ -516,7 +515,7 @@ function getMembersComponents(
           rowOption('All', 'allScores'),
           rowOption('Total', 'totalScore'),
           rowOption('Messages', 'textMessage'),
-          rowOption('Voice time', 'voiceMinute'),
+          rowOption('Voice Time', 'voiceMinute'),
           rowOption('Invites', 'invite'),
           rowOption('Upvotes', 'vote'),
           rowOption('Bonus', 'bonus'),
