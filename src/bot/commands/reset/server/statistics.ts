@@ -66,6 +66,13 @@ export const statistics = subcommand({
             value: 'invite',
             emoji: '✉️',
           },
+          // TODO: consider if bonus should be able to be reset, 
+          // or if resetting bonus should also reset associated XP
+          {
+            label: 'Bonus',
+            value: 'bonus',
+            emoji: '⭐️',
+          },
         ] satisfies { value: Table; [k: string]: unknown }[],
         maxValues: 4,
         minValues: 1,
@@ -105,6 +112,7 @@ const xpTypeselect = component({
       voiceMinute: 'voice',
       vote: 'vote',
       invite: 'invite',
+      bonus: 'bonus',
     };
 
     await interaction.reply({
