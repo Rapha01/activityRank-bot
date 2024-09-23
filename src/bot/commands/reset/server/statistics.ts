@@ -66,7 +66,7 @@ export const statistics = subcommand({
             value: 'invite',
             emoji: '✉️',
           },
-          // TODO: consider if bonus should be able to be reset, 
+          // TODO: consider if bonus should be able to be reset,
           // or if resetting bonus should also reset associated XP
           {
             label: 'Bonus',
