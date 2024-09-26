@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+import { Cron } from 'croner';
 import voiceXpRound from './voiceXpRound.js';
 import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
 import type { Client } from 'discord.js';
@@ -6,33 +6,15 @@ import { config } from 'const/config.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const logShardDiagnostics = isProd ? '0 */10 * * * *' : '*/20 * * * * *';
+const LOG_SHARD_DIAGNOSTICS_CRON = isProd ? '0 */10 * * * *' : '*/20 * * * * *';
 const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
-const autoAssignPatreonRolesInterval = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
+const ASSIGN_PATREON_ROLES_CRON = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
 
 export const start = (client: Client) => {
   // Loops
   startVoiceXp(client);
 
-  /*
-  cron.schedule(logHighestGuildsInterval, async () => {
-    try {
-      const sort = client.guilds.cache
-        .sort((a, b) => (a.memberCount < b.memberCount ? 1 : -1))
-        .first(20);
-
-      let str = '';
-      for (let a of sort)
-        str += `${a.memberCount.toLocaleString().padEnd(9)} | ${a.name}\n`;
-
-      client.logger.info('High-member count guilds:\n' + str);
-    } catch (e) {
-      client.logger.warn(e, 'Error in highestGuilds');
-    }
-  });
-  */
-
-  cron.schedule(logShardDiagnostics, async () => {
+  new Cron(LOG_SHARD_DIAGNOSTICS_CRON, async () => {
     try {
       const attrs = {
         presenceStatus: client.options.presence?.status,
@@ -71,7 +53,7 @@ export const start = (client: Client) => {
 
   const supportGuild = client.guilds.cache.get(config.supportServer.id);
   if (supportGuild && !config.disablePatreon) {
-    cron.schedule(autoAssignPatreonRolesInterval, async () => {
+    new Cron(ASSIGN_PATREON_ROLES_CRON, async () => {
       try {
         await autoAssignPatreonRoles(supportGuild);
 
