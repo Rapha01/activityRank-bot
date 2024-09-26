@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+import { Cron } from 'croner';
 import saveBotShardHealth from './saveBotShardHealth.js';
 import fct from '../util/fct.js';
 import statFlush from '../models/shardDb/statFlush.js';
@@ -26,7 +26,7 @@ export async function start(manager: ShardingManager) {
 
   if (isProduction) startCheckQueuedShardRestarts(manager);
 
-  cron.schedule(STAT_FLUSH_CACHE_CRON, async () => {
+  new Cron(STAT_FLUSH_CACHE_CRON, async () => {
     try {
       await statFlush(manager);
     } catch (e) {

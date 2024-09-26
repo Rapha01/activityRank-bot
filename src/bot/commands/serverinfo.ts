@@ -8,16 +8,18 @@ import {
   type StringSelectMenuInteraction,
   type APIEmbed,
   type Client,
+  time,
 } from 'discord.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import guildRoleModel from '../models/guild/guildRoleModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
-import nameUtil from '../util/nameUtil.js';
+import nameUtil, { getRoleMention } from '../util/nameUtil.js';
 import { command } from 'bot/util/registry/command.js';
 import { component, ComponentKey } from 'bot/util/registry/component.js';
 import { requireUser } from 'bot/util/predicates.js';
 import { actionrow, closeButton } from 'bot/util/component.js';
+import Cron from 'croner';
 
 export default command.basic({
   data: {
@@ -240,6 +242,17 @@ const general: Window = {
       bonusTimeString,
     ].join('\n');
 
+    const resetsValue = (
+      [
+        ['daily', new Cron('0 0 * * *').nextRun()],
+        ['weekly', new Cron('30 0 * * SUN').nextRun()],
+        ['monthly', new Cron('0 1 1 * *').nextRun()],
+        ['yearly', new Cron('30 1 1 1 *').nextRun()],
+      ] as const
+    )
+      .map(([label, date]) => `Next ${label} reset: ${time(date!, 'R')}`)
+      .join('\n');
+
     const guildIcon = interaction.guild.iconURL();
 
     return {
@@ -252,6 +265,7 @@ const general: Window = {
       fields: [
         { name: '**General**', value: generalValue },
         { name: '**Points**', value: pointsValue },
+        { name: '**Resets**', value: resetsValue },
       ],
     };
   },
@@ -335,10 +349,10 @@ const roles: Window = {
           value: [
             roleAssignments
               .filter((r) => r.deassignLevel === level)
-              .map((r) => `**\-** <@&${r.roleId}>`),
+              .map((r) => `**\-** ${getRoleMention(interaction.guild.roles.cache, r.roleId)}`),
             roleAssignments
               .filter((r) => r.assignLevel === level)
-              .map((r) => `**+** <@&${r.roleId}>`),
+              .map((r) => `**+** ${getRoleMention(interaction.guild.roles.cache, r.roleId)}`),
           ]
             .flat()
             .join('\n'),

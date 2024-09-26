@@ -62,12 +62,23 @@ export const levels = subcommand({
       return;
     }
 
+    if (resolvedRole.id === interaction.guild.id) {
+      await interaction.reply({
+        content: 'You cannot make @everyone a level role.',
+        ephemeral: true,
+        allowedMentions: { parse: [] },
+      });
+      return;
+    }
+
     if (
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageRoles)
+      !interaction.guild.members.me ||
+      !interaction.guild.members.me
+        .permissionsIn(interaction.channel)
+        .has(PermissionFlagsBits.ManageRoles)
     ) {
       await interaction.reply({
-        content:
-          'Please ensure the bot has the permission to manage roles for the duration of this setup.',
+        content: 'Please ensure the bot has the permission to manage roles.',
         ephemeral: true,
       });
       return;
