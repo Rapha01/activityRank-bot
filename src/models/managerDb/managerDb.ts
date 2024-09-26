@@ -64,7 +64,7 @@ export async function managerFetch<T extends any>(route: string, init: RequestIn
 
     const headers = new Headers(init.headers);
     headers.set('Content-Type', 'application/json');
-    headers.set('Authorization', keys.managerApiAuth);
+    headers.set('Authorization', `Bearer ${keys.managerApiAuth}`);
 
     const res = await fetch(url, { ...init, headers });
     return (await res.json()) as T;
