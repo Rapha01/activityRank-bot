@@ -62,6 +62,15 @@ export const levels = subcommand({
       return;
     }
 
+    if (resolvedRole.id === interaction.guild.id) {
+      await interaction.reply({
+        content: 'You cannot make @everyone a level role.',
+        ephemeral: true,
+        allowedMentions: { parse: [] },
+      });
+      return;
+    }
+
     if (
       !interaction.guild.members.me ||
       !interaction.guild.members.me
