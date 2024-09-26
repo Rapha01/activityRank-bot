@@ -2,7 +2,7 @@ import { command, permissions } from 'bot/util/registry/command.js';
 import { HELPSTAFF_ONLY } from 'bot/util/predicates.js';
 import { AttachmentBuilder, EmbedBuilder, Status, ApplicationCommandOptionType } from 'discord.js';
 import { DurationFormatter } from '@sapphire/duration';
-import managerDb from '../../models/managerDb/managerDb.js';
+import managerDb, { managerFetch } from '../../models/managerDb/managerDb.js';
 
 interface APIShard {
   shardId: number;
@@ -62,7 +62,7 @@ export default command.basic({
 
     await interaction.deferReply({ ephemeral });
 
-    const { stats }: { stats: APIShard[] } = await managerDb.fetch(null, '/api/stats/', 'get');
+    const { stats }: { stats: APIShard[] } = await managerFetch('api/stats/', { method: 'GET' });
 
     const filtered = interaction.options.getBoolean('filtered');
 

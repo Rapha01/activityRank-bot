@@ -47,39 +47,26 @@ function getManagerPool() {
   return pool;
 }
 
-export async function managerFetch<T extends any>(route: string, init: RequestInit) {
+type APIPaths = 'texts' | 'stats';
+type AutocompletePaths = `api/${APIPaths}`;
+
+// this type signature allows any string, but also provides autocomplete
+export async function managerFetch<T extends any>(
+  route: AutocompletePaths,
+  init: RequestInit,
+): Promise<T>;
+export async function managerFetch<T extends any>(route: string, init: RequestInit): Promise<T>;
+export async function managerFetch<T extends any>(route: string, init: RequestInit): Promise<T> {
   try {
-    const port = keys.managerPort ? `:${keys.managerPort}` : '';
-    const url = new URL(`http://${keys.managerHost}${port}/${route}`);
+    const url = new URL(`http://${keys.managerHost}/${route}`);
+    // number converts to string cleanly; null does not add a port
+    url.port = keys.managerPort as unknown as string;
 
     const headers = new Headers(init.headers);
+    headers.set('Content-Type', 'application/json');
     headers.set('Authorization', keys.managerApiAuth);
 
     const res = await fetch(url, { ...init, headers });
-    return (await res.json()) as T;
-  } catch (cause) {
-    throw new Error('Failed to fetch data from Manager API', { cause });
-  }
-}
-
-/** @deprecated Prefer managerFetch() instead */
-export async function mgrFetch<T extends any>(body: any, route: string, method: string) {
-  try {
-    const requestObject: RequestInit = {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: keys.managerApiAuth,
-      },
-    };
-
-    if (body !== null) requestObject.body = JSON.stringify(body);
-
-    const fetchURL =
-      'http://' + keys.managerHost + (keys.managerPort ? `:${keys.managerPort}` : '') + route;
-
-    const res = await fetch(fetchURL, requestObject);
-
     return (await res.json()) as T;
   } catch (cause) {
     throw new Error('Failed to fetch data from Manager API', { cause });
@@ -90,5 +77,4 @@ export default {
   query,
   getConnection,
   getAllDbHosts,
-  fetch: mgrFetch,
 };
