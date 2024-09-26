@@ -1,24 +1,18 @@
-import { DiscordSnowflake } from '@sapphire/snowflake';
 import { queryManager } from './managerDb.js';
-import { queryShard } from './shardDb.js';
+import { getShardPool } from './shardDb.js';
+
+type ResetPeriod = 'day' | 'week' | 'month' | 'year';
 
 const statsTables = [
   'textMessage',
   'voiceMinute',
   'vote',
-  'bonus',
   'invite',
+  'bonus',
 ] as const;
 
-const queryConstraints = (thisHour: number, thisDay: number) => ({
-  day: `AND (guild.resetHour = ${thisHour})`,
-  week: `AND (guild.resetDay = ${thisDay})`,
-  month: `AND (guild.resetDay = ${thisDay})`,
-  year: ``,
-});
-
-export async function resetScoreByTime(
-  time: 'day' | 'week' | 'month' | 'year'
+export async function runResetByTime(
+  time: ResetPeriod
 ): Promise<{ errorCount: number }> {
   let errorCount = 0;
   console.log(`[reset] Resetting score (${time})`);
@@ -28,126 +22,118 @@ export async function resetScoreByTime(
   errorCount += statResult.errorCount;
 
   console.log(`[reset] Resetting member scores (${time})`);
-  const memResult = await resetMemberScoreByTime(time);
+  const memResult = await resetMemberScoresByTime(time);
   errorCount += memResult.errorCount;
 
   return { errorCount };
 }
 
 async function resetStatsByTime(
-  time: 'day' | 'week' | 'month' | 'year'
+  time: ResetPeriod
 ): Promise<{ errorCount: number }> {
   const dbShards = await queryManager<{ host: string; id: number }[]>(
     `SELECT id,host FROM dbShard ORDER BY id ASC`
   );
 
-  let errorCount = 0;
-  const currentSnowflake = DiscordSnowflake.generate();
-  const increment = currentSnowflake / BigInt(50);
+  const errors = [];
+  for (const shard of dbShards) {
+    const pool = await getShardPool(shard.host);
+    const hrstart = process.hrtime();
 
-  for (let shard of dbShards) {
-    try {
-      const hrstart = process.hrtime();
-      const extraConstraint = queryConstraints(
-        new Date().getUTCHours(),
-        new Date().getUTCDay()
-      )[time];
-
-      for (let statsTable of statsTables) {
-        try {
-          let min = BigInt(0);
-          let max = increment;
-          do {
-            try {
-              await queryShard(
-                shard.host,
-                `UPDATE ${statsTable} ` +
-                  `INNER JOIN guild ON ${statsTable}.guildId = guild.guildId ` +
-                  `SET ${time} = 0 ` +
-                  `WHERE (${time} != 0) ` +
-                  `AND (${statsTable}.guildId BETWEEN ${min} AND ${max}) ` +
-                  extraConstraint
-              );
-            } catch (e) {
-              errorCount++;
-              console.log(e);
-            } finally {
-              min += increment;
-              max += increment;
-            }
-          } while (min < currentSnowflake);
-        } catch (e) {
-          errorCount++;
-          console.log(e);
+    for (let statsTable of statsTables) {
+      // we paginate via cursor here to reduce the risk of page drift,
+      // and to avoid the performance implications of OFFSET
+      let highestGuildId = '0';
+      let conn = null;
+      try {
+        while (true) {
+          conn = await pool.getConnection();
+          await conn.beginTransaction();
+          // Find the guild ID 1000 guilds above the last guild.
+          // Returns NULL (`null` in JS) if highestGuildId is the highest guild ID in the table
+          const [response] = await conn.query(
+            `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``
+          );
+          const nextGuildId = response.next_id as string | null;
+          if (nextGuildId == null) {
+            // completed
+            await conn.release();
+            break;
+          }
+          await conn.query(
+            `UPDATE ${statsTable} SET ${time} = 0 WHERE ${time} != 0 AND guildId BETWEEN ${highestGuildId} AND ${nextGuildId}`
+          );
+          await conn.commit();
+          highestGuildId = nextGuildId;
         }
+      } catch (error) {
+        if (conn) await conn.rollback();
+        errors.push(error);
+      } finally {
+        if (conn) await conn.release();
       }
-
-      const sec = Math.ceil(process.hrtime(hrstart)[0]);
-      console.log(
-        `[reset] Reset stats by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errorCount} errors.`
-      );
-    } catch (e) {
-      console.log(e);
     }
+
+    const sec = Math.ceil(process.hrtime(hrstart)[0]);
+    console.log(
+      `[reset] Reset stats by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errors.length} errors.`
+    );
+    console.log(errors);
   }
 
-  return { errorCount };
+  return { errorCount: errors.length };
 }
 
-async function resetMemberScoreByTime(
-  time: 'day' | 'week' | 'month' | 'year'
+async function resetMemberScoresByTime(
+  time: ResetPeriod
 ): Promise<{ errorCount: number }> {
-  const dbShards = await queryManager<{ id: number; host: string }[]>(
-    `SELECT id, host FROM dbShard ORDER BY id ASC`
+  const dbShards = await queryManager<{ host: string; id: number }[]>(
+    `SELECT id,host FROM dbShard ORDER BY id ASC`
   );
 
-  let errorCount = 0;
-  const currentSnowflake = DiscordSnowflake.generate();
-  const increment = currentSnowflake / BigInt(50);
+  const errors = [];
+  for (const shard of dbShards) {
+    const pool = await getShardPool(shard.host);
+    const hrstart = process.hrtime();
 
-  for (let shard of dbShards) {
+    // we paginate via cursor here to reduce the risk of page drift,
+    // and to avoid the performance implications of OFFSET
+    let highestGuildId = '0';
+    let conn = null;
     try {
-      const hrstart = process.hrtime();
-      const extraConstraint = queryConstraints(
-        new Date().getUTCHours(),
-        new Date().getUTCDay()
-      )[time];
-
-      try {
-        let min = BigInt(0);
-        let max = increment;
-        do {
-          try {
-            await queryShard(
-              shard.host,
-              `UPDATE guildMember ` +
-                `INNER JOIN guild ON guildMember.guildId = guild.guildId ` +
-                `SET ${time} = 0 ` +
-                `WHERE (${time} != 0) ` +
-                `AND (guildMember.guildId BETWEEN ${min} AND ${max}) ` +
-                extraConstraint
-            );
-          } catch (e) {
-            errorCount++;
-            console.log(e);
-          } finally {
-            min += increment;
-            max += increment;
-          }
-        } while (min < currentSnowflake);
-      } catch (e) {
-        errorCount++;
-        console.log(e);
+      while (true) {
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+        // Find the guild ID 1000 guilds above the last guild.
+        // Returns NULL (`null` in JS) if highestGuildId is the highest guild ID in the table
+        const [response] = await conn.query(
+          `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``
+        );
+        const nextGuildId = response.next_id as string | null;
+        if (nextGuildId == null) {
+          // completed
+          await conn.release();
+          break;
+        }
+        await conn.query(
+          `UPDATE guildMember SET ${time} = 0 WHERE ${time} != 0 AND guildId BETWEEN ${highestGuildId} AND ${nextGuildId}`
+        );
+        await conn.commit();
+        highestGuildId = nextGuildId;
       }
-
-      const sec = Math.ceil(process.hrtime(hrstart)[0]);
-      console.log(
-        `[reset] Reset member scores by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errorCount} errors.`
-      );
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      if (conn) await conn.rollback();
+      errors.push(error);
+    } finally {
+      if (conn) await conn.release();
     }
+
+    const sec = Math.ceil(process.hrtime(hrstart)[0]);
+    console.log(
+      `[reset] Reset scores by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errors.length} errors.`
+    );
+    console.log(errors);
   }
 
-  return { errorCount };
+  return { errorCount: errors.length };
 }
