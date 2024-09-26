@@ -71,10 +71,10 @@ export const statistics = subcommand({
           {
             label: 'Bonus',
             value: 'bonus',
-            emoji: '⭐️',
+            emoji: '⭐',
           },
         ] satisfies { value: Table; [k: string]: unknown }[],
-        maxValues: 4,
+        maxValues: 5,
         minValues: 1,
         placeholder: 'Select XP types to reset.',
       },
