@@ -24,3 +24,12 @@ export async function getShardStats() {
     FROM botShardStat WHERE shardId < 1000000`
   );
 }
+
+/** Get the IPs of all shards. */
+export async function getShardIps() {
+  const res = await queryManager<{ ip: string }[]>(
+    'SELECT ip FROM botShardStat'
+  );
+  const ips = res.map(({ ip }) => ip);
+  return Array.from(new Set(ips));
+}
