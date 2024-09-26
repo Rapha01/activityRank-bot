@@ -10,6 +10,12 @@ export async function queryShard<T>(dbHost: string, sql: string) {
   return await pools.get(dbHost)!.query<T>(sql);
 }
 
+export async function getShardPool(dbHost: string) {
+  if (!pools.has(dbHost)) await createPool(dbHost);
+
+  return pools.get(dbHost)!;
+}
+
 export async function queryAllHosts<T>(sql: string) {
   const hosts = await getAllDbHosts();
 
