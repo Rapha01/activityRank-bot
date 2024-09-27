@@ -109,7 +109,8 @@ const combineXpCaches = (shardCaches: Record<string, XpFlushCache>[]) => {
   return flushCache;
 };
 
-const maxValue = 100000000;
+// 100,000,000 (this amount of XP is > level 1500 so should be inconsequential)
+const MAX_STAT_COLUMN_VALUE = 100000000;
 
 const getSql = <T extends StatType>(
   type: T,
@@ -125,10 +126,10 @@ const getSql = <T extends StatType>(
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},${
         (entries[entry] as StatFlushCacheChannelEntry).channelId
       },
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${
+          LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),
+          LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${
             entries[entry].count
-          }),LEAST(${maxValue},${entries[entry].count}),${now},${now})`);
+          }),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),${now},${now})`);
 
     return `
         INSERT INTO ${type} (guildId,userId,channelId,alltime,year,month,week,day,changeDate,addDate)
@@ -137,18 +138,18 @@ const getSql = <T extends StatType>(
         guildId = VALUES(guildId),
         userId = VALUES(userId),
         channelId = VALUES(channelId),
-        alltime = LEAST(${maxValue},alltime + VALUES(alltime)),
-        year = LEAST(${maxValue},year + VALUES(year)),
-        month = LEAST(${maxValue},month + VALUES(month)),
-        week = LEAST(${maxValue},week + VALUES(week)),
-        day = LEAST(${maxValue},day + VALUES(day)),
+        alltime = LEAST(${MAX_STAT_COLUMN_VALUE},alltime + VALUES(alltime)),
+        year = LEAST(${MAX_STAT_COLUMN_VALUE},year + VALUES(year)),
+        month = LEAST(${MAX_STAT_COLUMN_VALUE},month + VALUES(month)),
+        week = LEAST(${MAX_STAT_COLUMN_VALUE},week + VALUES(week)),
+        day = LEAST(${MAX_STAT_COLUMN_VALUE},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
   } else if (type == 'invite' || type == 'vote' || type == 'bonus') {
     for (let entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),
-          LEAST(${maxValue},${entries[entry].count}),LEAST(${maxValue},${entries[entry].count}),${now},${now})`);
+          LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),
+          LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),${now},${now})`);
 
     return `
         INSERT INTO ${type} (guildId,userId,alltime,year,month,week,day,changeDate,addDate)
@@ -156,11 +157,11 @@ const getSql = <T extends StatType>(
         ON DUPLICATE KEY UPDATE
         guildId = VALUES(guildId),
         userId = VALUES(userId),
-        alltime = LEAST(${maxValue},alltime + VALUES(alltime)),
-        year = LEAST(${maxValue},year + VALUES(year)),
-        month = LEAST(${maxValue},month + VALUES(month)),
-        week = LEAST(${maxValue},week + VALUES(week)),
-        day = LEAST(${maxValue},day + VALUES(day)),
+        alltime = LEAST(${MAX_STAT_COLUMN_VALUE},alltime + VALUES(alltime)),
+        year = LEAST(${MAX_STAT_COLUMN_VALUE},year + VALUES(year)),
+        month = LEAST(${MAX_STAT_COLUMN_VALUE},month + VALUES(month)),
+        week = LEAST(${MAX_STAT_COLUMN_VALUE},week + VALUES(week)),
+        day = LEAST(${MAX_STAT_COLUMN_VALUE},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
   } else {
@@ -172,7 +173,7 @@ const getXpSql = (entries: XpFlushCache) => {
   let sqls = [],
     now = Math.floor(new Date().getTime() / 1000);
 
-  const least = (s: string | number) => `LEAST(${maxValue},${s})`;
+  const least = (s: string | number) => `LEAST(${MAX_STAT_COLUMN_VALUE},${s})`;
 
   for (let entry in entries) {
     const fields = [
@@ -196,10 +197,10 @@ const getXpSql = (entries: XpFlushCache) => {
     ON DUPLICATE KEY UPDATE
     guildId = VALUES(guildId),
     userId = VALUES(userId),
-    alltime = LEAST(${maxValue},alltime + VALUES(alltime)),
-    year = LEAST(${maxValue},year + VALUES(year)),
-    month = LEAST(${maxValue},month + VALUES(month)),
-    week = LEAST(${maxValue},week + VALUES(week)),
-    day = LEAST(${maxValue},day + VALUES(day));
+    alltime = alltime + VALUES(alltime),
+    year = year + VALUES(year),
+    month = month + VALUES(month),
+    week = week + VALUES(week),
+    day = day + VALUES(day);
     `;
 };
