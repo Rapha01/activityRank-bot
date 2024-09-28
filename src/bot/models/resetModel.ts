@@ -629,7 +629,12 @@ export class ResetGuildStatistics extends ResetJob {
       )
       .executeTakeFirstOrThrow();
 
-    return { rowEstimation: Number(rowEstimation) };
+    // accomodate for the large query run when bonus is reset
+    return {
+      rowEstimation: this.tables.includes('bonus')
+        ? Math.floor(1.3 * Number(rowEstimation))
+        : Number(rowEstimation),
+    };
   }
 
   protected async runIter(): Promise<boolean> {
@@ -662,6 +667,9 @@ SET
 WHERE
   \`guildId\` = ${this.guild.id}
 `.execute(db);
+
+      // just an estimate :3
+      this.incrementRows(Math.floor(this.rowEstimation! / 20));
 
       this.ranBonusReduction = true;
       // because the limit clause is excluded above, we forcibly skip a cycle to try to accomodate the load
