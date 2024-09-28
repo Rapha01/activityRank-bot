@@ -37,9 +37,6 @@ export const statistics = subcommand({
 
     const predicate = requireUser(interaction.user);
 
-    // TODO: should admins be able to reset `bonus` statistics?
-    // If so, should it be subtracted from users since it's fixed at 1 XP per bonus?
-    // Alternatively, should `bonus` be reset along with user XP?
     const typesRow = actionrow([
       {
         type: ComponentType.StringSelect,
@@ -66,8 +63,13 @@ export const statistics = subcommand({
             value: 'invite',
             emoji: '✉️',
           },
+          {
+            label: 'Bonus',
+            value: 'bonus',
+            emoji: '⭐',
+          },
         ] satisfies { value: Table; [k: string]: unknown }[],
-        maxValues: 4,
+        maxValues: 5,
         minValues: 1,
         placeholder: 'Select XP types to reset.',
       },
@@ -105,10 +107,17 @@ const xpTypeselect = component({
       voiceMinute: 'voice',
       vote: 'vote',
       invite: 'invite',
+      bonus: 'bonus',
     };
 
+    const xpAssociatedMessage = values.includes('bonus')
+      ? values.length > 1
+        ? 'XP granted via bonus will be reset, but no other statistics will reset XP. You may be looking for `/reset server xp`.'
+        : 'Since you are resetting the bonus statistic, this **will impact** the XP of any users that have bonus XP.'
+      : 'XP associated with those statistics will not be reset - try `/reset server xp`!';
+
     await interaction.reply({
-      content: commaListsAnd`Are you sure you want to reset all the **${values.map((v) => prettify[v])}** statistics?\n\nXP associated with those statistics will not be reset - use \`/reset server xp\`! **This cannot be undone.**`,
+      content: commaListsAnd`Are you sure you want to reset all the **${values.map((v) => prettify[v])}** statistics?\n\n${xpAssociatedMessage} **This cannot be undone.**`,
       ephemeral: true,
       components: [confirmRow],
     });

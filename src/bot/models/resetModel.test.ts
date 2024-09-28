@@ -156,7 +156,6 @@ describe('ResetGuildSettings', () => {
 });
 
 describe('Reset Queue', () => {
-  // TODO: use fake timers to reduce runtime
   const guild = { id: '123' } as Guild;
   const sleep = (milliseconds: number) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));

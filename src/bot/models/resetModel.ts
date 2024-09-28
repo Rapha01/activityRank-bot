@@ -563,15 +563,31 @@ export class ResetGuildMembersStatisticsAndXp extends ResetJob {
   }
 }
 
+/**
+ *  We (me - @piemot, @rapha01, and @geheimerwolf) have agreed on the following conventions for resets:
+ * 1. Resets of text, voice, invite, and votes reset *the statistics, but not the associated XP.*
+ * Resets of invite stats should allow new inviters to be set.
+ * 2. *Resets of the bonus stat* affect the XP values of members (members with positive bonus XP lose XP, those with negative XP gain it)
+ * Because of this, *one bonus statistic must correspond exactly to one XP.*
+ * This convention has been held for years so I don't predict it being problematic in future.
+ * 3. TODO: With a Patreon subscription, admins can adjust text, voice, invite, and upvote statistics as long as they enable a server flag.
+ * This server flag is displayed publicly on /serverinfo, /rank, and/or /top.
+ * Once enabled, the flag cannot be turned off unless the entire server's XP is reset.
+ */
 export class ResetGuildStatistics extends ResetJob {
   static readonly ALL_TABLES = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
+
+  private ranBonusReduction = false;
 
   constructor(
     guild: Guild,
     private tables: readonly ('textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus')[],
   ) {
     if (tables.length < 1) {
-      throw new Error('A statistic reset must reset at least one table');
+      throw new Error('A statistic reset must reset at least one table.');
+    }
+    if (new Set(tables).size !== tables.length) {
+      throw new Error('A statistic reset may not provide duplicate tables.');
     }
     super(guild);
   }
@@ -619,6 +635,38 @@ export class ResetGuildStatistics extends ResetJob {
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
     const db = getShardDb(cachedGuild.dbHost);
+
+    // Subtract member's previous `bonus` xp from their total XP if `bonus` is selected for reset
+    if (this.tables.includes('bonus') && !this.ranBonusReduction) {
+      // this has to be a raw statement because Kysely inverts the order of clauses: https://github.com/kysely-org/kysely/issues/192
+      // the `bonus.alltime` fields in the SET statement are intentional: *all* bonus XP is removed instantaneously,
+      // just as it would be if it were added via /bonus member.
+      // the LIMIT clause is intentionally omitted here because we only want this to run once.
+      await sql`
+UPDATE \`guildMember\`
+  INNER JOIN (
+  SELECT
+    \`userId\`,
+    \`bonus\`.\`alltime\`
+  FROM
+    \`bonus\`
+  WHERE
+    \`guildId\` = ${this.guild.id}
+  ) AS \`bonus\` ON \`guildMember\`.\`userId\` = \`bonus\`.\`userId\`
+SET
+  \`guildMember\`.\`alltime\` = \`guildMember\`.\`alltime\` - \`bonus\`.\`alltime\`,
+  \`year\` = \`guildMember\`.\`year\` - \`bonus\`.\`alltime\`,
+  \`month\` = \`guildMember\`.\`month\` - \`bonus\`.\`alltime\`,
+  \`week\` = \`guildMember\`.\`week\` - \`bonus\`.\`alltime\`,
+  \`day\` = \`guildMember\`.\`day\` - \`bonus\`.\`alltime\`
+WHERE
+  \`guildId\` = ${this.guild.id}
+`.execute(db);
+
+      this.ranBonusReduction = true;
+      // because the limit clause is excluded above, we forcibly skip a cycle to try to accomodate the load
+      return false;
+    }
 
     // delete all relevant entries in specified stats tables
     for (const table of this.tables) {
