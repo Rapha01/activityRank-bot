@@ -15,11 +15,11 @@ import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
 import { ParserResponseStatus, parseChannel } from '../util/parser.js';
-import type { GuildChannelSchema } from 'models/types/shard.js';
 import { command, permissions } from 'bot/util/registry/command.js';
 import { component } from 'bot/util/registry/component.js';
 import { requireUser, requireUserId } from 'bot/util/predicates.js';
 import { actionrow, closeButton } from 'bot/util/component.js';
+import type { GuildChannel } from 'models/types/kysely/shard.js';
 
 type Setting =
   | 'noXp'
@@ -100,7 +100,7 @@ const generateRow = (
   channelId: string,
   type: ChannelType | null,
   myGuild: GuildModel,
-  myChannel: GuildChannelSchema,
+  myChannel: GuildChannel,
 ) => {
   const r = [
     new ButtonBuilder().setLabel('No XP'),
