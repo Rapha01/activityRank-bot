@@ -17,19 +17,9 @@ export async function getManagerConnection() {
   return await getManagerPool().getConnection();
 }
 
-/** @deprecated Prefer querying with Kysely and getManagerDb() instead */
-export async function query<T>(sql: string) {
-  return (await getManagerPool().query(sql))[0] as T;
-}
-
-/** @deprecated Prefer getManagerConnection() instead */
-export async function getConnection() {
-  return await getManagerPool().getConnection();
-}
-
 export async function getAllDbHosts() {
   const db = getManagerDb();
-  const res = await db.selectFrom('dbShard').select(`host`).execute();
+  const res = await db.selectFrom('dbShard').select('host').execute();
 
   return res.map((r) => r.host);
 }
@@ -72,9 +62,3 @@ export async function managerFetch<T extends any>(route: string, init: RequestIn
     throw new Error('Failed to fetch data from Manager API', { cause });
   }
 }
-
-export default {
-  query,
-  getConnection,
-  getAllDbHosts,
-};

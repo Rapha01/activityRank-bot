@@ -1,5 +1,5 @@
 import { createPool, type Pool } from 'mysql2/promise';
-import managerDb, { getAllDbHosts } from '../managerDb/managerDb.js';
+import { getAllDbHosts } from '../managerDb/managerDb.js';
 import {
   DummyDriver,
   Kysely,
@@ -50,7 +50,7 @@ export async function query<T>(dbHost: string, sql: string): Promise<T> {
 
 /** @deprecated Prefer querying with Kysely and executeQueryAll() instead */
 export async function queryAllHosts<T>(sql: string): Promise<T[]> {
-  const hosts = await managerDb.getAllDbHosts();
+  const hosts = await getAllDbHosts();
 
   let aggregate: T[] = [];
   for (let host of hosts) {

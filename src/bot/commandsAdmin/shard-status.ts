@@ -2,7 +2,7 @@ import { command, permissions } from 'bot/util/registry/command.js';
 import { HELPSTAFF_ONLY } from 'bot/util/predicates.js';
 import { AttachmentBuilder, EmbedBuilder, Status, ApplicationCommandOptionType } from 'discord.js';
 import { DurationFormatter } from '@sapphire/duration';
-import managerDb, { managerFetch } from '../../models/managerDb/managerDb.js';
+import { managerFetch } from '../../models/managerDb/managerDb.js';
 
 interface APIShard {
   shardId: number;
