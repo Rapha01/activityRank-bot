@@ -459,7 +459,11 @@ export class ResetGuildChannelsStatistics extends ResetJob {
   }
 }
 
-export class ResetGuildMembersStatistics extends ResetJob {
+// This will simultaneously reset a set of members' statistics and XP.
+// The combination of the two jobs is intentional; separating them could
+// leave the system vulnerable to manipulation by server admins,
+// by resetting only statistics or only XP for a single user.
+export class ResetGuildMembersStatisticsAndXp extends ResetJob {
   constructor(
     guild: Guild,
     private memberIds: string[],
@@ -559,14 +563,32 @@ export class ResetGuildMembersStatistics extends ResetJob {
   }
 }
 
-// TODO: separate this class into a ResetGuildStatistics and a ResetGuildXP class.
-export class ResetGuildStatisticsAndXP extends ResetJob {
+/**
+ *  We (me - @piemot, @rapha01, and @geheimerwolf) have agreed on the following conventions for resets:
+ * 1. Resets of text, voice, invite, and votes reset *the statistics, but not the associated XP.*
+ * Resets of invite stats should allow new inviters to be set.
+ * 2. *Resets of the bonus stat* affect the XP values of members (members with positive bonus XP lose XP, those with negative XP gain it)
+ * Because of this, *one bonus statistic must correspond exactly to one XP.*
+ * This convention has been held for years so I don't predict it being problematic in future.
+ * 3. TODO: With a Patreon subscription, admins can adjust text, voice, invite, and upvote statistics as long as they enable a server flag.
+ * This server flag is displayed publicly on /serverinfo, /rank, and/or /top.
+ * Once enabled, the flag cannot be turned off unless the entire server's XP is reset.
+ */
+export class ResetGuildStatistics extends ResetJob {
   static readonly ALL_TABLES = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
+
+  private ranBonusReduction = false;
 
   constructor(
     guild: Guild,
     private tables: readonly ('textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus')[],
   ) {
+    if (tables.length < 1) {
+      throw new Error('A statistic reset must reset at least one table.');
+    }
+    if (new Set(tables).size !== tables.length) {
+      throw new Error('A statistic reset may not provide duplicate tables.');
+    }
     super(guild);
   }
 
@@ -597,30 +619,64 @@ export class ResetGuildStatisticsAndXP extends ResetJob {
             .where('guildId', '=', this.guild.id)
             .as(table),
         ),
-        // select count of member entries
-        db
-          .selectFrom('guildMember')
-          .select((s) => s.fn.countAll<string>().as('count'))
-          .where('guildId', '=', this.guild.id)
-          .as('guildMember'),
       ])
       .select((eb) =>
         // sum all counts
         this.tables
-          .reduce((prev, curr) => eb(`${curr}.count`, '+', prev), eb.ref('guildMember.count'))
+          .slice(1)
+          .reduce((prev, curr) => eb(`${curr}.count`, '+', prev), eb.ref(`${this.tables[0]}.count`))
           .as('rowEstimation'),
       )
       .executeTakeFirstOrThrow();
 
-    return { rowEstimation: Number(rowEstimation) };
+    // accomodate for the large query run when bonus is reset
+    return {
+      rowEstimation: this.tables.includes('bonus')
+        ? Math.floor(1.3 * Number(rowEstimation))
+        : Number(rowEstimation),
+    };
   }
 
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
     const db = getShardDb(cachedGuild.dbHost);
 
-    // delete all relevant entries in specified stats tables
+    // Subtract member's previous `bonus` xp from their total XP if `bonus` is selected for reset
+    if (this.tables.includes('bonus') && !this.ranBonusReduction) {
+      // this has to be a raw statement because Kysely inverts the order of clauses: https://github.com/kysely-org/kysely/issues/192
+      // the `bonus.alltime` fields in the SET statement are intentional: *all* bonus XP is removed instantaneously,
+      // just as it would be if it were added via /bonus member.
+      // the LIMIT clause is intentionally omitted here because we only want this to run once.
+      await sql`
+UPDATE \`guildMember\`
+  INNER JOIN (
+  SELECT
+    \`userId\`,
+    \`bonus\`.\`alltime\`
+  FROM
+    \`bonus\`
+  WHERE
+    \`guildId\` = ${this.guild.id}
+  ) AS \`bonus\` ON \`guildMember\`.\`userId\` = \`bonus\`.\`userId\`
+SET
+  \`guildMember\`.\`alltime\` = \`guildMember\`.\`alltime\` - \`bonus\`.\`alltime\`,
+  \`year\` = \`guildMember\`.\`year\` - \`bonus\`.\`alltime\`,
+  \`month\` = \`guildMember\`.\`month\` - \`bonus\`.\`alltime\`,
+  \`week\` = \`guildMember\`.\`week\` - \`bonus\`.\`alltime\`,
+  \`day\` = \`guildMember\`.\`day\` - \`bonus\`.\`alltime\`
+WHERE
+  \`guildId\` = ${this.guild.id}
+`.execute(db);
 
+      // just an estimate :3
+      this.incrementRows(Math.floor(this.rowEstimation! / 20));
+
+      this.ranBonusReduction = true;
+      // because the limit clause is excluded above, we forcibly skip a cycle to try to accomodate the load
+      return false;
+    }
+
+    // delete all relevant entries in specified stats tables
     for (const table of this.tables) {
       if (!this.canContinue) return false;
       const res = await db
@@ -634,32 +690,15 @@ export class ResetGuildStatisticsAndXP extends ResetJob {
 
     if (!this.canContinue) return false;
 
-    const resetKeys: (keyof GuildMemberUpdate)[] = [
-      // TODO(statistic-xp-separation, piemot): consider not resetting XP columns in this reset class
-      // instead, the reset of all members' XP could be done as a different reset type
-      'day',
-      'week',
-      'month',
-      'year',
-      'alltime',
-    ];
-
     // reset inviters if invites are being reset.
-    if (this.tables.includes('invite')) resetKeys.push('inviter');
-
-    const defaultEntries = Object.fromEntries(resetKeys.map((k) => [k, sql`DEFAULT`]));
-
-    // FIXME: this will reset the guildMember table to 0, regardless of which statistc types are reset.
-    // ! This is **known to be incorrect behaviour**.
-    // ! It is irrelevant because the columns are not currently used.
-    // TODO: this will be fixed when the above TODO entries are resolved
-    // by separating into a separate "reset XP" class.
-    await db
-      .updateTable('guildMember')
-      .set(defaultEntries)
-      .where('guildId', '=', this.guild.id)
-      .limit(BATCHSIZE - this.rowsAffectedIter)
-      .executeTakeFirstOrThrow();
+    if (this.tables.includes('invite')) {
+      await db
+        .updateTable('guildMember')
+        .set({ inviter: sql`DEFAULT` })
+        .where('guildId', '=', this.guild.id)
+        .limit(BATCHSIZE - this.rowsAffectedIter)
+        .executeTakeFirstOrThrow();
+    }
 
     // this check is required: otherwise the previous update could be
     // partial but return `true`, signalling no further processing.
@@ -672,17 +711,72 @@ export class ResetGuildStatisticsAndXP extends ResetJob {
   }
 }
 
+export class ResetGuildXP extends ResetJob {
+  constructor(guild: Guild) {
+    super(guild);
+  }
+
+  protected getStatusContent(): string {
+    if (this.totalRowsAffected >= this.rowEstimation!) {
+      return (
+        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
+      );
+    }
+    return (
+      '### Resetting Server XP...\n' +
+      renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
+    );
+  }
+
+  protected async getPlan(): Promise<{ rowEstimation: number }> {
+    const cachedGuild = await getGuildModel(this.guild);
+    const db = getShardDb(cachedGuild.dbHost);
+
+    // Estimated number of rows: number of members in guild
+    const { count } = await db
+      .selectFrom('guildMember')
+      .select((s) => s.fn.countAll<string>().as('count'))
+      .where('guildId', '=', this.guild.id)
+      .executeTakeFirstOrThrow();
+
+    return { rowEstimation: Number(count) };
+  }
+
+  protected async runIter(): Promise<boolean> {
+    const cachedGuild = await getGuildModel(this.guild);
+    const db = getShardDb(cachedGuild.dbHost);
+
+    const resetKeys: (keyof GuildMemberUpdate)[] = ['day', 'week', 'month', 'year', 'alltime'];
+
+    const defaultEntries = Object.fromEntries(resetKeys.map((k) => [k, sql`DEFAULT`]));
+
+    // reset the guildMember table to 0
+    await db
+      .updateTable('guildMember')
+      .set(defaultEntries)
+      .where('guildId', '=', this.guild.id)
+      .limit(BATCHSIZE - this.rowsAffectedIter)
+      .executeTakeFirstOrThrow();
+
+    if (!this.canContinue) return false;
+
+    // regenerate cache
+    resetGuildCache(this.guild).allMembers();
+
+    return true;
+  }
+}
+
 export class ResetGuildAll extends ResetJob {
   private resetSettings: ResetJob;
   private resetStatistics: ResetJob;
+  private resetXp: ResetJob;
 
   constructor(guild: Guild) {
     super(guild);
     this.resetSettings = new ResetGuildSettings(guild);
-    this.resetStatistics = new ResetGuildStatisticsAndXP(
-      guild,
-      ResetGuildStatisticsAndXP.ALL_TABLES,
-    );
+    this.resetStatistics = new ResetGuildStatistics(guild, ResetGuildStatistics.ALL_TABLES);
+    this.resetXp = new ResetGuildXP(guild);
   }
 
   protected getStatusContent(): string {
@@ -699,8 +793,9 @@ export class ResetGuildAll extends ResetJob {
   protected async getPlan(): Promise<{ rowEstimation: number }> {
     const { rowEstimation: settingEstimation } = await this.resetSettings.plan();
     const { rowEstimation: statisticEstimation } = await this.resetStatistics.plan();
+    const { rowEstimation: xpEstimation } = await this.resetXp.plan();
 
-    return { rowEstimation: settingEstimation + statisticEstimation };
+    return { rowEstimation: settingEstimation + statisticEstimation + xpEstimation };
   }
 
   // identical to parent method, but without queueing because sub-jobs will queue themselves.
@@ -727,16 +822,17 @@ export class ResetGuildAll extends ResetJob {
   }
 
   protected async runIter(): Promise<boolean> {
-    if (this.resetSettings.status !== ResetStatus.Complete) {
-      await this.resetSettings.run();
-      this._totalRowsAffected =
-        this.resetSettings.totalRowsAffected + this.resetStatistics.totalRowsAffected;
-      return false;
-    } else if (this.resetStatistics.status !== ResetStatus.Complete) {
-      await this.resetStatistics.run();
-      this._totalRowsAffected =
-        this.resetSettings.totalRowsAffected + this.resetStatistics.totalRowsAffected;
-      return false;
+    for (const job of [this.resetSettings, this.resetStatistics, this.resetXp]) {
+      if (job.status !== ResetStatus.Complete) {
+        await job.run();
+
+        this._totalRowsAffected =
+          this.resetSettings.totalRowsAffected +
+          this.resetStatistics.totalRowsAffected +
+          this.resetXp.totalRowsAffected;
+
+        return false;
+      }
     }
     return true;
   }

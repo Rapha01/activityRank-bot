@@ -13,7 +13,7 @@ async function main() {
     supportBigNumbers: true,
   });
 
-  const logStream = createWriteStream('migration/migrate-set.log', { flags: 'a' });
+  const logStream = createWriteStream(`migration/migrate-set-${Date.now()}.log`, { flags: 'a' });
 
   const getGuildInfo = await conn.prepare(
     'SELECT xpPerVoiceMinute, xpPerTextMessage, xpPerVote, xpPerInvite, xpPerBonus FROM dbShard.guild WHERE guildId = ?;',

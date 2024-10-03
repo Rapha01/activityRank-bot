@@ -9,9 +9,8 @@ import {
 import { subcommand } from 'bot/util/registry/command.js';
 import { actionrow, useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildStatisticsAndXP } from 'bot/models/resetModel.js';
+import { ResetGuildStatistics } from 'bot/models/resetModel.js';
 import cooldownUtil from 'bot/util/cooldownUtil.js';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { component } from 'bot/util/registry/component.js';
 import { commaListsAnd } from 'common-tags';
 
@@ -37,8 +36,6 @@ export const statistics = subcommand({
     if (!(await cooldownUtil.checkResetServerCommandCooldown(interaction))) return;
 
     const predicate = requireUser(interaction.user);
-
-    const cachedGuild = await getGuildModel(interaction.guild);
 
     const typesRow = actionrow([
       {
@@ -66,8 +63,6 @@ export const statistics = subcommand({
             value: 'invite',
             emoji: '✉️',
           },
-          // TODO: consider if bonus should be able to be reset,
-          // or if resetting bonus should also reset associated XP
           {
             label: 'Bonus',
             value: 'bonus',
@@ -115,8 +110,14 @@ const xpTypeselect = component({
       bonus: 'bonus',
     };
 
+    const xpAssociatedMessage = values.includes('bonus')
+      ? values.length > 1
+        ? 'XP granted via bonus will be reset, but no other statistics will reset XP. You may be looking for `/reset server xp`.'
+        : 'Since you are resetting the bonus statistic, this **will impact** the XP of any users that have bonus XP.'
+      : 'XP associated with those statistics will not be reset - try `/reset server xp`!';
+
     await interaction.reply({
-      content: commaListsAnd`Are you sure you want to reset all the **${values.map((v) => prettify[v])}** statistics?\n\n**This will also reset all XP associated with those statistics. This cannot be undone.**`,
+      content: commaListsAnd`Are you sure you want to reset all the **${values.map((v) => prettify[v])}** statistics?\n\n${xpAssociatedMessage} **This cannot be undone.**`,
       ephemeral: true,
       components: [confirmRow],
     });
@@ -125,7 +126,7 @@ const xpTypeselect = component({
 
 const { confirmButton, denyButton } = useConfirm<{ tables: Table[] }>({
   async confirmFn({ interaction, data }) {
-    const job = new ResetGuildStatisticsAndXP(interaction.guild, data.tables);
+    const job = new ResetGuildStatistics(interaction.guild, data.tables);
 
     await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
 

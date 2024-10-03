@@ -13,12 +13,13 @@ import {
   type MessageActionRowComponentData,
   time,
 } from 'discord.js';
-
-import cooldownUtil, { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import {
-  getGuildMemberRank,
-  getGuildMemberRankPosition,
+  fetchGuildMemberScores,
+  fetchGuildMemberStatistics,
+  getGuildMemberScorePosition,
+  getGuildMemberStatPosition,
   getGuildMemberTopChannels,
 } from 'bot/models/rankModel.js';
 import fct from '../../util/fct.js';
@@ -65,7 +66,7 @@ export default command.basic({
 
     const initialState: CacheInstance = {
       window: 'rank',
-      time: 'Alltime',
+      time: 'alltime',
       owner: interaction.member.id,
       targetUser,
       page: 1,
@@ -156,11 +157,11 @@ async function generateCard(
 }
 
 const _prettifyTime: { [k in StatTimeInterval]: string } = {
-  Day: 'Today',
-  Week: 'This week',
-  Month: 'This month',
-  Year: 'This year',
-  Alltime: 'Forever',
+  day: 'Today',
+  week: 'This week',
+  month: 'This month',
+  year: 'This year',
+  alltime: 'Forever',
 };
 
 async function generateChannelCard(
@@ -270,8 +271,8 @@ async function getTopChannels(
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
   const channelValue = (index: number) =>
     type === 'voiceMinute'
-      ? Math.round((guildMemberTopChannels[index][time] / 60) * 10) / 10
-      : guildMemberTopChannels[index][time];
+      ? Math.round((guildMemberTopChannels[index].entries / 60) * 10) / 10
+      : guildMemberTopChannels[index].entries;
 
   const s = [];
   for (let i = 0; i < guildMemberTopChannels.length; i++)
@@ -286,8 +287,11 @@ async function generateRankCard(
   myGuild: DBGuild,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
-  const rank = await getGuildMemberRank(guild, state.targetUser.id);
-  if (!rank) throw new Error();
+  const scores = await fetchGuildMemberScores(guild, state.targetUser.id);
+  const statistics = await fetchGuildMemberStatistics(guild, state.targetUser.id);
+
+  if (!scores) throw new Error();
+
   const guildCache = await getGuildModel(guild);
 
   const positions = await getPositions(
@@ -298,10 +302,7 @@ async function generateRankCard(
   );
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
-  const levelProgression = fct.getLevelProgression(
-    rank.totalScoreAlltime,
-    guildCache.db.levelFactor,
-  );
+  const levelProgression = fct.getLevelProgression(scores.alltime, guildCache.db.levelFactor);
 
   const embed = new EmbedBuilder()
     .setAuthor({ name: `${state.time} stats on server ${guild.name}` })
@@ -315,20 +316,18 @@ async function generateRankCard(
   }
 
   const infoStrings = [
-    `Total XP: ${Math.round(rank[`totalScore${state.time}`])} (#${positions.totalScore})`,
+    `Total XP: ${Math.round(scores[state.time])} (#${positions.xp})`,
     `Next Level: ${Math.floor((levelProgression % 1) * 100)}%`,
   ].join('\n');
 
   embed.addFields(
     {
-      name: `#${positions.totalScore} **${guildMemberInfo.name}** 🎖 ${Math.floor(
-        levelProgression,
-      )}`,
+      name: `#${positions.xp} **${guildMemberInfo.name}** 🎖 ${Math.floor(levelProgression)}`,
       value: infoStrings,
     },
     {
       name: 'Stats',
-      value: getScoreStrings(guildCache, rank, positions, state.time),
+      value: getStatisticStrings(guildCache, statistics, positions, state.time),
     },
   );
 
@@ -380,65 +379,52 @@ function getRankComponents(
   return [...getGlobalComponents(state, disabled)];
 }
 
-function getScoreStrings(
+function getStatisticStrings(
   myGuild: GuildModel,
-  ranks: NonNullable<Awaited<ReturnType<typeof getGuildMemberRank>>>,
+  stats: NonNullable<Awaited<ReturnType<typeof fetchGuildMemberStatistics>>>,
   positions: Record<string, number | null>,
   time: StatTimeInterval,
 ) {
   const scoreStrings = [];
   if (myGuild.db.textXp)
-    scoreStrings.push(`:writing_hand: ${ranks[`textMessage${time}`]} (#${positions.textMessage})`);
+    scoreStrings.push(`:writing_hand: ${stats.textMessage[time]} (#${positions.textMessage})`);
   if (myGuild.db.voiceXp)
     scoreStrings.push(
-      `:microphone2: ${Math.round((ranks[`voiceMinute${time}`] / 60) * 10) / 10} (#${
-        positions.voiceMinute
-      })`,
+      `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`,
     );
   if (myGuild.db.inviteXp)
-    scoreStrings.push(`:envelope: ${ranks[`invite${time}`]} (#${positions.invite})`);
+    scoreStrings.push(`:envelope: ${stats.invite[time]} (#${positions.invite})`);
   if (myGuild.db.voteXp)
-    scoreStrings.push(`${myGuild.db.voteEmote} ${ranks[`vote${time}`]} (#${positions.vote})`);
+    scoreStrings.push(`${myGuild.db.voteEmote} ${stats.vote[time]} (#${positions.vote})`);
   if (myGuild.db.bonusXp)
-    scoreStrings.push(`${myGuild.db.bonusEmote} ${ranks[`bonus${time}`]} (#${positions.bonus})`);
+    scoreStrings.push(`${myGuild.db.bonusEmote} ${stats.bonus[time]} (#${positions.bonus})`);
 
   return scoreStrings.join('\n');
 }
 
-async function getPositions<T extends string>(
+async function getPositions<T extends StatType[]>(
   guild: Guild,
   memberId: string,
-  types: T[],
+  types: T,
   time: StatTimeInterval,
-) {
-  const res = Object.fromEntries(
-    await Promise.all(
-      types.map(async (t) => [
-        t,
-        await getGuildMemberRankPosition(guild, memberId, t + time),
-      ]) as Promise<[T, number | null]>[],
-    ),
-  ) as Record<T, number | null>;
-
-  return res;
+): Promise<Record<T[number] | 'xp', number>> {
+  return Object.fromEntries(
+    await Promise.all([
+      ...types.map(
+        async (t) =>
+          [t, await getGuildMemberStatPosition(guild, memberId, t, time)] as [T[number], number],
+      ),
+      (async () => ['xp', await getGuildMemberScorePosition(guild, memberId, time)])(),
+    ]),
+  );
 }
 
-function getTypes(
-  myGuild: GuildModel,
-): ('textMessage' | 'voiceMinute' | 'invite' | 'vote' | 'bonus' | 'totalScore')[] {
+function getTypes(myGuild: GuildModel): StatType[] {
   return [
-    myGuild.db.textXp ? 'textMessage' : null,
-    myGuild.db.voiceXp ? 'voiceMinute' : null,
-    myGuild.db.inviteXp ? 'invite' : null,
-    myGuild.db.voteXp ? 'vote' : null,
-    myGuild.db.bonusXp ? 'bonus' : null,
-    'totalScore',
-  ].filter((i) => i !== null) as (
-    | 'textMessage'
-    | 'voiceMinute'
-    | 'invite'
-    | 'vote'
-    | 'bonus'
-    | 'totalScore'
-  )[];
+    myGuild.db.textXp ? ('textMessage' as const) : null,
+    myGuild.db.voiceXp ? ('voiceMinute' as const) : null,
+    myGuild.db.inviteXp ? ('invite' as const) : null,
+    myGuild.db.voteXp ? ('vote' as const) : null,
+    myGuild.db.bonusXp ? ('bonus' as const) : null,
+  ].filter((i) => i !== null);
 }

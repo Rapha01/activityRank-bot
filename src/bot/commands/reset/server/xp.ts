@@ -3,27 +3,19 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildMembersStatisticsAndXp } from 'bot/models/resetModel.js';
+import { ResetGuildXP } from 'bot/models/resetModel.js';
+import cooldownUtil from 'bot/util/cooldownUtil.js';
 
-export const member = subcommand({
+export const xp = subcommand({
   data: {
-    name: 'member',
-    description: "Reset a member's statistics.",
+    name: 'xp',
+    description: 'Reset XP for all members in the server.',
     type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'member',
-        description: 'The member to reset.',
-        type: ApplicationCommandOptionType.User,
-        required: true,
-      },
-    ],
   },
   async execute({ interaction }) {
     if (
@@ -36,17 +28,13 @@ export const member = subcommand({
       return;
     }
 
-    const user = interaction.options.getUser('member', true);
+    if (!(await cooldownUtil.checkResetServerCommandCooldown(interaction))) return;
 
     const predicate = requireUser(interaction.user);
+
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(
-          confirmButton.instanceId({
-            data: { initialInteraction: interaction, targetId: user.id },
-            predicate,
-          }),
-        )
+        .setCustomId(confirmButton.instanceId({ predicate }))
         .setLabel('Reset')
         .setEmoji('✅')
         .setStyle(ButtonStyle.Danger),
@@ -58,19 +46,16 @@ export const member = subcommand({
     );
 
     await interaction.reply({
-      content: `Are you sure you want to reset all the statistics and XP of ${user}?`,
+      content: `Are you sure you want to reset **all server members' XP**?\n\nThis will not reset associated statistics - try \`/reset server statistics\`! **This cannot be undone.**`,
       ephemeral: true,
       components: [confirmRow],
     });
   },
 });
 
-const { confirmButton, denyButton } = useConfirm<{
-  initialInteraction: ChatInputCommandInteraction<'cached'>;
-  targetId: string;
-}>({
-  async confirmFn({ interaction, data }) {
-    const job = new ResetGuildMembersStatisticsAndXp(interaction.guild, [data.targetId]);
+const { confirmButton, denyButton } = useConfirm({
+  async confirmFn({ interaction }) {
+    const job = new ResetGuildXP(interaction.guild);
 
     await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
 
@@ -80,7 +65,7 @@ const { confirmButton, denyButton } = useConfirm<{
     await job.runUntilComplete({
       onPause: async () => await job.logStatus(interaction),
       globalBufferTime: 100,
-      jobBufferTime: 3000,
+      jobBufferTime: 2000,
     });
     await job.logStatus(interaction);
   },
