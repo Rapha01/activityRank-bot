@@ -408,15 +408,15 @@ async function getPositions<T extends StatType[]>(
   types: T,
   time: StatTimeInterval,
 ): Promise<Record<T[number] | 'xp', number>> {
-  return Object.fromEntries(
-    await Promise.all([
-      ...types.map(
-        async (t) =>
-          [t, await getGuildMemberStatPosition(guild, memberId, t, time)] as [T[number], number],
-      ),
-      (async () => ['xp', await getGuildMemberScorePosition(guild, memberId, time)])(),
-    ]),
+  const positions = types.map(
+    async (t) =>
+      [t, await getGuildMemberStatPosition(guild, memberId, t, time)] as [T[number], number],
   );
+  const entries = await Promise.all([
+    ...positions,
+    (async () => ['xp', await getGuildMemberScorePosition(guild, memberId, time)])(),
+  ]);
+  return Object.fromEntries(entries);
 }
 
 function getTypes(myGuild: GuildModel): StatType[] {
