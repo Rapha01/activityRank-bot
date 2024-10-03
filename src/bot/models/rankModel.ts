@@ -281,12 +281,13 @@ export async function getGuildMemberScorePosition(
   // SELECT COUNT of all ranks where their rank > this member's rank
   const { count } = await db
     .selectFrom([myRank, guildRanks])
-    .select((eb) => eb.fn.countAll<number>().as('count'))
+    // count is returned as a string - presumably because it could be a bigint.
+    .select((eb) => eb.fn.countAll<string>().as('count'))
     .whereRef('guild_ranks.score', '>', 'member_rank.score')
     .executeTakeFirstOrThrow();
 
-  // make it 1-indexed
-  return count + 1;
+  // already 1-indexed, but convert to JS Number int
+  return Number.parseInt(count);
 }
 
 /**
@@ -318,12 +319,13 @@ export async function getGuildMemberStatPosition(
   // SELECT COUNT of all ranks where their rank > this member's rank
   const { count } = await db
     .selectFrom([myRank, guildRanks])
-    .select((eb) => eb.fn.countAll<number>().as('count'))
+    // count is returned as a string - presumably because it could be a bigint.
+    .select((eb) => eb.fn.countAll<string>().as('count'))
     .whereRef('guild_ranks.count', '>', 'member_rank.count')
     .executeTakeFirstOrThrow();
 
   // make it 1-indexed
-  return count + 1;
+  return Number.parseInt(count) + 1;
 }
 
 /**
