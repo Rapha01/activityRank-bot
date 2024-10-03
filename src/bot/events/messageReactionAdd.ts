@@ -7,7 +7,7 @@ import guildRoleModel from '../models/guild/guildRoleModel.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
-import fct from '../../util/fct.js';
+import { getVoteMultiplier } from '../../util/fct.js';
 import { getEmoji, getNativeEmoji } from 'bot/util/emoji.js';
 
 export default event(Events.MessageReactionAdd, async function (reaction, user) {
@@ -58,8 +58,7 @@ export default event(Events.MessageReactionAdd, async function (reaction, user) 
 
   // Get author multiplier
   const userModel = await getUserModel(member.user);
-  const myUser = await userModel.fetch();
-  const value = fct.getVoteMultiplier(myUser);
+  const value = getVoteMultiplier(await userModel.fetch());
 
   const toWait = getWaitTime(
     cachedMember.cache.lastVoteDate,
