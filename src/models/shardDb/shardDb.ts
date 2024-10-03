@@ -1,6 +1,14 @@
 import { createPool, type Pool } from 'mysql2/promise';
 import managerDb, { getAllDbHosts } from '../managerDb/managerDb.js';
-import { Kysely, MysqlDialect, type CompiledQuery } from 'kysely';
+import {
+  DummyDriver,
+  Kysely,
+  MysqlAdapter,
+  MysqlDialect,
+  MysqlIntrospector,
+  MysqlQueryCompiler,
+  type CompiledQuery,
+} from 'kysely';
 import type { ShardDB } from 'models/types/kysely/shard.js';
 import { keys } from 'const/config.js';
 
@@ -19,14 +27,19 @@ export async function getShardConnection(host: string) {
 /**
  * Execute a query on all database hosts.
  * @example ```ts
- * const q = getShardDb('any_host').selectFrom('user').selectAll();
- * const res = await kQueryAll(q);
+ * import { dummyDb, executeQueryAll } from 'shardDb.js';
+ *
+ * const q = dummyDb.selectFrom('user').selectAll();
+ * const res = await executeQueryAll(q);
  * ```
  */
 export async function executeQueryAll<D>(query: CompiledQuery<D>) {
   const hosts = await getAllDbHosts();
 
-  return await Promise.all(hosts.map(async (host) => await getShardDb(host).executeQuery(query)));
+  const queries = hosts.map(async (host) => await getShardDb(host).executeQuery(query));
+  const results = await Promise.all(queries);
+
+  return results.flatMap((res) => res.rows);
 }
 
 /** @deprecated Prefer querying with Kysely and getShardDb() instead */
@@ -71,6 +84,15 @@ function getShardInstance(host: string) {
   instances.set(host, instance);
   return instance;
 }
+
+export const dummyDb = new Kysely<ShardDB>({
+  dialect: {
+    createAdapter: () => new MysqlAdapter(),
+    createDriver: () => new DummyDriver(),
+    createIntrospector: (db) => new MysqlIntrospector(db),
+    createQueryCompiler: () => new MysqlQueryCompiler(),
+  },
+});
 
 export default {
   query,
