@@ -85,10 +85,8 @@ export class Registry {
     for (const [key, events] of this.#events) {
       for (const event of events) {
         if (event.once) {
-          // @ts-expect-error incorrect discord.js typings: for some reason they've made the `once` and `on` methods static on EventEmitter.
           emitter.once(key, event.callback);
         } else {
-          // @ts-expect-error incorrect discord.js typings: for some reason they've made the `once` and `on` methods static on EventEmitter.
           emitter.on(key, event.callback);
         }
       }
