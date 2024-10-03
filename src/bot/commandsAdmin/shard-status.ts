@@ -15,7 +15,7 @@ interface APIShard {
 }
 
 export default command.basic({
-  developmentOnly: true,
+  deploymentMode: 'LOCAL_ONLY',
   data: {
     name: 'shard-status',
     description: 'Check the status of each shard.',

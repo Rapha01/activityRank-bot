@@ -348,14 +348,11 @@ export const command = {
     predicate?: CommandPredicateConfig;
     execute: CommandExecutableFunction;
     autocomplete?: Record<string, AutocompleteFunction>;
-    /** @deprecated prefer specifying deploymentMode: DeploymentMode.LocalOnly */
-    developmentOnly?: boolean;
     deploymentMode?: DeploymentMode;
   }): SlashCommand {
     const predicate = args.predicate ?? null;
 
-    const deploymentMode =
-      args.deploymentMode ?? (args.developmentOnly ? Deploy.LocalOnly : null) ?? Deploy.Global;
+    const deploymentMode = args.deploymentMode ?? Deploy.Global;
 
     const autocompleteMap: AutocompleteMap<AutocompleteFunction> = new SerializableMap();
     for (const name in args.autocomplete) {
@@ -373,12 +370,9 @@ export const command = {
     predicate?: CommandPredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];
-    /** @deprecated prefer specifying deploymentMode: DeploymentMode.LocalOnly */
-    developmentOnly?: boolean;
     deploymentMode?: DeploymentMode;
   }): SlashCommand {
-    const deploymentMode =
-      args.deploymentMode ?? (args.developmentOnly ? Deploy.LocalOnly : null) ?? Deploy.Global;
+    const deploymentMode = args.deploymentMode ?? Deploy.Global;
 
     const predicate = args.predicate ?? null;
     const components = { subcommands: args.subcommands ?? [], groups: args.groups ?? [] };

@@ -8,7 +8,7 @@ import {
 import { RESET_JOBS, RESET_QUEUE } from 'bot/models/resetModel.js';
 
 export default command.basic({
-  developmentOnly: true,
+  deploymentMode: 'LOCAL_ONLY',
   predicate: HELPSTAFF_ONLY,
   data: {
     name: 'reset-jobs',

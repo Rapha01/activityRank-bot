@@ -78,7 +78,7 @@ const guild = subcommand({
 });
 
 export default command.parent({
-  developmentOnly: true,
+  deploymentMode: 'LOCAL_ONLY',
   data: {
     name: 'blacklist',
     description: 'Blacklist a user or server from the bot.',

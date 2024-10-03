@@ -10,7 +10,7 @@ import { ApplicationCommandOptionType, codeBlock } from 'discord.js';
 
 export default command.basic({
   predicate: DEVELOPER_ONLY,
-  developmentOnly: true,
+  deploymentMode: 'LOCAL_ONLY',
   data: {
     name: 'eval',
     description: "Evaluates an arbitrary script in the shard's environment.",
