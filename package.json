@@ -11,6 +11,8 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:check": "vitest --run",
     "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
     "dev": "node --enable-source-maps ./dist/app.js"
   },

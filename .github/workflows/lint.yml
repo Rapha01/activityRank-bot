@@ -41,4 +41,4 @@ jobs:
         run: npm run typecheck
 
       - name: Run vitest tests
-        run: npx vitest --run
+        run: npm run test:check
