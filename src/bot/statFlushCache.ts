@@ -4,7 +4,6 @@ import type { StatType } from 'models/types/enums.js';
 import { getGuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
-import { Feature, hasFeature } from './util/feature.js';
 
 export async function addTextMessage(
   member: GuildMember,
