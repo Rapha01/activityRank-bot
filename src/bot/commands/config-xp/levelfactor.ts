@@ -21,18 +21,6 @@ export const levelfactor = subcommand({
     ],
   },
   async execute({ interaction }) {
-    if (
-      !interaction.channel ||
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      // TODO replace with native system
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
-      return;
-    }
-
     const levelFactor = interaction.options.getInteger('levelfactor', true);
     const cachedGuild = await getGuildModel(interaction.guild);
     await cachedGuild.upsert({ levelFactor });

@@ -43,18 +43,6 @@ export const member = subcommand({
       return;
     }
 
-    if (
-      !interaction.channel ||
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      // TODO: remove this check in favour of native solution
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
-      return;
-    }
-
     const change = interaction.options.getInteger('change', true);
 
     await statFlushCache.addBonus(member, change);

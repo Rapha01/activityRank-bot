@@ -13,16 +13,3 @@ export default command.parent({
   subcommands: [member, channel],
   groups: [server, deleted],
 });
-
-/*
- * [x] /reset channel                    channel:#channel
- * [x] /reset member                     member:@member
- * [x] /reset server settings            * resets all server configurations.
- * [x] /reset server statistics          -> (multi)select menu of stat types
- * [ ] TODO: /reset server xp            * reset all members' XP (currently /reset server statistics)
- * [x] /reset server all                 * reset xp, server config, and stat types
- * [x] /reset deleted members
- * [~] /reset deleted member             id:
- * [x] /reset deleted channels
- * [x] /reset deleted channel            id:
- */

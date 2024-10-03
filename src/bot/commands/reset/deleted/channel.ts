@@ -28,18 +28,6 @@ export const channel = subcommand({
     ],
   },
   async execute({ interaction }) {
-    // TODO deprecate in favour of native Discord slash command permissions
-    if (
-      !interaction.channel ||
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
-      return;
-    }
-
     const channelId = interaction.options.getString('id', true);
     if (!/^\d*$/.test(channelId)) {
       await interaction.reply({ content: 'Discord IDs are always numbers.', ephemeral: true });

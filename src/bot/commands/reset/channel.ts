@@ -34,18 +34,6 @@ export const channel = subcommand({
     ],
   },
   async execute({ interaction }) {
-    // TODO deprecate in favour of native Discord slash command permissions
-    if (
-      !interaction.channel ||
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
-      return;
-    }
-
     // because `channel` is a required argument, this will always be the submitted channel ID.
     // https://discord.dev/interactions/receiving-and-responding#interaction-object-application-command-interaction-data-option-structure
     const channelId = interaction.options.get('channel', true).value as string;

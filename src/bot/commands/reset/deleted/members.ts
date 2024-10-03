@@ -17,17 +17,6 @@ export const members = subcommand({
     type: ApplicationCommandOptionType.Subcommand,
   },
   async execute({ interaction }) {
-    // TODO deprecate in favour of native Discord slash command permissions
-    if (
-      !interaction.channel ||
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
-      return;
-    }
     const userIds = await fetchDeletedUserIds(interaction.guild);
 
     if (userIds.length < 1) {
