@@ -9,7 +9,4 @@ export const init = (shards: number[]) => {
 
 export const logger = shardLogger ?? masterLogger.child({ shards: ['?'] });
 
-export default {
-  init,
-  logger,
-};
+export default { init, logger };
