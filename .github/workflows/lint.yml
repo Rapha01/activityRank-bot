@@ -39,6 +39,3 @@ jobs:
 
       - name: Check types with tsc
         run: npm run typecheck
-
-      - name: Run vitest tests
-        run: npm run test:check
