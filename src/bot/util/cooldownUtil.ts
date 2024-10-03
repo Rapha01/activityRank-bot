@@ -1,15 +1,11 @@
 import fct from '../../util/fct.js';
-import {
-  BaseInteraction,
-  time,
-  type ChatInputCommandInteraction,
-  type InteractionReplyOptions,
-} from 'discord.js';
+import { time, type ChatInputCommandInteraction, type InteractionReplyOptions } from 'discord.js';
 import { Time } from '@sapphire/duration';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { isPrivileged } from 'const/config.js';
 import { getMemberModel } from 'bot/models/guild/guildMemberModel.js';
 import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
+import { RESET_GUILD_IDS } from 'bot/models/resetModel.js';
 
 const premiumLowersCooldownMessage = `You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it [on our Patreon](<${PATREON_URL}>).`;
 
@@ -44,17 +40,6 @@ export function getWaitTime(lastDate: Date | number | undefined | null, cooldown
   const remaining = cooldown - (now - then);
   return { remaining, next: new Date(now + remaining) };
 }
-
-/** @deprecated prefer {@link getWaitTime()} */
-// @ts-expect-error Type checking disabled for deprecated fn
-export const getCachedCooldown = (cache, field, cd) => {
-  const nowDate = Date.now() / 1000;
-
-  if (typeof cache[field] === 'undefined') cache[field] = 0;
-
-  const remaining = cd - (nowDate - cache[field]);
-  return remaining;
-};
 
 export async function handleStatCommandsCooldown(
   interaction: ChatInputCommandInteraction<'cached'>,
@@ -96,9 +81,19 @@ export async function handleStatCommandsCooldown(
   return res(false);
 }
 
-export const checkResetServerCommandCooldown = async (
+export async function handleResetCommandsCooldown(
   interaction: ChatInputCommandInteraction<'cached'>,
-) => {
+): Promise<{ denied: boolean; allowed: boolean }> {
+  const res = (allowed: boolean) => ({ allowed, denied: !allowed });
+
+  if (RESET_GUILD_IDS.has(interaction.guildId)) {
+    await interaction.reply({
+      content: 'A reset job is currently running. Try again later.',
+      ephemeral: true,
+    });
+    return res(false);
+  }
+
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
   let cd = Time.Hour / 2;
@@ -106,24 +101,25 @@ export const checkResetServerCommandCooldown = async (
   if (ownerTier == 3) cd = Time.Minute * 5;
   if (userTier == 2 || userTier == 3) cd = Time.Minute * 2;
 
-  const premiumLowersCooldownString =
-    userTier == 2 || userTier == 3 ? '' : premiumLowersCooldownMessage;
-
   const cachedGuild = await getGuildModel(interaction.guild);
 
   const toWait = getWaitTime(cachedGuild.cache.lastResetServer, cd);
-  if (toWait.remaining > 0) {
-    await interaction.reply({
-      content: activeResetServerCommandCooldown(cd, toWait.next) + premiumLowersCooldownString,
-      ephemeral: true,
-    });
-    return false;
+
+  // no need to wait any longer: set now as last reset and allow
+  if (toWait.remaining <= 0) {
+    cachedGuild.cache.lastResetServer = new Date();
+    return res(true);
   }
 
-  return true;
-};
+  const reply: InteractionReplyOptions = {
+    content: activeResetServerCommandCooldown(cd, toWait.next),
+  };
 
-export default {
-  getCachedCooldown,
-  checkResetServerCommandCooldown,
-};
+  if (userTier < 2) {
+    reply.content += premiumLowersCooldownMessage;
+    reply.components = PATREON_COMPONENTS;
+  }
+
+  await interaction.reply({ ...reply, ephemeral: true });
+  return res(false);
+}

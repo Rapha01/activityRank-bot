@@ -9,7 +9,7 @@ import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
 import { ResetGuildAll } from 'bot/models/resetModel.js';
-import cooldownUtil from 'bot/util/cooldownUtil.js';
+import { handleResetCommandsCooldown } from 'bot/util/cooldownUtil.js';
 
 export const all = subcommand({
   data: {
@@ -28,7 +28,7 @@ export const all = subcommand({
       return;
     }
 
-    if (!(await cooldownUtil.checkResetServerCommandCooldown(interaction))) return;
+    if ((await handleResetCommandsCooldown(interaction)).denied) return;
 
     const predicate = requireUser(interaction.user);
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(

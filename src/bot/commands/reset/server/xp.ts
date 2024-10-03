@@ -9,7 +9,7 @@ import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
 import { ResetGuildXP } from 'bot/models/resetModel.js';
-import cooldownUtil from 'bot/util/cooldownUtil.js';
+import { handleResetCommandsCooldown } from 'bot/util/cooldownUtil.js';
 
 export const xp = subcommand({
   data: {
@@ -28,7 +28,7 @@ export const xp = subcommand({
       return;
     }
 
-    if (!(await cooldownUtil.checkResetServerCommandCooldown(interaction))) return;
+    if ((await handleResetCommandsCooldown(interaction)).denied) return;
 
     const predicate = requireUser(interaction.user);
 
