@@ -20,10 +20,10 @@
             "description": "Die zu ändernde Rolle."
           },
           "change": {
-            "description": "Die Menge an XP, die jedem Benutzer mit der Rolle gegeben werden soll. Diese Option kann negativ sein."
+            "description": "Die Menge an XP, die jedem Mitglied mit der Rolle gegeben werden soll. Kann negativ sein."
           },
           "use-beta": {
-            "description": "Aktiviert den Betamodus für das verteilen von Bonus XP an Rollen. Warnung: Dies wird keine levelup Nachrichten senden."
+            "description": "Beta. Es werden keine levelUpMessages gesendet."
           }
         }
       }
@@ -263,7 +263,7 @@
         }
       },
       "deleted": {
-        "description": "Setzt die Statistiken für Benutzer, welche nicht mehr auf dem Server sind oder Kanäle, welche gelöscht wurden, zurück.",
+        "description": "Statistiken für gelöschte Kanäle oder Mitglieder zurücksetzen.",
         "options": {
           "channel": {
             "description": "Setzt die Statistiken eines gelöschten Kanals zurück.",
