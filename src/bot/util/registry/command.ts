@@ -15,6 +15,9 @@ import type {
 } from 'discord.js';
 import { type Serializable, SerializableMap } from './serializableMap.js';
 import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
+import { ensureI18nLoaded, getTranslationsForKey } from '../i18n.js';
+
+await ensureI18nLoaded();
 
 export class UnimplementedError extends TypeError {
   constructor(message: string, options?: ErrorOptions) {
@@ -148,6 +151,18 @@ export abstract class Command {
 }
 
 export abstract class SlashCommand extends Command {
+  public readonly data: RESTPostAPIChatInputApplicationCommandsJSONBody;
+
+  constructor(options: RESTPostAPIChatInputApplicationCommandsJSONBody) {
+    super();
+
+    this.data = {
+      ...options,
+      dm_permission: false,
+      description_localizations: getTranslationsForKey(`commands:${options.name}.description`),
+    };
+  }
+
   public abstract execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'>,
@@ -161,14 +176,12 @@ export abstract class SlashCommand extends Command {
 
 export type BasicSlashCommandData = Omit<
   RESTPostAPIChatInputApplicationCommandsJSONBody,
-  'options' | 'dm_permission'
+  'options' | 'dm_permission' | 'name_localizations' | 'description_localizations'
 > & {
   options?: APIApplicationCommandBasicOption[];
 };
 
 class BasicSlashCommand extends SlashCommand {
-  public data: RESTPostAPIChatInputApplicationCommandsJSONBody;
-
   constructor(
     data: BasicSlashCommandData,
     private predicate: CommandPredicateConfig | null,
@@ -178,8 +191,7 @@ class BasicSlashCommand extends SlashCommand {
       autocomplete: AutocompleteMap<AutocompleteFunction>;
     },
   ) {
-    super();
-    this.data = { ...data, dm_permission: false };
+    super(data);
   }
 
   public checkPredicate(_idx: CommandIndex, user: User) {
@@ -207,7 +219,6 @@ class BasicSlashCommand extends SlashCommand {
 }
 
 class ParentSlashCommand extends SlashCommand {
-  public data: RESTPostAPIChatInputApplicationCommandsJSONBody;
   // `predicate` is Omitted here to avoid its accidental use later; predicateMap should be
   // used because it holds the combined predicates for all subcommands up the tree.
   // It is likely that at runtime the CommandMap will include SlashSubcommands in their entirety; this is acceptable.
@@ -221,23 +232,52 @@ class ParentSlashCommand extends SlashCommand {
     public readonly deploymentMode: DeploymentMode,
     options: { subcommands: SlashSubcommand[]; groups: SlashSubcommandGroup[] },
   ) {
-    super();
-
     if (options.subcommands.length < 1 && options.groups.length < 1) {
       throw new Error('A parent slash command must have at least one child subcommand or group.');
     }
 
-    this.data = { ...baseData, dm_permission: false };
-    this.data.options = [];
+    const data: RESTPostAPIChatInputApplicationCommandsJSONBody = baseData;
+
+    data.options = [];
 
     for (const subcommand of options.subcommands) {
-      const idxKey = [this.data.name, subcommand.data.name];
+      data.options.push({
+        ...subcommand.data,
+        description_localizations: getTranslationsForKey(
+          `commands:${baseData.name}.options.${subcommand.data.name}.description`,
+        ),
+      });
+    }
+
+    for (const group of options.groups) {
+      const groupData = group.data;
+      groupData.options = [];
+      for (const subcommand of group.subcommands) {
+        groupData.options.push({
+          ...subcommand.data,
+          description_localizations: getTranslationsForKey(
+            `commands:${baseData.name}.options.${groupData.name}.options.${subcommand.data.name}.description`,
+          ),
+        });
+      }
+
+      data.options.push({
+        ...groupData,
+        description_localizations: getTranslationsForKey(
+          `commands:${baseData.name}.options.${groupData.name}.description`,
+        ),
+      });
+    }
+
+    super(data);
+
+    for (const subcommand of options.subcommands) {
+      const idxKey = [data.name, subcommand.data.name];
       const idx = new CommandIndex(idxKey);
 
       this.subcommandMap.set(idx, subcommand);
       // the predicate with the greatest level of specificity is selected.
       this.predicateMap.set(idx, subcommand.predicate ?? commandPredicate ?? null);
-      this.data.options.push(subcommand.data);
 
       for (const name in subcommand.autocomplete) {
         const fn = subcommand.autocomplete[name];
@@ -264,7 +304,6 @@ class ParentSlashCommand extends SlashCommand {
           this.autocompleteMap.set(new AutocompleteIndex(idxKey, name), fn);
         }
       }
-      this.data.options.push(groupData);
     }
   }
 
