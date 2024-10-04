@@ -286,8 +286,8 @@ export async function getGuildMemberScorePosition(
     .whereRef('guild_ranks.score', '>', 'member_rank.score')
     .executeTakeFirstOrThrow();
 
-  // already 1-indexed, but convert to JS Number int
-  return Number.parseInt(count);
+  // make it 1-indexed
+  return Number.parseInt(count) + 1;
 }
 
 /**
@@ -306,14 +306,15 @@ export async function getGuildMemberStatPosition(
 
   const myRank = db
     .selectFrom(statistic)
-    .select(`${time} as count`)
+    .select((eb) => eb.fn.sum(time).as('count'))
     .where('guildId', '=', guild.id)
     .where('userId', '=', userId)
     .as('member_rank');
   const guildRanks = db
     .selectFrom(statistic)
-    .select(`${time} as count`)
+    .select((eb) => eb.fn.sum(time).as('count'))
     .where('guildId', '=', guild.id)
+    .groupBy('userId')
     .as('guild_ranks');
 
   // SELECT COUNT of all ranks where their rank > this member's rank
