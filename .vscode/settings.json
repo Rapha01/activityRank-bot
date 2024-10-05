@@ -12,5 +12,8 @@
       "fileMatch": ["config/config.json"],
       "url": "./config/config.schema.json"
     }
+  ],
+  "i18n-ally.localesPaths": [
+    "locales"
   ]
 }
