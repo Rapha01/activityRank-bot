@@ -1,3 +1,4 @@
+import type { User } from 'models/types/kysely/shard.js';
 import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
 import { getUserModel } from '../bot/models/userModel.js';
 import type { BaseInteraction, GuildMember } from 'discord.js';
@@ -84,42 +85,22 @@ export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
   return { userTier, ownerTier };
 }
 
-/** @deprecated prefer {@link getRawVoteMultiplier()} */
-export const getVoteMultiplier = (myUser: {
-  lastTopggUpvoteDate: string;
-  patreonTierUntilDate: string;
-  patreonTier: number;
-}) => {
-  let multiplier = 1;
+export function getVoteMultiplier(dbUser: User): number {
+  const lastTopggUpvoteDate = parseInt(dbUser.lastTopggUpvoteDate);
+  const patreonTierUntilDate = parseInt(dbUser.patreonTierUntilDate);
 
-  if (parseInt(myUser.lastTopggUpvoteDate) + 259200 > Date.now() / 1000) multiplier = 2;
-
-  if (parseInt(myUser.patreonTierUntilDate) > Date.now() / 1000 && myUser.patreonTier > 0) {
-    if (myUser.patreonTier == 1) multiplier = 2;
-    else if (myUser.patreonTier == 2) multiplier = 3;
-    else if (myUser.patreonTier == 3) multiplier = 4; // TODO remove: deprecated Patreon tier
-  }
-
-  return multiplier;
-};
-
-export const getRawVoteMultiplier = (
-  lastTopggUpvoteDate: number,
-  patreonTierUntilDate: number,
-  patreonTier: number,
-) => {
   let multiplier = 1;
 
   if (lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;
 
-  if (patreonTierUntilDate > Date.now() / 1000 && patreonTier > 0) {
-    if (patreonTier == 1) multiplier = 2;
-    else if (patreonTier == 2) multiplier = 3;
-    else if (patreonTier == 3) multiplier = 4; // TODO remove: deprecated Patreon tier
+  if (patreonTierUntilDate > Date.now() / 1000) {
+    if (dbUser.patreonTier == 1) multiplier = 2;
+    else if (dbUser.patreonTier == 2) multiplier = 3;
+    else if (dbUser.patreonTier == 3) multiplier = 4; // TODO remove: deprecated Patreon tier
   }
 
   return multiplier;
-};
+}
 
 export const getPatreonTierName = (tier: number) => {
   if (tier == 3) return 'Serveradmin';
@@ -136,6 +117,5 @@ export default {
   getLevel,
   getLevelProgression,
   getPatreonTiers,
-  getVoteMultiplier,
   getPatreonTierName,
 };

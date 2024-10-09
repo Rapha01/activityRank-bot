@@ -1,5 +1,4 @@
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
-import type { getGuildMemberRanks } from 'bot/models/rankModel.js';
 import {
   ChannelType,
   type Guild,
@@ -9,7 +8,6 @@ import {
   type Role,
   type GuildBasedChannel,
 } from 'discord.js';
-import { deprecate } from 'node:util';
 
 export const getChannelName = (
   channels: Collection<string, GuildBasedChannel>,
@@ -18,7 +16,7 @@ export const getChannelName = (
   const channel = channels.get(channelId);
 
   if (channel) return cutName(channel.name);
-  else return 'Deleted [' + channelId + ']';
+  else return `Deleted [${channelId}]`;
 };
 
 export const getChannelMention = (channels: Collection<string, Channel>, channelId: string) => {
@@ -39,7 +37,7 @@ export const getRoleName = (roles: Collection<string, Role>, roleId: string) => 
   const role = roles.get(roleId);
 
   if (role) return cutName(role.name);
-  else return 'Deleted [' + roleId + ']\n';
+  else return `Deleted [${roleId}]\n`;
 };
 
 export const getRoleMention = (roles: Collection<string, Role>, roleId: string) => {
@@ -124,34 +122,15 @@ export const getGuildMemberInfo = async (guild: Guild, userId: string) => {
   return (await getGuildMemberInfos(guild, [userId]))[userId];
 };
 
-export const getGuildMemberNamesWithRanks = async (
+export async function getGuildMemberNamesWithRanks<T extends { userId: string }>(
   guild: Guild,
-  memberRanks: Awaited<ReturnType<typeof getGuildMemberRanks>>,
-) => {
+  memberRanks: T[],
+) {
   const userIds = memberRanks.map((r) => r.userId);
   const memberInfos = await getGuildMemberInfos(guild, userIds);
 
   return memberRanks.map((i) => ({ ...i, name: memberInfos[i.userId].name }));
-};
-
-// @ts-ignore deprecated function is kept intact
-export const addGuildMemberNamesToRanks = deprecate((guild, memberRanks) => {
-  return new Promise(async function (resolve, reject) {
-    try {
-      let userIds = [],
-        memberRank;
-      for (memberRank of memberRanks) userIds.push(memberRank.userId);
-      const memberInfos = await getGuildMemberInfos(guild, userIds);
-
-      for (memberRank of memberRanks) memberRank.name = memberInfos[memberRank.userId].name;
-
-      // @ts-ignore deprecated function is kept intact
-      resolve();
-    } catch (e) {
-      return reject(e);
-    }
-  });
-}, "addGuildMemberNamesToRanks() is deprecated due to TypeScript's inability to change variable types. Use getGuildMemberNamesWithRanks() instead.");
+}
 
 // TODO consider checking if displayNames are appropriate in this function
 export const getGuildMemberAlias = (member: GuildMember, showNicknames: boolean) =>
@@ -172,7 +151,6 @@ export default {
   getChannelTypeIcon,
   getGuildMemberInfos,
   getGuildMemberInfo,
-  addGuildMemberNamesToRanks,
   getGuildMemberAlias,
   cutName,
 };

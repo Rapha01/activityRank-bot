@@ -6,10 +6,7 @@ import {
 } from 'bot/models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import nameUtil, {
-  addGuildMemberNamesToRanks,
-  getGuildMemberNamesWithRanks,
-} from '../util/nameUtil.js';
+import { getChannelMention, getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
 import {
   ButtonStyle,
   ChannelType,
@@ -233,7 +230,7 @@ async function getTopChannels(
   if (!channelRanks || channelRanks.length == 0) return 'No entries found for this page.';
 
   const channelMention = (index: number) =>
-    nameUtil.getChannelMention(guild.channels.cache, channelRanks[index].channelId);
+    getChannelMention(guild.channels.cache, channelRanks[index].channelId);
   const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
   const channelValue = (index: number) =>
     type === 'voiceMinute'
@@ -288,7 +285,7 @@ async function generateChannelMembers(
     };
   }
 
-  await addGuildMemberNamesToRanks(guild, channelMemberRanks);
+  const ranksWithNames = await getGuildMemberNamesWithRanks(guild, channelMemberRanks);
 
   const embed: APIEmbed = { title, color: 0x4fd6c8 };
 
@@ -298,22 +295,17 @@ async function generateChannelMembers(
     embed.description = `**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`;
   }
 
-  for (let i = 0; i < channelMemberRanks.length; i++) {
+  for (let i = 0; i < ranksWithNames.length; i++) {
+    const rank = ranksWithNames[i];
+
     const value =
       type === 'voiceMinute'
-        ? `:microphone2: ${Math.round((channelMemberRanks[i].total / 60) * 10) / 10}`
-        : `:writing_hand: ${channelMemberRanks[i].total}`;
-
-    const guildMemberName = (await nameUtil.getGuildMemberInfo(guild, channelMemberRanks[i].userId))
-      .name;
+        ? `:microphone2: ${Math.round((rank.total / 60) * 10) / 10}`
+        : `:writing_hand: ${rank.total}`;
 
     embed.fields = [
       ...(embed.fields ?? []),
-      {
-        name: `#${page.from + i}  ${guildMemberName}`,
-        value,
-        inline: true,
-      },
+      { name: `#${page.from + i}  ${rank.name}`, value, inline: true },
     ];
   }
 

@@ -4,7 +4,6 @@ import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
 import { ActivityType } from 'discord.js';
 import { updateTexts } from 'models/managerDb/textModel.js';
-import { updateSettings } from 'models/managerDb/settingModel.js';
 import { memberCache } from './models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
 import { registry } from './util/registry/registry.js';
@@ -132,7 +131,6 @@ async function initClientCaches(client: Client) {
   client.xpFlushCache = {};
   client.botShardStat = { commandsTotal: 0, textMessagesTotal: 0 };
   await updateTexts();
-  await updateSettings();
 }
 
 process.on('SIGINT', () => {

@@ -3,7 +3,7 @@ import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
-import cooldownUtil, { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { stripIndent } from 'common-tags';
 import fct from '../../util/fct.js';
 import { getShardDb } from 'models/shardDb/shardDb.js';

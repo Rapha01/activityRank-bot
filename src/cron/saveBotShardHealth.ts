@@ -1,12 +1,13 @@
 import { publicIpv4 } from 'public-ip';
-import managerDb from '../models/managerDb/managerDb.js';
-import { escape } from 'mysql2/promise';
+import { getManagerDb } from '../models/managerDb/managerDb.js';
 import type { Client, ShardingManager } from 'discord.js';
+import { isProduction } from 'const/config.js';
+import { sql, type Expression } from 'kysely';
 
 function _save(client: Client) {
   const obj = {
     shardId: client.shard!.ids[0],
-    uptimeSeconds: Math.floor(client.uptime! / 1000),
+    uptimeSeconds: Math.floor(client.uptime ?? 0 / 1000),
     readyDate: client.readyTimestamp,
     serverCount: client.guilds.cache.size,
     status: client.ws.status,
@@ -28,26 +29,27 @@ export default async (manager: ShardingManager) => {
     ...shard,
     ip,
     changedHealthDate: nowDate,
-    readyDate: Math.round(new Date(shard.readyDate!).getTime() / 1000),
-    shardId: process.env.NODE_ENV === 'production' ? shard.shardId : shard.shardId + 1000000,
+    readyDate: Math.round(new Date(shard.readyDate ?? 0).getTime() / 1000),
+    shardId: isProduction ? shard.shardId : shard.shardId + 1000000,
   }));
 
-  const keys = [
-    'shardId',
-    'status',
-    'serverCount',
-    'uptimeSeconds',
-    'readyDate',
-    'ip',
-    'changedHealthDate',
-    'commandsTotal',
-    'textMessagesTotal',
-  ] as const;
+  function values<T>(expr: Expression<T>) {
+    return sql<T>`VALUES(${expr})`;
+  }
 
-  const updateSqls = keys.map((k) => `${k}=VALUES(${k})`);
-
-  const valueSqls = dataShards.map((s) => `(${keys.map((k) => escape(s[k])).join(',')})`);
-
-  await managerDb.query(`INSERT INTO botShardStat (${keys.join(',')})
-    VALUES ${valueSqls.join(',')} ON DUPLICATE KEY UPDATE ${updateSqls.join(',')}`);
+  await getManagerDb()
+    .insertInto('botShardStat')
+    .values(dataShards)
+    .onDuplicateKeyUpdate((eb) => ({
+      shardId: values(eb.ref('shardId')),
+      status: values(eb.ref('status')),
+      serverCount: values(eb.ref('serverCount')),
+      uptimeSeconds: values(eb.ref('uptimeSeconds')),
+      readyDate: values(eb.ref('readyDate')),
+      ip: values(eb.ref('ip')),
+      changedHealthDate: values(eb.ref('changedHealthDate')),
+      commandsTotal: values(eb.ref('commandsTotal')),
+      textMessagesTotal: values(eb.ref('textMessagesTotal')),
+    }))
+    .executeTakeFirstOrThrow();
 };

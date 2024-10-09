@@ -2,7 +2,7 @@ import { getMemberModel } from 'bot/models/guild/guildMemberModel.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { getUserModel } from 'bot/models/userModel.js';
 import { time, type GuildMember, type InteractionReplyOptions } from 'discord.js';
-import { getRawVoteMultiplier, hasNoXpRole } from 'util/fct.js';
+import { getVoteMultiplier, hasNoXpRole } from 'util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
 import statFlushCache from 'bot/statFlushCache.js';
 import { PATREON_URL } from './constants.js';
@@ -105,12 +105,7 @@ export async function attemptUpvote(
 
   // Get voter multiplier
   const userModel = await getUserModel(voter.user);
-  const myUser = await userModel.fetch();
-  const multiplier = getRawVoteMultiplier(
-    parseInt(myUser.lastTopggUpvoteDate),
-    parseInt(myUser.patreonTierUntilDate),
-    myUser.patreonTier,
-  );
+  const multiplier = getVoteMultiplier(await userModel.fetch());
 
   cachedMember.cache.lastVoteDate = new Date();
 

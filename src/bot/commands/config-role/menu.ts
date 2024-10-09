@@ -15,19 +15,15 @@ import {
 import guildRoleModel from '../../models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
 import { ParserResponseStatus, parseRole } from '../../util/parser.js';
-import type { GuildRoleSchema } from 'models/types/shard.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { actionrow, closeButton } from 'bot/util/component.js';
 import { component, modal } from 'bot/util/registry/component.js';
 import { requireUser } from 'bot/util/predicates.js';
+import type { GuildRole } from 'models/types/kysely/shard.js';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 
-const generateMainRow = (
-  interaction: Interaction<'cached'>,
-  roleId: string,
-  myRole: GuildRoleSchema,
-) => {
+const generateMainRow = (interaction: Interaction<'cached'>, roleId: string, myRole: GuildRole) => {
   const predicate = requireUser(interaction.user);
   return actionrow([
     {
