@@ -384,6 +384,20 @@ export class ResetGuildSettings extends ResetJob {
   }
 }
 
+export async function resetGuildChannelsSettings(guild: Guild, channelIds: string[]) {
+  const cachedGuild = await getGuildModel(guild);
+  const db = getShardDb(cachedGuild.dbHost);
+
+  await db
+    .deleteFrom('guildChannel')
+    .where('guildId', '=', guild.id)
+    .where('channelId', 'in', channelIds)
+    .executeTakeFirstOrThrow();
+
+  resetGuildCache(guild).allMembers();
+  resetGuildCache(guild).channels(channelIds);
+}
+
 export class ResetGuildChannelsStatistics extends ResetJob {
   constructor(
     guild: Guild,

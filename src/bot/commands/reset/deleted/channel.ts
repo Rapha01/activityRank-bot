@@ -3,13 +3,12 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  PermissionFlagsBits,
 } from 'discord.js';
 import nameUtil from 'bot/util/nameUtil.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { useConfirm } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildChannelsStatistics } from 'bot/models/resetModel.js';
+import { resetGuildChannelsSettings, ResetGuildChannelsStatistics } from 'bot/models/resetModel.js';
 
 export const channel = subcommand({
   data: {
@@ -73,6 +72,7 @@ const { confirmButton, denyButton } = useConfirm<{ targetId: string }>({
       globalBufferTime: 100,
       jobBufferTime: 2000,
     });
+    await resetGuildChannelsSettings(interaction.guild, [data.targetId]);
     await job.logStatus(interaction);
   },
   async denyFn({ interaction }) {
