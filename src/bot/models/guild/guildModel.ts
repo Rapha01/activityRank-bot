@@ -68,17 +68,17 @@ export class GuildModel extends CachedModel<
     const guild = await this.handle
       .selectFrom('guild')
       .selectAll()
-      .where('guildId', '=', this.object.id)
+      .where('guildId', '=', this._object.id)
       .executeTakeFirst();
 
-    if (!guild) throw new Error(`Could not find guild ${this.object.id} in database`);
+    if (!guild) throw new Error(`Could not find guild ${this._object.id} in database`);
     return guild;
   }
 
   async upsert(expr: GuildUpdate) {
     await this.handle
       .insertInto('guild')
-      .values({ guildId: this.object.id, ...expr })
+      .values({ guildId: this._object.id, ...expr })
       .onDuplicateKeyUpdate(expr)
       // .returning(cachedFields) RETURNING is not supported on UPDATE statements in MySQL.
       .executeTakeFirstOrThrow();
@@ -86,7 +86,7 @@ export class GuildModel extends CachedModel<
     const res = await this.handle
       .selectFrom('guild')
       .select(cachedFields)
-      .where('guildId', '=', this.object.id)
+      .where('guildId', '=', this._object.id)
       .executeTakeFirstOrThrow();
 
     this._db = res;

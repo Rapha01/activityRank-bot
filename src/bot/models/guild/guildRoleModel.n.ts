@@ -99,46 +99,45 @@ export async function getRoleModel(role: Role): Promise<RoleModel> {
   if (roleCache.has(role)) return roleCache.get(role)!;
   else return await buildCache(role);
 }
+/* 
+export const storage = {
+  getRoleAssignments: async (guild: Guild) => {
+    const { dbHost } = await getGuildModel(guild);
 
-export async function fetchRoleAssignments(guild: Guild) {
-  const { dbHost } = await getGuildModel(guild);
+    const res = await shardDb.query<GuildRoleSchema[]>(
+      dbHost,
+      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND (assignLevel != 0 OR deassignLevel != 0) ORDER BY assignLevel ASC`,
+    );
 
-  return await getShardDb(dbHost)
-    .selectFrom('guildRole')
-    .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
-    .where('guildId', '=', guild.id)
-    .where((w) => w.or([w('assignLevel', '!=', 0), w('deassignLevel', '!=', 0)]))
-    .orderBy('assignLevel asc')
-    .execute();
-}
+    return res;
+  },
+  getRoleAssignmentsByLevel: async (
+    guild: Guild,
+    type: 'assignLevel' | 'deassignLevel',
+    level: number | null,
+  ) => {
+    const { dbHost } = await getGuildModel(guild);
 
-export async function fetchRoleAssignmentsByLevel(
-  guild: Guild,
-  type: 'assignLevel' | 'deassignLevel',
-  level: number,
-) {
-  const { dbHost } = await getGuildModel(guild);
+    const res = await shardDb.query<GuildRoleSchema[]>(
+      dbHost,
+      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${escape(level)}`,
+    );
 
-  return await getShardDb(dbHost)
-    .selectFrom('guildRole')
-    .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
-    .where('guildId', '=', guild.id)
-    .where(type, '=', level)
-    .execute();
-}
+    return res;
+  },
+  getRoleAssignmentsByRole: async (guild: Guild, roleId: string) => {
+    const { dbHost } = await getGuildModel(guild);
 
-export async function fetchRoleAssignmentsByRole(guild: Guild, roleId: string) {
-  const { dbHost } = await getGuildModel(guild);
+    const res = await shardDb.query<GuildRoleSchema[]>(
+      dbHost,
+      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND roleId = ${roleId}`,
+    );
 
-  return await getShardDb(dbHost)
-    .selectFrom('guildRole')
-    .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
-    .where('guildId', '=', guild.id)
-    .where('roleId', '=', roleId)
-    .execute();
-}
+    return res;
+  },
+}; */
 
-export async function fetchNoXpRoleIds(guild: Guild) {
+export async function getNoXpRoleIds(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
   const ids = await getShardDb(dbHost)

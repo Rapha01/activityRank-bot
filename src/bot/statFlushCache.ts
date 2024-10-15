@@ -5,6 +5,7 @@ import { getGuildModel, type GuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
 import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getRoleModel } from './models/guild/guildRoleModel.js';
 
 async function getXpMultiplier(
   member: GuildMember,
@@ -13,6 +14,8 @@ async function getXpMultiplier(
   key: 'xpPerTextMessage' | 'xpPerVoiceMinute' | 'xpPerInvite' | 'xpPerVote',
 ): Promise<number> {
   let highestXpValue = guildModel.db[key];
+
+  // TODO: refactor to use cached value
   const roles = await getShardDb(guildModel.dbHost)
     .selectFrom('guildRole')
     .select(['roleId', key])

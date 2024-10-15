@@ -1,8 +1,11 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits, type APIEmbed } from 'discord.js';
 import { commaListsAnd } from 'common-tags';
-import guildRoleModel from '../../models/guild/guildRoleModel.js';
+import {
+  fetchRoleAssignmentsByLevel,
+  fetchRoleAssignmentsByRole,
+  getRoleModel,
+} from 'bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { ParserResponseStatus, parseRole } from '../../util/parser.js';
 import { subcommand } from 'bot/util/registry/command.js';
 
 export const levels = subcommand({
@@ -10,13 +13,11 @@ export const levels = subcommand({
     name: 'levels',
     description: 'Set assign/deassign levels for a role.',
     options: [
-      { name: 'role', description: 'The role to modify.', type: ApplicationCommandOptionType.Role },
       {
-        name: 'id',
-        description: 'The ID of the role to modify.',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
+        name: 'role',
+        description: 'The role to modify.',
+        type: ApplicationCommandOptionType.Role,
+        required: true,
       },
       {
         name: 'assign-level',
@@ -47,20 +48,7 @@ export const levels = subcommand({
       return;
     }
 
-    const resolvedRole = parseRole(interaction);
-    if (resolvedRole.status === ParserResponseStatus.ConflictingInputs) {
-      await interaction.reply({
-        content: `You have specified both a role and an ID, but they don't match.\nDid you mean: "/config-role levels role:${interaction.options.get('role')!.value}"?`,
-        ephemeral: true,
-      });
-      return;
-    } else if (resolvedRole.status === ParserResponseStatus.NoInput) {
-      await interaction.reply({
-        content: "You need to specify either a role or a role's ID!",
-        ephemeral: true,
-      });
-      return;
-    }
+    const resolvedRole = interaction.options.getRole('role', true);
 
     if (resolvedRole.id === interaction.guild.id) {
       await interaction.reply({
@@ -105,14 +93,14 @@ export const levels = subcommand({
       return;
     }
 
+    const cachedRole = await getRoleModel(resolvedRole);
+
     for (const _k in items) {
       const k = _k as keyof typeof items;
       const item = items[k];
-      const roleAssignmentsByLevel = await guildRoleModel.storage.getRoleAssignmentsByLevel(
-        interaction.guild,
-        k,
-        item,
-      );
+      if (item === null) continue;
+
+      const roleAssignmentsByLevel = await fetchRoleAssignmentsByLevel(interaction.guild, k, item);
       if (item !== 0 && roleAssignmentsByLevel.length >= 3) {
         await interaction.reply({
           content:
@@ -121,15 +109,10 @@ export const levels = subcommand({
         });
         return;
       }
-      if (item !== null) {
-        await guildRoleModel.storage.set(interaction.guild, resolvedRole.id, k, item);
-      }
+      await cachedRole.upsert({ [k]: item });
     }
 
-    const roleAssignments = await guildRoleModel.storage.getRoleAssignmentsByRole(
-      interaction.guild,
-      resolvedRole.id,
-    );
+    const roleAssignments = await fetchRoleAssignmentsByRole(interaction.guild, resolvedRole.id);
 
     const embed: APIEmbed = {
       author: { name: 'Assign/Deassignments for this role' },

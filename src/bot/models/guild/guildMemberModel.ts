@@ -1,4 +1,4 @@
-import shardDb, { getShardDb } from '../../../models/shardDb/shardDb.js';
+import { getShardDb } from '../../../models/shardDb/shardDb.js';
 import type { Guild, GuildMember } from 'discord.js';
 import type {
   GuildMember as DBMember,
@@ -33,8 +33,8 @@ export class GuildMemberModel extends CachedModel<
     const member = await this.handle
       .selectFrom('guildMember')
       .selectAll()
-      .where('userId', '=', this.object.id)
-      .where('guildId', '=', this.object.guild.id)
+      .where('userId', '=', this._object.id)
+      .where('guildId', '=', this._object.guild.id)
       .executeTakeFirst();
 
     return member;
@@ -44,7 +44,7 @@ export class GuildMemberModel extends CachedModel<
     const member = await this.fetchOptional();
     if (member) return member;
 
-    if (error) throw new Error(`Could not find member ${this.object.id} in database`);
+    if (error) throw new Error(`Could not find member ${this._object.id} in database`);
     return await this.fetchDefault();
   }
 
@@ -75,7 +75,7 @@ export class GuildMemberModel extends CachedModel<
   async upsert(expr: GuildMemberUpdate) {
     await this.handle
       .insertInto('guildMember')
-      .values({ userId: this.object.id, guildId: this.object.guild.id, ...expr })
+      .values({ userId: this._object.id, guildId: this._object.guild.id, ...expr })
       .onDuplicateKeyUpdate(expr)
       // .returning(cachedFields) RETURNING is not supported on UPDATE statements in MySQL.
       .executeTakeFirstOrThrow();
@@ -83,8 +83,8 @@ export class GuildMemberModel extends CachedModel<
     const res = await this.handle
       .selectFrom('guildMember')
       .select(cachedFields)
-      .where('guildId', '=', this.object.guild.id)
-      .where('userId', '=', this.object.id)
+      .where('guildId', '=', this._object.guild.id)
+      .where('userId', '=', this._object.id)
       .executeTakeFirstOrThrow();
 
     this._db = res;

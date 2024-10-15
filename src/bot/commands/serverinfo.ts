@@ -12,7 +12,11 @@ import {
 } from 'discord.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildRoleModel from '../models/guild/guildRoleModel.js';
+import {
+  fetchNoXpRoleIds,
+  fetchRoleAssignments,
+  getRoleModel,
+} from '../models/guild/guildRoleModel.js';
 import { getShardDb } from 'models/shardDb/shardDb.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import nameUtil, { getRoleMention } from '../util/nameUtil.js';
@@ -277,7 +281,7 @@ const levels: Window = {
 
     levels = levels.slice(page.from - 1, page.to);
 
-    const roleAssignments = await guildRoleModel.storage.getRoleAssignments(interaction.guild);
+    const roleAssignments = await fetchRoleAssignments(interaction.guild);
 
     function levelValue(header: string, level: number): string {
       return [
@@ -317,7 +321,7 @@ const roles: Window = {
   additionalComponents: () => [],
   enablePagination: true,
   async embed({ interaction, page }) {
-    const roleAssignments = await guildRoleModel.storage.getRoleAssignments(interaction.guild);
+    const roleAssignments = await fetchRoleAssignments(interaction.guild);
 
     // unique array of all levels where a role is either assigned or deassigned - except for "level 0"
     // (which doesn't exist and shouldn't be included, becuase it contains all the default deassigns)
@@ -451,7 +455,7 @@ const noxproles: Window = {
       '-# Activity from a user with any of these roles will not give them XP.\n',
     ];
 
-    const noXpRoleIds = await guildRoleModel.getNoXpRoleIds(interaction.guild);
+    const noXpRoleIds = await fetchNoXpRoleIds(interaction.guild);
 
     if (noXpRoleIds.length < 1) {
       description.push('-# This server does not have any No-XP roles.');
@@ -543,7 +547,8 @@ const messages: Window = {
     entries.push({ name: 'Role Deassign', value: cachedGuild.db.roleDeassignMessage });
 
     for (const role of interaction.guild.roles.cache.values()) {
-      const cachedRole = await guildRoleModel.cache.get(role);
+      // TODO: bulk fetch
+      const cachedRole = await getRoleModel(role);
 
       if (cachedRole.db.assignMessage.trim() !== '')
         entries.push({ name: 'Assignment of ' + role.name, value: cachedRole.db.assignMessage });

@@ -12,48 +12,46 @@ import {
   type APIEmbed,
 } from 'discord.js';
 
-import guildRoleModel from '../../models/guild/guildRoleModel.js';
+import { getRoleModel, type RoleModel } from 'bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { ParserResponseStatus, parseRole } from '../../util/parser.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { actionrow, closeButton } from 'bot/util/component.js';
 import { component, modal } from 'bot/util/registry/component.js';
 import { requireUser } from 'bot/util/predicates.js';
-import type { GuildRole } from 'models/types/kysely/shard.js';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 
-const generateMainRow = (interaction: Interaction<'cached'>, roleId: string, myRole: GuildRole) => {
+const generateMainRow = (interaction: Interaction<'cached'>, role: RoleModel) => {
   const predicate = requireUser(interaction.user);
   return actionrow([
     {
       label: 'No XP',
-      customId: noXpButton.instanceId({ data: { roleId }, predicate }),
-      style: myRole.noXp ? ButtonStyle.Success : ButtonStyle.Danger,
+      customId: noXpButton.instanceId({ data: { role }, predicate }),
+      style: role.db.noXp ? ButtonStyle.Success : ButtonStyle.Danger,
       type: ComponentType.Button,
     },
     {
       label: 'Assignment Message',
-      customId: modalButton.instanceId({ data: { roleId, type: 'assignMessage' }, predicate }),
+      customId: modalButton.instanceId({ data: { role, type: 'assignMessage' }, predicate }),
       style: ButtonStyle.Secondary,
       type: ComponentType.Button,
     },
     {
       label: 'Deassignment Message',
-      customId: modalButton.instanceId({ data: { roleId, type: 'deassignMessage' }, predicate }),
+      customId: modalButton.instanceId({ data: { role, type: 'deassignMessage' }, predicate }),
       style: ButtonStyle.Secondary,
       type: ComponentType.Button,
     },
   ]);
 };
 
-const generateCloseRow = (interaction: Interaction<'cached'>, roleId: string) =>
+const generateCloseRow = (interaction: Interaction<'cached'>, role: RoleModel) =>
   actionrow([
     {
       label: 'Clear a message',
       style: ButtonStyle.Danger,
       customId: clearButton.instanceId({
-        data: { roleId },
+        data: { role },
         predicate: requireUser(interaction.user),
       }),
       type: ComponentType.Button,
@@ -67,9 +65,9 @@ const generateCloseRow = (interaction: Interaction<'cached'>, roleId: string) =>
     },
   ]);
 
-const _modal = (roleId: string, type: AssignType) =>
+const _modal = (role: RoleModel, type: AssignType) =>
   new ModalBuilder()
-    .setCustomId(messageModal.instanceId({ data: { type, roleId } }))
+    .setCustomId(messageModal.instanceId({ data: { type, role } }))
     .setTitle(`${type === 'assignMessage' ? 'Assignment' : 'Deassignment'} Message`)
     .addComponents(
       new ActionRowBuilder<TextInputBuilder>().addComponents(
@@ -94,13 +92,7 @@ export const menu = subcommand({
         name: 'role',
         description: 'The role to modify.',
         type: ApplicationCommandOptionType.Role,
-      },
-      {
-        name: 'id',
-        description: 'The ID of the role to modify.',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
+        required: true,
       },
     ],
   },
@@ -115,22 +107,9 @@ export const menu = subcommand({
       return;
     }
 
-    const resolvedRole = parseRole(interaction);
-    if (resolvedRole.status === ParserResponseStatus.ConflictingInputs) {
-      await interaction.reply({
-        content: `You have specified both a role and an ID, but they don't match.\nDid you mean: "/config-role menu role:${interaction.options.get('role')!.value}"?`,
-        ephemeral: true,
-      });
-      return;
-    } else if (resolvedRole.status === ParserResponseStatus.NoInput) {
-      await interaction.reply({
-        content: "You need to specify either a role or a role's ID!",
-        ephemeral: true,
-      });
-      return;
-    }
+    const resolvedRole = interaction.options.getRole('role', true);
 
-    const myRole = await guildRoleModel.storage.get(interaction.guild, resolvedRole.id);
+    const cachedRole = await getRoleModel(resolvedRole);
 
     const embed: APIEmbed = {
       author: { name: 'Role Settings' },
@@ -157,14 +136,14 @@ export const menu = subcommand({
     await interaction.reply({
       embeds: [embed],
       components: [
-        generateMainRow(interaction, resolvedRole.id, myRole),
-        generateCloseRow(interaction, resolvedRole.id),
+        generateMainRow(interaction, cachedRole),
+        generateCloseRow(interaction, cachedRole),
       ],
     });
   },
 });
 
-const clearButton = component<{ roleId: string }>({
+const clearButton = component<{ role: RoleModel }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     await interaction.reply({
@@ -175,7 +154,7 @@ const clearButton = component<{ roleId: string }>({
             label: 'Assignment Message',
             style: ButtonStyle.Secondary,
             customId: unsetMessageButton.instanceId({
-              data: { roleId: data.roleId, type: 'assignMessage' },
+              data: { role: data.role, type: 'assignMessage' },
             }),
             type: ComponentType.Button,
           },
@@ -183,7 +162,7 @@ const clearButton = component<{ roleId: string }>({
             label: 'Deassignment Message',
             style: ButtonStyle.Secondary,
             customId: unsetMessageButton.instanceId({
-              data: { roleId: data.roleId, type: 'deassignMessage' },
+              data: { role: data.role, type: 'deassignMessage' },
             }),
             type: ComponentType.Button,
           },
@@ -194,35 +173,35 @@ const clearButton = component<{ roleId: string }>({
   },
 });
 
-const unsetMessageButton = component<{ roleId: string; type: AssignType }>({
+const unsetMessageButton = component<{ role: RoleModel; type: AssignType }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
     await interaction.deferReply({ ephemeral: true });
 
-    await guildRoleModel.storage.set(interaction.guild, data.roleId, data.type, '');
+    await data.role.upsert({ [data.type]: '' });
 
     const prettyType = data.type === 'assignMessage' ? 'Assignment' : 'Deassignment';
 
-    await interaction.editReply({ content: `Unset ${prettyType} Message for <@&${data.roleId}>` });
+    await interaction.editReply({
+      content: `Unset ${prettyType} Message for <@&${data.role.object.id}>`,
+    });
   },
 });
 
-const noXpButton = component<{ roleId: string }>({
+const noXpButton = component<{ role: RoleModel }>({
   type: ComponentType.Button,
   async callback({ interaction, data, drop }) {
-    const myRole = await guildRoleModel.storage.get(interaction.guild, data.roleId);
+    const myRole = await data.role.fetch();
 
     if (myRole.noXp) {
-      await guildRoleModel.storage.set(interaction.guild, data.roleId, 'noXp', 0);
-      myRole.noXp = 0;
+      await data.role.upsert({ noXp: 0 });
     } else {
-      await guildRoleModel.storage.set(interaction.guild, data.roleId, 'noXp', 1);
-      myRole.noXp = 1;
+      await data.role.upsert({ noXp: 1 });
     }
     await interaction.update({
       components: [
-        generateMainRow(interaction, data.roleId, myRole),
-        generateCloseRow(interaction, data.roleId),
+        generateMainRow(interaction, data.role),
+        generateCloseRow(interaction, data.role),
       ],
     });
 
@@ -230,24 +209,24 @@ const noXpButton = component<{ roleId: string }>({
   },
 });
 
-const modalButton = component<{ roleId: string; type: AssignType }>({
+const modalButton = component<{ role: RoleModel; type: AssignType }>({
   type: ComponentType.Button,
   async callback({ interaction, data }) {
-    await interaction.showModal(_modal(data.roleId, data.type));
+    await interaction.showModal(_modal(data.role, data.type));
   },
 });
 
-const messageModal = modal<{ type: AssignType; roleId: string }>({
+const messageModal = modal<{ type: AssignType; role: RoleModel }>({
   async callback({ interaction, data }) {
-    const { roleId, type } = data;
+    const { role, type } = data;
     const value = interaction.fields.getTextInputValue('msg-component-1');
-    await guildRoleModel.storage.set(interaction.guild, roleId, type, value);
+    await role.upsert({ [type]: value });
 
     await interaction.deferReply({ ephemeral: true });
     await interaction.followUp({
       content: `Set ${
         type === 'assignMessage' ? 'Assignment' : 'Deassignment'
-      } Message for <@&${roleId}>`,
+      } Message for <@&${role.object.id}>`,
       embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
       ephemeral: true,
     });

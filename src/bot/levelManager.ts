@@ -1,6 +1,6 @@
 import fct from '../util/fct.js';
 import nameUtil from './util/nameUtil.js';
-import guildRoleModel from './models/guild/guildRoleModel.js';
+import { getRoleModel } from './models/guild/guildRoleModel.js';
 import { DiscordAPIError, EmbedBuilder, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from './models/guild/guildModel.js';
@@ -55,7 +55,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   ); */
 
   for (const role of roles.values()) {
-    const cachedRole = await guildRoleModel.cache.get(role);
+    const cachedRole = await getRoleModel(role);
     //member.client.logger.debug({ cachedRole, role }, 'processing role');
 
     if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
@@ -216,7 +216,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 const addRoleDeassignMessage = async (roleMessages: string[], member: GuildMember, role: Role) => {
   let message = '';
 
-  const cachedRole = await guildRoleModel.cache.get(role);
+  const cachedRole = await getRoleModel(role);
   const cachedGuild = await getGuildModel(member.guild);
 
   if (cachedRole.db.deassignMessage != '') message = cachedRole.db.deassignMessage;
@@ -230,7 +230,7 @@ const addRoleDeassignMessage = async (roleMessages: string[], member: GuildMembe
 const addRoleAssignMessage = async (roleMessages: string[], member: GuildMember, role: Role) => {
   let message = '';
 
-  const cachedRole = await guildRoleModel.cache.get(role);
+  const cachedRole = await getRoleModel(role);
   const cachedGuild = await getGuildModel(member.guild);
 
   if (cachedRole.db.assignMessage != '') message = cachedRole.db.assignMessage;

@@ -1,5 +1,5 @@
 import type { User } from 'models/types/kysely/shard.js';
-import guildRoleModel from '../bot/models/guild/guildRoleModel.js';
+import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
 import { getUserModel } from '../bot/models/userModel.js';
 import type { BaseInteraction, GuildMember } from 'discord.js';
 
@@ -21,7 +21,7 @@ export const sleep = (milliseconds: number) => {
 
 export const hasNoXpRole = async (member: GuildMember) => {
   for (const role of member.roles.cache.values()) {
-    const cachedRole = await guildRoleModel.cache.get(role);
+    const cachedRole = await getRoleModel(role);
     if (cachedRole.db.noXp) return true;
   }
   return false;
