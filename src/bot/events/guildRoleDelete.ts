@@ -9,7 +9,7 @@ export default event(Events.GuildRoleDelete, async function (role) {
   const db = getShardDb(dbHost);
 
   roleCache.delete(role);
-  
+
   await db
     .deleteFrom('guildRole')
     .where('guildId', '=', role.guild.id)
