@@ -142,11 +142,11 @@ export async function fetchGuildMemberScores(guild: Guild, userId: string) {
   const auto = { alltime: 0, year: 0, month: 0, week: 0, day: 0 };
 
   const res = await db
-      .selectFrom('guildMember')
-      .select(['alltime', 'year', 'month', 'week', 'day'])
-      .where('guildId', '=', guild.id)
-      .where('userId', '=', userId)
-      .executeTakeFirst()
+    .selectFrom('guildMember')
+    .select(['alltime', 'year', 'month', 'week', 'day'])
+    .where('guildId', '=', guild.id)
+    .where('userId', '=', userId)
+    .executeTakeFirst();
 
   return res ?? auto;
 }
