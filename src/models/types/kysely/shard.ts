@@ -121,6 +121,10 @@ export interface GuildRoleSchema {
   deassignLevel: Generated<number>;
   assignMessage: Generated<string>;
   deassignMessage: Generated<string>;
+  xpPerVoiceMinute: Generated<number>;
+  xpPerTextMessage: Generated<number>;
+  xpPerVote: Generated<number>;
+  xpPerInvite: Generated<number>;
   noXp: Generated<number>;
 }
 export type GuildRole = Selectable<GuildRoleSchema>;

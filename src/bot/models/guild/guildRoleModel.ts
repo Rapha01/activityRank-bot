@@ -10,6 +10,10 @@ const cachedFields = [
   'deassignLevel',
   'assignMessage',
   'deassignMessage',
+  'xpPerVoiceMinute',
+  'xpPerTextMessage',
+  'xpPerVote',
+  'xpPerInvite'
 ] as const;
 
 let defaultCache: CachedDbFields | null = null;
