@@ -25,7 +25,12 @@ let defaultAll: DBRole | null = null;
 
 interface RoleCacheStorage {}
 
-export const roleCache = new WeakMap<Role, RoleModel>();
+export let roleCache = new WeakMap<Role, RoleModel>();
+
+// WeakMap doesn't have a .clear() method - see https://github.com/tc39/notes/blob/main/meetings/2014-11/nov-19.md#412-should-weakmapweakset-have-a-clear-method-markm
+export function clearRoleCache() {
+  roleCache = new WeakMap();
+}
 
 export class RoleModel extends CachedModel<
   Role,

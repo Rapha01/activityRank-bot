@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType } from 'discord.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
-import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({
@@ -11,6 +11,8 @@ const xpPerOption = (name: string, object: string, min: number, max: number) =>
     max_value: max,
     type: ApplicationCommandOptionType.Integer,
   }) as const;
+
+type XpPerEntry = 'xpPerTextMessage' | 'xpPerVoiceMinute' | 'xpPerVote' | 'xpPerInvite';
 
 export const xpPerRole = subcommand({
   data: {
@@ -58,36 +60,24 @@ export const xpPerRole = subcommand({
     }
 
     const guildModel = await getGuildModel(role.guild);
-    const db = getShardDb(guildModel.dbHost);
+    const roleModel = await getRoleModel(role);
+    await roleModel.upsert(items);
 
-    await db
-      .insertInto('guildRole')
-      .values({ guildId: role.guild.id, roleId: role.id, ...items })
-      .onDuplicateKeyUpdate(items)
-      .executeTakeFirstOrThrow();
-
-    const dbRole = await db
-      .selectFrom('guildRole')
-      .select(['xpPerTextMessage', 'xpPerVoiceMinute', 'xpPerVote', 'xpPerInvite'])
-      .where('guildId', '=', role.guild.id)
-      .where('roleId', '=', role.id)
-      .executeTakeFirstOrThrow();
-
-    const relativeValue = (key: keyof typeof dbRole): number => {
-      const ratio = dbRole[key] / guildModel.db[key];
+    const relativeValue = (key: XpPerEntry): number => {
+      const ratio = roleModel.db[key] / guildModel.db[key];
       return Math.round(100 * ratio) / 100;
     };
 
-    const keyToName: Record<keyof typeof dbRole, string> = {
+    const keyToName: Record<XpPerEntry, string> = {
       xpPerTextMessage: 'text message',
       xpPerVoiceMinute: 'voice minute',
       xpPerInvite: 'invite',
       xpPerVote: 'upvote',
     };
 
-    const getMessage = (key: keyof typeof dbRole): string | null => {
-      if (dbRole[key] > 0) {
-        return `\`${dbRole[key]} xp\` per ${keyToName[key]} (**${relativeValue(key)}x** the default)`;
+    const getMessage = (key: XpPerEntry): string | null => {
+      if (roleModel.db[key] > 0) {
+        return `\`${roleModel.db[key]} xp\` per ${keyToName[key]} (**${relativeValue(key)}x** the default)`;
       } else {
         return null;
       }
