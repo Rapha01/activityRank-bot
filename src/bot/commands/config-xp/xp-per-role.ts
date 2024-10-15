@@ -2,7 +2,6 @@ import { ApplicationCommandOptionType } from 'discord.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { getShardDb } from 'models/shardDb/shardDb.js';
-import { stripIndent } from 'common-tags';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({

@@ -1,9 +1,33 @@
 import type { Client, Guild, GuildBasedChannel, GuildMember, VoiceBasedChannel } from 'discord.js';
 import levelManager from './levelManager.js';
 import type { StatType } from 'models/types/enums.js';
-import { getGuildModel } from './models/guild/guildModel.js';
+import { getGuildModel, type GuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
+import { getShardDb } from 'models/shardDb/shardDb.js';
+
+async function getXpMultiplier(
+  member: GuildMember,
+  roleIds: string[],
+  guildModel: GuildModel,
+  key: 'xpPerTextMessage' | 'xpPerVoiceMinute' | 'xpPerInvite' | 'xpPerVote',
+): Promise<number> {
+  let highestXpValue = guildModel.db[key];
+  const roles = await getShardDb(guildModel.dbHost)
+    .selectFrom('guildRole')
+    .select(['roleId', key])
+    .where('guildId', '=', member.guild.id)
+    .where('roleId', 'in', roleIds)
+    .execute();
+
+  for (const role of roles) {
+    if (role.roleId === member.guild.id) continue;
+    if (role[key] <= highestXpValue) continue;
+    highestXpValue = role[key];
+  }
+
+  return highestXpValue;
+}
 
 export async function addTextMessage(
   member: GuildMember,
@@ -28,7 +52,14 @@ export async function addTextMessage(
     };
   else entry.count += count;
 
-  await addTotalXp(member, count * cachedGuild.db.xpPerTextMessage);
+  const xpMultiplier = await getXpMultiplier(
+    member,
+    [...member.roles.cache.keys()],
+    cachedGuild,
+    'xpPerTextMessage',
+  );
+
+  await addTotalXp(member, count * xpMultiplier);
 
   if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerTextMessage);
@@ -56,7 +87,14 @@ export async function addVoiceMinute(
     };
   else entry.count += count;
 
-  await addTotalXp(member, count * cachedGuild.db.xpPerVoiceMinute);
+  const xpMultiplier = await getXpMultiplier(
+    member,
+    [...member.roles.cache.keys()],
+    cachedGuild,
+    'xpPerVoiceMinute',
+  );
+
+  await addTotalXp(member, count * xpMultiplier);
 
   if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerVoiceMinute);
@@ -78,7 +116,14 @@ export const addInvite = async (member: GuildMember, count: number) => {
     };
   else entry.count += count;
 
-  await addTotalXp(member, count * cachedGuild.db.xpPerInvite);
+  const xpMultiplier = await getXpMultiplier(
+    member,
+    [...member.roles.cache.keys()],
+    cachedGuild,
+    'xpPerInvite',
+  );
+
+  await addTotalXp(member, count * xpMultiplier);
 
   if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerInvite);
@@ -100,7 +145,14 @@ export const addVote = async (member: GuildMember, count: number) => {
     };
   else entry.count += count;
 
-  await addTotalXp(member, count * cachedGuild.db.xpPerVote);
+  const xpMultiplier = await getXpMultiplier(
+    member,
+    [...member.roles.cache.keys()],
+    cachedGuild,
+    'xpPerVote',
+  );
+
+  await addTotalXp(member, count * xpMultiplier);
 
   if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerVote);
