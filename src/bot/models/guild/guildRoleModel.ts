@@ -13,7 +13,7 @@ const cachedFields = [
   'xpPerVoiceMinute',
   'xpPerTextMessage',
   'xpPerVote',
-  'xpPerInvite'
+  'xpPerInvite',
 ] as const;
 
 let defaultCache: CachedDbFields | null = null;

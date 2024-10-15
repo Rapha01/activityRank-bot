@@ -79,11 +79,11 @@ export const xpPerRole = subcommand({
     };
 
     const keyToName: Record<keyof typeof dbRole, string> = {
-      'xpPerTextMessage': 'text message',
-      'xpPerVoiceMinute': 'voice minute',
+      xpPerTextMessage: 'text message',
+      xpPerVoiceMinute: 'voice minute',
       xpPerInvite: 'invite',
-      xpPerVote: 'upvote'
-    }
+      xpPerVote: 'upvote',
+    };
 
     const getMessage = (key: keyof typeof dbRole): string | null => {
       if (dbRole[key] > 0) {
@@ -105,7 +105,9 @@ export const xpPerRole = subcommand({
             getMessage('xpPerVoiceMinute'),
             getMessage('xpPerVote'),
             getMessage('xpPerInvite'),
-          ].filter(n => n !== null).join('\n'),
+          ]
+            .filter((n) => n !== null)
+            .join('\n'),
         },
       ],
       ephemeral: true,
