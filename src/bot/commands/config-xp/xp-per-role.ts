@@ -5,6 +5,7 @@ import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
 import { actionrow, closeButton } from 'bot/util/component.js';
 import { requireUser } from 'bot/util/predicates.js';
 import { component } from 'bot/util/registry/component.js';
+import { getShardDb } from 'models/shardDb/shardDb.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({
@@ -81,6 +82,30 @@ export const xpPerRole = subcommand({
 
     const guildModel = await getGuildModel(role.guild);
     const roleModel = await getRoleModel(role);
+
+    const existingXpPerRoles = await getShardDb(guildModel.dbHost)
+      .selectFrom('guildRole')
+      .select((eb) => eb.fn.countAll<string>().as('count'))
+      .where('guildId', '=', role.guild.id)
+      .where((w) =>
+        w.or([
+          w('xpPerTextMessage', '!=', 0),
+          w('xpPerVoiceMinute', '!=', 0),
+          w('xpPerInvite', '!=', 0),
+          w('xpPerVote', '!=', 0),
+        ]),
+      )
+      .executeTakeFirstOrThrow();
+
+    if (parseInt(existingXpPerRoles.count) >= 5) {
+      await interaction.reply({
+        content:
+          'There is a maximum of 5 roles that can be set as xp-per roles. Please remove some first.',
+        ephemeral: true,
+      });
+      return;
+    }
+
     await roleModel.upsert(items);
 
     const relativeValue = (key: XpPerEntry): number => {
