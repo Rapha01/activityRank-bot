@@ -1,6 +1,6 @@
 import type { GuildMember, VoiceBasedChannel } from 'discord.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
-import guildRoleModel from '../models/guild/guildRoleModel.js';
+import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
 
 export const noVoiceXp = async (member: GuildMember, channel: VoiceBasedChannel) => {
   if (member.user.bot) return true;
@@ -12,7 +12,7 @@ export const noVoiceXp = async (member: GuildMember, channel: VoiceBasedChannel)
   if (!cachedGuild.db.allowSoloXp && channel.members.size < 2) return true;
 
   for (const role of member.roles.cache.values()) {
-    const cachedRole = await guildRoleModel.cache.get(role);
+    const cachedRole = await getRoleModel(role);
     if (cachedRole.db.noXp) return true;
   }
 

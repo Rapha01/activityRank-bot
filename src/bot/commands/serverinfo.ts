@@ -12,7 +12,12 @@ import {
 } from 'discord.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildRoleModel from '../models/guild/guildRoleModel.js';
+import {
+  fetchNoXpRoleIds,
+  fetchRoleAssignments,
+  getRoleModel,
+} from '../models/guild/guildRoleModel.js';
+import { getShardDb } from 'models/shardDb/shardDb.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import nameUtil, { getRoleMention } from '../util/nameUtil.js';
 import { command } from 'bot/util/registry/command.js';
@@ -57,6 +62,7 @@ async function render(
           { label: 'General', value: 'general', default: windowName === 'general' },
           { label: 'Levels', value: 'levels', default: windowName === 'levels' },
           { label: 'Roles', value: 'roles', default: windowName === 'roles' },
+          { label: 'XP Settings', value: 'xpsettings', default: windowName === 'xpsettings' },
           {
             label: 'No-Command Channels',
             value: 'nocommandchannels',
@@ -214,15 +220,6 @@ const general: Window = {
       ? `max every ${cachedGuild.db.textMessageCooldownSeconds} seconds`
       : ' without any cooldown';
 
-    const xpPerString = [
-      cachedGuild.db.textXp && `${cachedGuild.db.xpPerTextMessage} XP per textmessage`,
-      cachedGuild.db.voiceXp && `${cachedGuild.db.xpPerVoiceMinute} XP per voiceminute`,
-      cachedGuild.db.voteXp && `${cachedGuild.db.xpPerVote} XP per ${cachedGuild.db.voteTag}`,
-      cachedGuild.db.inviteXp && `${cachedGuild.db.xpPerInvite} XP per invite`,
-    ]
-      .filter((x) => x !== 0)
-      .join('\n');
-
     let bonusTimeString = '';
     if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000) {
       bonusTimeString = `\n\n**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)
@@ -237,8 +234,6 @@ const general: Window = {
       `Voice XP granted when muted: ${yesno(cachedGuild.db.allowMutedXp)}`,
       `Voice XP granted when deafened: ${yesno(cachedGuild.db.allowDeafenedXp)}`,
       `Voice XP granted when alone: ${yesno(cachedGuild.db.allowSoloXp)}`,
-      `Levelfactor: ${cachedGuild.db.levelFactor} XP\n`,
-      xpPerString,
       bonusTimeString,
     ].join('\n');
 
@@ -286,7 +281,7 @@ const levels: Window = {
 
     levels = levels.slice(page.from - 1, page.to);
 
-    const roleAssignments = await guildRoleModel.storage.getRoleAssignments(interaction.guild);
+    const roleAssignments = await fetchRoleAssignments(interaction.guild);
 
     function levelValue(header: string, level: number): string {
       return [
@@ -326,7 +321,7 @@ const roles: Window = {
   additionalComponents: () => [],
   enablePagination: true,
   async embed({ interaction, page }) {
-    const roleAssignments = await guildRoleModel.storage.getRoleAssignments(interaction.guild);
+    const roleAssignments = await fetchRoleAssignments(interaction.guild);
 
     // unique array of all levels where a role is either assigned or deassigned - except for "level 0"
     // (which doesn't exist and shouldn't be included, becuase it contains all the default deassigns)
@@ -460,7 +455,7 @@ const noxproles: Window = {
       '-# Activity from a user with any of these roles will not give them XP.\n',
     ];
 
-    const noXpRoleIds = await guildRoleModel.getNoXpRoleIds(interaction.guild);
+    const noXpRoleIds = await fetchNoXpRoleIds(interaction.guild);
 
     if (noXpRoleIds.length < 1) {
       description.push('-# This server does not have any No-XP roles.');
@@ -486,6 +481,68 @@ const noxproles: Window = {
   },
 };
 
+const xpsettings: Window = {
+  additionalComponents: () => [],
+  enablePagination: true,
+  async embed({ interaction, cachedGuild, page }) {
+    const xpPerString = [
+      cachedGuild.db.textXp && `${cachedGuild.db.xpPerTextMessage} XP per textmessage`,
+      cachedGuild.db.voiceXp && `${cachedGuild.db.xpPerVoiceMinute} XP per voiceminute`,
+      cachedGuild.db.voteXp && `${cachedGuild.db.xpPerVote} XP per ${cachedGuild.db.voteTag}`,
+      cachedGuild.db.inviteXp && `${cachedGuild.db.xpPerInvite} XP per invite`,
+    ]
+      .filter((x) => x !== 0)
+      .join('\n');
+
+    const relevantRoles = await getShardDb(cachedGuild.dbHost)
+      .selectFrom('guildRole')
+      .select(['roleId', 'xpPerTextMessage', 'xpPerVoiceMinute', 'xpPerInvite', 'xpPerVote'])
+      .where('guildId', '=', interaction.guild.id)
+      .where((w) =>
+        w.or([
+          w('xpPerTextMessage', '!=', 0),
+          w('xpPerVoiceMinute', '!=', 0),
+          w('xpPerInvite', '!=', 0),
+          w('xpPerVote', '!=', 0),
+        ]),
+      )
+      .execute();
+
+    const relativeValue = (
+      role: (typeof relevantRoles)[number],
+      key: Exclude<keyof (typeof relevantRoles)[number], 'roleId'>,
+    ): number => {
+      const ratio = role[key] / cachedGuild.db[key];
+      return Math.round(100 * ratio) / 100;
+    };
+
+    const roleEntries = relevantRoles
+      .map((r) =>
+        [
+          `**${getRoleMention(interaction.guild.roles.cache, r.roleId)}**`,
+          r.xpPerTextMessage > 0 &&
+            `${r.xpPerTextMessage} XP per textmessage (**${relativeValue(r, 'xpPerTextMessage')}x** the default)`,
+          r.xpPerVoiceMinute > 0 &&
+            `${r.xpPerVoiceMinute} XP per voiceminute (**${relativeValue(r, 'xpPerVoiceMinute')}x** the default)`,
+          r.xpPerVote > 0 &&
+            `${r.xpPerVote} XP per ${cachedGuild.db.voteTag} (**${relativeValue(r, 'xpPerVote')}x** the default)`,
+          r.xpPerInvite > 0 &&
+            `${r.xpPerInvite} XP per invite (**${relativeValue(r, 'xpPerInvite')}x** the default)`,
+        ]
+          .filter((x) => x !== false)
+          .join('\n'),
+      )
+      .slice(page.from - 1, page.to)
+      .join('\n');
+
+    return {
+      author: { name: 'XP Settings', icon_url: clientURL(interaction.client) },
+      color: 0x4fd6c8,
+      description: `**Default XP**\nLevelfactor: ${cachedGuild.db.levelFactor} XP\n${xpPerString}\n\n${roleEntries}`,
+    };
+  },
+};
+
 const messages: Window = {
   additionalComponents: () => [],
   enablePagination: true,
@@ -498,7 +555,8 @@ const messages: Window = {
     entries.push({ name: 'Role Deassign', value: cachedGuild.db.roleDeassignMessage });
 
     for (const role of interaction.guild.roles.cache.values()) {
-      const cachedRole = await guildRoleModel.cache.get(role);
+      // TODO: bulk fetch
+      const cachedRole = await getRoleModel(role);
 
       if (cachedRole.db.assignMessage.trim() !== '')
         entries.push({ name: 'Assignment of ' + role.name, value: cachedRole.db.assignMessage });
@@ -525,4 +583,5 @@ const windows = {
   noxpchannels,
   noxproles,
   messages,
+  xpsettings,
 } as const satisfies { [k: string]: Window };

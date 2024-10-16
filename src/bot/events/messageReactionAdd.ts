@@ -3,7 +3,7 @@ import { Events } from 'discord.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
-import guildRoleModel from '../models/guild/guildRoleModel.js';
+import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
@@ -51,8 +51,9 @@ export default event(Events.MessageReactionAdd, async function (reaction, user) 
 
   if (!cachedMember.db.reactionVote) return;
 
+  // TODO: fetch/cache in bulk
   for (const role of targetMember.roles.cache.values()) {
-    const cachedRole = await guildRoleModel.cache.get(role);
+    const cachedRole = await getRoleModel(role);
     if (cachedRole.db.noXp) return;
   }
 

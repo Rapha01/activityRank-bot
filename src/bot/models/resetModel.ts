@@ -4,7 +4,7 @@ import { AsyncQueue } from '@sapphire/async-queue';
 import { getRankedUserIds, memberCache } from './guild/guildMemberModel.js';
 import { channelCache, getRankedChannelIds } from './guild/guildChannelModel.js';
 import { getGuildModel, guildCache } from './guild/guildModel.js';
-import { roleCache } from './guild/guildRoleModel.js';
+import { clearRoleCache, roleCache } from './guild/guildRoleModel.js';
 import type { ButtonInteraction, ChatInputCommandInteraction, Guild } from 'discord.js';
 import type {
   Guild as DBGuild,
@@ -343,6 +343,8 @@ export class ResetGuildSettings extends ResetJob {
     // these tables don't store any XP data
     const tables = ['guildRole', 'guildChannel'] as const;
 
+    clearRoleCache();
+
     for (const table of tables) {
       if (!this.canContinue) return false;
       const res = await db
@@ -382,6 +384,20 @@ export class ResetGuildSettings extends ResetJob {
 
     return true;
   }
+}
+
+export async function resetGuildChannelsSettings(guild: Guild, channelIds: string[]) {
+  const cachedGuild = await getGuildModel(guild);
+  const db = getShardDb(cachedGuild.dbHost);
+
+  await db
+    .deleteFrom('guildChannel')
+    .where('guildId', '=', guild.id)
+    .where('channelId', 'in', channelIds)
+    .executeTakeFirstOrThrow();
+
+  resetGuildCache(guild).allMembers();
+  resetGuildCache(guild).channels(channelIds);
 }
 
 export class ResetGuildChannelsStatistics extends ResetJob {

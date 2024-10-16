@@ -108,6 +108,10 @@ export interface GuildRoleSchema {
   deassignLevel: number;
   assignMessage: string;
   deassignMessage: string;
+  xpPerVoiceMinute: number;
+  xpPerTextMessage: number;
+  xpPerVote: number;
+  xpPerInvite: number;
   noXp: number;
 }
 

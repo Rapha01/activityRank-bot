@@ -17,7 +17,7 @@ export abstract class CachedModel<
   public cache: ArbitraryCachedStorage;
 
   constructor(
-    protected object: Object,
+    protected _object: Object,
     public readonly dbHost: string,
     cachedFields: CachedDBFields,
     defaultStorage: ArbitraryCachedStorage,
@@ -25,6 +25,10 @@ export abstract class CachedModel<
     this.handle = getShardDb(dbHost);
     this.cache = defaultStorage;
     this._db = { ...cachedFields };
+  }
+
+  get object(): Object {
+    return this._object;
   }
 
   get db() {

@@ -1,7 +1,7 @@
 import { event } from 'bot/util/registry/event.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import guildRoleModel from '../models/guild/guildRoleModel.js';
+import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
@@ -66,9 +66,8 @@ async function rankMessage(msg: Message<true>) {
   }
 
   // Check noxp role
-  for (const _role of msg.member.roles.cache) {
-    const role = _role[1];
-    const cachedRole = await guildRoleModel.cache.get(role);
+  for (const role of msg.member.roles.cache.values()) {
+    const cachedRole = await getRoleModel(role);
 
     if (cachedRole.db.noXp) return;
   }

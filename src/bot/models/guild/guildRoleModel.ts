@@ -1,8 +1,12 @@
+import { getShardDb } from '../../../models/shardDb/shardDb.js';
 import type { Guild, Role } from 'discord.js';
-import shardDb from '../../../models/shardDb/shardDb.js';
-import { escape } from 'mysql2/promise';
-import type { GuildRoleSchema } from 'models/types/shard.js';
+import type {
+  GuildRole as DBRole,
+  GuildRoleSchema,
+  GuildRoleUpdate,
+} from 'models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
+import { CachedModel } from '../generic/model.js';
 
 const cachedFields = [
   'noXp',
@@ -10,158 +14,192 @@ const cachedFields = [
   'deassignLevel',
   'assignMessage',
   'deassignMessage',
-] as const;
+  'xpPerVoiceMinute',
+  'xpPerTextMessage',
+  'xpPerVote',
+  'xpPerInvite',
+] as const satisfies (keyof DBRole)[];
 
-let defaultCache: CachedDbFields | null = null;
-let defaultAll: GuildRoleSchema | null = null;
+let defaultCache: Pick<DBRole, (typeof cachedFields)[number]> | null = null;
+let defaultAll: DBRole | null = null;
 
-type CachedDbFields = Pick<GuildRoleSchema, (typeof cachedFields)[number]>;
+interface RoleCacheStorage {}
 
-export interface CachedRole {
-  db: CachedDbFields;
+export let roleCache = new WeakMap<Role, RoleModel>();
+
+// WeakMap doesn't have a .clear() method - see https://github.com/tc39/notes/blob/main/meetings/2014-11/nov-19.md#412-should-weakmapweakset-have-a-clear-method-markm
+export function clearRoleCache() {
+  roleCache = new WeakMap();
 }
 
-export const roleCache = new WeakMap<Role, CachedRole>();
+export class RoleModel extends CachedModel<
+  Role,
+  GuildRoleSchema,
+  typeof cachedFields,
+  RoleCacheStorage
+> {
+  async fetchOptional() {
+    const member = await this.handle
+      .selectFrom('guildRole')
+      .selectAll()
+      .where('roleId', '=', this._object.id)
+      .where('guildId', '=', this._object.guild.id)
+      .executeTakeFirst();
 
-export const cache = {
-  get: async function (role: Role): Promise<CachedRole> {
-    if (roleCache.has(role)) return roleCache.get(role)!;
-    return await buildCache(role);
-  },
-};
+    return member;
+  }
 
-function isCachableDbKey(key: keyof GuildRoleSchema): key is keyof CachedDbFields {
-  return cachedFields.includes(key as keyof CachedDbFields);
-}
+  async fetch(error = false) {
+    const member = await this.fetchOptional();
+    if (member) return member;
 
-export const storage = {
-  get: async (guild: Guild, roleId: string) => {
-    const { dbHost } = await getGuildModel(guild);
+    if (error) throw new Error(`Could not find role ${this._object.id} in database`);
+    return await this.fetchDefault();
+  }
 
-    const res = await shardDb.query<GuildRoleSchema[]>(
-      dbHost,
-      `SELECT * FROM guildRole WHERE guildId = ${guild.id} && roleId = ${escape(roleId)}`,
-    );
+  async upsert(expr: GuildRoleUpdate) {
+    await this.handle
+      .insertInto('guildRole')
+      .values({ roleId: this._object.id, guildId: this._object.guild.id, ...expr })
+      .onDuplicateKeyUpdate(expr)
+      // .returning(cachedFields) RETURNING is not supported on UPDATE statements in MySQL.
+      .executeTakeFirstOrThrow();
 
-    if (res.length == 0) {
-      if (!defaultAll)
-        defaultAll = (
-          await shardDb.query<GuildRoleSchema[]>(
-            dbHost,
-            `SELECT * FROM guildRole WHERE guildId = 0 AND roleId = 0`,
-          )
-        )[0];
-      return defaultAll;
-    } else return res[0];
-  },
-  set: async <K extends Exclude<keyof GuildRoleSchema, 'guildId' | 'roleId'>>(
-    guild: Guild,
-    roleId: string,
-    field: K,
-    value: GuildRoleSchema[K],
-  ) => {
-    const { dbHost } = await getGuildModel(guild);
+    const res = await this.handle
+      .selectFrom('guildRole')
+      .select(cachedFields)
+      .where('guildId', '=', this._object.guild.id)
+      .where('roleId', '=', this._object.id)
+      .executeTakeFirstOrThrow();
 
-    await shardDb.query(
-      dbHost,
-      `INSERT INTO guildRole (guildId,roleId,${field}) VALUES (${guild.id},${escape(
-        roleId,
-      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`,
-    );
+    this._db = res;
+  }
 
-    const role = guild.roles.cache.get(roleId);
-    if (role && isCachableDbKey(field)) {
-      const cachedRole = await cache.get(role);
-      Object.defineProperty(cachedRole.db, field, { value });
+  async fetchDefault() {
+    if (defaultAll) return defaultAll;
+
+    const db = getShardDb(this.dbHost);
+
+    let res = await db
+      .selectFrom('guildRole')
+      .selectAll()
+      .where('roleId', '=', '0')
+      .where('guildId', '=', '0')
+      .executeTakeFirst();
+
+    if (!res) {
+      res = await db
+        .insertInto('guildRole')
+        .values({ roleId: '0', guildId: '0' })
+        .returningAll()
+        .executeTakeFirstOrThrow();
     }
-  },
-  getRoleAssignments: async (guild: Guild) => {
-    const { dbHost } = await getGuildModel(guild);
 
-    const res = await shardDb.query<GuildRoleSchema[]>(
-      dbHost,
-      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND (assignLevel != 0 OR deassignLevel != 0) ORDER BY assignLevel ASC`,
-    );
+    defaultAll = res;
+    return defaultAll;
+  }
+}
 
-    return res;
-  },
-  getRoleAssignmentsByLevel: async (
-    guild: Guild,
-    type: 'assignLevel' | 'deassignLevel',
-    level: number | null,
-  ) => {
-    const { dbHost } = await getGuildModel(guild);
+export async function getRoleModel(role: Role): Promise<RoleModel> {
+  if (roleCache.has(role)) return roleCache.get(role)!;
+  else return await buildCache(role);
+}
 
-    const res = await shardDb.query<GuildRoleSchema[]>(
-      dbHost,
-      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND ${type} = ${escape(level)}`,
-    );
-
-    return res;
-  },
-  getRoleAssignmentsByRole: async (guild: Guild, roleId: string) => {
-    const { dbHost } = await getGuildModel(guild);
-
-    const res = await shardDb.query<GuildRoleSchema[]>(
-      dbHost,
-      `SELECT * FROM guildRole WHERE guildId = ${guild.id} AND roleId = ${roleId}`,
-    );
-
-    return res;
-  },
-};
-
-export const getNoXpRoleIds = async (guild: Guild) => {
+export async function fetchRoleAssignments(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
-  const res = await shardDb.query<{ roleId: string }[]>(
-    dbHost,
-    `SELECT roleId FROM guildRole WHERE guildId = ${guild.id} AND noXp = 1`,
-  );
+  return await getShardDb(dbHost)
+    .selectFrom('guildRole')
+    .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
+    .where('guildId', '=', guild.id)
+    .where((w) => w.or([w('assignLevel', '!=', 0), w('deassignLevel', '!=', 0)]))
+    .orderBy('assignLevel asc')
+    .execute();
+}
 
-  return res.map((role) => role.roleId);
-};
+export async function fetchRoleAssignmentsByLevel(
+  guild: Guild,
+  type: 'assignLevel' | 'deassignLevel',
+  level: number,
+) {
+  const { dbHost } = await getGuildModel(guild);
 
-const buildCache = async (role: Role): Promise<CachedRole> => {
+  return await getShardDb(dbHost)
+    .selectFrom('guildRole')
+    .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
+    .where('guildId', '=', guild.id)
+    .where(type, '=', level)
+    .execute();
+}
+
+export async function fetchRoleAssignmentsByRole(guild: Guild, roleId: string) {
+  const { dbHost } = await getGuildModel(guild);
+
+  return await getShardDb(dbHost)
+    .selectFrom('guildRole')
+    .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
+    .where('guildId', '=', guild.id)
+    .where('roleId', '=', roleId)
+    .execute();
+}
+
+export async function fetchNoXpRoleIds(guild: Guild) {
+  const { dbHost } = await getGuildModel(guild);
+
+  const ids = await getShardDb(dbHost)
+    .selectFrom('guildRole')
+    .select('roleId')
+    .where('guildId', '=', guild.id)
+    .where('noXp', '=', 1)
+    .execute();
+
+  return ids.map((role) => role.roleId);
+}
+
+async function buildCache(role: Role): Promise<RoleModel> {
   const { dbHost } = await getGuildModel(role.guild);
+  const db = getShardDb(dbHost);
 
-  const foundCache = await shardDb.query<GuildRoleSchema[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = ${
-      role.guild.id
-    } AND roleId = ${role.id}`,
-  );
+  const foundCache = await db
+    .selectFrom('guildRole')
+    .select(cachedFields)
+    .where('guildId', '=', role.guild.id)
+    .where('roleId', '=', role.id)
+    .executeTakeFirst();
 
-  const db = foundCache.length > 0 ? foundCache[0] : await loadDefaultCache(dbHost);
+  const cache = foundCache ?? { ...(await loadDefaultCache(dbHost)) };
 
-  const res = { db };
-  roleCache.set(role, res);
-  return res;
-};
+  const built = new RoleModel(role, dbHost, cache, {});
 
-const loadDefaultCache = async (dbHost: string) => {
-  // clone defaultCache
-  if (defaultCache) return Object.assign({}, defaultCache);
+  roleCache.set(role, built);
+  return built;
+}
 
-  let res = await shardDb.query<GuildRoleSchema[]>(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
-  );
+async function loadDefaultCache(dbHost: string) {
+  if (defaultCache) return defaultCache;
+  const db = getShardDb(dbHost);
 
-  if (res.length == 0)
-    await shardDb.query(dbHost, `INSERT IGNORE INTO guildRole (guildId,roleId) VALUES (0,0)`);
+  let res = await db
+    .selectFrom('guildRole')
+    .select(cachedFields)
+    .where('roleId', '=', '0')
+    .where('guildId', '=', '0')
+    .executeTakeFirst();
 
-  res = await shardDb.query(
-    dbHost,
-    `SELECT ${cachedFields.join(',')} FROM guildRole WHERE guildId = 0 AND roleId = 0`,
-  );
+  if (!res) {
+    await db
+      .insertInto('guildRole')
+      .values({ roleId: '0', guildId: '0' })
+      // .returning(cachedFields) RETURNING is not supported well in MySQL
+      .executeTakeFirstOrThrow();
+    res = await db
+      .selectFrom('guildRole')
+      .select(cachedFields)
+      .where('roleId', '=', '0')
+      .where('guildId', '=', '0`')
+      .executeTakeFirstOrThrow();
+  }
 
-  defaultCache = res[0];
+  defaultCache = res;
   return defaultCache;
-};
-
-export default {
-  cache,
-  storage,
-  getNoXpRoleIds,
-};
+}

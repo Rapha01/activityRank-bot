@@ -1,16 +1,27 @@
 {
   "json.schemas": [
     {
-      "fileMatch": ["config/keys.json", "config/keys.example.json"],
+      "fileMatch": [
+        "config/keys.json",
+        "config/keys.example.json"
+      ],
       "url": "./config/keys.schema.json"
     },
     {
-      "fileMatch": ["config/privilege.json"],
+      "fileMatch": [
+        "config/privilege.json"
+      ],
       "url": "./config/privilege.schema.json"
     },
     {
-      "fileMatch": ["config/config.json"],
+      "fileMatch": [
+        "config/config.json"
+      ],
       "url": "./config/config.schema.json"
     }
-  ]
+  ],
+  "[javascript][typescript][javascriptreact][typescriptreact][yaml][json][jsonc][jsonl]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
 }

@@ -27,7 +27,7 @@ export class UserModel extends CachedModel<
     const user = await this.handle
       .selectFrom('user')
       .selectAll()
-      .where('userId', '=', this.object.id)
+      .where('userId', '=', this._object.id)
       .executeTakeFirst();
 
     return user;
@@ -37,7 +37,7 @@ export class UserModel extends CachedModel<
     const user = await this.fetchOptional();
     if (user) return user;
 
-    if (error) throw new Error(`Could not find user ${this.object.id} in database`);
+    if (error) throw new Error(`Could not find user ${this._object.id} in database`);
     return await this.fetchDefault();
   }
 
@@ -63,7 +63,7 @@ export class UserModel extends CachedModel<
   async upsert(expr: UserUpdate) {
     await this.handle
       .insertInto('user')
-      .values({ userId: this.object.id, ...expr })
+      .values({ userId: this._object.id, ...expr })
       .onDuplicateKeyUpdate(expr)
       // .returning(cachedFields) RETURNING is not supported on UPDATE statements in MySQL.
       .executeTakeFirstOrThrow();
@@ -71,7 +71,7 @@ export class UserModel extends CachedModel<
     const res = await this.handle
       .selectFrom('user')
       .select(cachedFields)
-      .where('userId', '=', this.object.id)
+      .where('userId', '=', this._object.id)
       .executeTakeFirstOrThrow();
 
     this._db = res;
