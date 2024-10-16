@@ -498,6 +498,14 @@ const xpsettings: Window = {
       .selectFrom('guildRole')
       .select(['roleId', 'xpPerTextMessage', 'xpPerVoiceMinute', 'xpPerInvite', 'xpPerVote'])
       .where('guildId', '=', interaction.guild.id)
+      .where((w) =>
+        w.or([
+          w('xpPerTextMessage', '!=', 0),
+          w('xpPerVoiceMinute', '!=', 0),
+          w('xpPerInvite', '!=', 0),
+          w('xpPerVote', '!=', 0),
+        ]),
+      )
       .execute();
 
     const relativeValue = (

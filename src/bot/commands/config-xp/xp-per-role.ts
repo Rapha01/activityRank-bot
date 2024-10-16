@@ -1,7 +1,10 @@
-import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandOptionType, ButtonStyle, ComponentType, Role } from 'discord.js';
 import { subcommand } from 'bot/util/registry/command.js';
 import { getGuildModel } from 'bot/models/guild/guildModel.js';
 import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
+import { actionrow, closeButton } from 'bot/util/component.js';
+import { requireUser } from 'bot/util/predicates.js';
+import { component } from 'bot/util/registry/component.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({
@@ -52,9 +55,26 @@ export const xpPerRole = subcommand({
     };
 
     if (Object.values(items).every((x) => x === undefined)) {
+      const predicate = requireUser(interaction.user);
       await interaction.reply({
-        content: 'You must specify at least one option for this command to do anything!',
+        content: `Are you sure you want to reset the special XP settings of ${role}?`,
         ephemeral: true,
+        components: [
+          actionrow([
+            {
+              type: ComponentType.Button,
+              style: ButtonStyle.Primary,
+              label: 'Reset',
+              customId: resetSettings.instanceId({ predicate, data: { role } }),
+            },
+            {
+              type: ComponentType.Button,
+              style: ButtonStyle.Danger,
+              label: 'Close',
+              customId: closeButton.instanceId({ predicate }),
+            },
+          ]),
+        ],
       });
       return;
     }
@@ -101,6 +121,25 @@ export const xpPerRole = subcommand({
         },
       ],
       ephemeral: true,
+    });
+  },
+});
+
+const resetSettings = component<{ role: Role }>({
+  type: ComponentType.Button,
+  async callback({ interaction, data }) {
+    await interaction.deferUpdate();
+
+    const roleModel = await getRoleModel(data.role);
+    await roleModel.upsert({
+      xpPerTextMessage: 0,
+      xpPerVoiceMinute: 0,
+      xpPerInvite: 0,
+      xpPerVote: 0,
+    });
+
+    await interaction.followUp({
+      content: `Users' XP will no longer be affected by ${data.role}!`,
     });
   },
 });

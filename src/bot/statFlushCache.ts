@@ -22,6 +22,14 @@ async function getXpMultiplier(
     .select(['roleId', key])
     .where('guildId', '=', member.guild.id)
     .where('roleId', 'in', roleIds)
+    .where((w) =>
+      w.or([
+        w('xpPerTextMessage', '!=', 0),
+        w('xpPerVoiceMinute', '!=', 0),
+        w('xpPerInvite', '!=', 0),
+        w('xpPerVote', '!=', 0),
+      ]),
+    )
     .execute();
 
   for (const role of roles) {
