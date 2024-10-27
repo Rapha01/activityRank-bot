@@ -353,10 +353,10 @@ export async function getChannelRanks(
     .where('guildId', '=', guild.id)
     .where('alltime', '!=', 0)
     .groupBy('channelId')
-    .orderBy(`${time} desc`)
+    .select((eb) => ['channelId', eb.fn.sum<number>(time).as('total')])
+    .orderBy('total desc')
     .offset(from - 1)
     .limit(to - (from - 1))
-    .select((eb) => ['channelId', eb.fn.sum<number>(time).as('total')])
     .execute();
 }
 
