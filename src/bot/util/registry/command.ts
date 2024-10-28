@@ -16,6 +16,8 @@ import type {
 import { type Serializable, SerializableMap } from './serializableMap.js';
 import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
 import { ensureI18nLoaded, getTranslationsForKey } from '../i18n.js';
+import type { TFunction } from 'i18next';
+import i18next from 'i18next';
 
 await ensureI18nLoaded();
 
@@ -100,6 +102,7 @@ export class AutocompleteIndex implements Serializable {
 type CommandExecutableFunction = (args: {
   interaction: ChatInputCommandInteraction<'cached'>;
   client: Client;
+  t: TFunction<'content'>;
 }) => Promise<void> | void;
 
 type ContextCommandExecutableFunction = (args: {
@@ -127,15 +130,49 @@ type CommandPredicateCheck = PredicateCheck<
 >;
 
 export abstract class Command {
+  /**
+   * The data representing the command in the API format.
+   * This is required for registering the command with the API.
+   */
   public abstract readonly data: RESTPostAPIApplicationCommandsJSONBody;
+
+  /**
+   * The mode in which the command is deployed (e.g., LOCAL_ONLY or GLOBAL).
+   * This prevents accidental global deployment of development commands.
+   */
   public abstract readonly deploymentMode: DeploymentMode;
+
+  /**
+   * Executes the command when invoked by an interaction.
+   *
+   * @param index - The index of the command.
+   * @param interaction - The interaction event that triggered the command execution, which can be either
+   *                      a chat input command or a context menu command.
+   * @returns A promise that resolves when the command execution is complete.
+   */
   public abstract execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
   ): Promise<void>;
 
+  /**
+   * Checks if the user meets the criteria (predicates) to execute this command.
+   *
+   * **Implementors of this method should call {@link evaluatePredicate()} with this command's predicate config.**
+   *
+   * @param index - The index of the command being checked.
+   * @param user - The user attempting to execute the command.
+   * @returns A result indicating whether the command can be executed by the user and any associated callbacks.
+   */
   public abstract checkPredicate(index: CommandIndex, user: User): CommandPredicateCheck;
 
+  /**
+   * Evaluates a given predicate against a user to determine if they are allowed to execute the command.
+   *
+   * @param predicate - The configuration of the predicate that defines access rules.
+   * @param user - The user to validate against the predicate.
+   * @returns A result object containing the evaluation status and any callback to be executed if denied.
+   */
   protected evaluatePredicate(
     predicate: CommandPredicateConfig | null,
     user: User,
@@ -153,11 +190,12 @@ export abstract class Command {
 export abstract class SlashCommand extends Command {
   public readonly data: RESTPostAPIChatInputApplicationCommandsJSONBody;
 
-  constructor(options: RESTPostAPIChatInputApplicationCommandsJSONBody) {
+  constructor(options: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'description'>) {
     super();
 
     this.data = {
       ...options,
+      description: i18next.t(`commands:${options.name}.description`, { lng: 'en-US' }),
       dm_permission: false,
       description_localizations: getTranslationsForKey(`commands:${options.name}.description`),
     };
@@ -176,7 +214,7 @@ export abstract class SlashCommand extends Command {
 
 export type BasicSlashCommandData = Omit<
   RESTPostAPIChatInputApplicationCommandsJSONBody,
-  'options' | 'dm_permission' | 'name_localizations' | 'description_localizations'
+  'options' | 'dm_permission' | 'name_localizations' | 'description_localizations' | 'description'
 > & {
   options?: APIApplicationCommandBasicOption[];
 };
@@ -202,7 +240,11 @@ class BasicSlashCommand extends SlashCommand {
     _idx: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void> {
-    await this.executables.execute({ interaction, client: interaction.client });
+    await this.executables.execute({
+      interaction,
+      client: interaction.client,
+      t: i18next.getFixedT([interaction.locale, 'en-US'], 'content'),
+    });
   }
 
   public async autocomplete(
@@ -240,33 +282,35 @@ class ParentSlashCommand extends SlashCommand {
 
     data.options = [];
 
+    function getLocalizations(key: string) {
+      return {
+        description: i18next.t(key, { lng: 'en-US' }),
+        description_localizations: getTranslationsForKey(key),
+      };
+    }
+
     for (const subcommand of options.subcommands) {
-      data.options.push({
-        ...subcommand.data,
-        description_localizations: getTranslationsForKey(
-          `commands:${baseData.name}.options.${subcommand.data.name}.description`,
-        ),
-      });
+      const localized = getLocalizations(
+        `commands:${baseData.name}.options.${subcommand.data.name}.description`,
+      );
+      data.options.push({ ...subcommand.data, ...localized });
     }
 
     for (const group of options.groups) {
       const groupData = group.data;
       groupData.options = [];
       for (const subcommand of group.subcommands) {
-        groupData.options.push({
-          ...subcommand.data,
-          description_localizations: getTranslationsForKey(
-            `commands:${baseData.name}.options.${groupData.name}.options.${subcommand.data.name}.description`,
-          ),
-        });
+        const localized = getLocalizations(
+          `commands:${baseData.name}.options.${groupData.name}.options.${subcommand.data.name}.description`,
+        );
+        groupData.options.push({ ...subcommand.data, ...localized });
       }
 
-      data.options.push({
-        ...groupData,
-        description_localizations: getTranslationsForKey(
-          `commands:${baseData.name}.options.${groupData.name}.description`,
-        ),
-      });
+      const localized = getLocalizations(
+        `commands:${baseData.name}.options.${groupData.name}.description`,
+      );
+
+      data.options.push({ ...groupData, ...localized });
     }
 
     super(data);
@@ -297,8 +341,6 @@ class ParentSlashCommand extends SlashCommand {
         const predicate = subcommand.predicate ?? group.predicate ?? commandPredicate ?? null;
         this.predicateMap.set(idx, predicate);
 
-        groupData.options.push(subcommand.data);
-
         for (const name in subcommand.autocomplete) {
           const fn = subcommand.autocomplete[name];
           this.autocompleteMap.set(new AutocompleteIndex(idxKey, name), fn);
@@ -324,7 +366,11 @@ class ParentSlashCommand extends SlashCommand {
     if (!command) {
       throw new UnimplementedError(`Failed to find a subcommand for command ${index}`);
     }
-    await command.execute({ interaction, client: interaction.client });
+    await command.execute({
+      interaction,
+      client: interaction.client,
+      t: i18next.getFixedT([interaction.locale, 'en-US'], 'content'),
+    });
   }
 
   public async autocomplete(
@@ -345,7 +391,7 @@ export class SlashSubcommand {
   public readonly autocomplete: Record<string, AutocompleteFunction> | null;
 
   constructor(
-    public readonly data: APIApplicationCommandSubcommandOption,
+    public readonly data: Omit<APIApplicationCommandSubcommandOption, 'description'>,
     public readonly predicate: CommandPredicateConfig | null,
     executables: {
       execute: CommandExecutableFunction;
@@ -359,7 +405,7 @@ export class SlashSubcommand {
 
 export class SlashSubcommandGroup {
   constructor(
-    public readonly data: APIApplicationCommandSubcommandGroupOption,
+    public readonly data: Omit<APIApplicationCommandSubcommandGroupOption, 'description'>,
     public readonly subcommands: SlashSubcommand[],
     public readonly predicate: CommandPredicateConfig | null,
   ) {

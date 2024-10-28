@@ -12,7 +12,7 @@ export async function ensureI18nLoaded() {
     lng: 'en-US',
     preload: SUPPORTED_LOCALES,
     backend: { loadPath },
-    ns: ['commands'],
+    ns: ['commands', 'content'],
   });
 }
 
@@ -61,4 +61,7 @@ export const DISCORD_LOCALES = [
   'vi',
 ] as const;
 
-export const SUPPORTED_LOCALES = ['en-US', 'de'];
+export const SUPPORTED_LOCALES = [
+  'en-US',
+  'de',
+] as const satisfies (typeof DISCORD_LOCALES)[number][];
