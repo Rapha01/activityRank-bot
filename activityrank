@@ -7,8 +7,9 @@ import { consola } from 'consola';
 import { z } from 'zod';
 import { $ } from 'execa';
 import { readFile } from 'node:fs/promises';
-import { API } from '@discordjs/core';
+import { API, ApplicationCommandOptionType, ApplicationCommandType } from '@discordjs/core';
 import { REST } from '@discordjs/rest';
+import treeify from 'object-treeify';
 
 const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
 
@@ -166,8 +167,8 @@ const deployProd = defineCommand({
   },
 });
 
-const deploy = defineCommand({
-  meta: { name: 'deploy', description: 'Deploy development commands to Discord' },
+const deployDev = defineCommand({
+  meta: { name: 'production', description: 'Deploy development commands to Discord' },
   args: {
     global: {
       type: 'boolean',
@@ -180,7 +181,6 @@ const deploy = defineCommand({
     },
     ...globalArgs,
   },
-  subCommands: { production: deployProd },
   async run({ args }) {
     const overrideGuilds = args._.length > 0;
 
@@ -238,6 +238,11 @@ const deploy = defineCommand({
   },
 });
 
+const deploy = defineCommand({
+  meta: { name: 'deploy', description: 'Deploy development commands to Discord' },
+  subCommands: { production: deployProd, development: deployDev },
+});
+
 const clearProd = defineCommand({
   meta: { name: 'production', description: 'Clear Discord production application commands' },
   args: { ...globalArgs },
@@ -275,8 +280,8 @@ const clearProd = defineCommand({
   },
 });
 
-const clear = defineCommand({
-  meta: { name: 'clear', description: 'Clear deployed development commands' },
+const clearDev = defineCommand({
+  meta: { name: 'development', description: 'Clear Discord development application commands' },
   args: {
     global: {
       type: 'boolean',
@@ -289,7 +294,6 @@ const clear = defineCommand({
     },
     ...globalArgs,
   },
-  subCommands: { production: clearProd },
   async run({ args }) {
     const overrideGuilds = args._.length > 0;
 
@@ -321,23 +325,39 @@ const clear = defineCommand({
   },
 });
 
+const clear = defineCommand({
+  meta: { name: 'clear', description: 'Clear deployed development commands' },
+  subCommands: { production: clearProd, development: clearDev },
+});
+
+/**
+ *
+ * @param {{ name: string, options?: import('discord.js').APIApplicationCommandOption[], type?: import('discord.js').ApplicationCommandType | ApplicationCommandOptionType }} command
+ * @returns {[string, unknown]} tuple
+ */
+function produceSubtree(command, parent = '') {
+  let name = parent === '' ? command.name : `${parent} ${command.name}`;
+  // mark context menu commands
+  if (parent === '' && command.type !== ApplicationCommandType.ChatInput) name = '[C] ' + name;
+
+  if (!command.options || command.options.length <= 0) return [name, null];
+  const subcommands = command.options.filter(
+    (opt) =>
+      opt.type === ApplicationCommandOptionType.Subcommand ||
+      opt.type === ApplicationCommandOptionType.SubcommandGroup,
+  );
+  if (subcommands.length <= 0) return [name, null];
+
+  return [name, Object.fromEntries(subcommands.map((sc) => produceSubtree(sc, name)))];
+}
+
 /*
 TODO:
-* Show as tree
-* Include subcommands
 * Compare deployed commands to currently registered commands
 */
 const get = defineCommand({
   meta: { name: 'get', description: 'Get information about deployed commands' },
   args: {
-    global: {
-      type: 'boolean',
-      description: 'Get global commands',
-    },
-    production: {
-      type: 'boolean',
-      description: 'Use production keys',
-    },
     guild: {
       type: 'positional',
       required: false,
@@ -353,18 +373,22 @@ const get = defineCommand({
     const botInfo = await api.applications.getCurrent();
     consola.info(`Command informaton for ${botInfo.name}`);
 
-    if (args.global) {
-      const globalCommands = await api.applicationCommands.getGlobalCommands(conf.keys.botId);
-      consola.info(`Global commands: [${globalCommands.length}]`);
-      console.log(globalCommands.map((c) => `- ${c.name}`).join('\n'));
-    }
+    const globalCommands = await api.applicationCommands.getGlobalCommands(conf.keys.botId);
+    consola.info(`Global commands: [${globalCommands.length}]`);
+
+    const globalTree = Object.fromEntries(globalCommands.map((command) => produceSubtree(command)));
+    console.log(treeify(globalTree));
+
     if (args.guild || conf.config.developmentServers.length > 0) {
+      const guildId = args.guild ?? conf.config.developmentServers[0];
       const guildCommands = await api.applicationCommands.getGuildCommands(
         conf.keys.botId,
-        args.guild ?? conf.config.developmentServers[0],
+        guildId,
       );
-      consola.info(`Guild commands: [${guildCommands.length}]`);
-      console.log(guildCommands.map((c) => `- ${c.name}`).join('\n'));
+      consola.info(`Guild [${guildId}] commands: [${guildCommands.length}]`);
+
+      const localTree = Object.fromEntries(guildCommands.map((command) => produceSubtree(command)));
+      console.log(treeify(localTree));
     }
   },
 });
