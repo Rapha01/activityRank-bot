@@ -29,7 +29,7 @@ new Cron('0 1 1 * *', () => runResetByTime('month'));
 new Cron('30 1 1 1 *', () => runResetByTime('year'));
 
 if (isProduction && config.disablePatreon !== true) {
-  new Cron('*/4 * * * *', runPatreonTask);
+  new Cron('*/15 * * * *', runPatreonTask);
   new Cron('*/20 * * * *', runTopggTask);
 } else {
   console.warn('[!] Ignoring top.gg and Patreon requests due to environment');

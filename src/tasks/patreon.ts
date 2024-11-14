@@ -1,6 +1,7 @@
 import { keys } from '../const/keys.js';
 import { queryAllHosts } from '../models/shardDb.js';
 import { setUser } from '../models/userModel.js';
+import { backOff } from 'exponential-backoff';
 import { ofetch } from 'ofetch';
 
 const baseURL = new URL(
@@ -24,11 +25,14 @@ export async function runPatreonTask() {
   const apiMembers: ParsedMember[] = [];
 
   while (nextUrl) {
-    const res: PatreonResponse = await ofetch<PatreonResponse>(nextUrl, {
-      headers,
-    });
+    const res: PatreonResponse = await backOff(
+      async () => await ofetch<PatreonResponse>(nextUrl!, { headers })
+    );
 
     apiMembers.push(...getParsedMembers(res));
+
+    // sleep to try to avoid 429 errors
+    await new Promise((r) => setTimeout(r, 1000));
 
     if (res.links?.next) nextUrl = res.links.next;
     else nextUrl = null;
