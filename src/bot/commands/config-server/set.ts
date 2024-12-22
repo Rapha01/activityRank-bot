@@ -60,8 +60,10 @@ const generateRows = async (
       { emoji: '✉️', key: 'inviteXp' },
       { emoji: '❤️', key: 'voteXp' },
     ],
-    [{ label: 'Reset Deleted Members', key: 'resetDeletedMembers' }],
-    [{ label: 'Give Roles on Rejoin', key: 'stickyLevelRoles' }],
+    [
+      { label: 'Reset Deleted Members', key: 'resetDeletedMembers' },
+      { label: 'Give Roles on Rejoin', key: 'stickyLevelRoles' },
+    ],
   ];
 
   const items = rows.map((group) =>
