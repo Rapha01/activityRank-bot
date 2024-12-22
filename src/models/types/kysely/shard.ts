@@ -82,6 +82,7 @@ export interface GuildSchema {
   addDate: Generated<string>;
   isBanned: Generated<number>;
   resetDeletedMembers: Generated<number>;
+  stickyLevelRoles: Generated<number>;
 }
 export type Guild = Selectable<GuildSchema>;
 export type NewGuild = Insertable<GuildSchema>;

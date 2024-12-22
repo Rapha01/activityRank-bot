@@ -29,7 +29,8 @@ type BooleanGuildKey =
   | 'voiceXp'
   | 'inviteXp'
   | 'voteXp'
-  | 'resetDeletedMembers';
+  | 'resetDeletedMembers'
+  | 'stickyLevelRoles';
 
 const generateRows = async (
   interaction: Interaction<'cached'>,
@@ -60,6 +61,7 @@ const generateRows = async (
       { emoji: '❤️', key: 'voteXp' },
     ],
     [{ label: 'Reset Deleted Members', key: 'resetDeletedMembers' }],
+    [{ label: 'Give Roles on Rejoin', key: 'stickyLevelRoles' }],
   ];
 
   const items = rows.map((group) =>
@@ -185,6 +187,11 @@ export const set = subcommand({
         {
           name: 'Reset Deleted Members',
           value: 'This will reset the XP of members when they leave the server.',
+        },
+        {
+          name: 'Give Roles on Rejoin',
+          value:
+            'This will give members that have left the server the appropriate roles for the level they had when they left.',
         },
       ],
     };
