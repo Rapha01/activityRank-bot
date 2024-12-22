@@ -49,6 +49,7 @@ const cachedFields = [
   'addDate',
   'isBanned',
   'resetDeletedMembers',
+  'stickyLevelRoles',
 ] as const;
 
 interface GuildCacheStorage {

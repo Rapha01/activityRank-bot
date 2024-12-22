@@ -12,20 +12,16 @@ export async function handleMemberJoin(member: GuildMember) {
   const cachedGuild = await getGuildModel(member.guild);
   const cachedMember = await getMemberModel(member);
 
-  //member.client.logger.debug({ cachedGuild, cachedMember }, `cache objects`);
+  let roleAssignmentString: string[] = [];
+  if (cachedGuild.db.stickyLevelRoles) {
+    // Roleassignments
+    const level = fct.getLevel(
+      fct.getLevelProgression(cachedMember.cache.totalXp!, cachedGuild.db.levelFactor),
+    );
 
-  // Roleassignments
-  const level = fct.getLevel(
-    fct.getLevelProgression(cachedMember.cache.totalXp!, cachedGuild.db.levelFactor),
-  );
-  /*member.client.logger.debug(
-    `level ${level} ${cachedMember.cache.totalXp} ${cachedGuild.db.levelFactor}`,
-    );*/
-
-  const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
-  if (level > 1) await levelManager.checkLevelUp(member, 0, cachedMember.cache.totalXp!);
-
-  // member.client.logger.debug({ roleAssignmentString }, `RAS`);
+    roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
+    if (level > 1) await levelManager.checkLevelUp(member, 0, cachedMember.cache.totalXp!);
+  }
 
   // AutoPost serverjoin
   if (cachedGuild.db.autopost_serverJoin !== '0')
