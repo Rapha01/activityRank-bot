@@ -1,4 +1,4 @@
-import { escape } from 'promise-mysql';
+import { escape } from 'mysql2';
 import { queryShard } from './shardDb.js';
 import { queryManager } from './managerDb.js';
 
