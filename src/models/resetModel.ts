@@ -37,7 +37,7 @@ async function resetStatsByTime(
 
   const errors = [];
   for (const shard of dbShards) {
-    const pool = await getShardPool(shard.host);
+    const pool = getShardPool(shard.host);
     const hrstart = process.hrtime();
 
     for (let statsTable of statsTables) {
@@ -47,17 +47,20 @@ async function resetStatsByTime(
       let conn = null;
       try {
         while (true) {
-          conn = await pool.getConnection();
+          // the connection is reused for each stats table
+          conn ??= await pool.getConnection();
           await conn.beginTransaction();
           // Find the guild ID 1000 guilds above the last guild.
           // Returns NULL (`null` in JS) if highestGuildId is the highest guild ID in the table
+          // TODO: check that this returns correctly
           const [response] = await conn.query(
             `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``
           );
-          const nextGuildId = response.next_id as string | null;
+          // @ts-expect-error mysql2 typings are useless
+          const nextGuildId = response[0].next_id as string | null;
           if (nextGuildId == null) {
             // completed
-            await conn.release();
+            conn.release();
             break;
           }
           await conn.query(
@@ -70,7 +73,7 @@ async function resetStatsByTime(
         if (conn) await conn.rollback();
         errors.push(error);
       } finally {
-        if (conn) await conn.release();
+        if (conn) conn.release();
       }
     }
 
@@ -93,7 +96,7 @@ async function resetMemberScoresByTime(
 
   const errors = [];
   for (const shard of dbShards) {
-    const pool = await getShardPool(shard.host);
+    const pool = getShardPool(shard.host);
     const hrstart = process.hrtime();
 
     // we paginate via cursor here to reduce the risk of page drift,
@@ -102,17 +105,18 @@ async function resetMemberScoresByTime(
     let conn = null;
     try {
       while (true) {
-        conn = await pool.getConnection();
+        conn ??= await pool.getConnection();
         await conn.beginTransaction();
         // Find the guild ID 1000 guilds above the last guild.
         // Returns NULL (`null` in JS) if highestGuildId is the highest guild ID in the table
         const [response] = await conn.query(
           `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``
         );
-        const nextGuildId = response.next_id as string | null;
+        // @ts-ignore mysql2 typings are useless
+        const nextGuildId = response[0].next_id as string | null;
         if (nextGuildId == null) {
           // completed
-          await conn.release();
+          conn.release();
           break;
         }
         await conn.query(
@@ -125,7 +129,7 @@ async function resetMemberScoresByTime(
       if (conn) await conn.rollback();
       errors.push(error);
     } finally {
-      if (conn) await conn.release();
+      if (conn) conn.release();
     }
 
     const sec = Math.ceil(process.hrtime(hrstart)[0]);
