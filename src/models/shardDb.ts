@@ -1,59 +1,45 @@
-import mysql from 'promise-mysql';
+import { createPool, type Pool } from 'mysql2/promise';
 import { getAllDbHosts } from './managerDb.js';
 import { keys } from '../const/keys.js';
 
-const pools = new Map<string, mysql.Pool>();
+const pools: Map<string, Pool> = new Map();
 
-export async function queryShard<T>(dbHost: string, sql: string) {
-  if (!pools.has(dbHost)) await createPool(dbHost);
-
-  return await pools.get(dbHost)!.query<T>(sql);
+/** ! Remember to close the connection after use. */
+export async function getShardConnection(host: string) {
+  return await getShardPool(host).getConnection();
 }
 
-export async function getShardPool(dbHost: string) {
-  if (!pools.has(dbHost)) await createPool(dbHost);
-
-  return pools.get(dbHost)!;
+export async function queryShard<T>(dbHost: string, sql: string): Promise<T> {
+  const pool = getShardPool(dbHost);
+  return (await pool.query(sql))[0] as T;
 }
 
-export async function queryAllHosts<T>(sql: string) {
+export async function queryAllHosts<T>(sql: string): Promise<T[]> {
   const hosts = await getAllDbHosts();
 
-  let aggregate = [];
+  let aggregate: T[] = [];
   for (let host of hosts) {
-    aggregate.push(await queryShard<T>(host, sql));
+    aggregate = aggregate.concat(await queryShard<T>(host, sql));
   }
 
   return aggregate;
 }
 
-async function createPool(dbHost: string) {
-  if (!pools.has(dbHost)) {
-    const pool = await mysql.createPool({
-      host: dbHost,
-      user: keys.shardDb.dbUser,
-      password: keys.shardDb.dbPassword,
-      database: keys.shardDb.dbName,
-      charset: 'utf8mb4',
-      supportBigNumbers: true,
-      connectionLimit: 3,
-    });
-    pools.set(dbHost, pool);
+export function getShardPool(host: string) {
+  if (pools.has(host)) return pools.get(host)!;
 
-    pool.on('error', function (err) {
-      console.log('ShardDb pool error.');
-      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log(
-          `PROTOCOL_CONNECTION_LOST for shardDb @${dbHost}. Deleting connection.`
-        );
-        pools.delete(dbHost);
-      } else {
-        throw err;
-      }
-    });
+  const pool = createPool({
+    host: host,
+    user: keys.shardDb.dbUser,
+    password: keys.shardDb.dbPassword,
+    database: keys.shardDb.dbName,
+    charset: 'utf8mb4',
+    supportBigNumbers: true,
+    bigNumberStrings: true,
+    connectionLimit: 3,
+  });
 
-    console.log('Connected to dbShard ' + dbHost);
-  }
+  pools.set(host, pool);
 
-  return pools.get(dbHost);
+  return pool;
 }
