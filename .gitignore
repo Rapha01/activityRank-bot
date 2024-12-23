@@ -1,6 +1,7 @@
 node_modules
 dist
 .private
+.turbo
 
 config/keys.json
 config/config.json

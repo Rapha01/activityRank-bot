@@ -7,5 +7,9 @@
     "@rapha01 (https://github.com/rapha01)",
     "@piemot (https://github.com/piemot)",
     "the ActivityRank Contributors ❤️"
-  ]
+  ],
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  },
+  "packageManager": "pnpm@9.15.1"
 }
