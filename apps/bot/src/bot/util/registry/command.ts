@@ -148,7 +148,7 @@ export abstract class Command {
 }
 
 export abstract class SlashCommand extends Command {
-  public abstract execute(
+  public abstract override execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'>,
   ): Promise<void>;
