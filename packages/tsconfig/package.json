@@ -1,0 +1,11 @@
+{
+  "name": "@activityrank/tsconfig",
+  "version": "0.0.1",
+  "private": "true",
+  "type": "module",
+  "contributors": [
+    "@rapha01 (https://github.com/rapha01)",
+    "@piemot (https://github.com/piemot)",
+    "the ActivityRank Contributors ❤️"
+  ]
+}
