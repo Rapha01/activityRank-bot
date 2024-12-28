@@ -7,13 +7,11 @@ import type {
 } from './config.types.js';
 import { packageFile } from './paths.js';
 
-const LOAD_LOCAL_CONFIG = process.env.LOAD_LOCAL_CONFIG === '1';
-
 // read from Docker Compose configs/secrets locations
 const [conffile, privfile, keyfile, pkgfile] = await Promise.all([
-  readFile(LOAD_LOCAL_CONFIG ? './config/config.json' : '/conf'),
-  readFile(LOAD_LOCAL_CONFIG ? './config/privilege.json' : '/privileges'),
-  readFile(LOAD_LOCAL_CONFIG ? './config/keys.json' : '/run/secrets/keys'),
+  readFile(process.env.CONFIG_PATH ?? '/conf'),
+  readFile(process.env.PRIVILEGE_PATH ?? '/privileges'),
+  readFile(process.env.KEYS_PATH ?? '/run/secrets/keys'),
   readFile(packageFile),
 ]);
 
