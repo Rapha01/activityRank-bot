@@ -7,3 +7,5 @@ config/keys.json
 config/config.json
 config/privilege.json
 config/*.local.*
+
+docker/db/data
