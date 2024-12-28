@@ -1,38 +1,68 @@
-FROM node:20-slim AS base
+# syntax=docker/dockerfile:1
+
+ARG NODE_VERSION=20.17
+ARG APP_DIR_NAME=apps/manager
+ARG APP_PKG_NAME=@activityrank/manager
+
+FROM node:${NODE_VERSION}-slim AS base
 ENV NODE_ENV=production
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+RUN pnpm add -g turbo@^2
+
+FROM base AS pruner
+ARG APP_PKG_NAME
+
 WORKDIR /app
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn/releases ./.yarn/releases
-
-# base dependencies
-FROM base AS deps
-RUN yarn install --immutable
-
-# Install production dependencies
-FROM base AS production-deps
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-RUN yarn workspaces focus --production
-
-# Build
-FROM base AS build
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-
 COPY . .
-RUN yarn build
 
-FROM base
+# Generate a partial monorepo with a pruned lockfile for a target workspace.
+RUN pnpm exec turbo prune $APP_PKG_NAME --docker
+
+
+FROM base AS installer
 WORKDIR /app
 
-COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-COPY --from=build /app/dist /app/dist
-COPY --from=build /app/package.json /app/package.json
+# First install the dependencies (as they change less often)
+FROM installer AS dev-deps
+WORKDIR /app
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+FROM installer AS production-deps
+WORKDIR /app
+ENV NODE_ENV=production
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+
+FROM base AS builder
+ARG APP_PKG_NAME
+
+WORKDIR /app
+COPY --from=pruner /app/out/full/ .
+COPY --from=dev-deps /app/ .
+COPY turbo.json turbo.json
+RUN pnpm run --filter=$APP_PKG_NAME... build 
+# Delete node_modules; they are only used for the `build` command 
+# and we don't want them included in the copy in the `runner` stage
+RUN find . -name "node_modules" -type d -prune -exec rm -r '{}' +
+
+FROM base AS runner
+ARG APP_DIR_NAME
+WORKDIR /app
+
+# Don't run production as root
+RUN addgroup --system --gid 1001 ar
+RUN adduser --system --uid 1001 activityrank
+USER activityrank
+
+COPY --from=builder --chown=activityrank:ar /app .
+COPY --from=production-deps --chown=activityrank:ar /app .
 
 EXPOSE 3000
-ENV PORT 3000
+ENV PORT=3000
 
-ENTRYPOINT [ "yarn", "start" ]
+CMD ["node", "$APP_DIR_NAME/dist/app.js"]
