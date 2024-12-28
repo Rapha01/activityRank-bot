@@ -17,7 +17,7 @@
     "dev": "node --enable-source-maps ./dist/app.js"
   },
   "imports": {
-    "#*": "./src/*"
+    "#*": "./dist/*"
   },
   "repository": {
     "type": "git",
