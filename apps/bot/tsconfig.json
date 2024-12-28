@@ -7,4 +7,9 @@
     "**/*.test.ts",
     "**/*.spec.ts",
   ],
+  "compilerOptions": {
+    "customConditions": [
+      "@activityrank/dev"
+    ]
+  }
 }
