@@ -24,6 +24,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@activityrank/tsconfig": "workspace:*",
     "nodemon": "^3.1.4",
     "typescript": "^5.4.4"
   },

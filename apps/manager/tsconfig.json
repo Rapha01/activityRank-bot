@@ -1,15 +1,10 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "Node",
-    "lib": ["WebWorker", "DOM", "DOM.Iterable"],
-    "strict": true,
-    "declaration": true,
-    "types": ["node"],
-    "outDir": "dist"
-  },
-  "include": ["src"]
+  "extends": "@activityrank/tsconfig/tsconfig.base.json",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+  ]
 }

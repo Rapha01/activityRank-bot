@@ -7,8 +7,9 @@
       "tsx": false,
       "decorators": false,
       "dynamicImport": false
-    },
-    "baseUrl": "./src"
+    }
   },
-  "exclude": [".*\\.test\\.(?:t|j)s$"]
+  "exclude": [
+    ".*\\.test\\.(?:t|j)s$"
+  ]
 }
