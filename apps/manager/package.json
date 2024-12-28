@@ -29,9 +29,6 @@
     "nodemon": "^3.1.4",
     "typescript": "^5.4.4"
   },
-  "prettier": {
-    "singleQuote": true
-  },
   "nodemonConfig": {
     "ext": "js,ts",
     "watch": [

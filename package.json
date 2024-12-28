@@ -9,6 +9,7 @@
     "the ActivityRank Contributors ❤️"
   ],
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "turbo": "^2.3.3"
   },
   "packageManager": "pnpm@9.15.1"
