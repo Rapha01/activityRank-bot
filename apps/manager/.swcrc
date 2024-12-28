@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/swcrc",
+  "sourceMaps": true,
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": false,
+      "decorators": false,
+      "dynamicImport": false
+    },
+    "baseUrl": "./src"
+  },
+  "exclude": [".*\\.test\\.(?:t|j)s$"]
+}

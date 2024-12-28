@@ -34,7 +34,7 @@ Manager server responsible for routing database shard queries, handling webhooks
 Website with features, commands and patchnotes for the bot.
 
 ## Contributors
-
+<!-- TODO: improve -->
 Thank you for deciding to contribute! Pull requests are welcome.
 For major changes, please open an issue first to discuss what you would like to change.
 

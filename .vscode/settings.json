@@ -9,13 +9,15 @@
     },
     {
       "fileMatch": [
-        "config/privilege.json"
+        "config/privilege.json",
+        "config/privilege.example.json"
       ],
       "url": "./config/privilege.schema.json"
     },
     {
       "fileMatch": [
-        "config/config.json"
+        "config/config.json",
+        "config/config.example.json"
       ],
       "url": "./config/config.schema.json"
     }
