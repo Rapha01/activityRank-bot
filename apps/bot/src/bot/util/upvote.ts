@@ -1,10 +1,10 @@
-import { getMemberModel } from 'bot/models/guild/guildMemberModel.js';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
-import { getUserModel } from 'bot/models/userModel.js';
+import { getMemberModel } from '#bot/models/guild/guildMemberModel.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { getUserModel } from '#bot/models/userModel.js';
 import { time, type GuildMember, type InteractionReplyOptions } from 'discord.js';
-import { getVoteMultiplier, hasNoXpRole } from 'util/fct.js';
+import { getVoteMultiplier, hasNoXpRole } from '#util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
-import statFlushCache from 'bot/statFlushCache.js';
+import statFlushCache from '#bot/statFlushCache.js';
 import { PATREON_URL } from './constants.js';
 import { assertUnreachable } from './typescript.js';
 

@@ -3,7 +3,7 @@ import fct from '../util/fct.js';
 import loggerManager from './util/logger.js';
 import globalLogger from '../util/logger.js';
 import { ActivityType } from 'discord.js';
-import { updateTexts } from 'models/managerDb/textModel.js';
+import { updateTexts } from '#models/managerDb/textModel.js';
 import { memberCache } from './models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
 import { registry } from './util/registry/registry.js';

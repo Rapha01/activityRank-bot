@@ -1,4 +1,4 @@
-import { command, permissions } from 'bot/util/registry/command.js';
+import { command, permissions } from '#bot/util/registry/command.js';
 import { role } from './bonus/role.js';
 import { member } from './bonus/member.js';
 

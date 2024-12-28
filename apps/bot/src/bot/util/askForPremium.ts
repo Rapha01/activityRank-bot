@@ -3,7 +3,7 @@ import fct from '../../util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
 import { type ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { oneLine } from 'common-tags';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 
 const isDev = process.env.NODE_ENV !== 'production';

@@ -1,5 +1,5 @@
-import { attemptUpvote, getUpvoteMessage } from 'bot/util/upvote.js';
-import { command } from 'bot/util/registry/command.js';
+import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.js';
+import { command } from '#bot/util/registry/command.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 
 export default command.basic({

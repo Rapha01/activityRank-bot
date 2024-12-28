@@ -5,7 +5,7 @@ import type {
   GuildChannelSchema,
   TextMessageSchema,
   VoiceMinuteSchema,
-} from 'models/types/shard.js';
+} from '#models/types/shard.js';
 import { getGuildModel } from './guildModel.js';
 
 const cachedFields = ['noXp', 'noCommand'] as const;

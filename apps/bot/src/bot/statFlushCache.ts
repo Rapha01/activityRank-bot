@@ -1,10 +1,10 @@
 import type { Client, Guild, GuildBasedChannel, GuildMember, VoiceBasedChannel } from 'discord.js';
 import levelManager from './levelManager.js';
-import type { StatType } from 'models/types/enums.js';
+import type { StatType } from '#models/types/enums.js';
 import { getGuildModel, type GuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
-import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
 
 async function getXpMultiplier(
   member: GuildMember,

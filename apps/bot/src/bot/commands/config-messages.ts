@@ -10,10 +10,10 @@ import {
 
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { ComponentType } from 'discord.js';
-import { command, permissions } from 'bot/util/registry/command.js';
-import { component, modal } from 'bot/util/registry/component.js';
-import { requireUser } from 'bot/util/predicates.js';
-import { actionrow } from 'bot/util/component.js';
+import { command, permissions } from '#bot/util/registry/command.js';
+import { component, modal } from '#bot/util/registry/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { actionrow } from '#bot/util/component.js';
 
 const generateRows = async (interaction: Interaction<'cached'>) => {
   const predicate = requireUser(interaction.user);

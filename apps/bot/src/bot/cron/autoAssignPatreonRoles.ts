@@ -1,4 +1,4 @@
-import { config } from 'const/config.js';
+import { config } from '#const/config.js';
 import { dummyDb, executeQueryAll } from '../../models/shardDb/shardDb.js';
 import type { Guild } from 'discord.js';
 

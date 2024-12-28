@@ -1,6 +1,6 @@
-import { command } from 'bot/util/registry/command.js';
+import { command } from '#bot/util/registry/command.js';
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { config, isProduction } from 'const/config.js';
+import { config, isProduction } from '#const/config.js';
 
 export default command.basic({
   data: { name: 'ping', description: "Checks the bot's latency" },

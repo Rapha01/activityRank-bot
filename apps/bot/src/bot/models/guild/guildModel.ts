@@ -1,6 +1,6 @@
-import { getShardDb } from 'models/shardDb/shardDb.js';
-import { getManagerDb } from 'models/managerDb/managerDb.js';
-import type { GuildSchema, GuildUpdate } from 'models/types/kysely/shard.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
+import { getManagerDb } from '#models/managerDb/managerDb.js';
+import type { GuildSchema, GuildUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
 

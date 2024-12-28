@@ -12,12 +12,12 @@ import {
   type APIEmbed,
 } from 'discord.js';
 
-import { getRoleModel, type RoleModel } from 'bot/models/guild/guildRoleModel.js';
+import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { subcommand } from 'bot/util/registry/command.js';
-import { actionrow, closeButton } from 'bot/util/component.js';
-import { component, modal } from 'bot/util/registry/component.js';
-import { requireUser } from 'bot/util/predicates.js';
+import { subcommand } from '#bot/util/registry/command.js';
+import { actionrow, closeButton } from '#bot/util/component.js';
+import { component, modal } from '#bot/util/registry/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 

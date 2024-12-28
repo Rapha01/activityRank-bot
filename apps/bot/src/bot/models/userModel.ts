@@ -1,7 +1,7 @@
-import { getShardDb } from 'models/shardDb/shardDb.js';
-import { getManagerDb } from 'models/managerDb/managerDb.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
+import { getManagerDb } from '#models/managerDb/managerDb.js';
 import type { User } from 'discord.js';
-import type { User as DBUser, UserSchema, UserUpdate } from 'models/types/kysely/shard.js';
+import type { User as DBUser, UserSchema, UserUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from './generic/model.js';
 
 let defaultCache: Pick<DBUser, (typeof cachedFields)[number]> | null = null;

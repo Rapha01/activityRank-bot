@@ -1,6 +1,6 @@
-import { actionrow, useConfirm } from 'bot/util/component.js';
-import { requireUser } from 'bot/util/predicates.js';
-import { command, Deploy, type BasicSlashCommandData } from 'bot/util/registry/command.js';
+import { actionrow, useConfirm } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { command, Deploy, type BasicSlashCommandData } from '#bot/util/registry/command.js';
 import {
   ApplicationCommandType,
   ButtonStyle,
@@ -9,7 +9,7 @@ import {
   WebhookClient,
   type WebhookMessageCreateOptions,
 } from 'discord.js';
-import { config } from 'const/config.js';
+import { config } from '#const/config.js';
 
 const hook = new WebhookClient({ url: config.supportServer.supportHook });
 

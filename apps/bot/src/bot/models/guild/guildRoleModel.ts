@@ -4,7 +4,7 @@ import type {
   GuildRole as DBRole,
   GuildRoleSchema,
   GuildRoleUpdate,
-} from 'models/types/kysely/shard.js';
+} from '#models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
 import { CachedModel } from '../generic/model.js';
 

@@ -1,7 +1,7 @@
-import { command } from 'bot/util/registry/command.js';
+import { command } from '#bot/util/registry/command.js';
 import { EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
-import { getTexts } from 'models/managerDb/textModel.js';
-import type { TextsFaqs } from 'models/types/external.js';
+import { getTexts } from '#models/managerDb/textModel.js';
+import type { TextsFaqs } from '#models/types/external.js';
 
 export default command.basic({
   data: {

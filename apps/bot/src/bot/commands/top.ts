@@ -3,7 +3,7 @@ import {
   getChannelMemberRanks,
   getChannelRanks,
   getGuildMemberRanks,
-} from 'bot/models/rankModel.js';
+} from '#bot/models/rankModel.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { getChannelMention, getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
@@ -23,17 +23,17 @@ import {
   time,
   type APIEmbed,
 } from 'discord.js';
-import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
-import { command } from 'bot/util/registry/command.js';
+import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
+import { command } from '#bot/util/registry/command.js';
 import { Time } from '@sapphire/duration';
-import { assertUnreachable } from 'bot/util/typescript.js';
-import { actionrow } from 'bot/util/component.js';
+import { assertUnreachable } from '#bot/util/typescript.js';
+import { actionrow } from '#bot/util/component.js';
 import {
   component,
   ComponentKey,
   type ComponentPredicateConfig,
-} from 'bot/util/registry/component.js';
-import { requireUser } from 'bot/util/predicates.js';
+} from '#bot/util/registry/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 
 const _prettifyTime = {
   day: 'Today',

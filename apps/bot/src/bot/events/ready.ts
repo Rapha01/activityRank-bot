@@ -1,4 +1,4 @@
-import { event } from 'bot/util/registry/event.js';
+import { event } from '#bot/util/registry/event.js';
 import { Events } from 'discord.js';
 import cronScheduler from '../cron/scheduler.js';
 

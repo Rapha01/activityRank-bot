@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import prettyTime from 'pretty-ms';
-import { subcommand } from 'bot/util/registry/command.js';
+import { subcommand } from '#bot/util/registry/command.js';
 
 export const cooldown = subcommand({
   data: {

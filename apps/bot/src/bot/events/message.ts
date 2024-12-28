@@ -1,7 +1,7 @@
-import { event } from 'bot/util/registry/event.js';
+import { event } from '#bot/util/registry/event.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';

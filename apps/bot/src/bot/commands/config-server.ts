@@ -1,4 +1,4 @@
-import { command, permissions } from 'bot/util/registry/command.js';
+import { command, permissions } from '#bot/util/registry/command.js';
 import { bonus } from './config-server/bonus.js';
 import { vote } from './config-server/vote.js';
 import { entriesPerPage } from './config-server/entries-per-page.js';

@@ -1,8 +1,8 @@
-import { command, permissions, subcommand } from 'bot/util/registry/command.js';
-import { MODERATOR_ONLY } from 'bot/util/predicates.js';
+import { command, permissions, subcommand } from '#bot/util/registry/command.js';
+import { MODERATOR_ONLY } from '#bot/util/predicates.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from 'bot/models/userModel.js';
+import { getUserModel } from '#bot/models/userModel.js';
 
 const user = subcommand({
   data: {

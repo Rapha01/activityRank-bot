@@ -5,8 +5,8 @@ import statFlush from '../models/shardDb/statFlush.js';
 import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
 import checkForDeadShards from './checkForDeadShards.js';
 import type { ShardingManager } from 'discord.js';
-import { updateTexts } from 'models/managerDb/textModel.js';
-import { isProduction } from 'const/config.js';
+import { updateTexts } from '#models/managerDb/textModel.js';
+import { isProduction } from '#const/config.js';
 import { Time } from '@sapphire/duration';
 
 const UPDATE_TEXTS_INTERVAL = isProduction ? Time.Minute * 5 : Time.Second * 10;

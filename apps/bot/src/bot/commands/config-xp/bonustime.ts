@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { subcommand } from 'bot/util/registry/command.js';
+import { subcommand } from '#bot/util/registry/command.js';
 
 export const bonustime = subcommand({
   data: {

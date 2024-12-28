@@ -21,15 +21,15 @@ import {
   getGuildMemberScorePosition,
   getGuildMemberStatPosition,
   getGuildMemberTopChannels,
-} from 'bot/models/rankModel.js';
+} from '#bot/models/rankModel.js';
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
-import { statTimeIntervals, type StatTimeInterval, type StatType } from 'models/types/enums.js';
-import type { Guild as DBGuild } from 'models/types/kysely/shard.js';
-import { command } from 'bot/util/registry/command.js';
+import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
+import type { Guild as DBGuild } from '#models/types/kysely/shard.js';
+import { command } from '#bot/util/registry/command.js';
 import { ApplicationCommandOptionType } from 'discord.js';
-import { component, ComponentKey } from 'bot/util/registry/component.js';
-import { requireUserId } from 'bot/util/predicates.js';
+import { component, ComponentKey } from '#bot/util/registry/component.js';
+import { requireUserId } from '#bot/util/predicates.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';

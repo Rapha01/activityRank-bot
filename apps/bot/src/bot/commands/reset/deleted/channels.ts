@@ -4,14 +4,14 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from 'discord.js';
-import { subcommand } from 'bot/util/registry/command.js';
-import { useConfirm } from 'bot/util/component.js';
-import { requireUser } from 'bot/util/predicates.js';
+import { subcommand } from '#bot/util/registry/command.js';
+import { useConfirm } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 import {
   fetchDeletedChannelIds,
   resetGuildChannelsSettings,
   ResetGuildChannelsStatistics,
-} from 'bot/models/resetModel.js';
+} from '#bot/models/resetModel.js';
 
 export const channels = subcommand({
   data: {

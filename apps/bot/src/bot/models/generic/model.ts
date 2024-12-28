@@ -1,6 +1,6 @@
-import type { ShardDB } from 'models/types/kysely/shard.js';
+import type { ShardDB } from '#models/types/kysely/shard.js';
 import type { Kysely, Updateable, Selectable } from 'kysely';
-import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
 
 export abstract class CachedModel<
   Object extends any,

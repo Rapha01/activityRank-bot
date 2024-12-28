@@ -1,7 +1,7 @@
 import { createPool, type Pool } from 'mysql2/promise';
 import { Kysely, MysqlDialect } from 'kysely';
-import type { ManagerDB } from 'models/types/kysely/manager.js';
-import { keys } from 'const/config.js';
+import type { ManagerDB } from '#models/types/kysely/manager.js';
+import { keys } from '#const/config.js';
 
 let pool: Pool | null = null;
 let db: Kysely<ManagerDB> | null = null;

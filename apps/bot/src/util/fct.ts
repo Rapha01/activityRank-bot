@@ -1,5 +1,5 @@
-import type { User } from 'models/types/kysely/shard.js';
-import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
+import type { User } from '#models/types/kysely/shard.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { getUserModel } from '../bot/models/userModel.js';
 import type { BaseInteraction, GuildMember } from 'discord.js';
 

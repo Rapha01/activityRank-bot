@@ -9,8 +9,8 @@ import {
   MysqlQueryCompiler,
   type CompiledQuery,
 } from 'kysely';
-import type { ShardDB } from 'models/types/kysely/shard.js';
-import { keys } from 'const/config.js';
+import type { ShardDB } from '#models/types/kysely/shard.js';
+import { keys } from '#const/config.js';
 
 const pools: Map<string, Pool> = new Map();
 const instances: Map<string, { db: Kysely<ShardDB>; pool: Pool }> = new Map();

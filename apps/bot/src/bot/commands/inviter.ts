@@ -1,4 +1,4 @@
-import { command } from 'bot/util/registry/command.js';
+import { command } from '#bot/util/registry/command.js';
 import {
   ApplicationCommandOptionType,
   ButtonStyle,
@@ -6,12 +6,12 @@ import {
   ComponentType,
   GuildMember,
 } from 'discord.js';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
 import fct from '../../util/fct.js';
-import { useConfirm } from 'bot/util/component.js';
-import { requireUser } from 'bot/util/predicates.js';
+import { useConfirm } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 
 export default command.basic({
   data: {

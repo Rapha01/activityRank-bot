@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { subcommand } from 'bot/util/registry/command.js';
+import { subcommand } from '#bot/util/registry/command.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({

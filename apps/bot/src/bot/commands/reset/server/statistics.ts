@@ -6,12 +6,12 @@ import {
   ComponentType,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from 'bot/util/registry/command.js';
-import { actionrow, useConfirm } from 'bot/util/component.js';
-import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildStatistics } from 'bot/models/resetModel.js';
-import { handleResetCommandsCooldown } from 'bot/util/cooldownUtil.js';
-import { component } from 'bot/util/registry/component.js';
+import { subcommand } from '#bot/util/registry/command.js';
+import { actionrow, useConfirm } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { ResetGuildStatistics } from '#bot/models/resetModel.js';
+import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
+import { component } from '#bot/util/registry/component.js';
 import { commaListsAnd } from 'common-tags';
 
 type Table = 'textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus';

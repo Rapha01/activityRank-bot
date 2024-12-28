@@ -1,6 +1,6 @@
 import { PermissionFlagsBits, ApplicationCommandOptionType } from 'discord.js';
 import statFlushCache from '../../statFlushCache.js';
-import { subcommand } from 'bot/util/registry/command.js';
+import { subcommand } from '#bot/util/registry/command.js';
 
 export const member = subcommand({
   data: {

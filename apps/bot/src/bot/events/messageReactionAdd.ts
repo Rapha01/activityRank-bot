@@ -1,14 +1,14 @@
-import { event } from 'bot/util/registry/event.js';
+import { event } from '#bot/util/registry/event.js';
 import { Events } from 'discord.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
-import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { getWaitTime } from '../util/cooldownUtil.js';
 import statFlushCache from '../statFlushCache.js';
 import skip from '../skip.js';
 import { getVoteMultiplier } from '../../util/fct.js';
-import { getEmoji, getNativeEmoji } from 'bot/util/emoji.js';
+import { getEmoji, getNativeEmoji } from '#bot/util/emoji.js';
 
 export default event(Events.MessageReactionAdd, async function (reaction, user) {
   if (reaction.partial) reaction = await reaction.fetch();

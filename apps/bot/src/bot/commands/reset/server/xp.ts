@@ -5,11 +5,11 @@ import {
   ButtonStyle,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from 'bot/util/registry/command.js';
-import { useConfirm } from 'bot/util/component.js';
-import { requireUser } from 'bot/util/predicates.js';
-import { ResetGuildXP } from 'bot/models/resetModel.js';
-import { handleResetCommandsCooldown } from 'bot/util/cooldownUtil.js';
+import { subcommand } from '#bot/util/registry/command.js';
+import { useConfirm } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { ResetGuildXP } from '#bot/models/resetModel.js';
+import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
 
 export const xp = subcommand({
   data: {

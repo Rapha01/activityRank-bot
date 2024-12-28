@@ -1,11 +1,11 @@
 import { ApplicationCommandOptionType, ButtonStyle, ComponentType, Role } from 'discord.js';
-import { subcommand } from 'bot/util/registry/command.js';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
-import { getRoleModel } from 'bot/models/guild/guildRoleModel.js';
-import { actionrow, closeButton } from 'bot/util/component.js';
-import { requireUser } from 'bot/util/predicates.js';
-import { component } from 'bot/util/registry/component.js';
-import { getShardDb } from 'models/shardDb/shardDb.js';
+import { subcommand } from '#bot/util/registry/command.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
+import { actionrow, closeButton } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { component } from '#bot/util/registry/component.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({

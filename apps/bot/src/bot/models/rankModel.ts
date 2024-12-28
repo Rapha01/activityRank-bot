@@ -1,10 +1,10 @@
 import { getShardDb } from '../../models/shardDb/shardDb.js';
 import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
-import type { StatTimeInterval, StatType } from 'models/types/enums.js';
+import type { StatTimeInterval, StatType } from '#models/types/enums.js';
 import { getGuildModel } from './guild/guildModel.js';
 import { expressionBuilder, type ExpressionBuilder } from 'kysely';
-import type { ShardDB } from 'models/types/kysely/shard.js';
+import type { ShardDB } from '#models/types/kysely/shard.js';
 import { jsonBuildObject } from 'kysely/helpers/mysql';
 
 /**

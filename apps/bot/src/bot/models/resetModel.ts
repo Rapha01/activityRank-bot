@@ -1,5 +1,5 @@
 import { getShardDb } from '../../models/shardDb/shardDb.js';
-import { isProduction } from 'const/config.js';
+import { isProduction } from '#const/config.js';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { getRankedUserIds, memberCache } from './guild/guildMemberModel.js';
 import { channelCache, getRankedChannelIds } from './guild/guildChannelModel.js';
@@ -10,10 +10,10 @@ import type {
   Guild as DBGuild,
   GuildMemberUpdate,
   GuildUpdate,
-} from 'models/types/kysely/shard.js';
+} from '#models/types/kysely/shard.js';
 import { sql } from 'kysely';
-import { sleep } from 'util/fct.js';
-import { logger } from 'bot/util/logger.js';
+import { sleep } from '#util/fct.js';
+import { logger } from '#bot/util/logger.js';
 import { nanoid } from 'nanoid';
 
 export const RESET_JOBS: Set<ResetJob> = new Set();

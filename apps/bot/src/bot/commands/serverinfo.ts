@@ -17,13 +17,13 @@ import {
   fetchRoleAssignments,
   getRoleModel,
 } from '../models/guild/guildRoleModel.js';
-import { getShardDb } from 'models/shardDb/shardDb.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import nameUtil, { getRoleMention } from '../util/nameUtil.js';
-import { command } from 'bot/util/registry/command.js';
-import { component, ComponentKey } from 'bot/util/registry/component.js';
-import { requireUser } from 'bot/util/predicates.js';
-import { actionrow, closeButton } from 'bot/util/component.js';
+import { command } from '#bot/util/registry/command.js';
+import { component, ComponentKey } from '#bot/util/registry/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { actionrow, closeButton } from '#bot/util/component.js';
 import Cron from 'croner';
 
 export default command.basic({

@@ -3,8 +3,8 @@
   https://github.com/sapphiredev/examples/blob/main/examples/with-typescript-complete/src/commands/General/eval.ts
  */
 
-import { command, permissions } from 'bot/util/registry/command.js';
-import { DEVELOPER_ONLY } from 'bot/util/predicates.js';
+import { command, permissions } from '#bot/util/registry/command.js';
+import { DEVELOPER_ONLY } from '#bot/util/predicates.js';
 import { inspect } from 'node:util';
 import { ApplicationCommandOptionType, codeBlock } from 'discord.js';
 

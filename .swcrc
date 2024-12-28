@@ -8,17 +8,11 @@
       "decorators": false,
       "dynamicImport": false
     },
-    "baseUrl": "./src",
-    "paths": {
-      "src/*": ["./*"],
-      "bot/*": ["./bot/*"],
-      "const/*": ["./const/*"],
-      "models/*": ["./models/*"],
-      "util/*": ["./util/*"]
-    },
     "experimental": {
       "keepImportAssertions": true
     }
   },
-  "exclude": [".*\\.test\\.(?:t|j)s$"]
+  "exclude": [
+    ".*\\.test\\.(?:t|j)s$"
+  ]
 }

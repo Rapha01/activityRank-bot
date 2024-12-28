@@ -1,4 +1,4 @@
-import { command, permissions } from 'bot/util/registry/command.js';
+import { command, permissions } from '#bot/util/registry/command.js';
 import { member } from './reset/member.js';
 import { channel } from './reset/channel.js';
 import { server } from './reset/server.js';

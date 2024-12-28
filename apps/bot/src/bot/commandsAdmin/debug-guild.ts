@@ -1,7 +1,7 @@
-import { command, Deploy, permissions, subcommand } from 'bot/util/registry/command.js';
-import { HELPSTAFF_ONLY } from 'bot/util/predicates.js';
+import { command, Deploy, permissions, subcommand } from '#bot/util/registry/command.js';
+import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
 import { ApplicationCommandOptionType } from 'discord.js';
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { debugCommandData } from './debug.js';
 
 const option = {

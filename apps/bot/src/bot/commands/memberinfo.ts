@@ -6,8 +6,8 @@ import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
 import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { stripIndent } from 'common-tags';
 import fct from '../../util/fct.js';
-import { getShardDb } from 'models/shardDb/shardDb.js';
-import { command } from 'bot/util/registry/command.js';
+import { getShardDb } from '#models/shardDb/shardDb.js';
+import { command } from '#bot/util/registry/command.js';
 
 export default command.basic({
   data: {

@@ -8,12 +8,12 @@ import {
   ComponentType,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import type { TextsCommands, TextsEntry } from 'models/types/external.js';
-import { getTexts } from 'models/managerDb/textModel.js';
-import { config, version } from 'const/config.js';
-import { command } from 'bot/util/registry/command.js';
-import { component } from 'bot/util/registry/component.js';
-import { requireUser } from 'bot/util/predicates.js';
+import type { TextsCommands, TextsEntry } from '#models/types/external.js';
+import { getTexts } from '#models/managerDb/textModel.js';
+import { config, version } from '#const/config.js';
+import { command } from '#bot/util/registry/command.js';
+import { component } from '#bot/util/registry/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 
 export default command.basic({
   data: {

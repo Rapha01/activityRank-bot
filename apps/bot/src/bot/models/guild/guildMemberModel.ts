@@ -4,7 +4,7 @@ import type {
   GuildMember as DBMember,
   GuildMemberSchema,
   GuildMemberUpdate,
-} from 'models/types/kysely/shard.js';
+} from '#models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
 import { fetchMemberTotalXp } from '../rankModel.js';
 import { CachedModel } from '../generic/model.js';

@@ -1,7 +1,7 @@
 import { publicIpv4 } from 'public-ip';
 import { getManagerDb } from '../models/managerDb/managerDb.js';
 import type { Client, ShardingManager } from 'discord.js';
-import { isProduction } from 'const/config.js';
+import { isProduction } from '#const/config.js';
 import { sql, type Expression } from 'kysely';
 
 function _save(client: Client) {

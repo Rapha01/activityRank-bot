@@ -1,4 +1,4 @@
-import { getGuildModel } from 'bot/models/guild/guildModel.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import {
   ChannelType,
   type Guild,
