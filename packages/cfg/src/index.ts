@@ -25,7 +25,7 @@ function configLoader(basePath?: URL | string | null) {
         : new URL(opts.name, 'file:/');
   }
 
-  async function load<T extends z.ZodTypeAny>(opts: LoadOptions<T>): Promise<T> {
+  async function load<T extends z.ZodTypeAny>(opts: LoadOptions<T>): Promise<z.infer<T>> {
     const loadPath = getLoadPath(opts);
 
     const file = await readFile(loadPath);

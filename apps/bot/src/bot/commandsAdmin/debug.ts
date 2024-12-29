@@ -11,8 +11,6 @@ import {
 } from 'discord.js';
 import { config } from '#const/config.js';
 
-const hook = new WebhookClient({ url: config.supportServer.supportHook });
-
 export const debugCommandData: BasicSlashCommandData = {
   name: 'debug',
   description: 'Send debug data about this server to ActivityRank Support.',
@@ -92,6 +90,15 @@ export default command.basic({
 
 const { confirmButton, denyButton } = useConfirm({
   async confirmFn({ interaction }) {
+    if (!config.supportServer.supportHook) {
+      await interaction.update({
+        components: [],
+        content: 'The /debug functionality has been disabled.',
+      });
+      return;
+    }
+    const hook = new WebhookClient({ url: config.supportServer.supportHook });
+
     await hook.send(await getHookMessage(interaction.guild));
     await interaction.update({ components: [] });
     await interaction.followUp({

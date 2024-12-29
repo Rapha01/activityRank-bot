@@ -29,10 +29,6 @@
     "editor.defaultFormatter": "biomejs.biome",
     "editor.formatOnSave": true
   },
-  "[yaml]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.formatOnSave": true
-  },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.formatOnSave": true

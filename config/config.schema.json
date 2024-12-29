@@ -8,8 +8,7 @@
     "embedColor": {
       "oneOf": [
         { "type": "string", "pattern": "^#?([a-f0-9]{6}|[a-f0-9]{3})$" },
-        { "type": "number", "minimum": 0, "maximum": 16777215 },
-        { "type": "array" }
+        { "type": "number", "minimum": 0, "maximum": 16777215 }
       ]
     },
     "supportServer": {

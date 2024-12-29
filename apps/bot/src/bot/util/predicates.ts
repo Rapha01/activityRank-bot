@@ -1,5 +1,4 @@
-import { hasPrivilege, privileges } from '#const/config.js';
-import type { PrivilegeLevel } from '#const/config.types.js';
+import { hasPrivilege, privileges, type PrivilegeLevel } from '#const/config.js';
 import type { CommandPredicateConfig } from './registry/command.js';
 import { Predicate } from './registry/predicate.js';
 import type {
