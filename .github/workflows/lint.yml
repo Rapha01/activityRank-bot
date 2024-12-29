@@ -44,8 +44,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Check formatting with Prettier
-        run: pnpm exec turbo run --affected format:check
+      - name: Check lints and formatting
+        run: pnpm lint && pnpm format
 
       - name: Check types with tsc
         run: pnpm exec turbo run --affected typecheck

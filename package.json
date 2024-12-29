@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "private": "true",
   "type": "module",
+  "scripts": {
+    "lint": "biome lint",
+    "lint:write": "biome lint --write",
+    "format": "biome format",
+    "format:write": "biome format --write"
+  },
   "contributors": [
     "@rapha01 (https://github.com/rapha01)",
     "@piemot (https://github.com/piemot)",

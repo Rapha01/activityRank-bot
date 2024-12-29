@@ -7,7 +7,6 @@
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },
-    "format:check": {},
     "dev": {
       "persistent": true,
       "cache": false

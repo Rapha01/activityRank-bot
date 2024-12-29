@@ -8,8 +8,6 @@
     "production": "NODE_ENV=production node ./src/app.js",
     "development": "NODE_ENV=development node ./src/app.js",
     "developmentNodemon": "nodemon --exec \"npm run build && npm run dev\"",
-    "format": "prettier --write src",
-    "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:check": "vitest --run",
