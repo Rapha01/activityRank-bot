@@ -209,10 +209,8 @@ abstract class ResetJob {
       this.rowEstimation = this.totalRowsAffected;
       RESET_JOBS.delete(this);
       RESET_GUILD_IDS.delete(this.guild.id);
-      return true;
-    } else {
-      return false;
     }
+    return result;
   }
 
   /**
@@ -277,11 +275,11 @@ abstract class ResetJob {
 }
 
 const ESC = '\u001b';
-export function renderProgressBar(fraction: number): string {
+export function renderProgressBar(maybeFraction: number): string {
   const LENGTH = 27;
-  // likely because of a divide by 0, indicating that 0 rows needed to be reset
-  if (isNaN(fraction)) fraction = 1;
-  fraction = Math.min(1, fraction);
+  // isNaN would likely be true because of a divide by 0, indicating that 0 rows needed to be reset.
+  // A fraction greater than 1 indicates more than 100% completion.
+  const fraction = Number.isNaN(maybeFraction) ? 1 : Math.min(1, maybeFraction);
 
   const filled = Math.ceil(fraction * LENGTH);
   const empty = Math.floor((1 - fraction) * LENGTH);
@@ -292,6 +290,7 @@ export function renderProgressBar(fraction: number): string {
   const firstColor = percent > 99 ? '32' : '33';
 
   return (
+    // biome-ignore lint/style/useTemplate: convenience
     '```ansi\n' +
     `${ESC}[1;${firstColor}m${'='.repeat(filled)}${ESC}[30m${'-'.repeat(empty)}${ESC}[0m | ${ESC}[1;36m${percent}%` +
     '\n```'
@@ -300,15 +299,11 @@ export function renderProgressBar(fraction: number): string {
 
 export class ResetGuildSettings extends ResetJob {
   protected getStatusContent(): string {
-    if (this.totalRowsAffected >= this.rowEstimation!) {
-      return (
-        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-      );
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
     }
-    return (
-      '### Resetting Server Settings...\n' +
-      renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-    );
+    return `### Resetting Server Settings...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
   }
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
@@ -409,15 +404,11 @@ export class ResetGuildChannelsStatistics extends ResetJob {
   }
 
   protected getStatusContent(): string {
-    if (this.totalRowsAffected >= this.rowEstimation!) {
-      return (
-        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-      );
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
     }
-    return (
-      '### Resetting Channel Statistics...\n' +
-      renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-    );
+    return `### Resetting Channel Statistics...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
   }
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
@@ -488,15 +479,11 @@ export class ResetGuildMembersStatisticsAndXp extends ResetJob {
   }
 
   protected getStatusContent(): string {
-    if (this.totalRowsAffected >= this.rowEstimation!) {
-      return (
-        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-      );
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
     }
-    return (
-      '### Resetting Member Statistics...\n' +
-      renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-    );
+    return `### Resetting Member Statistics...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
   }
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
@@ -609,15 +596,11 @@ export class ResetGuildStatistics extends ResetJob {
   }
 
   protected getStatusContent(): string {
-    if (this.totalRowsAffected >= this.rowEstimation!) {
-      return (
-        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-      );
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
     }
-    return (
-      '### Resetting Server Statistics...\n' +
-      renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-    );
+    return `### Resetting Server Statistics...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
   }
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
@@ -684,8 +667,8 @@ WHERE
   \`guildId\` = ${this.guild.id}
 `.execute(db);
 
-      // just an estimate :3
-      this.incrementRows(Math.floor(this.rowEstimation! / 20));
+      // just an estimate - 5% is an arbitrary increment
+      this.incrementRows(Math.floor((this.rowEstimation as number) / 20));
 
       this.ranBonusReduction = true;
       // because the limit clause is excluded above, we forcibly skip a cycle to try to accomodate the load
@@ -729,15 +712,11 @@ WHERE
 
 export class ResetGuildXP extends ResetJob {
   protected getStatusContent(): string {
-    if (this.totalRowsAffected >= this.rowEstimation!) {
-      return (
-        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-      );
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
     }
-    return (
-      '### Resetting Server XP...\n' +
-      renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-    );
+    return `### Resetting Server XP...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
   }
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
@@ -792,14 +771,11 @@ export class ResetGuildAll extends ResetJob {
   }
 
   protected getStatusContent(): string {
-    if (this.totalRowsAffected >= this.rowEstimation!) {
-      return (
-        '### Reset complete!\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-      );
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
     }
-    return (
-      '### Resetting Server...\n' + renderProgressBar(this.totalRowsAffected / this.rowEstimation!)
-    );
+    return `### Resetting Server...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
   }
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
@@ -822,15 +798,16 @@ export class ResetGuildAll extends ResetJob {
 
     this.rowsAffectedIter = 0;
 
-    if (await this.runIter()) {
+    const resetIsCompleted = await this.runIter();
+
+    if (resetIsCompleted) {
       this._resetStatus = ResetStatus.Complete;
       this.rowEstimation = this.totalRowsAffected;
       RESET_JOBS.delete(this);
       RESET_GUILD_IDS.delete(this.guild.id);
-      return true;
-    } else {
-      return false;
     }
+
+    return resetIsCompleted;
   }
 
   protected async runIter(): Promise<boolean> {

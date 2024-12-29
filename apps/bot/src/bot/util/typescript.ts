@@ -16,6 +16,14 @@ export function assertUnreachable(_: never): never {
   );
 }
 
+export function assertUnreachableUnsafe(details = ''): never {
+  throw new TypeError(
+    `Reached an assertUnreachableUnsafe() statement. \
+    This should never happen at runtime because, even though permitted by TypeScript, \
+    program invariants prohibit it from being reached.n\n\n${details}`,
+  );
+}
+
 /**
  * Reverts readonly modifiers set on an object or array.
  *

@@ -23,7 +23,7 @@ async function INVALID_CALLBACK(
     'Unauthorised attempt to access privileged command',
   );
   await interaction.reply({
-    content: `Sorry! This command is only accessible to ActivityRank staff. [This incident will be reported.](https://xkcd.com/838)`,
+    content: 'Sorry! This command is only accessible to ActivityRank staff. [This incident will be reported.](https://xkcd.com/838)',
   });
 }
 

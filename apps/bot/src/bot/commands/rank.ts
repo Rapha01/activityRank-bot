@@ -150,10 +150,13 @@ async function generateCard(
   myGuild: DBGuild,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
-  if (cache.window === 'rank') return await generateRankCard(cache, guild, myGuild, disabled);
-  else if (cache.window === 'topChannels')
+  if (cache.window === 'rank') {
+    return await generateRankCard(cache, guild, myGuild, disabled);
+  }
+  if (cache.window === 'topChannels') {
     return await generateChannelCard(cache, guild, myGuild, disabled);
-  else throw new Error();
+  }
+  throw new Error();
 }
 
 const _prettifyTime: { [k in StatTimeInterval]: string } = {

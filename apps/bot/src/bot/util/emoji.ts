@@ -95,6 +95,5 @@ export function parseEmojiString(text: string): string | null {
  * @returns The string representation of the emoji, which is either a stripped Unicode emoji or the Discord emoji representation.
  */
 export function emojiToString(emoji: Emoji): string {
-  if (emoji.custom) return formatEmoji(emoji);
-  else return emoji.emoji;
+  return emoji.custom ? formatEmoji(emoji) : emoji.emoji;
 }

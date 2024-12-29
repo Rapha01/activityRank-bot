@@ -75,6 +75,7 @@ export default command.basic({
       // add context to eval (accessed via `this`)
       const ctx = { interaction, client: interaction.client };
 
+      // biome-ignore lint/security/noGlobalEval: necessary
       result = ((str: string) => eval(str)).call(ctx, code);
     } catch (err) {
       if (err && err instanceof Error && err.stack) {

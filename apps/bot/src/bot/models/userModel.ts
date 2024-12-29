@@ -79,8 +79,8 @@ export class UserModel extends CachedModel<
 }
 
 export async function getUserModel(user: User): Promise<UserModel> {
-  if (userCache.has(user)) return userCache.get(user)!;
-  else return await buildCache(user);
+  if (userCache.has(user)) return userCache.get(user) as UserModel;
+  return await buildCache(user);
 }
 
 async function buildCache(user: User): Promise<UserModel> {
@@ -106,7 +106,7 @@ async function getDbHost(userId: string): Promise<string> {
   const getRoute = db
     .selectFrom('userRoute')
     .leftJoin('dbShard', 'userRoute.dbShardId', 'dbShard.id')
-    .select(`host`)
+    .select('host')
     .where('userId', '=', userId);
 
   let res = await getRoute.executeTakeFirst();

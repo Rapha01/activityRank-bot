@@ -94,16 +94,16 @@ export default command.basic({
     const guildSearch = interaction.options.getString('search-guild') ?? null;
 
     if (guildSearch !== null) {
-      const totalShards = interaction.client.shard!.count;
+      const totalShards = interaction.client.shard?.count ?? 0;
       const shardId = Number((BigInt(guildSearch) >> 22n) % BigInt(totalShards));
 
       const found = data.find((s) => s.shardId === shardId);
       await interaction.editReply({
-        content:
-          `Shard ID of guild \`${guildSearch}\`: \`${shardId}\`\n\n` +
-          (found
+        content: `Shard ID of guild \`${guildSearch}\`: \`${shardId}\`\n\n${
+          found
             ? `Shard ${found.shardId}:\n${parseShardInfoContent(found)}`
-            : '🔴 Could not find shard'),
+            : '🔴 Could not find shard'
+        }`,
         files,
       });
       return;

@@ -25,8 +25,8 @@ export async function queryAllHosts<T>(sql: string): Promise<T[]> {
   return aggregate;
 }
 
-export function getShardPool(host: string) {
-  if (pools.has(host)) return pools.get(host)!;
+export function getShardPool(host: string): Pool {
+  if (pools.has(host)) return pools.get(host) as Pool;
 
   const pool = createPool({
     host: host,

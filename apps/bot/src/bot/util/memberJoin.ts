@@ -16,14 +16,14 @@ export async function handleMemberJoin(member: GuildMember) {
 
   // Roleassignments
   const level = fct.getLevel(
-    fct.getLevelProgression(cachedMember.cache.totalXp!, cachedGuild.db.levelFactor),
+    fct.getLevelProgression(cachedMember.cache.totalXp ?? 0, cachedGuild.db.levelFactor),
   );
   /*member.client.logger.debug(
     `level ${level} ${cachedMember.cache.totalXp} ${cachedGuild.db.levelFactor}`,
     );*/
 
   const roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
-  if (level > 1) await levelManager.checkLevelUp(member, 0, cachedMember.cache.totalXp!);
+  if (level > 1) await levelManager.checkLevelUp(member, 0, cachedMember.cache.totalXp ?? 0);
 
   // member.client.logger.debug({ roleAssignmentString }, `RAS`);
 
@@ -38,11 +38,14 @@ async function autoPostServerJoin(member: GuildMember, roleAssignmentString: str
   const channel = member.guild.channels.cache.get(cachedGuild.db.autopost_serverJoin);
   if (!channel || !channel.viewable || !channel.isTextBased()) return;
 
-  let welcomeMessage;
+  let welcomeMessage: string;
   if (cachedGuild.db.serverJoinMessage !== '') welcomeMessage = cachedGuild.db.serverJoinMessage;
   else welcomeMessage = 'Welcome <mention>. Have a good time here!';
 
-  welcomeMessage = welcomeMessage + '\n' + roleAssignmentString;
+  welcomeMessage += welcomeMessage;
+  welcomeMessage += '\n';
+  welcomeMessage +=  roleAssignmentString;
+  
   welcomeMessage = welcomeMessage
     .replace(/<mention>/g, `<@${member.id}>`)
     .replace(/<name>/g, member.user.username)

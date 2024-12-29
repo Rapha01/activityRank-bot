@@ -23,7 +23,8 @@ const cachedFields = [
 let defaultCache: Pick<DBRole, (typeof cachedFields)[number]> | null = null;
 let defaultAll: DBRole | null = null;
 
-type RoleCacheStorage = {};
+// nothing currently stored here
+type RoleCacheStorage = Record<string, never>;
 
 export let roleCache = new WeakMap<Role, RoleModel>();
 
@@ -101,8 +102,8 @@ export class RoleModel extends CachedModel<
 }
 
 export async function getRoleModel(role: Role): Promise<RoleModel> {
-  if (roleCache.has(role)) return roleCache.get(role)!;
-  else return await buildCache(role);
+  if (roleCache.has(role)) return roleCache.get(role) as RoleModel;
+  return await buildCache(role);
 }
 
 export async function fetchRoleAssignments(guild: Guild) {

@@ -50,7 +50,10 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   const roleMessages: string[] = [];
   const roles = member.guild.roles.cache;
 
-  if (roles.size === 0 || !member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageRoles))
+  if (
+    roles.size === 0 ||
+    !member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)
+  )
     return roleMessages;
 
   const cachedGuild = await getGuildModel(member.guild);
@@ -128,10 +131,15 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   if (
     cachedGuild.db.levelupMessage !== '' &&
     (cachedGuild.db.notifyLevelupWithRole || roleMessages.length === 0)
-  )
-    gratulationMessage = cachedGuild.db.levelupMessage + '\n';
+  ) {
+    gratulationMessage += cachedGuild.db.levelupMessage;
+    gratulationMessage += '\n';
+  }
 
-  if (roleMessages.length > 0) gratulationMessage += roleMessages.join('\n') + '\n';
+  if (roleMessages.length > 0) {
+    gratulationMessage += roleMessages.join('\n');
+    gratulationMessage += '\n';
+  }
 
   if (gratulationMessage === '') return;
 
@@ -141,7 +149,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
   const levelupEmbed = new EmbedBuilder()
     .setTitle(
-      nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1) + ' 🎖' + level,
+      `${nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1)} 🎖${level}`,
     )
     .setColor('#4fd6c8')
     .setDescription(gratulationMessage)
@@ -180,7 +188,9 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
         await channel
           .send(msg)
-          .then(() => (notified = true))
+          .then(() => {
+            notified = true;
+          })
           .catch(handleGratulationMessageError);
       }
     }
@@ -200,7 +210,9 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
       await channel
         .send(msg)
-        .then(() => (notified = true))
+        .then(() => {
+          notified = true;
+        })
         .catch(handleGratulationMessageError);
     }
   }
@@ -214,7 +226,9 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
     await member
       .send(msg)
-      .then(() => (notified = true))
+      .then(() => {
+        notified = true;
+      })
       .catch(handleGratulationMessageError);
   }
 }
@@ -255,13 +269,12 @@ const replaceTagsRole = (text: string, role: Role) => {
 };
 
 const replaceTagsLevelup = (text: string, member: GuildMember, level: number) => {
-  return (
-    text
-      .replace(/<mention>/g, '<@' + member.id + '>')
-      .replace(/<name>/g, member.user.username)
-      .replace(/<level>/g, level.toString())
-      .replace(/<servername>/g, member.guild.name) + '\n'
-  );
+  const res = text
+    .replace(/<mention>/g, `<@${member.id}>`)
+    .replace(/<name>/g, member.user.username)
+    .replace(/<level>/g, level.toString())
+    .replace(/<servername>/g, member.guild.name);
+  return `${res}\n`;
 };
 
 export default {

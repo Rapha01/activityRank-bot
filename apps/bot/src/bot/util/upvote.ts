@@ -128,30 +128,33 @@ export function getUpvoteMessage(
 
   if (status === UpvoteAttempt.DisabledGuild) {
     return ephemeral('Voting is disabled on this server.');
-  } else if (status === UpvoteAttempt.TargetBot) {
+  }
+  if (status === UpvoteAttempt.TargetBot) {
     return ephemeral('You cannot upvote bots.');
-  } else if (status === UpvoteAttempt.TargetSelf) {
+  }
+  if (status === UpvoteAttempt.TargetSelf) {
     return ephemeral('You cannot upvote yourself.');
-  } else if (status === UpvoteAttempt.TargetHasNoXP) {
+  }
+  if (status === UpvoteAttempt.TargetHasNoXP) {
     return ephemeral(
       'The member you are trying to upvote cannot be upvoted, because of an assigned noXp role.',
     );
-  } else if (status === UpvoteAttempt.TimeoutNotElapsed) {
+  }
+  if (status === UpvoteAttempt.TimeoutNotElapsed) {
     const next = time(result.nextUpvote, 'R');
     return ephemeral(`You already voted recently. You will be able to vote again ${next}.`);
-  } else if (status === UpvoteAttempt.Success) {
+  }
+  if (status === UpvoteAttempt.Success) {
     if (result.multiplier > 1) {
       return {
         content: `You have successfully voted for ${target}. Your vote counts \`${result.multiplier}x\`.`,
         allowedMentions: { users: [target.id] },
       };
-    } else {
-      return {
-        content: `You have successfully voted for ${target}. Upvote the bot on top.gg or [subscribe on Patreon](<${PATREON_URL}>) to increase your voting power!`,
-        allowedMentions: { users: [target.id] },
-      };
     }
-  } else {
-    assertUnreachable(status);
+    return {
+      content: `You have successfully voted for ${target}. Upvote the bot on top.gg or [subscribe on Patreon](<${PATREON_URL}>) to increase your voting power!`,
+      allowedMentions: { users: [target.id] },
+    };
   }
+  assertUnreachable(status);
 }

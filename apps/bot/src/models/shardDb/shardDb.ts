@@ -13,7 +13,13 @@ import type { ShardDB } from '#models/types/kysely/shard.js';
 import { keys } from '#const/config.js';
 
 const pools: Map<string, Pool> = new Map();
-const instances: Map<string, { db: Kysely<ShardDB>; pool: Pool }> = new Map();
+
+interface Instance {
+  db: Kysely<ShardDB>;
+  pool: Pool;
+}
+
+const instances: Map<string, Instance> = new Map();
 
 export function getShardDb(host: string) {
   return getShardInstance(host).db;
@@ -60,8 +66,8 @@ export async function queryAllHosts<T>(sql: string): Promise<T[]> {
   return aggregate;
 }
 
-function getShardInstance(host: string) {
-  if (instances.has(host)) return instances.get(host)!;
+function getShardInstance(host: string): Instance {
+  if (instances.has(host)) return instances.get(host) as Instance;
 
   const pool = createPool({
     host: host,

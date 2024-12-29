@@ -19,7 +19,8 @@ export const settings = subcommand({
   },
   async execute({ interaction }) {
     if (
-      !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
+      interaction.channel &&
+      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
       await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',

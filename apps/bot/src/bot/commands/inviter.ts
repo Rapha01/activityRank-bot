@@ -66,13 +66,15 @@ export default command.basic({
         ephemeral: true,
       });
       return;
-    } else if (myTarget.inviter === interaction.member.id) {
+    }
+    if (myTarget.inviter === interaction.member.id) {
       await interaction.reply({
         content: 'You cannot set your inviter to a person who has been invited by you.',
         ephemeral: true,
       });
       return;
-    } else if (member.user.bot) {
+    }
+    if (member.user.bot) {
       await interaction.reply({
         content: 'You cannot set a bot as your inviter.',
         ephemeral: true,

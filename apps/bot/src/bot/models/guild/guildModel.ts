@@ -94,8 +94,8 @@ export class GuildModel extends CachedModel<
 }
 
 export async function getGuildModel(guild: Guild): Promise<GuildModel> {
-  if (guildCache.has(guild)) return guildCache.get(guild)!;
-  else return await buildCache(guild);
+  if (guildCache.has(guild)) return guildCache.get(guild) as GuildModel;
+   return await buildCache(guild);
 }
 
 async function buildCache(guild: Guild): Promise<GuildModel> {
@@ -111,7 +111,7 @@ async function buildCache(guild: Guild): Promise<GuildModel> {
       .insertInto('guild')
       .values({
         guildId: guild.id,
-        joinedAtDate: Math.floor(guild.members.me!.joinedAt!.getTime() / 1000).toString(),
+        joinedAtDate: Math.floor(guild.members.me?.joinedAt?.getTime() ?? 0 / 1000).toString(),
         addDate: Math.floor(Date.now() / 1000).toString(),
       })
       .executeTakeFirstOrThrow();

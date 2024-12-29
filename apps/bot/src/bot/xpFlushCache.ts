@@ -16,7 +16,7 @@ const buildXpFlushCache = async (guild: Guild) => {
 
   if (!Object.keys(xpFlushCache).includes(dbHost)) xpFlushCache[dbHost] = {};
 
-  return xpFlushCache[dbHost]!;
+  return xpFlushCache[dbHost];
 };
 
 export type XpFlushCache = Record<string, { guildId: string; userId: string; count: number }>;

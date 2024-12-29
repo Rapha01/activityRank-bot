@@ -22,7 +22,7 @@ export const channelCache = new WeakMap<GuildBasedChannel, CachedGuildChannel>()
 
 export const cache = {
   get: async (channel: GuildBasedChannel): Promise<CachedGuildChannel> => {
-    if (channelCache.has(channel)) return channelCache.get(channel)!;
+    if (channelCache.has(channel)) return channelCache.get(channel) as CachedGuildChannel;
     return await buildCache(channel);
   },
 };
@@ -48,7 +48,7 @@ export const storage = {
           )
         )[0];
       return defaultAll;
-    } 
+    }
     return res[0];
   },
 
@@ -145,7 +145,7 @@ const loadDefaultCache = async (dbHost: string) => {
     `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
   );
 
-  defaultCache = res[0]!;
+  defaultCache = res[0];
   return defaultCache;
 };
 

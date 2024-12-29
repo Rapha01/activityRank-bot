@@ -22,8 +22,8 @@ export async function getUser(userId: string) {
     if (!defaultAll)
       defaultAll = (await queryShard<any>(dbHost, 'SELECT * FROM user WHERE userId = 0'))[0];
     return defaultAll;
-  } 
-  
+  }
+
   return res[0];
 }
 

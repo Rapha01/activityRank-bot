@@ -66,17 +66,21 @@ export default event(Events.InteractionCreate, async (interaction) => {
     if (interaction.isMessageComponent()) {
       await registry.handleComponent(interaction);
       return;
-    } else if (interaction.isModalSubmit()) {
+    }
+    if (interaction.isModalSubmit()) {
       await registry.handleComponent(interaction);
       return;
-    } else if (interaction.isContextMenuCommand()) {
+    }
+    if (interaction.isContextMenuCommand()) {
       interaction.client.botShardStat.commandsTotal++;
       interaction.client.logger.debug(
         `Context command ${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
       );
 
       await registry.handleContextCommand(interaction);
-    } else if (interaction.isChatInputCommand()) {
+      return;
+    }
+    if (interaction.isChatInputCommand()) {
       interaction.client.botShardStat.commandsTotal++;
 
       interaction.client.logger.debug(

@@ -175,6 +175,7 @@ interface Window {
   enablePagination: boolean;
 }
 
+// biome-ignore lint/style/noNonNullAssertion: client.user will always exist when the bot is logged in properly
 const clientURL = (client: Client): string => client.user!.avatarURL()!;
 
 const general: Window = {
@@ -206,8 +207,8 @@ const general: Window = {
         (cachedGuild.db.textXp ? ':writing_hand: ' : '') +
         (cachedGuild.db.voiceXp ? ':microphone2: ' : '') +
         (cachedGuild.db.inviteXp ? ':envelope: ' : '') +
-        (cachedGuild.db.voteXp ? cachedGuild.db.voteEmote + ' ' : '') +
-        (cachedGuild.db.bonusXp ? cachedGuild.db.bonusEmote + ' ' : '')
+        (cachedGuild.db.voteXp ? `${cachedGuild.db.voteEmote} ` : '') +
+        (cachedGuild.db.bonusXp ? `${cachedGuild.db.bonusEmote} ` : '')
       }`,
       `Notify levelup: ${notifyLevelupType}`,
       `Include levelup message: ${yesno(cachedGuild.db.notifyLevelupWithRole)}`,
@@ -245,7 +246,7 @@ const general: Window = {
         ['yearly', new Cron('30 1 1 1 *').nextRun()],
       ] as const
     )
-      .map(([label, date]) => `Next ${label} reset: ${time(date!, 'R')}`)
+      .map(([label, date]) => `Next ${label} reset: ${time(date as Date, 'R')}`)
       .join('\n');
 
     const guildIcon = interaction.guild.iconURL();

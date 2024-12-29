@@ -73,8 +73,9 @@ export const role = subcommand({
     };
     setTimeout(clean, Time.Hour);
 
-    if (interaction.options.getBoolean('use-beta')){
-      return await betaSystem(interaction, role, change);}
+    if (interaction.options.getBoolean('use-beta')) {
+      return await betaSystem(interaction, role, change);
+    }
     return await oldSystem(interaction, role, change);
   },
 });

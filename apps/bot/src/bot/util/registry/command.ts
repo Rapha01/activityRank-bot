@@ -16,11 +16,7 @@ import type {
 import { type Serializable, SerializableMap } from './serializableMap.js';
 import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
 
-export class UnimplementedError extends TypeError {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-  }
-}
+export class UnimplementedError extends TypeError {}
 
 export class CommandIndex implements Serializable {
   private key: string[];

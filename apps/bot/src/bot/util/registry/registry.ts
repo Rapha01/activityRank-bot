@@ -44,11 +44,7 @@ export async function createRegistryCLI() {
   return new Registry(config);
 }
 
-export class CommandNotFoundError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-  }
-}
+export class CommandNotFoundError extends Error {}
 
 export class Registry {
   #events: Map<string | symbol, EventHandler[]> = new Map();
@@ -76,7 +72,9 @@ export class Registry {
       // Append to the corresponding array, or create a new one if it doesn't exist.
       this.#events.set(
         handler.name,
-        this.#events.has(handler.name) ? [...this.#events.get(handler.name)!, handler] : [handler],
+        this.#events.has(handler.name)
+          ? [...(this.#events.get(handler.name) as EventHandler[]), handler]
+          : [handler],
       );
     }
   }
@@ -223,9 +221,11 @@ export class Registry {
     if (split.status === 'SPECIAL_KEY') {
       if (split.key === ComponentKey.Ignore) {
         return;
-      } else if (split.key === ComponentKey.Throw) {
+      }
+      if (split.key === ComponentKey.Throw) {
         throw new Error('Component interaction with customId of ComponentKey.Throw recieved');
-      } else if (split.key === ComponentKey.Warn) {
+      }
+      if (split.key === ComponentKey.Warn) {
         interaction.client.logger.warn(
           { interaction },
           'Component interaction with customId of ComponentKey.Warn recieved',

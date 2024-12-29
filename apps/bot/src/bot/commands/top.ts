@@ -94,13 +94,15 @@ export default command.basic({
       const state = activeCache.get(id);
       activeCache.delete(id);
 
+      if (!state) return;
+
       if (!interaction.guild) {
         interaction.client.logger.debug({ interaction }, '/top tried to update uncached guild');
         return;
       }
 
       try {
-        await interaction.editReply(await generate(state!, interaction.guild, cachedGuild, true));
+        await interaction.editReply(await generate(state, interaction.guild, cachedGuild, true));
       } catch (_err) {
         const err = _err as DiscordAPIError;
         if (err.code === RESTJSONErrorCodes.UnknownMessage) {
@@ -172,7 +174,10 @@ async function execCacheSet<T extends keyof CacheInstance>(
   await interaction.deferUpdate();
 
   const state = activeCache.get(interaction.message.id);
-  await state!.interaction.editReply(await generate(state!, interaction.guild, cachedGuild));
+  if (state) {
+    await state.interaction.editReply(await generate(state, interaction.guild, cachedGuild));
+  }
+
 }
 
 async function generate(
@@ -183,11 +188,11 @@ async function generate(
 ): Promise<InteractionEditReplyOptions> {
   if (state.window === 'channelMembers')
     return await generateChannelMembers(state, guild, cachedGuild, disabled);
-  else if (state.window === 'members')
+  if (state.window === 'members')
     return await generateGuildMembers(state, guild, cachedGuild, disabled);
-  else if (state.window === 'channels')
+  if (state.window === 'channels')
     return await generateChannels(state, guild, cachedGuild, disabled);
-  else assertUnreachable(state.window);
+  assertUnreachable(state.window);
 }
 
 async function generateChannels(
@@ -360,6 +365,7 @@ async function generateGuildMembers(
 
   let i = 0;
   while (memberRanksWithNames.length > 0) {
+    // biome-ignore lint/style/noNonNullAssertion: `shift()`ed immediately after a `.length` check
     const memberRank = memberRanksWithNames.shift()!;
 
     const getScoreString = (type: StatType) => {
@@ -385,8 +391,8 @@ async function generateGuildMembers(
 
     const getFieldScoreString = (type: StatType | 'totalScore' | 'allScores') => {
       if (type === 'totalScore') return '';
-      else if (type === 'allScores') return `🔸 ${scoreStrings.join(' | ')}`;
-      else return `🔸 ${getScoreString(type)}`;
+      if (type === 'allScores') return `🔸 ${scoreStrings.join(' | ')}`;
+      return `🔸 ${getScoreString(type)}`;
     };
 
     embed.fields = [

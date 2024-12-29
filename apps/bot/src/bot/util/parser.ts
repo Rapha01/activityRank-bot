@@ -7,6 +7,7 @@
 */
 
 import type { ChatInputCommandInteraction, GuildBasedChannel, Role, GuildMember } from 'discord.js';
+import { assertUnreachableUnsafe } from './typescript';
 
 export enum ParserResponseStatus {
   /** Successfully parsed the desired object. */
@@ -38,11 +39,10 @@ function parseObject<T>(
 
   if (objectId) {
     return { object: getObject(objectId), id: objectId, status: ParserResponseStatus.Success };
-  } else if (id) {
+  } if (id) {
     return { object: getObject(id), id, status: ParserResponseStatus.Success };
-  } else {
-    throw new Error('unreachable');
-  }
+  } 
+  assertUnreachableUnsafe()
 }
 
 export function parseChannel(

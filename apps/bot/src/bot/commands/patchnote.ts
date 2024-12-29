@@ -33,7 +33,7 @@ export default command.basic({
       const matchPatchnote = (note: PatchnotesEntry): boolean =>
         note.version === version.toLowerCase();
       // applicableVersions.includes(version) has already been checked above; this `find()` cannot fail
-      embed = patchnotesVersionEmbed(patchnotes.find(matchPatchnote)!);
+      embed = patchnotesVersionEmbed(patchnotes.find(matchPatchnote) as PatchnotesEntry);
     }
 
     await interaction.reply({ embeds: [embed] });

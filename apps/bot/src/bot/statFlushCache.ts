@@ -53,8 +53,6 @@ export async function addTextMessage(
 
   const cachedGuild = await getGuildModel(member.guild);
 
-  count = count * 1;
-
   let entry = textMessageCache[member.id + channel.id];
   if (!entry)
     entry = textMessageCache[member.id + channel.id] = {
@@ -88,8 +86,6 @@ export async function addVoiceMinute(
 
   const cachedGuild = await getGuildModel(member.guild);
 
-  count = count * 1;
-
   let entry = voiceMinuteCache[member.id + channel.id];
   if (!entry)
     entry = voiceMinuteCache[member.id + channel.id] = {
@@ -118,8 +114,6 @@ export const addInvite = async (member: GuildMember, count: number) => {
 
   const cachedGuild = await getGuildModel(member.guild);
 
-  count = count * 1;
-
   let entry = inviteCache[member.id];
   if (!entry)
     entry = inviteCache[member.id] = {
@@ -147,8 +141,6 @@ export const addVote = async (member: GuildMember, count: number) => {
 
   const cachedGuild = await getGuildModel(member.guild);
 
-  count = count * 1;
-
   let entry = voteCache[member.id];
   if (!entry)
     entry = voteCache[member.id] = {
@@ -175,8 +167,6 @@ export const addBonus = async (member: GuildMember, count: number) => {
   const bonusCache = await buildStatFlushCache(member.client, member.guild, 'bonus');
 
   const cachedGuild = await getGuildModel(member.guild);
-
-  count = count * 1;
 
   let entry = bonusCache[member.id];
   if (!entry)
@@ -210,9 +200,8 @@ export const directlyAddBonus = async (
   client: Client,
   count: number,
 ) => {
-  const bonusCache = await buildStatFlushCache(client, guild, 'bonus')!;
+  const bonusCache = await buildStatFlushCache(client, guild, 'bonus');
 
-  count *= 1; // ?
   let entry = bonusCache[userId];
   if (!entry) entry = bonusCache[userId] = { guildId: guild.id, userId, count };
   else entry.count += count;
@@ -247,7 +236,7 @@ const buildStatFlushCache = async (client: Client, guild: Guild, type: StatType)
       bonus: {},
     };
 
-  return statFlushCache[dbHost]![type];
+  return statFlushCache[dbHost][type];
 };
 
 export default {

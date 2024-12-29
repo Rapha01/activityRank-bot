@@ -45,9 +45,9 @@ async function runStatFlush(caches: Record<string, StatFlushCache>[]) {
       const count = Object.keys(statFlushCache[dbHost][type]).length;
       if (count < 1) continue;
 
-      promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])!));
+      promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])));
       if (counts[type]) {
-        counts[type]! += count;
+        counts[type] += count;
       } else {
         counts[type] = count;
       }
@@ -153,7 +153,7 @@ const getSql = <T extends StatType>(
         day = LEAST(${MAX_STAT_COLUMN_VALUE},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
-  } 
+  }
   if (type === 'invite' || type === 'vote' || type === 'bonus') {
     for (const entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
@@ -173,9 +173,8 @@ const getSql = <T extends StatType>(
         day = LEAST(${MAX_STAT_COLUMN_VALUE},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
-  } 
+  }
   throw new Error(`Invalid xp type "${type}" provided`);
-
 };
 
 const getXpSql = (entries: XpFlushCache) => {

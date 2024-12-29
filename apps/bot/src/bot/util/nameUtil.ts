@@ -16,35 +16,35 @@ export const getChannelName = (
   const channel = channels.get(channelId);
 
   if (channel) return cutName(channel.name);
-  else return `Deleted [${channelId}]`;
+  return `Deleted [${channelId}]`;
 };
 
 export const getChannelMention = (channels: Collection<string, Channel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.toString();
-  else return `Deleted [${channelId}]`;
+  return `Deleted [${channelId}]`;
 };
 
 export const getChannelType = (channels: Collection<string, Channel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.type;
-  else return null;
+  return null;
 };
 
 export const getRoleName = (roles: Collection<string, Role>, roleId: string) => {
   const role = roles.get(roleId);
 
   if (role) return cutName(role.name);
-  else return `Deleted [${roleId}]\n`;
+  return `Deleted [${roleId}]\n`;
 };
 
 export const getRoleMention = (roles: Collection<string, Role>, roleId: string) => {
   const role = roles.get(roleId);
 
   if (role) return role.toString();
-  else return `Deleted [${roleId}]`;
+  return `Deleted [${roleId}]`;
 };
 
 export const getChannelTypeIcon = (channels: Collection<string, Channel>, channelId: string) => {
@@ -136,11 +136,7 @@ export async function getGuildMemberNamesWithRanks<T extends { userId: string }>
 export const getGuildMemberAlias = (member: GuildMember, showNicknames: boolean) =>
   cutName(showNicknames && member.nickname ? member.nickname : member.user.username);
 
-export const cutName = (name: string) => {
-  if (name.length > 32) name = name.slice(0, 30) + '..';
-
-  return name;
-};
+export const cutName = (name: string) => (name.length > 32 ? `${name.slice(0, 30)}..` : name);
 
 export default {
   getChannelName,

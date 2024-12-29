@@ -107,8 +107,8 @@ export async function getRankedUserIds(guild: Guild) {
 }
 
 export async function getMemberModel(member: GuildMember): Promise<GuildMemberModel> {
-  if (memberCache.has(member)) return memberCache.get(member)!;
-  else return await buildCache(member);
+  if (memberCache.has(member)) return memberCache.get(member) as GuildMemberModel;
+  return await buildCache(member);
 }
 
 async function buildCache(member: GuildMember): Promise<GuildMemberModel> {

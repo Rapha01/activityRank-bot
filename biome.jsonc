@@ -28,5 +28,22 @@
       "quoteStyle": "single",
       "lineWidth": 100
     }
-  }
+  },
+  "overrides": [
+    {
+      "include": ["*.test.ts", "*.spec.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            // Correctness is not essential in tests
+            "noNonNullAssertion": "off"
+          },
+          "complexity": {
+            // often used to get around typescript privacy limitations
+            "useLiteralKeys": "off"
+          }
+        }
+      }
+    }
+  ]
 }
