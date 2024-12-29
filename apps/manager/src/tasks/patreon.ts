@@ -4,13 +4,11 @@ import { setUser } from '../models/userModel.js';
 import { backOff } from 'exponential-backoff';
 import { ofetch } from 'ofetch';
 
-const baseURL = new URL(
-  'https://www.patreon.com/api/oauth2/v2/campaigns/2925711/members'
-);
+const baseURL = new URL('https://www.patreon.com/api/oauth2/v2/campaigns/2925711/members');
 baseURL.searchParams.set('include', 'user,currently_entitled_tiers');
 baseURL.searchParams.set(
   'fields[member]',
-  'full_name,last_charge_date,last_charge_status,currently_entitled_amount_cents'
+  'full_name,last_charge_date,last_charge_status,currently_entitled_amount_cents',
 );
 baseURL.searchParams.set('fields[tier]', 'amount_cents,created_at,url');
 baseURL.searchParams.set('fields[user]', 'social_connections');
@@ -26,7 +24,7 @@ export async function runPatreonTask() {
 
   while (nextUrl) {
     const res: PatreonResponse = await backOff(
-      async () => await ofetch<PatreonResponse>(nextUrl!, { headers })
+      async () => await ofetch<PatreonResponse>(nextUrl!, { headers }),
     );
 
     apiMembers.push(...getParsedMembers(res));
@@ -57,37 +55,26 @@ export async function runPatreonTask() {
     userId: string;
     patreonTier: number;
     patreonTierUntilDate: number;
-  }>(
-    `SELECT * FROM user WHERE patreonTier > 0 && patreonTierUntilDate > ${
-      Date.now() / 1000
-    }`
-  );
+  }>(`SELECT * FROM user WHERE patreonTier > 0 && patreonTierUntilDate > ${Date.now() / 1000}`);
 
   console.log(`Processing ${entitledPledgesWithDiscord.length} pledges.`);
 
   for (const pledge of entitledPledgesWithDiscord) {
     const userWithActivePledge = usersWithActivePledge.find(
-      (u) => u.userId === pledge.discordUserId
+      (u) => u.userId === pledge.discordUserId,
     );
 
     // Update DB only if new pledge (update different tier only if new untilDate surpasses old untilDate, to avoid manual grant overridings)
     const pledgeSeconds = pledge.until.getTime() / 1000;
-    if (
-      !userWithActivePledge ||
-      pledgeSeconds > userWithActivePledge.patreonTierUntilDate
-    ) {
+    if (!userWithActivePledge || pledgeSeconds > userWithActivePledge.patreonTierUntilDate) {
       console.log(
         'UPDATE DB \n oldUser: ',
         userWithActivePledge || 'noActiveTier',
         '\n Pledge: ',
-        pledge
+        pledge,
       );
       await setUser(pledge.discordUserId, 'patreonTier', pledge.tier);
-      await setUser(
-        pledge.discordUserId,
-        'patreonTierUntilDate',
-        pledgeSeconds
-      );
+      await setUser(pledge.discordUserId, 'patreonTierUntilDate', pledgeSeconds);
     }
   }
 }
@@ -95,7 +82,7 @@ export async function runPatreonTask() {
 function getParsedMembers(response: PatreonResponse): ParsedMember[] {
   return response.data.map((member) => {
     const included = response.included.find(
-      (inc) => inc.type === 'user' && inc.id === member.relationships.user.data.id
+      (inc) => inc.type === 'user' && inc.id === member.relationships.user.data.id,
     );
     return { ...member, included };
   });
@@ -105,13 +92,13 @@ function getMemberTier(member: ParsedMember) {
   const cents = member.attributes.currently_entitled_amount_cents;
   if (cents >= 1449) {
     return 3;
-  } 
+  }
   if (cents >= 349) {
     return 2;
   }
   if (cents >= 149) {
     return 1;
-  } 
+  }
   return null;
 }
 
@@ -135,22 +122,14 @@ function getEntitledMemberPledge(member: ParsedMember): DiscordPledge | null {
 
   return {
     patreonUserId: member.relationships.user.data.id,
-    discordUserId:
-      member.included.attributes.social_connections.discord.user_id,
+    discordUserId: member.included.attributes.social_connections.discord.user_id,
     tier,
     lastCharge: new Date(member.attributes.last_charge_date),
     until: untilDate,
   };
 }
 
-type ChargeStatus =
-  | 'Paid'
-  | 'Declined'
-  | 'Deleted'
-  | 'Pending'
-  | 'Refunded'
-  | 'Fraud'
-  | 'Other';
+type ChargeStatus = 'Paid' | 'Declined' | 'Deleted' | 'Pending' | 'Refunded' | 'Fraud' | 'Other';
 
 interface PatreonResponseData {
   attributes: {

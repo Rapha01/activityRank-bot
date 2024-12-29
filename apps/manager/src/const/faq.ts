@@ -184,8 +184,7 @@ export default [
   },
   {
     id: 16,
-    title:
-      'Can I stop muted/deafened/solo users from gaining XP in voice channels?',
+    title: 'Can I stop muted/deafened/solo users from gaining XP in voice channels?',
     desc:
       'Run <code>/config-server set</code> and click on "Allow Muted XP", "Allow Deafened XP" or "Allow Solo XP" to either allow or disallow.<br>' +
       '<br>' +

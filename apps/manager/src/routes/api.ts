@@ -18,11 +18,9 @@ apiRouter.use('*', bearerAuth({ token: keys.managerApiAuth }));
 
 const factory = createFactory();
 
-const stats = factory.createHandlers(async (c) =>
-  c.json({ stats: await getShardStats() })
-);
+const stats = factory.createHandlers(async (c) => c.json({ stats: await getShardStats() }));
 const texts = factory.createHandlers((c) =>
-  c.json({ commands, patchnotes, faqs, termsAndConditions, privacyPolicy })
+  c.json({ commands, patchnotes, faqs, termsAndConditions, privacyPolicy }),
 );
 
 /** @deprecated DEPRECATED routes for compatibility; should be removed asap because of not being versioned. */
@@ -42,18 +40,15 @@ apiRouter.post(
     const matches = new Set<string>();
 
     for (const shardIP of IPs) {
-      const res = await ofetch<string[]>(
-        `http://${shardIP}:3000/api/v1/guild-ids/matching`,
-        {
-          body,
-          headers: [['Authorization', `Bearer ${keys.managerApiAuth}`]],
-          method: 'POST',
-        }
-      );
+      const res = await ofetch<string[]>(`http://${shardIP}:3000/api/v1/guild-ids/matching`, {
+        body,
+        headers: [['Authorization', `Bearer ${keys.managerApiAuth}`]],
+        method: 'POST',
+      });
       for (const result of res) {
         matches.add(result);
       }
     }
     return c.json(Array.from(matches));
-  }
+  },
 );

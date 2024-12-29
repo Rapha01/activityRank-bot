@@ -14,9 +14,7 @@ export async function queryManager<T>(sql: string): Promise<T> {
 }
 
 export async function getAllDbHosts() {
-  const res = await queryManager<{ host: string }[]>(
-    'SELECT host FROM dbShard'
-  );
+  const res = await queryManager<{ host: string }[]>('SELECT host FROM dbShard');
 
   return res.map((r) => r.host);
 }

@@ -12,7 +12,5 @@
       "keepImportAssertions": true
     }
   },
-  "exclude": [
-    ".*\\.test\\.(?:t|j)s$"
-  ]
+  "exclude": [".*\\.test\\.(?:t|j)s$"]
 }

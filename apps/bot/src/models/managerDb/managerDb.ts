@@ -41,10 +41,7 @@ type APIPaths = 'texts' | 'stats';
 type AutocompletePaths = `api/${APIPaths}`;
 
 // this type signature allows any string, but also provides autocomplete
-export async function managerFetch<T>(
-  route: AutocompletePaths,
-  init: RequestInit,
-): Promise<T>;
+export async function managerFetch<T>(route: AutocompletePaths, init: RequestInit): Promise<T>;
 export async function managerFetch<T>(route: string, init: RequestInit): Promise<T>;
 export async function managerFetch<T>(route: string, init: RequestInit): Promise<T> {
   try {

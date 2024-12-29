@@ -3,17 +3,9 @@ import { getShardPool } from './shardDb.js';
 
 type ResetPeriod = 'day' | 'week' | 'month' | 'year';
 
-const statsTables = [
-  'textMessage',
-  'voiceMinute',
-  'vote',
-  'invite',
-  'bonus',
-] as const;
+const statsTables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
 
-export async function runResetByTime(
-  time: ResetPeriod
-): Promise<{ errorCount: number }> {
+export async function runResetByTime(time: ResetPeriod): Promise<{ errorCount: number }> {
   let errorCount = 0;
   console.log(`[reset] Resetting score (${time})`);
 
@@ -28,11 +20,9 @@ export async function runResetByTime(
   return { errorCount };
 }
 
-async function resetStatsByTime(
-  time: ResetPeriod
-): Promise<{ errorCount: number }> {
+async function resetStatsByTime(time: ResetPeriod): Promise<{ errorCount: number }> {
   const dbShards = await queryManager<{ host: string; id: number }[]>(
-    'SELECT id,host FROM dbShard ORDER BY id ASC'
+    'SELECT id,host FROM dbShard ORDER BY id ASC',
   );
 
   const errors = [];
@@ -54,7 +44,7 @@ async function resetStatsByTime(
           // Returns NULL (`null` in JS) if highestGuildId is the highest guild ID in the table
           // TODO: check that this returns correctly
           const [response] = await conn.query(
-            `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``
+            `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``,
           );
           // @ts-expect-error mysql2 typings are useless
           const nextGuildId = response[0].next_id as string | null;
@@ -64,7 +54,7 @@ async function resetStatsByTime(
             break;
           }
           await conn.query(
-            `UPDATE ${statsTable} SET ${time} = 0 WHERE ${time} != 0 AND guildId BETWEEN ${highestGuildId} AND ${nextGuildId}`
+            `UPDATE ${statsTable} SET ${time} = 0 WHERE ${time} != 0 AND guildId BETWEEN ${highestGuildId} AND ${nextGuildId}`,
           );
           await conn.commit();
           highestGuildId = nextGuildId;
@@ -79,7 +69,7 @@ async function resetStatsByTime(
 
     const sec = Math.ceil(process.hrtime(hrstart)[0]);
     console.log(
-      `[reset] Reset stats by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errors.length} errors.`
+      `[reset] Reset stats by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errors.length} errors.`,
     );
     console.log(errors);
   }
@@ -87,11 +77,9 @@ async function resetStatsByTime(
   return { errorCount: errors.length };
 }
 
-async function resetMemberScoresByTime(
-  time: ResetPeriod
-): Promise<{ errorCount: number }> {
+async function resetMemberScoresByTime(time: ResetPeriod): Promise<{ errorCount: number }> {
   const dbShards = await queryManager<{ host: string; id: number }[]>(
-    'SELECT id,host FROM dbShard ORDER BY id ASC'
+    'SELECT id,host FROM dbShard ORDER BY id ASC',
   );
 
   const errors = [];
@@ -110,7 +98,7 @@ async function resetMemberScoresByTime(
         // Find the guild ID 1000 guilds above the last guild.
         // Returns NULL (`null` in JS) if highestGuildId is the highest guild ID in the table
         const [response] = await conn.query(
-          `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``
+          `SELECT MAX(guildId) AS next_id FROM (SELECT guildId FROM guild WHERE guildId > ${highestGuildId} ORDER BY guildId ASC LIMIT 1000) AS \`table\``,
         );
         // @ts-ignore mysql2 typings are useless
         const nextGuildId = response[0].next_id as string | null;
@@ -120,7 +108,7 @@ async function resetMemberScoresByTime(
           break;
         }
         await conn.query(
-          `UPDATE guildMember SET ${time} = 0 WHERE ${time} != 0 AND guildId BETWEEN ${highestGuildId} AND ${nextGuildId}`
+          `UPDATE guildMember SET ${time} = 0 WHERE ${time} != 0 AND guildId BETWEEN ${highestGuildId} AND ${nextGuildId}`,
         );
         await conn.commit();
         highestGuildId = nextGuildId;
@@ -134,7 +122,7 @@ async function resetMemberScoresByTime(
 
     const sec = Math.ceil(process.hrtime(hrstart)[0]);
     console.log(
-      `[reset] Reset scores by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errors.length} errors.`
+      `[reset] Reset scores by ${time} finished for DB ${shard.id} ${shard.host} after ${sec}s with ${errors.length} errors.`,
     );
     console.log(errors);
   }

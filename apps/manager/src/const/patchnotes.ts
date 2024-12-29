@@ -174,8 +174,7 @@ export default [
     version: '4.2',
     date: '2020-12-15',
     time: '00:00:00',
-    title:
-      'Reaction voting, invite Xp, hide stats types and list of set messages.',
+    title: 'Reaction voting, invite Xp, hide stats types and list of set messages.',
     desc: 'Finally you can upvote other people via a reaction with the voteEmote. Use invite XP by setting your invite to grant both of you some XP. It is now also possible to hide certain types of stats.',
     features: [
       {
@@ -584,8 +583,7 @@ export default [
         desc: 'Roleassignments made for level 1 will now be given at the moment of joining the server.',
       },
       {
-        title:
-          'New command: ar!activityboard - Send activity messages to server channels',
+        title: 'New command: ar!activityboard - Send activity messages to server channels',
         desc: 'You can now let the messages be posted in specified channels when certain events happen. For now we have levelup and welcome messages (+ set your own customized messages). Any ideas for new activityboards?',
       },
     ],
@@ -649,8 +647,7 @@ export default [
     ],
     fixes: [
       {
-        title:
-          'Not showing of ar!info when one of the roles/noxp lists is too long',
+        title: 'Not showing of ar!info when one of the roles/noxp lists is too long',
         desc: 'We solved this by having separate commands for showing the lists (f.e. ar!info roles).',
       },
     ],

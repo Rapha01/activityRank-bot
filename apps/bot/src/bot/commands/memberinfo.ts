@@ -67,7 +67,9 @@ export default command.basic({
         ? targetMemberInfo.joinedAt
         : Math.ceil(targetMemberInfo.joinedAt / 1000);
 
-    const patreonTierUntilDate = new Date(Number.parseInt(myTargetUser.patreonTierUntilDate) * 1000);
+    const patreonTierUntilDate = new Date(
+      Number.parseInt(myTargetUser.patreonTierUntilDate) * 1000,
+    );
 
     const patreonText =
       patreonTierUntilDate.getTime() > Date.now() / 1000 && myTargetUser.patreonTier > 0

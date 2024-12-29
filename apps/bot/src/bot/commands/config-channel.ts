@@ -191,7 +191,7 @@ export default command.basic({
         ephemeral: true,
       });
       return;
-    } 
+    }
     if (resolvedChannel.status === ParserResponseStatus.NoInput) {
       await interaction.reply({
         content: "You need to specify either a channel or a channel's ID!",

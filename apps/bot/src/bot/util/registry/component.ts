@@ -25,10 +25,11 @@ export type ComponentInteraction =
 export type ComponentPredicateConfig = PredicateConfig<ComponentInteraction>;
 type ComponentPredicateCheck = PredicateCheck<ComponentInteraction>;
 
-export type ComponentCallback<
-  TInteraction extends ComponentInteraction,
-  TData,
-> = (args: { interaction: TInteraction; data: TData; drop: () => void }) => Promise<void> | void;
+export type ComponentCallback<TInteraction extends ComponentInteraction, TData> = (args: {
+  interaction: TInteraction;
+  data: TData;
+  drop: () => void;
+}) => Promise<void> | void;
 
 export abstract class ComponentInstance<I extends ComponentInteraction, D> {
   public readonly identifier: string;

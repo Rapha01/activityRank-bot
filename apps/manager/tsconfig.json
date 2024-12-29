@@ -1,10 +1,5 @@
 {
   "extends": "@activityrank/tsconfig/tsconfig.base.json",
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.spec.ts",
-  ]
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
 }

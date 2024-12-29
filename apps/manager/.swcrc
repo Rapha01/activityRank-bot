@@ -9,7 +9,5 @@
       "dynamicImport": false
     }
   },
-  "exclude": [
-    ".*\\.test\\.(?:t|j)s$"
-  ]
+  "exclude": [".*\\.test\\.(?:t|j)s$"]
 }

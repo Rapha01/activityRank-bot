@@ -14,8 +14,7 @@ export default {
   stats: {
     title: 'Statistics',
     desc: 'View server statistics.',
-    subdesc:
-      'Get an ordered and filtered list of users and channels for your current server.',
+    subdesc: 'Get an ordered and filtered list of users and channels for your current server.',
     subcommands: [
       {
         title: 'Member stats',
@@ -39,8 +38,7 @@ export default {
         title: 'Top channels by a member',
         command: '/top channels member <member> <type> [period] [page]',
         desc: 'Shows the top channels used by a member',
-        example:
-          '/top channels member member:01110000#6585 type:Text period:Week page:3',
+        example: '/top channels member member:01110000#6585 type:Text period:Week page:3',
       },
       {
         title: 'Top members in a channel',
@@ -129,8 +127,7 @@ export default {
   serverSettings: {
     title: 'Server settings',
     desc: 'Set server settings (admin only).',
-    subdesc:
-      'Adjust settings like autopost messages, emotes, and notifications.',
+    subdesc: 'Adjust settings like autopost messages, emotes, and notifications.',
     subcommands: [
       {
         title: 'Autopost messages',
@@ -221,8 +218,7 @@ export default {
       },
       {
         title: 'Bonus XP per activity',
-        command:
-          '/config-xp bonus-xp-per [message] [voiceminute] [vote] [invite]',
+        command: '/config-xp bonus-xp-per [message] [voiceminute] [vote] [invite]',
         desc: 'Choose how much XP is given for each activity.',
         example: '/config-xp xp-per message:10 invite:50',
       },
@@ -265,15 +261,13 @@ export default {
   roleAssignments: {
     title: 'Role Assignments',
     desc: 'Set role settings (admin only).',
-    subdesc:
-      'Set up your role ladder and rewards. Roles are updated on levelup / leveldown.',
+    subdesc: 'Set up your role ladder and rewards. Roles are updated on levelup / leveldown.',
     subcommands: [
       {
         title: 'Assign/deassign role on levelup',
         command: '/config-role levels <role> [assignLevel] [deassignLevel]',
         desc: 'Automatically give or take a role to users upon reaching a certain level. Set the level to 0 to remove the assignment. Assignments to level 1 (start level) will be given on server join.',
-        example:
-          '/config-role levels role:@level 5 assignLevel:5 deassignLevel:10',
+        example: '/config-role levels role:@level 5 assignLevel:5 deassignLevel:10',
       },
       {
         title: 'Customize single role assign/deassignMessage',

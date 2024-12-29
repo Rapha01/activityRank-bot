@@ -9,13 +9,9 @@
     "verbatimModuleSyntax": true,
     "strict": true,
     "noImplicitOverride": true,
-    "lib": [
-      "es2022"
-    ],
+    "lib": ["es2022"],
     "module": "preserve",
     "moduleResolution": "bundler",
-    "customConditions": [
-      "@activityrank/dev"
-    ]
+    "customConditions": ["@activityrank/dev"]
   }
 }

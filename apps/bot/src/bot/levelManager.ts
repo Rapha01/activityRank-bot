@@ -1,7 +1,13 @@
 import fct from '../util/fct.js';
 import nameUtil from './util/nameUtil.js';
 import { getRoleModel } from './models/guild/guildRoleModel.js';
-import { type DiscordAPIError, EmbedBuilder, type GuildMember, RESTJSONErrorCodes, type Role } from 'discord.js';
+import {
+  type DiscordAPIError,
+  EmbedBuilder,
+  type GuildMember,
+  RESTJSONErrorCodes,
+  type Role,
+} from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';

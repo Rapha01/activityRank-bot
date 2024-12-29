@@ -728,7 +728,6 @@ WHERE
 }
 
 export class ResetGuildXP extends ResetJob {
-
   protected getStatusContent(): string {
     if (this.totalRowsAffected >= this.rowEstimation!) {
       return (

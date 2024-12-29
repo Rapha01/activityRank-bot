@@ -15,13 +15,17 @@ export default async function (manager: ShardingManager) {
     string,
     StatFlushCache
   >[];
-  manager.broadcastEval((client) => {client.statFlushCache = {}});
+  manager.broadcastEval((client) => {
+    client.statFlushCache = {};
+  });
 
   const xpCaches = (await manager.fetchClientValues('xpFlushCache')) as Record<
     string,
     XpFlushCache
   >[];
-  manager.broadcastEval((client) => {client.xpFlushCache = {}});
+  manager.broadcastEval((client) => {
+    client.xpFlushCache = {};
+  });
 
   await runStatFlush(shardCaches);
   await runXpFlush(xpCaches);

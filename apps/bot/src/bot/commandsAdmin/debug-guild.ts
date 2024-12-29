@@ -66,7 +66,8 @@ const disable = subcommand({
       });
     } else {
       await interaction.reply({
-        content: 'Disabled debug mode for the server. It did not already have a debug command registered.',
+        content:
+          'Disabled debug mode for the server. It did not already have a debug command registered.',
         ephemeral: true,
       });
     }

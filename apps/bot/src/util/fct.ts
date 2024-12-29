@@ -54,8 +54,8 @@ export const getLevelProgression = (totalScore: number, levelFactor: number) => 
 };
 
 function solve(a: number, b: number, c: number) {
-  const result = (-1 * b + Math.sqrt((b ** 2) - 4 * a * c)) / (2 * a);
-  const result2 = (-1 * b - Math.sqrt((b ** 2) - 4 * a * c)) / (2 * a);
+  const result = (-1 * b + Math.sqrt(b ** 2 - 4 * a * c)) / (2 * a);
+  const result2 = (-1 * b - Math.sqrt(b ** 2 - 4 * a * c)) / (2 * a);
 
   if (result >= 0) return result;
   if (result2 >= 0) return result2;

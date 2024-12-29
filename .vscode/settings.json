@@ -1,24 +1,15 @@
 {
   "json.schemas": [
     {
-      "fileMatch": [
-        "config/keys.json",
-        "config/keys.example.json"
-      ],
+      "fileMatch": ["config/keys.json", "config/keys.example.json"],
       "url": "./config/keys.schema.json"
     },
     {
-      "fileMatch": [
-        "config/privilege.json",
-        "config/privilege.example.json"
-      ],
+      "fileMatch": ["config/privilege.json", "config/privilege.example.json"],
       "url": "./config/privilege.schema.json"
     },
     {
-      "fileMatch": [
-        "config/config.json",
-        "config/config.example.json"
-      ],
+      "fileMatch": ["config/config.json", "config/config.example.json"],
       "url": "./config/config.schema.json"
     }
   ],

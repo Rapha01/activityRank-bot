@@ -4,14 +4,14 @@ export const isProduction = process.env.NODE_ENV === 'production';
 
 // read from Docker Compose configs/secrets locations
 const keyfile = readFileSync(
-  process.env.KEYFILE_PATH ?? isProduction
+  (process.env.KEYFILE_PATH ?? isProduction)
     ? '/run/secrets/keys'
-    : new URL('../../config/keys.json', import.meta.url)
+    : new URL('../../config/keys.json', import.meta.url),
 );
 const conffile = readFileSync(
-  process.env.CONFFILE_PATH ?? isProduction
+  (process.env.CONFFILE_PATH ?? isProduction)
     ? '/conf'
-    : new URL('../../config/config.json', import.meta.url)
+    : new URL('../../config/config.json', import.meta.url),
 );
 
 export const keys = JSON.parse(keyfile.toString()) as KeyInstance;

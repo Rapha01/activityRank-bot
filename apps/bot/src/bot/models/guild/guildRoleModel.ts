@@ -23,7 +23,7 @@ const cachedFields = [
 let defaultCache: Pick<DBRole, (typeof cachedFields)[number]> | null = null;
 let defaultAll: DBRole | null = null;
 
-type RoleCacheStorage = {}
+type RoleCacheStorage = {};
 
 export let roleCache = new WeakMap<Role, RoleModel>();
 
