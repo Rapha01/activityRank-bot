@@ -40,8 +40,7 @@ export default command.basic({
     let content: string;
     if (search) {
       const job = [...RESET_JOBS].find((job) => job.guild.id === search);
-      content =
-        `**Reset information: **${job ? JSON.stringify({ ...job, guild: search }, null, 2) : '`No job running in guild`'}`;
+      content = `**Reset information: **${job ? JSON.stringify({ ...job, guild: search }, null, 2) : '`No job running in guild`'}`;
     } else {
       content = `${RESET_QUEUE.remaining} remaining jobs in queue. ${RESET_JOBS.size} cached jobs.\n`;
     }

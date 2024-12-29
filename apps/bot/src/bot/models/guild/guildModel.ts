@@ -95,7 +95,7 @@ export class GuildModel extends CachedModel<
 
 export async function getGuildModel(guild: Guild): Promise<GuildModel> {
   if (guildCache.has(guild)) return guildCache.get(guild) as GuildModel;
-   return await buildCache(guild);
+  return await buildCache(guild);
 }
 
 async function buildCache(guild: Guild): Promise<GuildModel> {

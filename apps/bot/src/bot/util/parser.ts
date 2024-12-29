@@ -39,10 +39,11 @@ function parseObject<T>(
 
   if (objectId) {
     return { object: getObject(objectId), id: objectId, status: ParserResponseStatus.Success };
-  } if (id) {
+  }
+  if (id) {
     return { object: getObject(id), id, status: ParserResponseStatus.Success };
-  } 
-  assertUnreachableUnsafe()
+  }
+  assertUnreachableUnsafe();
 }
 
 export function parseChannel(

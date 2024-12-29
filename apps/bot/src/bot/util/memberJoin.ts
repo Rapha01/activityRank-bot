@@ -44,8 +44,8 @@ async function autoPostServerJoin(member: GuildMember, roleAssignmentString: str
 
   welcomeMessage += welcomeMessage;
   welcomeMessage += '\n';
-  welcomeMessage +=  roleAssignmentString;
-  
+  welcomeMessage += roleAssignmentString;
+
   welcomeMessage = welcomeMessage
     .replace(/<mention>/g, `<@${member.id}>`)
     .replace(/<name>/g, member.user.username)

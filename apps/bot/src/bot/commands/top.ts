@@ -177,7 +177,6 @@ async function execCacheSet<T extends keyof CacheInstance>(
   if (state) {
     await state.interaction.editReply(await generate(state, interaction.guild, cachedGuild));
   }
-
 }
 
 async function generate(

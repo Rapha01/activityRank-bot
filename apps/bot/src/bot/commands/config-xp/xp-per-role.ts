@@ -123,7 +123,7 @@ export const xpPerRole = subcommand({
     const getMessage = (key: XpPerEntry): string | null => {
       if (roleModel.db[key] > 0) {
         return `\`${roleModel.db[key]} xp\` per ${keyToName[key]} (**${relativeValue(key)}x** the default)`;
-      }  
+      }
       return null;
     };
 

@@ -8,7 +8,7 @@ function _save(client: Client) {
   if (!client.shard || client.shard.ids.length < 1) {
     throw new Error('Saving shard health of unshareded client');
   }
-  
+
   const obj = {
     shardId: client.shard.ids[0],
     uptimeSeconds: Math.floor(client.uptime ?? 0 / 1000),
