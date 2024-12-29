@@ -24,6 +24,10 @@
       "suspicious": {
         // TODO: turn this lint back on
         "noExplicitAny": "off"
+      },
+      "performance": {
+        // not important enough to be concerned about
+        "noAccumulatingSpread": "off"
       }
     }
   },

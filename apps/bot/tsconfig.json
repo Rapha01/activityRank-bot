@@ -1,5 +1,5 @@
 {
-  "extends": "@activityrank/tsconfig/tsconfig.base.json",
+  "extends": "@activityrank/tsconfig/tsconfig.app.json",
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"]
 }
