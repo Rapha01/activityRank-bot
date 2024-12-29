@@ -3,14 +3,14 @@ import logger from '../util/logger.js';
 
 function _getStats(client: Client) {
   const obj = {
-    shardId: client.shard!.ids[0],
+    shardId: client.shard?.ids[0],
     commandsTotal: client.botShardStat.commandsTotal,
     textMessagesTotal: client.botShardStat.textMessagesTotal,
   };
   return obj;
 }
 
-const secondsDead = process.env.NODE_ENV == 'production' ? 3600 : 30;
+const secondsDead = process.env.NODE_ENV === 'production' ? 3600 : 30;
 interface HistoryEntry {
   timestamp: number;
   shards: ReturnType<typeof _getStats>[];
@@ -37,7 +37,7 @@ export default async (manager: ShardingManager) => {
   // Compare setNow with setOld
   const deadShardIds = [];
   for (const shardOld of setOld.shards) {
-    const shardNow = setNow.shards.find((s) => s.shardId == shardOld.shardId);
+    const shardNow = setNow.shards.find((s) => s.shardId === shardOld.shardId);
     if (!shardNow) continue;
 
     const diff =
@@ -46,10 +46,10 @@ export default async (manager: ShardingManager) => {
       shardNow.textMessagesTotal -
       shardNow.commandsTotal;
 
-    if (diff == 0) deadShardIds.push(shardOld.shardId);
+    if (diff === 0) deadShardIds.push(shardOld.shardId);
   }
 
-  if (deadShardIds.length == 0) return;
+  if (deadShardIds.length === 0) return;
 
   logger.debug(
     `Shard(s) ${deadShardIds.join(', ')} dead (no commands or messages registered for ${
@@ -58,7 +58,7 @@ export default async (manager: ShardingManager) => {
   );
 
   for (const shardId of deadShardIds) {
-    const shard = manager.shards.find((shard) => shard.id == shardId);
+    const shard = manager.shards.find((shard) => shard.id === shardId);
     if (shard) await shard.respawn();
   }
 };

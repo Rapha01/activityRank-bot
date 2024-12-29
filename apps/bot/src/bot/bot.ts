@@ -101,7 +101,7 @@ start();
 
 async function start() {
   try {
-    client.logger = loggerManager.init(client.shard!.ids);
+    client.logger = loggerManager.init(client.shard?.ids ?? []);
     client.logger.info('Initialising...');
 
     await initClientCaches(client);

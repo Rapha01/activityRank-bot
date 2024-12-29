@@ -38,7 +38,7 @@ export default command.basic({
     const lastActivities = await getLastActivities(interaction.guild, member.id);
 
     const inviterInfo = await getGuildMemberInfo(interaction.guild, myTargetMember.inviter);
-    if (inviterInfo.name == 'User left [0]')
+    if (inviterInfo.name === 'User left [0]')
       inviterInfo.name = 'No inviter set. Use `/inviter` to set one!';
 
     const getActivityString = (

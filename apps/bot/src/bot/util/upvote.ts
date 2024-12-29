@@ -63,7 +63,7 @@ export async function attemptUpvote(
 
   if (!cachedGuild.db.voteXp) return { status: UpvoteAttempt.DisabledGuild };
   if (target.user.bot) return { status: UpvoteAttempt.TargetBot };
-  if (target.id == voter.id) return { status: UpvoteAttempt.TargetSelf };
+  if (target.id === voter.id) return { status: UpvoteAttempt.TargetSelf };
 
   const cachedMember = await getMemberModel(voter);
 

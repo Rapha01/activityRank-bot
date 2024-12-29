@@ -227,7 +227,7 @@ async function getTopChannels(
   page: Pagination,
 ) {
   const channelRanks = await getChannelRanks(guild, type, time, page.from, page.to);
-  if (!channelRanks || channelRanks.length == 0) return 'No entries found for this page.';
+  if (!channelRanks || channelRanks.length === 0) return 'No entries found for this page.';
 
   const channelMention = (index: number) =>
     getChannelMention(guild.channels.cache, channelRanks[index].channelId);

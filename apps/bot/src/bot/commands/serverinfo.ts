@@ -213,7 +213,7 @@ const general: Window = {
       `Include levelup message: ${yesno(cachedGuild.db.notifyLevelupWithRole)}`,
       `Take away assigned roles on level down: ${yesno(cachedGuild.db.takeAwayAssignedRolesOnLevelDown)}`,
       `List entries per page: ${cachedGuild.db.entriesPerPage}`,
-      `Status: ${(await fct.getPatreonTiers(interaction)).ownerTier == 2 ? 'Premium' : 'Not Premium'}`,
+      `Status: ${(await fct.getPatreonTiers(interaction)).ownerTier === 2 ? 'Premium' : 'Not Premium'}`,
     ].join('\n');
 
     const textmessageCooldownString = cachedGuild.db.textMessageCooldownSeconds

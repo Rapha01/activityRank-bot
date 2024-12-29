@@ -29,7 +29,7 @@ export async function checkLevelUp(
 
   // member.client.logger.debug({ oldLevel, newLevel }, 'checking levelup levels');
 
-  if (oldLevel != newLevel) {
+  if (oldLevel !== newLevel) {
     const roleMessages = await checkRoleAssignment(member, newLevel);
     await sendGratulationMessage(member, roleMessages, newLevel).catch((e) =>
       member.client.logger.warn(e, 'Sending error while autoposting levelup message'),
@@ -50,7 +50,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
   const roleMessages: string[] = [];
   const roles = member.guild.roles.cache;
 
-  if (roles.size == 0 || !member.guild.members.me!.permissions.has(PermissionFlagsBits.ManageRoles))
+  if (roles.size === 0 || !member.guild.members.me?.permissions.has(PermissionFlagsBits.ManageRoles))
     return roleMessages;
 
   const cachedGuild = await getGuildModel(member.guild);
@@ -64,12 +64,12 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
     const cachedRole = await getRoleModel(role);
     //member.client.logger.debug({ cachedRole, role }, 'processing role');
 
-    if (cachedRole.db.assignLevel == 0 && cachedRole.db.deassignLevel == 0) continue;
-    if (role.comparePositionTo(member.guild.members.me!.roles.highest) > 0) continue;
+    if (cachedRole.db.assignLevel === 0 && cachedRole.db.deassignLevel === 0) continue;
+    if (role.comparePositionTo(member.guild.members.me?.roles.highest) > 0) continue;
 
     const memberHasRole = member.roles.cache.has(role.id);
 
-    if (cachedRole.db.deassignLevel != 0 && level >= cachedRole.db.deassignLevel) {
+    if (cachedRole.db.deassignLevel !== 0 && level >= cachedRole.db.deassignLevel) {
       // User is above role. Deassign or do nothing.
       if (memberHasRole) {
         await member.roles.remove(role).catch((e) => {
@@ -77,7 +77,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
         });
         await addRoleDeassignMessage(roleMessages, member, role);
       }
-    } else if (cachedRole.db.assignLevel != 0 && level >= cachedRole.db.assignLevel) {
+    } else if (cachedRole.db.assignLevel !== 0 && level >= cachedRole.db.assignLevel) {
       // User is within role. Assign or do nothing.
 
       if (role.permissions.any(DANGEROUS_PERMISSIONS)) {
@@ -103,7 +103,7 @@ export async function checkRoleAssignment(member: GuildMember, level: number) {
       }
     } else if (
       cachedGuild.db.takeAwayAssignedRolesOnLevelDown &&
-      cachedRole.db.assignLevel != 0 &&
+      cachedRole.db.assignLevel !== 0 &&
       level < cachedRole.db.assignLevel
     ) {
       // User is below role. Deassign or do nothing.
@@ -126,14 +126,14 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   const cachedMember = await getMemberModel(member);
 
   if (
-    cachedGuild.db.levelupMessage != '' &&
-    (cachedGuild.db.notifyLevelupWithRole || roleMessages.length == 0)
+    cachedGuild.db.levelupMessage !== '' &&
+    (cachedGuild.db.notifyLevelupWithRole || roleMessages.length === 0)
   )
     gratulationMessage = cachedGuild.db.levelupMessage + '\n';
 
   if (roleMessages.length > 0) gratulationMessage += roleMessages.join('\n') + '\n';
 
-  if (gratulationMessage == '') return;
+  if (gratulationMessage === '') return;
 
   const ping = gratulationMessage.indexOf('<mention>') > -1 ? `<@${member.id}>` : '';
 
@@ -187,7 +187,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   }
 
   // Post_ Channel
-  if (!notified && cachedGuild.db.autopost_levelup != '0') {
+  if (!notified && cachedGuild.db.autopost_levelup !== '0') {
     const channel = member.guild.channels.cache.get(cachedGuild.db.autopost_levelup);
 
     if (channel) {
@@ -206,7 +206,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
   }
 
   // Direct Message
-  if (!notified && cachedMember.db.notifyLevelupDm == 1 && cachedGuild.db.notifyLevelupDm == 1) {
+  if (!notified && cachedMember.db.notifyLevelupDm && cachedGuild.db.notifyLevelupDm) {
     levelupEmbed.setFooter({
       text: 'To disable direct messages from me, type `/config-member` in the server.',
     });
@@ -225,10 +225,10 @@ const addRoleDeassignMessage = async (roleMessages: string[], member: GuildMembe
   const cachedRole = await getRoleModel(role);
   const cachedGuild = await getGuildModel(member.guild);
 
-  if (cachedRole.db.deassignMessage != '') message = cachedRole.db.deassignMessage;
-  else if (cachedGuild.db.roleDeassignMessage != '') message = cachedGuild.db.roleDeassignMessage;
+  if (cachedRole.db.deassignMessage !== '') message = cachedRole.db.deassignMessage;
+  else if (cachedGuild.db.roleDeassignMessage !== '') message = cachedGuild.db.roleDeassignMessage;
 
-  if (message != '') roleMessages.push(replaceTagsRole(message, role));
+  if (message !== '') roleMessages.push(replaceTagsRole(message, role));
 
   return roleMessages;
 };
@@ -239,10 +239,10 @@ const addRoleAssignMessage = async (roleMessages: string[], member: GuildMember,
   const cachedRole = await getRoleModel(role);
   const cachedGuild = await getGuildModel(member.guild);
 
-  if (cachedRole.db.assignMessage != '') message = cachedRole.db.assignMessage;
-  else if (cachedGuild.db.roleAssignMessage != '') message = cachedGuild.db.roleAssignMessage;
+  if (cachedRole.db.assignMessage !== '') message = cachedRole.db.assignMessage;
+  else if (cachedGuild.db.roleAssignMessage !== '') message = cachedGuild.db.roleAssignMessage;
 
-  if (message != '') roleMessages.push(replaceTagsRole(message, role));
+  if (message !== '') roleMessages.push(replaceTagsRole(message, role));
 
   return roleMessages;
 };

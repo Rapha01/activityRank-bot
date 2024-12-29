@@ -18,8 +18,8 @@ const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
 export default event(Events.MessageCreate, async (message) => {
   if (
-    message.author.bot == true ||
-    message.system == true ||
+    message.author.bot ||
+    message.system ||
     skip() ||
     !acceptedMessageTypes.includes(message.type) ||
     !message.inGuild()

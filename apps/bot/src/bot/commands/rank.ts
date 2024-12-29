@@ -263,7 +263,7 @@ async function getTopChannels(
     page.to,
   );
 
-  if (!guildMemberTopChannels || guildMemberTopChannels.length == 0)
+  if (!guildMemberTopChannels || guildMemberTopChannels.length === 0)
     return 'No entries found for this page.';
 
   const channelMention = (index: number) =>

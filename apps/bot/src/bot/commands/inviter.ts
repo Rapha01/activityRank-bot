@@ -47,7 +47,7 @@ export default command.basic({
       return;
     }
 
-    if (member.id == interaction.member.id) {
+    if (member.id === interaction.member.id) {
       await interaction.reply({
         content: 'You cannot be the inviter of yourself.',
         ephemeral: true,

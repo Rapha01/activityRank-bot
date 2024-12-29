@@ -187,7 +187,7 @@ export default command.basic({
     const resolvedChannel = parseChannel(interaction);
     if (resolvedChannel.status === ParserResponseStatus.ConflictingInputs) {
       await interaction.reply({
-        content: `You have specified both a channel and an ID, but they don't match.\nDid you mean: "/config-channel channel:${interaction.options.get('channel')!.value}"?`,
+        content: `You have specified both a channel and an ID, but they don't match.\nDid you mean: "/config-channel channel:${interaction.options.get('channel', true).value}"?`,
         ephemeral: true,
       });
       return;
@@ -201,7 +201,8 @@ export default command.basic({
     }
 
     if (
-      !interaction.member.permissionsIn(interaction.channel!).has(PermissionFlagsBits.ManageGuild)
+      interaction.channel &&
+      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
       await interaction.reply({
         content: 'You need the permission to manage the server in order to use this command.',

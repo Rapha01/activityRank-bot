@@ -51,7 +51,7 @@ export async function handleStatCommandsCooldown(
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
   let cd = Time.Minute * 2;
-  if (userTier == 1) cd = Time.Second * 20;
+  if (userTier === 1) cd = Time.Second * 20;
   if (userTier >= 2 || ownerTier >= 2) cd = Time.Second * 3;
 
   const cachedMember = await getMemberModel(interaction.member);
@@ -97,9 +97,9 @@ export async function handleResetCommandsCooldown(
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
   let cd = Time.Hour / 2;
-  if (userTier == 1) cd = Time.Minute * 10;
-  if (ownerTier == 3) cd = Time.Minute * 5;
-  if (userTier == 2 || userTier == 3) cd = Time.Minute * 2;
+  if (userTier === 1) cd = Time.Minute * 10;
+  if (ownerTier === 3) cd = Time.Minute * 5;
+  if (userTier === 2 || userTier === 3) cd = Time.Minute * 2;
 
   const cachedGuild = await getGuildModel(interaction.guild);
 

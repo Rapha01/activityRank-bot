@@ -27,7 +27,7 @@ export default command.basic({
 
     if (!version || !applicableVersions.includes(version)) {
       embed = patchnotesMainEmbed(patchnotes);
-    } else if (version == 'latest') {
+    } else if (version === 'latest') {
       embed = patchnotesVersionEmbed(patchnotes[0]);
     } else {
       const matchPatchnote = (note: PatchnotesEntry): boolean =>

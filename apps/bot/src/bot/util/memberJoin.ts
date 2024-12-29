@@ -39,7 +39,7 @@ async function autoPostServerJoin(member: GuildMember, roleAssignmentString: str
   if (!channel || !channel.viewable || !channel.isTextBased()) return;
 
   let welcomeMessage;
-  if (cachedGuild.db.serverJoinMessage != '') welcomeMessage = cachedGuild.db.serverJoinMessage;
+  if (cachedGuild.db.serverJoinMessage !== '') welcomeMessage = cachedGuild.db.serverJoinMessage;
   else welcomeMessage = 'Welcome <mention>. Have a good time here!';
 
   welcomeMessage = welcomeMessage + '\n' + roleAssignmentString;

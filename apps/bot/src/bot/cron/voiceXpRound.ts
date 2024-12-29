@@ -37,7 +37,7 @@ export default async (client: Client) => {
   minutesToAdd = Math.floor(secondsToAdd / 60);
   leftover = Math.round(secondsToAdd % 60);
 
-  if (round % 5 == 0)
+  if (round % 5 === 0)
     client.logger.debug(
       `[Rank Voice] #${round.toString().padEnd(4)}: ${minutesToAdd} (${leftover
         .toString()

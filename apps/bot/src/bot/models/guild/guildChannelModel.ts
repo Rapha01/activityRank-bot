@@ -39,7 +39,7 @@ export const storage = {
       `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${escapeSQL(channelId)}`,
     );
 
-    if (res.length == 0) {
+    if (res.length === 0) {
       if (!defaultAll)
         defaultAll = (
           await shardDb.query<GuildChannelSchema[]>(
@@ -48,7 +48,8 @@ export const storage = {
           )
         )[0];
       return defaultAll;
-    } else return res[0];
+    } 
+    return res[0];
   },
 
   set: async <K extends keyof GuildChannelSchema>(
@@ -136,7 +137,7 @@ const loadDefaultCache = async (dbHost: string) => {
     `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
   );
 
-  if (res.length == 0)
+  if (res.length === 0)
     await shardDb.query(dbHost, 'INSERT IGNORE INTO guildChannel (guildId,channelId) VALUES (0,0)');
 
   res = await shardDb.query(

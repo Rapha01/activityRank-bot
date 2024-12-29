@@ -3,7 +3,7 @@ import { logger } from './util/logger.js';
 
 let warmup: number;
 
-if (process.env.NODE_ENV == 'production') {
+if (process.env.NODE_ENV === 'production') {
   warmup = 60;
   decrementWarmup();
 } else {
@@ -20,7 +20,7 @@ async function decrementWarmup() {
       await fct.sleep(1000);
       warmup--;
 
-      if (warmup % 10 == 0) logger.debug(`Warmup: ${warmup}.`);
+      if (warmup % 10 === 0) logger.debug(`Warmup: ${warmup}.`);
     }
 
     logger.info('Warmup phase over.');

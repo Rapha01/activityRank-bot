@@ -73,9 +73,9 @@ export const role = subcommand({
     };
     setTimeout(clean, Time.Hour);
 
-    if (interaction.options.getBoolean('use-beta'))
-      return await betaSystem(interaction, role, change);
-    else return await oldSystem(interaction, role, change);
+    if (interaction.options.getBoolean('use-beta')){
+      return await betaSystem(interaction, role, change);}
+    return await oldSystem(interaction, role, change);
   },
 });
 
@@ -113,7 +113,7 @@ async function oldSystem(
 
   await interaction.editReply({
     content: oneLine`Successfully gave \`${changeAmount}\` bonus XP 
-      to \`${affected}\` member${affected == 1 ? '' : 's'} with role ${role}`,
+      to \`${affected}\` member${affected === 1 ? '' : 's'} with role ${role}`,
     allowedMentions: { parse: [] },
   });
 }
@@ -190,7 +190,7 @@ async function betaSystem(
 
   await interaction.followUp({
     content: oneLine`Successfully gave \`${changeAmount}\` bonus XP
-      to \`${affected}\` member${affected == 1 ? '' : 's'} with role ${role}`,
+      to \`${affected}\` member${affected === 1 ? '' : 's'} with role ${role}`,
     allowedMentions: { parse: [] },
     ephemeral: true,
   });

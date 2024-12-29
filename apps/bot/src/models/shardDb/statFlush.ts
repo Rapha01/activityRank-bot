@@ -129,7 +129,7 @@ const getSql = <T extends StatType>(
   const sqls = [];
   const now = Math.floor(new Date().getTime() / 1000);
 
-  if (type == 'textMessage' || type == 'voiceMinute') {
+  if (type === 'textMessage' || type === 'voiceMinute') {
     for (const entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},${
         (entries[entry] as StatFlushCacheChannelEntry).channelId
@@ -153,7 +153,8 @@ const getSql = <T extends StatType>(
         day = LEAST(${MAX_STAT_COLUMN_VALUE},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
-  } else if (type == 'invite' || type == 'vote' || type == 'bonus') {
+  } 
+  if (type === 'invite' || type === 'vote' || type === 'bonus') {
     for (const entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
           LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),
@@ -172,9 +173,9 @@ const getSql = <T extends StatType>(
         day = LEAST(${MAX_STAT_COLUMN_VALUE},day + VALUES(day)),
         changeDate = VALUES(changeDate);
     `;
-  } else {
-    throw new Error(`Invalid xp type "${type}" provided`);
-  }
+  } 
+  throw new Error(`Invalid xp type "${type}" provided`);
+
 };
 
 const getXpSql = (entries: XpFlushCache) => {

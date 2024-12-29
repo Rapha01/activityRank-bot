@@ -18,13 +18,13 @@ export async function getUser(userId: string) {
   const dbHost = await getDbHost(userId);
   const res = await queryShard<unknown[]>(dbHost, `SELECT * FROM user WHERE userId = ${userId}`);
 
-  if (res.length == 0) {
+  if (res.length === 0) {
     if (!defaultAll)
       defaultAll = (await queryShard<any>(dbHost, 'SELECT * FROM user WHERE userId = 0'))[0];
     return defaultAll;
-  } else {
-    return res[0];
-  }
+  } 
+  
+  return res[0];
 }
 
 async function getDbHost(userId: string) {

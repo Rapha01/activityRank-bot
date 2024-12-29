@@ -59,7 +59,7 @@ function solve(a: number, b: number, c: number) {
 
   if (result >= 0) return result;
   if (result2 >= 0) return result2;
-  else return null;
+  return null;
 }
 
 export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
@@ -94,19 +94,19 @@ export function getVoteMultiplier(dbUser: User): number {
   if (lastTopggUpvoteDate + 259200 > Date.now() / 1000) multiplier = 2;
 
   if (patreonTierUntilDate > Date.now() / 1000) {
-    if (dbUser.patreonTier == 1) multiplier = 2;
-    else if (dbUser.patreonTier == 2) multiplier = 3;
-    else if (dbUser.patreonTier == 3) multiplier = 4; // TODO remove: deprecated Patreon tier
+    if (dbUser.patreonTier === 1) multiplier = 2;
+    else if (dbUser.patreonTier === 2) multiplier = 3;
+    else if (dbUser.patreonTier === 3) multiplier = 4; // TODO remove: deprecated Patreon tier
   }
 
   return multiplier;
 }
 
 export const getPatreonTierName = (tier: number) => {
-  if (tier == 3) return 'Serveradmin';
-  else if (tier == 2) return 'Poweruser';
-  else if (tier == 1) return 'Supporter';
-  else return 'No tier';
+  if (tier === 3) return 'Serveradmin';
+  if (tier === 2) return 'Poweruser';
+  if (tier === 1) return 'Supporter';
+  return 'No tier';
 };
 
 export default {

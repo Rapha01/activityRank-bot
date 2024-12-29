@@ -24,7 +24,7 @@ export async function runPatreonTask() {
 
   while (nextUrl) {
     const res: PatreonResponse = await backOff(
-      async () => await ofetch<PatreonResponse>(nextUrl!, { headers }),
+      async () => await ofetch<PatreonResponse>(nextUrl, { headers }),
     );
 
     apiMembers.push(...getParsedMembers(res));
