@@ -3,7 +3,7 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  ChatInputCommandInteraction,
+  type ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
 import { subcommand } from '#bot/util/registry/command.js';

@@ -66,8 +66,8 @@ export async function runPatreonTask() {
   console.log(`Processing ${entitledPledgesWithDiscord.length} pledges.`);
 
   for (const pledge of entitledPledgesWithDiscord) {
-    let userWithActivePledge = usersWithActivePledge.find(
-      (u) => u.userId == pledge.discordUserId
+    const userWithActivePledge = usersWithActivePledge.find(
+      (u) => u.userId === pledge.discordUserId
     );
 
     // Update DB only if new pledge (update different tier only if new untilDate surpasses old untilDate, to avoid manual grant overridings)
@@ -95,7 +95,7 @@ export async function runPatreonTask() {
 function getParsedMembers(response: PatreonResponse): ParsedMember[] {
   return response.data.map((member) => {
     const included = response.included.find(
-      (inc) => inc.type == 'user' && inc.id == member.relationships.user.data.id
+      (inc) => inc.type === 'user' && inc.id === member.relationships.user.data.id
     );
     return { ...member, included };
   });
@@ -105,11 +105,14 @@ function getMemberTier(member: ParsedMember) {
   const cents = member.attributes.currently_entitled_amount_cents;
   if (cents >= 1449) {
     return 3;
-  } else if (cents >= 349) {
+  } 
+  if (cents >= 349) {
     return 2;
-  } else if (cents >= 149) {
+  }
+  if (cents >= 149) {
     return 1;
-  } else return null;
+  } 
+  return null;
 }
 
 function getEntitledMemberPledge(member: ParsedMember): DiscordPledge | null {

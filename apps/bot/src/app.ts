@@ -4,7 +4,7 @@ import { ShardingManager } from 'discord.js';
 import logger from './util/logger.js';
 import { keys } from '#const/config.js';
 
-if (!process.env.NODE_ENV || process.env.NODE_ENV != 'production')
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production')
   process.env.NODE_ENV = 'development';
 
 const managerOptions = {

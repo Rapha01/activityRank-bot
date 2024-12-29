@@ -3,7 +3,7 @@ import { Events } from 'discord.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
 
-export default event(Events.GuildMemberRemove, async function (member) {
+export default event(Events.GuildMemberRemove, async (member) => {
   const cachedGuild = await getGuildModel(member.guild);
 
   // always reset bots when they leave - although they shouldn't have any stats.

@@ -49,7 +49,7 @@ export async function addTextMessage(
   count: number,
 ) {
   // Add to FlushCache
-  let textMessageCache = await buildStatFlushCache(member.client, member.guild, 'textMessage');
+  const textMessageCache = await buildStatFlushCache(member.client, member.guild, 'textMessage');
 
   const cachedGuild = await getGuildModel(member.guild);
 
@@ -74,7 +74,7 @@ export async function addTextMessage(
 
   await addTotalXp(member, count * xpMultiplier);
 
-  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
+  if (Number.parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerTextMessage);
 }
 
@@ -84,7 +84,7 @@ export async function addVoiceMinute(
   count: number,
 ) {
   // Add to FlushCache
-  let voiceMinuteCache = await buildStatFlushCache(member.client, member.guild, 'voiceMinute');
+  const voiceMinuteCache = await buildStatFlushCache(member.client, member.guild, 'voiceMinute');
 
   const cachedGuild = await getGuildModel(member.guild);
 
@@ -109,12 +109,12 @@ export async function addVoiceMinute(
 
   await addTotalXp(member, count * xpMultiplier);
 
-  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
+  if (Number.parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerVoiceMinute);
 }
 
 export const addInvite = async (member: GuildMember, count: number) => {
-  let inviteCache = await buildStatFlushCache(member.client, member.guild, 'invite');
+  const inviteCache = await buildStatFlushCache(member.client, member.guild, 'invite');
 
   const cachedGuild = await getGuildModel(member.guild);
 
@@ -138,12 +138,12 @@ export const addInvite = async (member: GuildMember, count: number) => {
 
   await addTotalXp(member, count * xpMultiplier);
 
-  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
+  if (Number.parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerInvite);
 };
 
 export const addVote = async (member: GuildMember, count: number) => {
-  let voteCache = await buildStatFlushCache(member.client, member.guild, 'vote');
+  const voteCache = await buildStatFlushCache(member.client, member.guild, 'vote');
 
   const cachedGuild = await getGuildModel(member.guild);
 
@@ -167,12 +167,12 @@ export const addVote = async (member: GuildMember, count: number) => {
 
   await addTotalXp(member, count * xpMultiplier);
 
-  if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
+  if (Number.parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000)
     await addBonus(member, count * cachedGuild.db.bonusPerVote);
 };
 
 export const addBonus = async (member: GuildMember, count: number) => {
-  let bonusCache = await buildStatFlushCache(member.client, member.guild, 'bonus');
+  const bonusCache = await buildStatFlushCache(member.client, member.guild, 'bonus');
 
   const cachedGuild = await getGuildModel(member.guild);
 

@@ -3,10 +3,10 @@ import type { Kysely, Updateable, Selectable } from 'kysely';
 import { getShardDb } from '#models/shardDb/shardDb.js';
 
 export abstract class CachedModel<
-  Object extends any,
+  Object,
   DBObject extends ShardDB[keyof ShardDB],
   CachedFieldKeys extends readonly (keyof Selectable<DBObject>)[],
-  ArbitraryCachedStorage extends any,
+  ArbitraryCachedStorage,
   CachedDBFields extends Pick<Selectable<DBObject>, CachedFieldKeys[number]> = Pick<
     Selectable<DBObject>,
     CachedFieldKeys[number]

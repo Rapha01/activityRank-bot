@@ -61,12 +61,12 @@ const disable = subcommand({
     if (debugCommand) {
       await guild.commands.delete(debugCommand);
       await interaction.reply({
-        content: `Removed debug command and disabled debug mode for the server.`,
+        content: 'Removed debug command and disabled debug mode for the server.',
         ephemeral: true,
       });
     } else {
       await interaction.reply({
-        content: `Disabled debug mode for the server. It did not already have a debug command registered.`,
+        content: 'Disabled debug mode for the server. It did not already have a debug command registered.',
         ephemeral: true,
       });
     }

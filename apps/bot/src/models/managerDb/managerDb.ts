@@ -41,12 +41,12 @@ type APIPaths = 'texts' | 'stats';
 type AutocompletePaths = `api/${APIPaths}`;
 
 // this type signature allows any string, but also provides autocomplete
-export async function managerFetch<T extends any>(
+export async function managerFetch<T>(
   route: AutocompletePaths,
   init: RequestInit,
 ): Promise<T>;
-export async function managerFetch<T extends any>(route: string, init: RequestInit): Promise<T>;
-export async function managerFetch<T extends any>(route: string, init: RequestInit): Promise<T> {
+export async function managerFetch<T>(route: string, init: RequestInit): Promise<T>;
+export async function managerFetch<T>(route: string, init: RequestInit): Promise<T> {
   try {
     const url = new URL(`http://${keys.managerHost}/${route}`);
     // number converts to string cleanly; null does not add a port

@@ -28,7 +28,7 @@ export default async (manager: ShardingManager) => {
       .where('shardId', 'in', shardIdsToRestart)
       .executeTakeFirstOrThrow();
 
-  for (let shardId of shardIdsToRestart) {
+  for (const shardId of shardIdsToRestart) {
     const shard = manager.shards.get(shardId);
     if (shard) await shard.respawn();
   }

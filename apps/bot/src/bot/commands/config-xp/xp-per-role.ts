@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, ButtonStyle, ComponentType, Role } from 'discord.js';
+import { ApplicationCommandOptionType, ButtonStyle, ComponentType, type Role } from 'discord.js';
 import { subcommand } from '#bot/util/registry/command.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
@@ -97,7 +97,7 @@ export const xpPerRole = subcommand({
       )
       .executeTakeFirstOrThrow();
 
-    if (parseInt(existingXpPerRoles.count) >= 5) {
+    if (Number.parseInt(existingXpPerRoles.count) >= 5) {
       await interaction.reply({
         content:
           'There is a maximum of 5 roles that can be set as xp-per roles. Please remove some first.',

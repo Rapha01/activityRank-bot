@@ -1,6 +1,6 @@
 import { EventHandler } from './event.js';
 import { AutocompleteIndex, Command, CommandIndex, SlashCommand } from './command.js';
-import {
+import type {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   ContextMenuCommandInteraction,

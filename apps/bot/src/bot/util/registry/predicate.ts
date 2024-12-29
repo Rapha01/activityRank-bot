@@ -6,8 +6,8 @@ import type { BaseInteraction } from 'discord.js';
  * A response of Deny will block the action from being run, while a response of Allow will permit its execution.
  */
 export enum Predicate {
-  Deny,
-  Allow,
+  Deny = 0,
+  Allow = 1,
 }
 
 /**

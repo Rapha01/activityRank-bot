@@ -4,7 +4,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  ChatInputCommandInteraction,
+  type ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
 import nameUtil from '../../util/nameUtil.js';

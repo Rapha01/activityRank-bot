@@ -5,7 +5,7 @@ import {
   ApplicationCommandType,
   ButtonStyle,
   ComponentType,
-  Guild,
+  type Guild,
   WebhookClient,
   type WebhookMessageCreateOptions,
 } from 'discord.js';

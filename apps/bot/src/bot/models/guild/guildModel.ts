@@ -131,7 +131,7 @@ const getDbHost = async (guildId: string): Promise<string> => {
   const getRoute = db
     .selectFrom('guildRoute')
     .leftJoin('dbShard', 'guildRoute.dbShardId', 'dbShard.id')
-    .select(`host`)
+    .select('host')
     .where('guildId', '=', guildId);
 
   let res = await getRoute.executeTakeFirst();

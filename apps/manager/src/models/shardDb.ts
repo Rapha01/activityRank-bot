@@ -18,7 +18,7 @@ export async function queryAllHosts<T>(sql: string): Promise<T[]> {
   const hosts = await getAllDbHosts();
 
   let aggregate: T[] = [];
-  for (let host of hosts) {
+  for (const host of hosts) {
     aggregate = aggregate.concat(await queryShard<T>(host, sql));
   }
 

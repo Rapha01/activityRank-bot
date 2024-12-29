@@ -67,7 +67,7 @@ export default command.basic({
         ? targetMemberInfo.joinedAt
         : Math.ceil(targetMemberInfo.joinedAt / 1000);
 
-    const patreonTierUntilDate = new Date(parseInt(myTargetUser.patreonTierUntilDate) * 1000);
+    const patreonTierUntilDate = new Date(Number.parseInt(myTargetUser.patreonTierUntilDate) * 1000);
 
     const patreonText =
       patreonTierUntilDate.getTime() > Date.now() / 1000 && myTargetUser.patreonTier > 0
@@ -131,7 +131,7 @@ export async function getLastActivities(guild: Guild, userId: string): Promise<L
   );
 
   const getResult = (res: { changeDate: string } | undefined) =>
-    res?.changeDate ? parseInt(res.changeDate) : null;
+    res?.changeDate ? Number.parseInt(res.changeDate) : null;
 
   const [textMessage, voiceMinute, invite, vote, bonus] = results;
 

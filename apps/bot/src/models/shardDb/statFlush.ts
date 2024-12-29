@@ -15,13 +15,13 @@ export default async function (manager: ShardingManager) {
     string,
     StatFlushCache
   >[];
-  manager.broadcastEval((client) => (client.statFlushCache = {}));
+  manager.broadcastEval((client) => {client.statFlushCache = {}});
 
   const xpCaches = (await manager.fetchClientValues('xpFlushCache')) as Record<
     string,
     XpFlushCache
   >[];
-  manager.broadcastEval((client) => (client.xpFlushCache = {}));
+  manager.broadcastEval((client) => {client.xpFlushCache = {}});
 
   await runStatFlush(shardCaches);
   await runXpFlush(xpCaches);
@@ -30,19 +30,23 @@ export default async function (manager: ShardingManager) {
 async function runStatFlush(caches: Record<string, StatFlushCache>[]) {
   const hrstart = process.hrtime();
 
-  let statFlushCache = combineShardCaches(caches);
+  const statFlushCache = combineShardCaches(caches);
 
-  let promises = [];
+  const promises = [];
   const counts: { [k in keyof StatFlushCache]?: number } = {};
 
-  for (let dbHost in statFlushCache) {
-    for (let _type in statFlushCache[dbHost]) {
+  for (const dbHost in statFlushCache) {
+    for (const _type in statFlushCache[dbHost]) {
       const type = _type as StatType;
       const count = Object.keys(statFlushCache[dbHost][type]).length;
       if (count < 1) continue;
 
       promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])!));
-      counts[type] ? (counts[type]! += count) : (counts[type] = count);
+      if (counts[type]) {
+        counts[type]! += count;
+      } else {
+        counts[type] = count;
+      }
     }
   }
 
@@ -55,12 +59,12 @@ async function runStatFlush(caches: Record<string, StatFlushCache>[]) {
 async function runXpFlush(caches: Record<string, XpFlushCache>[]) {
   const hrstart = process.hrtime();
 
-  let flushCache = combineXpCaches(caches);
+  const flushCache = combineXpCaches(caches);
 
-  let promises = [];
+  const promises = [];
   let count = 0;
 
-  for (let dbHost in flushCache) {
+  for (const dbHost in flushCache) {
     const length = Object.keys(flushCache[dbHost]).length;
     if (length < 1) continue;
 
@@ -76,7 +80,7 @@ async function runXpFlush(caches: Record<string, XpFlushCache>[]) {
 }
 
 const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
-  let statFlushCache: Record<string, StatFlushCache> = {};
+  const statFlushCache: Record<string, StatFlushCache> = {};
 
   for (const shard of shardCaches) {
     for (const dbHost in shard) {
@@ -98,7 +102,7 @@ const combineShardCaches = (shardCaches: Record<string, StatFlushCache>[]) => {
   return statFlushCache;
 };
 const combineXpCaches = (shardCaches: Record<string, XpFlushCache>[]) => {
-  let flushCache: Record<string, XpFlushCache> = {};
+  const flushCache: Record<string, XpFlushCache> = {};
 
   for (const shard of shardCaches) {
     for (const dbHost in shard) {
@@ -118,11 +122,11 @@ const getSql = <T extends StatType>(
     ? Record<string, StatFlushCacheChannelEntry>
     : Record<string, StatFlushCacheGuildEntry>,
 ) => {
-  let sqls = [],
-    now = Math.floor(new Date().getTime() / 1000);
+  const sqls = [];
+  const now = Math.floor(new Date().getTime() / 1000);
 
   if (type == 'textMessage' || type == 'voiceMinute') {
-    for (let entry in entries)
+    for (const entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},${
         (entries[entry] as StatFlushCacheChannelEntry).channelId
       },
@@ -146,7 +150,7 @@ const getSql = <T extends StatType>(
         changeDate = VALUES(changeDate);
     `;
   } else if (type == 'invite' || type == 'vote' || type == 'bonus') {
-    for (let entry in entries)
+    for (const entry in entries)
       sqls.push(`(${entries[entry].guildId},${entries[entry].userId},
           LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),
           LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),LEAST(${MAX_STAT_COLUMN_VALUE},${entries[entry].count}),${now},${now})`);
@@ -170,12 +174,12 @@ const getSql = <T extends StatType>(
 };
 
 const getXpSql = (entries: XpFlushCache) => {
-  let sqls = [],
-    now = Math.floor(new Date().getTime() / 1000);
+  const sqls = [];
+  const now = Math.floor(new Date().getTime() / 1000);
 
   const least = (s: string | number) => `LEAST(${MAX_STAT_COLUMN_VALUE},${s})`;
 
-  for (let entry in entries) {
+  for (const entry in entries) {
     const fields = [
       entries[entry].guildId,
       entries[entry].userId,

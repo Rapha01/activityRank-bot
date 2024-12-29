@@ -10,7 +10,7 @@ import skip from '../skip.js';
 import { getVoteMultiplier } from '../../util/fct.js';
 import { getEmoji, getNativeEmoji } from '#bot/util/emoji.js';
 
-export default event(Events.MessageReactionAdd, async function (reaction, user) {
+export default event(Events.MessageReactionAdd, async (reaction, user) => {
   if (reaction.partial) reaction = await reaction.fetch();
   if (!reaction.message.guild || !reaction.message.author) return;
   const guild = reaction.message.guild;

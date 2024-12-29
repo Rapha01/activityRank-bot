@@ -4,7 +4,7 @@ import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getShardDb } from '#models/shardDb/shardDb.js';
 import { roleCache } from '#bot/models/guild/guildRoleModel.js';
 
-export default event(Events.GuildRoleDelete, async function (role) {
+export default event(Events.GuildRoleDelete, async (role) => {
   const { dbHost } = await getGuildModel(role.guild);
   const db = getShardDb(dbHost);
 

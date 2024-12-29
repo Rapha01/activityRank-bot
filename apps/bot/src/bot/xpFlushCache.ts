@@ -5,7 +5,7 @@ export async function addXp(member: GuildMember, xp: number) {
   const key = `${member.guild.id}.${member.id}`;
   const cache = await buildXpFlushCache(member.guild);
 
-  let entry = cache[key];
+  const entry = cache[key];
   if (!entry) cache[key] = { guildId: member.guild.id, userId: member.id, count: xp };
   else cache[key].count += xp;
 }

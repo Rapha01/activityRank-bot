@@ -37,7 +37,7 @@ export default command.basic({
   async execute({ interaction }) {
     const useFull = interaction.options.getBoolean('full') ?? false;
     const search = interaction.options.getString('search');
-    let content;
+    let content: string;
     if (search) {
       const job = [...RESET_JOBS].find((job) => job.guild.id === search);
       content =

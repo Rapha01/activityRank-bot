@@ -5,5 +5,9 @@
     "bierner.github-markdown-preview",
     "redhat.vscode-yaml",
     "ms-azuretools.vscode-docker"
+  ],
+  "unwantedRecommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
   ]
 }

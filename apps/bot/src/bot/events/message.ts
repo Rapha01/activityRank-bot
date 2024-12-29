@@ -16,7 +16,7 @@ const acceptedChannelTypes = [
 ];
 const acceptedMessageTypes = [MessageType.Default, MessageType.Reply];
 
-export default event(Events.MessageCreate, async function (message) {
+export default event(Events.MessageCreate, async (message) => {
   if (
     message.author.bot == true ||
     message.system == true ||

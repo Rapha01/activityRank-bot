@@ -23,7 +23,7 @@ export default async (manager: ShardingManager) => {
   const nowDate = round(new Date().getTime() / 1000);
   const shards = await manager.broadcastEval(_save);
 
-  let ip = await publicIpv4();
+  const ip = await publicIpv4();
 
   const dataShards = shards.map((shard) => ({
     ...shard,

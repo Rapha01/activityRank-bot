@@ -343,13 +343,13 @@ export const Deploy = {
 export type DeploymentMode = (typeof Deploy)[keyof typeof Deploy];
 
 export const command = {
-  basic: function (args: {
+  basic: (args: {
     data: BasicSlashCommandData;
     predicate?: CommandPredicateConfig;
     execute: CommandExecutableFunction;
     autocomplete?: Record<string, AutocompleteFunction>;
     deploymentMode?: DeploymentMode;
-  }): SlashCommand {
+  }): SlashCommand => {
     const predicate = args.predicate ?? null;
 
     const deploymentMode = args.deploymentMode ?? Deploy.Global;
@@ -365,13 +365,13 @@ export const command = {
       autocomplete: autocompleteMap,
     });
   },
-  parent: function (args: {
+  parent: (args: {
     data: Omit<RESTPostAPIChatInputApplicationCommandsJSONBody, 'options' | 'dm_permission'>;
     predicate?: CommandPredicateConfig;
     subcommands?: SlashSubcommand[];
     groups?: SlashSubcommandGroup[];
     deploymentMode?: DeploymentMode;
-  }): SlashCommand {
+  }): SlashCommand => {
     const deploymentMode = args.deploymentMode ?? Deploy.Global;
 
     const predicate = args.predicate ?? null;
@@ -437,12 +437,12 @@ export class ContextCommand extends Command {
 }
 
 function contextConstructor(type: ApplicationCommandType.User | ApplicationCommandType.Message) {
-  return function (args: {
+  return (args: {
     data: Omit<RESTPostAPIContextMenuApplicationCommandsJSONBody, 'type'>;
     execute: ContextCommandExecutableFunction;
     predicate?: CommandPredicateConfig;
     deploymentMode?: DeploymentMode;
-  }) {
+  }) => {
     const predicate = args.predicate ?? null;
     return new ContextCommand(
       { ...args.data, type },

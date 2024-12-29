@@ -2,7 +2,7 @@ import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import levelManager from '../levelManager.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import fct from '../../util/fct.js';
-import { DiscordAPIError, RESTJSONErrorCodes, type GuildMember } from 'discord.js';
+import { type DiscordAPIError, RESTJSONErrorCodes, type GuildMember } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
 
 export async function handleMemberJoin(member: GuildMember) {

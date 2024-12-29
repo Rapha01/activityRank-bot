@@ -19,17 +19,17 @@ const upvoteCache = new Map<string, Date>();
  */
 export enum UpvoteAttempt {
   /** Successfully upvoted the target */
-  Success,
+  Success = 0,
   /** The guild has upvotes disabled globally. */
-  DisabledGuild,
+  DisabledGuild = 1,
   /** Attempted to upvote a bot. */
-  TargetBot,
+  TargetBot = 2,
   /** Attempted to upvote self. */
-  TargetSelf,
+  TargetSelf = 3,
   /** The target has a noXP role that prohibits adding XP. */
-  TargetHasNoXP,
+  TargetHasNoXP = 4,
   /** The user has voted recently. */
-  TimeoutNotElapsed,
+  TimeoutNotElapsed = 5,
 }
 
 type UpvoteAttemptResult =

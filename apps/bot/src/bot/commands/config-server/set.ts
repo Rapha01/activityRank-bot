@@ -83,7 +83,7 @@ const generateRows = async (
     items[1][1].style = ButtonStyle.Danger;
   }
 
-  if (parseInt(cachedGuild.db.autopost_levelup)) {
+  if (Number.parseInt(cachedGuild.db.autopost_levelup)) {
     items[1][1].disabled = true;
     items[1][1].style = ButtonStyle.Danger;
     items[1][2].disabled = true;

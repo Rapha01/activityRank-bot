@@ -13,9 +13,9 @@ import type {
   GuildBasedChannel,
 } from 'discord.js';
 
-let minutesToAdd = 0,
-  leftover = 0,
-  round = 0;
+let minutesToAdd = 0;
+let leftover = 0;
+let round = 0;
 
 export default async (client: Client) => {
   const roundStart = Date.now() / 1000;
@@ -95,7 +95,7 @@ function existMultipleMembers(members: Collection<string, GuildMember>) {
   if (members.size < 2) return false;
 
   let activeMembers = 0;
-  for (let member of members.values()) {
+  for (const member of members.values()) {
     if (!member.user.bot) activeMembers++;
     if (activeMembers >= 2) return true;
   }

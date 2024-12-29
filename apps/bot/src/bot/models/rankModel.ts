@@ -45,7 +45,7 @@ export async function getGuildMemberRanks(
         eb
           .selectFrom('textMessage')
           // See fetchGuildMemberStatistics for an explanation as to only the textMessage and voiceMinute columns use SUM.
-          .select((eb) => ['userId', eb.fn.sum<number>(time).as(`value`)])
+          .select((eb) => ['userId', eb.fn.sum<number>(time).as('value')])
           .where('guildId', '=', guild.id)
           .where('alltime', '!=', eb.lit(0))
           .groupBy('userId')
@@ -56,7 +56,7 @@ export async function getGuildMemberRanks(
       (eb) =>
         eb
           .selectFrom('voiceMinute')
-          .select((eb) => ['userId', eb.fn.sum<number>(time).as(`value`)])
+          .select((eb) => ['userId', eb.fn.sum<number>(time).as('value')])
           .where('guildId', '=', guild.id)
           .where('alltime', '!=', eb.lit(0))
           .groupBy('userId')

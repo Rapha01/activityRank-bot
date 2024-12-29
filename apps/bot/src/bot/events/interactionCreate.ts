@@ -12,14 +12,14 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  DiscordAPIError,
+  type DiscordAPIError,
   RESTJSONErrorCodes,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { config } from '#const/config.js';
 import { registry } from '#bot/util/registry/registry.js';
 
-export default event(Events.InteractionCreate, async function (interaction) {
+export default event(Events.InteractionCreate, async (interaction) => {
   try {
     if (!interaction.inCachedGuild())
       throw new Error('Interaction recieved outside of cached guild.');

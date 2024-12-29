@@ -25,15 +25,15 @@ export const RESET_QUEUE = new AsyncQueue();
  */
 export enum ResetStatus {
   /** Job is waiting to start */
-  Waiting,
+  Waiting = 0,
   /** Getting number of rows to reset */
-  Planning,
+  Planning = 1,
   /** Job is done planning and is ready to execute */
-  Ready,
+  Ready = 2,
   /** Actively resetting */
-  Executing,
+  Executing = 3,
   /** All done! */
-  Complete,
+  Complete = 4,
 }
 
 const BATCHSIZE = isProduction ? 10_000 : 10;
@@ -65,9 +65,9 @@ const BATCHSIZE = isProduction ? 10_000 : 10;
  */
 abstract class ResetJob {
   /** The number of database rows this job has already modified. */
-  protected _totalRowsAffected: number = 0;
+  protected _totalRowsAffected = 0;
   /** The number of database rows this job has already modified on this iteration. Will be reset before each {@link runIter} call. */
-  protected rowsAffectedIter: number = 0;
+  protected rowsAffectedIter = 0;
   /** The current status of this reset job. */
   protected _resetStatus: ResetStatus = ResetStatus.Waiting;
   /** A unique ID to this job. Used only for tracking in logs. */
@@ -265,9 +265,9 @@ abstract class ResetJob {
       const done = await this.run({ bufferTime: options?.globalBufferTime });
       if (done) return;
 
-      if (options && options.onPause) await options.onPause();
+      if (options?.onPause) await options.onPause();
       // sleep *only this job* for jobBufferTime, keeping the queue unlocked.
-      if (options && options.jobBufferTime) await sleep(options.jobBufferTime);
+      if (options?.jobBufferTime) await sleep(options.jobBufferTime);
     }
   }
 
@@ -728,9 +728,6 @@ WHERE
 }
 
 export class ResetGuildXP extends ResetJob {
-  constructor(guild: Guild) {
-    super(guild);
-  }
 
   protected getStatusContent(): string {
     if (this.totalRowsAffected >= this.rowEstimation!) {

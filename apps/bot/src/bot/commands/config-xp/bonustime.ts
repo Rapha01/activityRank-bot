@@ -37,7 +37,7 @@ export const bonustime = subcommand({
     await cachedGuild.upsert({ bonusUntilDate: bonusUntilDate.toString() });
 
     if (bonusUntilDate <= Date.now() / 1000) {
-      await interaction.reply({ content: `Ended bonus time.` });
+      await interaction.reply({ content: 'Ended bonus time.' });
       return;
     }
 

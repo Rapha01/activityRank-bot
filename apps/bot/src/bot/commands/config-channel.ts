@@ -80,7 +80,7 @@ const settingButton = component<{
         return;
       }
     } else {
-      if (cachedGuild.db[setting] == channelId) await cachedGuild.upsert({ [setting]: '0' });
+      if (cachedGuild.db[setting] === channelId) await cachedGuild.upsert({ [setting]: '0' });
       else await cachedGuild.upsert({ [setting]: channelId });
     }
 
@@ -131,7 +131,7 @@ const generateRow = (
   r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
   r[1].setCustomId(getButton('noCommand'));
-  r[1].setDisabled(Boolean(parseInt(myGuild.db.commandOnlyChannel)));
+  r[1].setDisabled(Boolean(Number.parseInt(myGuild.db.commandOnlyChannel)));
   r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
   // r[1].setDisabled(type !== ChannelType.GuildText);
   // if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
@@ -191,7 +191,8 @@ export default command.basic({
         ephemeral: true,
       });
       return;
-    } else if (resolvedChannel.status === ParserResponseStatus.NoInput) {
+    } 
+    if (resolvedChannel.status === ParserResponseStatus.NoInput) {
       await interaction.reply({
         content: "You need to specify either a channel or a channel's ID!",
         ephemeral: true,

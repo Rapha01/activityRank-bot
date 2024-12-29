@@ -6,7 +6,7 @@ import type { BaseInteraction, GuildMember } from 'discord.js';
 // System
 export const waitAndReboot = async (milliseconds: number) => {
   try {
-    console.log('Restarting in ' + milliseconds / 1000 + 's');
+    console.log(`Restarting in ${milliseconds / 1000}s`);
     await sleep(milliseconds);
     console.log('Restart');
     process.exit();
@@ -54,8 +54,8 @@ export const getLevelProgression = (totalScore: number, levelFactor: number) => 
 };
 
 function solve(a: number, b: number, c: number) {
-  const result = (-1 * b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
-  const result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+  const result = (-1 * b + Math.sqrt((b ** 2) - 4 * a * c)) / (2 * a);
+  const result2 = (-1 * b - Math.sqrt((b ** 2) - 4 * a * c)) / (2 * a);
 
   if (result >= 0) return result;
   if (result2 >= 0) return result2;
@@ -72,13 +72,13 @@ export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
   const ownerModel = await getUserModel(ownerUser);
   const myOwnerUser = await ownerModel.fetch();
 
-  let userTier;
-  if (Date.now() / 1000 <= parseInt(myUser.patreonTierUntilDate)) {
+  let userTier: number;
+  if (Date.now() / 1000 <= Number.parseInt(myUser.patreonTierUntilDate)) {
     userTier = myUser.patreonTier;
   } else userTier = 0;
 
-  let ownerTier;
-  if (Date.now() / 1000 <= parseInt(myOwnerUser.patreonTierUntilDate)) {
+  let ownerTier: number;
+  if (Date.now() / 1000 <= Number.parseInt(myOwnerUser.patreonTierUntilDate)) {
     ownerTier = myOwnerUser.patreonTier;
   } else ownerTier = 0;
 
@@ -86,8 +86,8 @@ export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
 }
 
 export function getVoteMultiplier(dbUser: User): number {
-  const lastTopggUpvoteDate = parseInt(dbUser.lastTopggUpvoteDate);
-  const patreonTierUntilDate = parseInt(dbUser.patreonTierUntilDate);
+  const lastTopggUpvoteDate = Number.parseInt(dbUser.lastTopggUpvoteDate);
+  const patreonTierUntilDate = Number.parseInt(dbUser.patreonTierUntilDate);
 
   let multiplier = 1;
 

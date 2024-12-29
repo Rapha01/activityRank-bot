@@ -10,7 +10,7 @@ import { component, type ComponentCallback } from './registry/component.js';
 
 type CallbackFn<D> = ComponentCallback<ButtonInteraction<'cached'>, D>;
 
-export const useConfirm = <D extends unknown = void>(args: {
+export const useConfirm = <D = void>(args: {
   confirmFn: CallbackFn<D>;
   denyFn: CallbackFn<void>;
 }) => {

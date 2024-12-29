@@ -309,7 +309,7 @@ async function generateRankCard(
     .setColor('#4fd6c8')
     .setThumbnail(state.targetUser.avatarURL());
 
-  const bonusUntil = new Date(parseInt(myGuild.bonusUntilDate) * 1000);
+  const bonusUntil = new Date(Number.parseInt(myGuild.bonusUntilDate) * 1000);
 
   if (bonusUntil.getTime() > Date.now()) {
     embed.setDescription(`**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`);

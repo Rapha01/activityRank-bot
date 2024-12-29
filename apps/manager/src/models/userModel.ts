@@ -1,4 +1,4 @@
-import { escape } from 'mysql2';
+import { escape as escapeSQL } from 'mysql2';
 import { queryShard } from './shardDb.js';
 import { queryManager } from './managerDb.js';
 
@@ -8,9 +8,9 @@ export async function setUser(userId: string, field: string, value: unknown) {
   const dbHost = await getDbHost(userId);
   await queryShard(
     dbHost,
-    `INSERT INTO user (userId,${field}) VALUES (${escape(userId)},${escape(
+    `INSERT INTO user (userId,${field}) VALUES (${escapeSQL(userId)},${escapeSQL(
       value
-    )}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`
+    )}) ON DUPLICATE KEY UPDATE ${field} = ${escapeSQL(value)}`
   );
 }
 
@@ -24,7 +24,7 @@ export async function getUser(userId: string) {
   if (res.length == 0) {
     if (!defaultAll)
       defaultAll = (
-        await queryShard<any>(dbHost, `SELECT * FROM user WHERE userId = 0`)
+        await queryShard<any>(dbHost, 'SELECT * FROM user WHERE userId = 0')
       )[0];
     return defaultAll;
   } else {

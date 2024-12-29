@@ -10,11 +10,11 @@ import type { ChatInputCommandInteraction, GuildBasedChannel, Role, GuildMember 
 
 export enum ParserResponseStatus {
   /** Successfully parsed the desired object. */
-  Success,
+  Success = 0,
   /** The user has provided different objects in the `id` and `object` fields. */
-  ConflictingInputs,
+  ConflictingInputs = 1,
   /** The user has not provided an object in either the `id` or `object` fields. */
-  NoInput,
+  NoInput = 2,
 }
 
 type ParsedResponse<T> =

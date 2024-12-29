@@ -27,7 +27,7 @@ type ComponentPredicateCheck = PredicateCheck<ComponentInteraction>;
 
 export type ComponentCallback<
   TInteraction extends ComponentInteraction,
-  TData extends unknown,
+  TData,
 > = (args: { interaction: TInteraction; data: TData; drop: () => void }) => Promise<void> | void;
 
 export abstract class ComponentInstance<I extends ComponentInteraction, D> {
@@ -217,32 +217,32 @@ class ModalComponent<I extends ModalSubmitInteraction<'cached'>, D> extends Comp
   }
 }
 
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType.Button;
   callback: ComponentCallback<ButtonInteraction<'cached'>, D>;
 }): Component<ButtonInteraction<'cached'>, D>;
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType.ChannelSelect;
   callback: ComponentCallback<ChannelSelectMenuInteraction<'cached'>, D>;
 }): Component<ChannelSelectMenuInteraction<'cached'>, D>;
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType.MentionableSelect;
   callback: ComponentCallback<MentionableSelectMenuInteraction<'cached'>, D>;
 }): Component<MentionableSelectMenuInteraction<'cached'>, D>;
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType.RoleSelect;
   callback: ComponentCallback<RoleSelectMenuInteraction<'cached'>, D>;
 }): Component<RoleSelectMenuInteraction<'cached'>, D>;
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType.StringSelect;
   callback: ComponentCallback<StringSelectMenuInteraction<'cached'>, D>;
 }): Component<StringSelectMenuInteraction<'cached'>, D>;
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType.UserSelect;
   callback: ComponentCallback<UserSelectMenuInteraction<'cached'>, D>;
 }): Component<UserSelectMenuInteraction<'cached'>, D>;
 
-export function component<D extends unknown = void>(args: {
+export function component<D = void>(args: {
   type: ComponentType;
   callback:
     | ComponentCallback<ButtonInteraction<'cached'>, D>
@@ -259,7 +259,7 @@ export function component<D extends unknown = void>(args: {
   );
 }
 
-export function modal<D extends unknown = void>(args: {
+export function modal<D = void>(args: {
   callback: ComponentCallback<ModalSubmitInteraction<'cached'>, D>;
 }) {
   return new ModalComponent(args.callback);

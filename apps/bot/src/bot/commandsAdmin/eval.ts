@@ -75,9 +75,7 @@ export default command.basic({
       // add context to eval (accessed via `this`)
       const ctx = { interaction, client: interaction.client };
 
-      result = function (str: string) {
-        return eval(str);
-      }.call(ctx, code);
+      result = ((str: string) => eval(str)).call(ctx, code);
     } catch (err) {
       if (err && err instanceof Error && err.stack) {
         console.error('Error found in eval command', err);
@@ -96,7 +94,7 @@ export default command.basic({
 
     if (output.length > 2000) {
       await interaction.followUp({
-        content: `Output was too long. Result sent as a file.`,
+        content: 'Output was too long. Result sent as a file.',
         files: [{ attachment: Buffer.from(output), name: 'output.js' }],
       });
       return;

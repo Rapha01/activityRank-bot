@@ -1,6 +1,6 @@
 import type { Guild, GuildBasedChannel } from 'discord.js';
 import shardDb from '../../../models/shardDb/shardDb.js';
-import { escape } from 'mysql2/promise';
+import { escape as escapeSQL } from 'mysql2/promise';
 import type {
   GuildChannelSchema,
   TextMessageSchema,
@@ -21,7 +21,7 @@ export interface CachedGuildChannel {
 export const channelCache = new WeakMap<GuildBasedChannel, CachedGuildChannel>();
 
 export const cache = {
-  get: async function (channel: GuildBasedChannel): Promise<CachedGuildChannel> {
+  get: async (channel: GuildBasedChannel): Promise<CachedGuildChannel> => {
     if (channelCache.has(channel)) return channelCache.get(channel)!;
     return await buildCache(channel);
   },
@@ -36,7 +36,7 @@ export const storage = {
     const { dbHost } = await getGuildModel(guild);
     const res = await shardDb.query<GuildChannelSchema[]>(
       dbHost,
-      `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${escape(channelId)}`,
+      `SELECT * FROM guildChannel WHERE guildId = ${guild.id} && channelId = ${escapeSQL(channelId)}`,
     );
 
     if (res.length == 0) {
@@ -44,7 +44,7 @@ export const storage = {
         defaultAll = (
           await shardDb.query<GuildChannelSchema[]>(
             dbHost,
-            `SELECT * FROM guildChannel WHERE guildId = 0 AND channelId = 0`,
+            'SELECT * FROM guildChannel WHERE guildId = 0 AND channelId = 0',
           )
         )[0];
       return defaultAll;
@@ -60,9 +60,9 @@ export const storage = {
     const { dbHost } = await getGuildModel(guild);
     await shardDb.query(
       dbHost,
-      `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${escape(
+      `INSERT INTO guildChannel (guildId,channelId,${field}) VALUES (${guild.id},${escapeSQL(
         channelId,
-      )},${escape(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escape(value)}`,
+      )},${escapeSQL(value)}) ON DUPLICATE KEY UPDATE ${field} = ${escapeSQL(value)}`,
     );
 
     const channel = guild.channels.cache.get(channelId);
@@ -86,8 +86,8 @@ export const getRankedChannelIds = async (guild: Guild) => {
 
   const ids = [...new Set([...textmessageUserIds, ...voiceMinuteUserIds])];
 
-  let channelIds = [];
-  for (let id of ids) {
+  const channelIds = [];
+  for (const id of ids) {
     channelIds.push(id.channelId);
   }
 
@@ -116,7 +116,7 @@ export const getNoCommandChannelIds = async (guild: Guild) => {
 
 async function buildCache(channel: GuildBasedChannel): Promise<CachedGuildChannel> {
   const { dbHost } = await getGuildModel(channel.guild);
-  let foundCache = await shardDb.query<CachedDbFields[]>(
+  const foundCache = await shardDb.query<CachedDbFields[]>(
     dbHost,
     `SELECT ${cachedFields.join(',')} FROM guildChannel WHERE guildId = ${
       channel.guild.id
@@ -137,7 +137,7 @@ const loadDefaultCache = async (dbHost: string) => {
   );
 
   if (res.length == 0)
-    await shardDb.query(dbHost, `INSERT IGNORE INTO guildChannel (guildId,channelId) VALUES (0,0)`);
+    await shardDb.query(dbHost, 'INSERT IGNORE INTO guildChannel (guildId,channelId) VALUES (0,0)');
 
   res = await shardDb.query(
     dbHost,

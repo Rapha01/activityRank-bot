@@ -32,7 +32,7 @@ async function resetStatsByTime(
   time: ResetPeriod
 ): Promise<{ errorCount: number }> {
   const dbShards = await queryManager<{ host: string; id: number }[]>(
-    `SELECT id,host FROM dbShard ORDER BY id ASC`
+    'SELECT id,host FROM dbShard ORDER BY id ASC'
   );
 
   const errors = [];
@@ -40,7 +40,7 @@ async function resetStatsByTime(
     const pool = getShardPool(shard.host);
     const hrstart = process.hrtime();
 
-    for (let statsTable of statsTables) {
+    for (const statsTable of statsTables) {
       // we paginate via cursor here to reduce the risk of page drift,
       // and to avoid the performance implications of OFFSET
       let highestGuildId = '0';
@@ -91,7 +91,7 @@ async function resetMemberScoresByTime(
   time: ResetPeriod
 ): Promise<{ errorCount: number }> {
   const dbShards = await queryManager<{ host: string; id: number }[]>(
-    `SELECT id,host FROM dbShard ORDER BY id ASC`
+    'SELECT id,host FROM dbShard ORDER BY id ASC'
   );
 
   const errors = [];

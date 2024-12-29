@@ -45,7 +45,7 @@ async function render(
     | StringSelectMenuInteraction<'cached'>,
   pageNumber: number,
   windowName: WindowName,
-  disableComponents: boolean = false,
+  disableComponents = false,
 ) {
   const window = windows[windowName];
   const cachedGuild = await getGuildModel(interaction.guild);
@@ -221,7 +221,7 @@ const general: Window = {
       : ' without any cooldown';
 
     let bonusTimeString = '';
-    if (parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000) {
+    if (Number.parseInt(cachedGuild.db.bonusUntilDate) > Date.now() / 1000) {
       bonusTimeString = `\n\n**!! Bonus XP Active !!** (ends <t:${cachedGuild.db.bonusUntilDate}:R>)
     ${cachedGuild.db.bonusPerTextMessage * cachedGuild.db.xpPerBonus} Bonus XP per textmessage
     ${cachedGuild.db.bonusPerVoiceMinute * cachedGuild.db.xpPerBonus} Bonus XP per voiceminute
@@ -328,8 +328,7 @@ const roles: Window = {
     const relevantLevels = [
       ...new Set(
         roleAssignments
-          .map((a) => [a.assignLevel, a.deassignLevel])
-          .flat()
+          .flatMap((a) => [a.assignLevel, a.deassignLevel])
           .filter((level) => level !== 0),
       ),
     ].sort((a, b) => a - b);
@@ -397,7 +396,7 @@ const nocommandchannels: Window = {
 
     return {
       author: {
-        name: `No-Command Channels`,
+        name: 'No-Command Channels',
         icon_url: clientURL(interaction.client),
       },
       color: isAdmin ? 0xb75cff : 0x4fd6c8,
@@ -438,7 +437,7 @@ const noxpchannels: Window = {
 
     return {
       author: {
-        name: `No-XP Channels`,
+        name: 'No-XP Channels',
         icon_url: clientURL(interaction.client),
       },
       color: 0x4fd6c8,
@@ -472,7 +471,7 @@ const noxproles: Window = {
 
     return {
       author: {
-        name: `No-XP Roles`,
+        name: 'No-XP Roles',
         icon_url: clientURL(interaction.client),
       },
       color: 0x4fd6c8,
@@ -559,16 +558,16 @@ const messages: Window = {
       const cachedRole = await getRoleModel(role);
 
       if (cachedRole.db.assignMessage.trim() !== '')
-        entries.push({ name: 'Assignment of ' + role.name, value: cachedRole.db.assignMessage });
+        entries.push({ name: `Assignment of ${role.name}`, value: cachedRole.db.assignMessage });
       if (cachedRole.db.deassignMessage.trim() !== '')
         entries.push({
-          name: 'Deassignment of ' + role.name,
+          name: `Deassignment of ${role.name}`,
           value: cachedRole.db.deassignMessage,
         });
     }
 
     return {
-      author: { name: `Autosend Messages`, icon_url: clientURL(interaction.client) },
+      author: { name: 'Autosend Messages', icon_url: clientURL(interaction.client) },
       color: 0x4fd6c8,
       fields: entries.slice(page.from - 1, page.to),
     };

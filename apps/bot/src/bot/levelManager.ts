@@ -1,7 +1,7 @@
 import fct from '../util/fct.js';
 import nameUtil from './util/nameUtil.js';
 import { getRoleModel } from './models/guild/guildRoleModel.js';
-import { DiscordAPIError, EmbedBuilder, GuildMember, RESTJSONErrorCodes, Role } from 'discord.js';
+import { type DiscordAPIError, EmbedBuilder, type GuildMember, RESTJSONErrorCodes, type Role } from 'discord.js';
 import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
@@ -129,7 +129,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
   if (gratulationMessage == '') return;
 
-  const ping = gratulationMessage.indexOf('<mention>') > -1 ? '<@' + member.id + '>' : '';
+  const ping = gratulationMessage.indexOf('<mention>') > -1 ? `<@${member.id}>` : '';
 
   gratulationMessage = replaceTagsLevelup(gratulationMessage, member, level);
 

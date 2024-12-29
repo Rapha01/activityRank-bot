@@ -2,9 +2,9 @@ import { command } from '#bot/util/registry/command.js';
 import {
   ApplicationCommandOptionType,
   ButtonStyle,
-  ChatInputCommandInteraction,
+  type ChatInputCommandInteraction,
   ComponentType,
-  GuildMember,
+  type GuildMember,
 } from 'discord.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
