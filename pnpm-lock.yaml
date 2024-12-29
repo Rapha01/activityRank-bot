@@ -11,6 +11,9 @@ importers:
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
+      json-schema-to-zod:
+        specifier: ^2.6.0
+        version: 2.6.0
       turbo:
         specifier: ^2.3.3
         version: 2.3.3
@@ -166,6 +169,25 @@ importers:
       typescript:
         specifier: ^5.4.4
         version: 5.7.2
+
+  packages/cfg:
+    dependencies:
+      zod:
+        specifier: ^3.23.8
+        version: 3.24.1
+    devDependencies:
+      '@activityrank/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.10.2
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.2
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.8(@types/node@22.10.2)
 
   packages/tsconfig: {}
 
@@ -1281,6 +1303,10 @@ packages:
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
+
+  json-schema-to-zod@2.6.0:
+    resolution: {integrity: sha512-6sFZqOzHZeON8g2ZW5HJ114Hb/FffNCjWh8dgulJaKFkUqKCEWZAzF4+g07SQpfBZF7HXemwedtdLypZzmnVpQ==}
+    hasBin: true
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -2948,6 +2974,8 @@ snapshots:
   joycon@3.1.1: {}
 
   json-buffer@3.0.1: {}
+
+  json-schema-to-zod@2.6.0: {}
 
   keyv@4.5.4:
     dependencies:
