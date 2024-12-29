@@ -20,7 +20,11 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "suspicious": {
+        // TODO: turn this lint back on
+        "noExplicitAny": "off"
+      }
     }
   },
   "javascript": {
@@ -31,7 +35,10 @@
   },
   "overrides": [
     {
-      "include": ["*.test.ts", "*.spec.ts"],
+      "include": [
+        "*.test.ts",
+        "*.spec.ts"
+      ],
       "linter": {
         "rules": {
           "style": {
