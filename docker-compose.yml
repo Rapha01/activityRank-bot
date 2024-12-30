@@ -3,7 +3,7 @@ name: activityrank
 configs:
   privileges:
     file: ./config/privilege.json
-  conf:
+  config:
     file: ./config/config.json
 
 secrets:
@@ -42,7 +42,7 @@ services:
     secrets:
       - keys
     configs:
-      - conf
+      - config
 
   bot:
     build:
@@ -51,6 +51,6 @@ services:
     container_name: Bot
     configs:
       - privileges
-      - conf
+      - config
     secrets:
       - keys

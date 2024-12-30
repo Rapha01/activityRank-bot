@@ -5,7 +5,6 @@ ARG APP_DIR_NAME=apps/bot
 ARG APP_PKG_NAME=@activityrank/bot
 
 FROM node:${NODE_VERSION}-slim AS base
-ENV NODE_ENV=production
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -51,6 +50,9 @@ RUN find . -name "node_modules" -type d -prune -exec rm -r '{}' +
 
 FROM base AS runner
 ARG APP_DIR_NAME
+# ARGs are only available at compile time, so they don't work in CMD instructions
+ENV APP_PATH="$APP_DIR_NAME/dist/app.js"
+ENV NODE_ENV=production
 WORKDIR /app
 
 # Don't run production as root
@@ -61,4 +63,4 @@ USER activityrank
 COPY --from=builder --chown=activityrank:ar /app .
 COPY --from=production-deps --chown=activityrank:ar /app .
 
-CMD ["node", "$APP_DIR_NAME/dist/app.js"]
+CMD exec node $APP_PATH
