@@ -3,23 +3,31 @@
 
 ## Repostory Layout
 
-ActivityRank is set up as a monorepo, with all executable components in [apps](./apps). 
+ActivityRank is set up as a monorepo, with all executable components in [apps](apps). 
 
 ### Deployment
 
 All components should be deployed in production as instances of their Docker containers. <!-- TODO: better CI setup -->
-Ideally, these containers will be built in GitHub CI, but they may also be built on the target VPS. 
+Ideally, these containers will be built in [GitHub CI](.github/workflows/ci.yml), but they may also be built on the target VPS. 
 
-In development, semi-permanent containers such as the database can be deployed via the root docker-compose file ([docker-compose.yml](./docker-compose.yml)). 
-Other components, like the bot module, should be run via a typical node process.
+In development, semi-permanent containers such as the database can be deployed via the root docker-compose file ([docker-compose.yml](docker-compose.yml)). 
+Other components, like the bot module, should be run via a typical node process through their `pnpm dev` scripts.
+
+#### Development deployment example
+
+An example of running in development, to work solely on the bot module, is shown here:
+
+1. Run the manager and database in Docker containers.
+```sh
+docker compose up db manager
+```
+2. Run the development script for the bot.
+```sh
+pnpm --filter bot run dev:watch
+```
 
 
 ## Deployment Structure
-
-### Repositories
-* https://github.com/Rapha01/activityRank-bot
-* https://github.com/Rapha01/activityRank-manager
-* https://github.com/Rapha01/activityRank-web
 
 ### Overview
 
