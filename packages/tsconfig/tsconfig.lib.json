@@ -7,6 +7,6 @@
     "composite": true,
     "sourceMap": true,
     "declarationMap": true,
-    "lib": ["es2022"],
+    "lib": ["es2022"]
   }
 }
