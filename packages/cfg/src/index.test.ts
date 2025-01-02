@@ -25,14 +25,24 @@ describe('fn', () => {
       );
 
       expect(
-        async () => await loader.load({ name: 'config.example.json', schema: schemas.bot.config, secret: false }),
+        async () =>
+          await loader.load({
+            name: 'config.example.json',
+            schema: schemas.bot.config,
+            secret: false,
+          }),
       ).to.not.throw();
       expect(
         loader.load({ name: 'config.example.json', schema: schemas.bot.keys, secret: false }),
       ).rejects.toThrowError();
       // even though `secret` is incorrect here, it doesn't matter in dev mode
       expect(
-        async () => await loader.load({ name: 'config.example.json', schema: schemas.bot.config, secret: true }),
+        async () =>
+          await loader.load({
+            name: 'config.example.json',
+            schema: schemas.bot.config,
+            secret: true,
+          }),
       ).to.not.throw();
     }
   });
@@ -46,7 +56,11 @@ describe('fn', () => {
 
     const loader = configLoader();
 
-    expect(loader.getLoadPath({ name: 'config.json', secret: false })).toEqual(new URL('config.json', 'file:/'))
-    expect(loader.getLoadPath({ name: 'config.json', secret: true })).toEqual(new URL('config.json', 'file:/run/config'))
+    expect(loader.getLoadPath({ name: 'config.json', secret: false })).toEqual(
+      new URL('config.json', 'file:/'),
+    );
+    expect(loader.getLoadPath({ name: 'config.json', secret: true })).toEqual(
+      new URL('config.json', 'file:/run/config'),
+    );
   });
 });

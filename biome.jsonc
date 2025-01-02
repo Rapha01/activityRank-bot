@@ -39,10 +39,7 @@
   },
   "overrides": [
     {
-      "include": [
-        "*.test.ts",
-        "*.spec.ts"
-      ],
+      "include": ["*.test.ts", "*.spec.ts"],
       "linter": {
         "rules": {
           "style": {
