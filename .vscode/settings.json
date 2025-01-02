@@ -1,27 +1,44 @@
 {
   "json.schemas": [
     {
-      "fileMatch": [
-        "config/keys.json",
-        "config/keys.example.json"
-      ],
+      "fileMatch": ["config/keys.json", "config/keys.example.json"],
       "url": "./config/keys.schema.json"
     },
     {
-      "fileMatch": [
-        "config/privilege.json"
-      ],
+      "fileMatch": ["config/privilege.json", "config/privilege.example.json"],
       "url": "./config/privilege.schema.json"
     },
     {
-      "fileMatch": [
-        "config/config.json"
-      ],
+      "fileMatch": ["config/config.json", "config/config.example.json"],
       "url": "./config/config.schema.json"
     }
   ],
-  "[javascript][typescript][javascriptreact][typescriptreact][yaml][json][jsonc][jsonl]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.formatOnSave": true
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[jsonl]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  }
 }

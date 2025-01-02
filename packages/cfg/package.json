@@ -1,0 +1,27 @@
+{
+  "name": "@activityrank/cfg",
+  "description": "The internal config loader package for ActivityRank's config and keys",
+  "version": "0.0.1",
+  "private": "true",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --run"
+  },
+  "contributors": [
+    "@rapha01 (https://github.com/rapha01)",
+    "@piemot (https://github.com/piemot)",
+    "the ActivityRank Contributors ❤️"
+  ],
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@activityrank/tsconfig": "workspace:*",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.1"
+  }
+}

@@ -1,9 +1,9 @@
-version: '3.7'
+name: activityrank
 
 configs:
   privileges:
     file: ./config/privilege.json
-  conf:
+  config:
     file: ./config/config.json
 
 secrets:
@@ -11,18 +11,46 @@ secrets:
     file: ./config/keys.json
 
 services:
-  activityrankbot:
+  db:
+    container_name: Database
+    image: mysql:8.0
     restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    volumes:
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+      - ./docker/db/data:/var/lib/mysql
+      - ./docker/db/my.cnf:/etc/mysql/my.cnf
+    ports:
+      - '3306:3306'
+    command: --default-authentication-plugin=mysql_native_password
+  
+  manager:
+    container_name: Manager
+    restart: always
+    init: true
     build:
       context: .
-      dockerfile: Dockerfile
-      target: base
-    volumes:
-      - ./src:/usr/src/app/src
-    container_name: ActivityRank-Bot.Dev
-    command: npm run developmentNodemon
+      dockerfile: apps/manager/Dockerfile
+    image: 'activityrank/manager:dev'
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - '3005:3000'
+    secrets:
+      - keys
+    configs:
+      - config
+
+  bot:
+    build:
+      context: .
+      dockerfile: apps/bot/Dockerfile
+    container_name: Bot
     configs:
       - privileges
-      - conf
+      - config
     secrets:
       - keys

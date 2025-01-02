@@ -1,0 +1,60 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": []
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": true,
+    "indentStyle": "space"
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        // TODO: turn this lint back on
+        "noExplicitAny": "off"
+      },
+      "performance": {
+        // not important enough to be concerned about
+        "noAccumulatingSpread": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "lineWidth": 100
+    }
+  },
+  "overrides": [
+    {
+      "include": [
+        "*.test.ts",
+        "*.spec.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            // Correctness is not essential in tests
+            "noNonNullAssertion": "off"
+          },
+          "complexity": {
+            // often used to get around typescript privacy limitations
+            "useLiteralKeys": "off"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "@activityrank/bot",
+  "private": true,
+  "version": "6.0.0",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "production": "NODE_ENV=production node ./src/app.js",
+    "development": "NODE_ENV=development node ./src/app.js",
+    "developmentNodemon": "nodemon --exec \"npm run build && npm run dev\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:check": "vitest --run",
+    "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
+    "dev": "node --enable-source-maps ./dist/app.js",
+    "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\""
+  },
+  "imports": {
+    "#*": {
+      "@activityrank/dev": "./src/*",
+      "default": "./dist/*"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rapha01/activityRank-bot.git"
+  },
+  "dependencies": {
+    "@activityrank/cfg": "workspace:*",
+    "@discordjs/rest": "^2.4.0",
+    "@isaacs/ttlcache": "^1.4.1",
+    "@sapphire/async-queue": "^1.5.3",
+    "@sapphire/duration": "^1.1.2",
+    "@sapphire/snowflake": "^3.5.3",
+    "@swc/cli": "^0.4.0",
+    "@swc/core": "^1.7.28",
+    "callsites": "^4.2.0",
+    "common-tags": "^1.8.2",
+    "croner": "^8.1.1",
+    "discord.js": "^14.16.2",
+    "fast-glob": "^3.3.2",
+    "kysely": "^0.27.4",
+    "mysql2": "^3.11.3",
+    "nanoid": "^5.0.7",
+    "node-emoji": "^2.1.3",
+    "pino": "^9.4.0",
+    "pretty-ms": "^9.1.0",
+    "public-ip": "^7.0.1",
+    "unicode-emoji-json": "^0.6.0"
+  },
+  "devDependencies": {
+    "@activityrank/tsconfig": "workspace:*",
+    "@discordjs/core": "^2.0.0",
+    "@types/common-tags": "^1.8.4",
+    "@types/node-cron": "^3.0.11",
+    "citty": "^0.1.6",
+    "colorette": "^2.0.20",
+    "defu": "^6.1.4",
+    "execa": "^9.4.0",
+    "nodemon": "^3.1.7",
+    "pino-pretty": "^11.2.2",
+    "typescript": "^5.6.2",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.1.1",
+    "zod": "^3.23.8"
+  },
+  "nodemonConfig": {
+    "delay": 2500,
+    "ext": "js,ts",
+    "watch": ["src/**/*.ts"]
+  }
+}
