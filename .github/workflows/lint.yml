@@ -49,3 +49,5 @@ jobs:
 
       - name: Check types with tsc
         run: pnpm exec turbo run --affected typecheck
+
+      # TODO: run tests
