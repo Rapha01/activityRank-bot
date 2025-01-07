@@ -1,6 +1,7 @@
 {
   "name": "@activityrank/manager",
   "private": true,
+  "version": "7.0.0",
   "type": "module",
   "scripts": {
     "start": "node ./dist/app.js",
