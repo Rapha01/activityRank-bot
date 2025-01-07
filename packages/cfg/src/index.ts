@@ -1,5 +1,7 @@
-import type { z } from 'zod';
+import Path from 'node:path';
 import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import type { z } from 'zod';
 import * as schemas from './schemas.js';
 
 interface LoadOptions<T extends z.ZodTypeAny> {
@@ -8,7 +10,7 @@ interface LoadOptions<T extends z.ZodTypeAny> {
   secret: boolean;
 }
 
-function configLoader(basePath?: URL | string | null) {
+function configLoader(basePath?: string | null) {
   if (process.env.NODE_ENV === 'production' && basePath) {
     throw new TypeError('[@activityrank/cfg] basePath should not be provided in production mode.');
   }
@@ -16,16 +18,26 @@ function configLoader(basePath?: URL | string | null) {
     throw new TypeError('[@activityrank/cfg] basePath must be provided in development mode.');
   }
 
-  const path = basePath ? new URL(basePath) : null;
+  const path = basePath ? Path.resolve(basePath) : null;
+
   function getLoadPath(opts: { name: string; secret: boolean }): URL {
-    return path
-      ? new URL(opts.name, path)
-      : opts.secret
-        ? new URL(opts.name, 'file:/run/secrets')
-        : new URL(opts.name, 'file:/');
+    if (path) {
+      // Use `config.json` in dev; `config` for Secrets
+      // `path` is only provided in dev, so the .json file ending is valid
+      return pathToFileURL(Path.join(path, `${opts.name}.json`));
+    }
+    // Secrets are mounted into `/run/secrets`. Configs are mounted into the root dir.
+    const mountPath = opts.secret ? '/run/secrets' : '/';
+    return pathToFileURL(Path.join(mountPath, opts.name));
   }
 
   async function load<T extends z.ZodTypeAny>(opts: LoadOptions<T>): Promise<z.infer<T>> {
+    const match = /(.*)\..*$/.exec(opts.name);
+    if (match) {
+      console.warn(
+        `Loading file with name "${opts.name}". Files have their .json extensions appended to them by default. Did you mean to use "${match[1]}" instead?`,
+      );
+    }
     const loadPath = getLoadPath(opts);
 
     const file = await readFile(loadPath);

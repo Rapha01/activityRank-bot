@@ -8,7 +8,7 @@
       { "tier": 2, "id": "1059900445759385650" },
       { "tier": 3, "id": "1059900590852944035" }
     ],
-    "supportHook": ""
+    "supportHook": "https://example.net"
   },
   "invite": {
     "standard": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands%20applications.commands.permissions.update",
