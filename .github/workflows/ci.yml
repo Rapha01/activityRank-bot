@@ -23,14 +23,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Check that the tag is valid. For instance: bot/v1.2.3
-      # Example invalid names: v1.2.3, bot/1.2.3, @activityrank/bot/v1.2.3
+      # Check that the tag is valid. 
+      # For instance:
+      # * @activityrank/bot/v1.2.3
+      # * @activityrank/bot:v1.2.3
+      # * bot:v1.2.3
+      # * bot/v1.2.3
+
+      # Example invalid names: 
+      # * v1.2.3, 
+      # * bot/1.2.3
+
+      # ⚠️ Technically valid (but unintended) names: ⚠️
+      # * @activityrank/v1.2.3 (matches as [module = activityrank, version = v1.2.3])
+
       - name: Match tag name
         uses: actions-ecosystem/action-regex-match@v2
         id: regex-match
         with:
           text: ${{ github.ref_name }}
-          regex: '([a-z-]+)\/v\d+\.\d+\.\d+'
+          regex: '(?:@activityrank\/)?([a-z-]+)[\/:]v\d+\.\d+\.\d+'
 
       - name: Exit if tag not matched
         if: ${{ steps.regex-match.outputs.match == '' }}
@@ -66,9 +78,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/rapha01/activityrank/${{ env.APP }}
           tags: |
-            type=match,pattern=v(\d\.\d\.\d),group=1
-            type=match,pattern=v(\d\.\d)\.\d,group=1
-            type=match,pattern=v(\d)\.\d\.\d,group=1
+            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:]v(\d+\.\d+\.\d+),group=1
+            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:]v(\d+\.\d+)\.\d+,group=1
+            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:]v(\d+)\.\d+\.\d+,group=1
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
