@@ -85,7 +85,7 @@ export const xpPerRole = subcommand({
 
     const existingXpPerRoles = await getShardDb(guildModel.dbHost)
       .selectFrom('guildRole')
-      .select((eb) => eb.fn.countAll<string>().as('count'))
+      .select('roleId')
       .where('guildId', '=', role.guild.id)
       .where((w) =>
         w.or([
@@ -95,9 +95,12 @@ export const xpPerRole = subcommand({
           w('xpPerVote', '!=', 0),
         ]),
       )
-      .executeTakeFirstOrThrow();
+      .execute();
 
-    if (Number.parseInt(existingXpPerRoles.count) >= 5) {
+    if (
+      existingXpPerRoles.length >= 5 &&
+      !existingXpPerRoles.map(({ roleId }) => roleId).includes(role.id)
+    ) {
       await interaction.reply({
         content:
           'There is a maximum of 5 roles that can be set as xp-per roles. Please remove some first.',
