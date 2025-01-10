@@ -11,9 +11,6 @@ export interface BonusSchema {
   changeDate: Generated<string>;
   addDate: Generated<string>;
 }
-export type Bonus = Selectable<BonusSchema>;
-export type NewBonus = Insertable<BonusSchema>;
-export type BonusUpdate = Updateable<BonusSchema>;
 
 export interface GuildSchema {
   guildId: string;
@@ -84,9 +81,6 @@ export interface GuildSchema {
   resetDeletedMembers: Generated<number>;
   stickyLevelRoles: Generated<number>;
 }
-export type Guild = Selectable<GuildSchema>;
-export type NewGuild = Insertable<GuildSchema>;
-export type GuildUpdate = Updateable<GuildSchema>;
 
 export interface GuildChannelSchema {
   guildId: string;
@@ -94,9 +88,6 @@ export interface GuildChannelSchema {
   noXp: Generated<number>;
   noCommand: Generated<number>;
 }
-export type GuildChannel = Selectable<GuildChannelSchema>;
-export type NewGuildChannel = Insertable<GuildChannelSchema>;
-export type GuildChannelUpdate = Updateable<GuildChannelSchema>;
 
 export interface GuildMemberSchema {
   guildId: string;
@@ -111,9 +102,6 @@ export interface GuildMemberSchema {
   week: Generated<number>;
   day: Generated<number>;
 }
-export type GuildMember = Selectable<GuildMemberSchema>;
-export type NewGuildMember = Insertable<GuildMemberSchema>;
-export type GuildMemberUpdate = Updateable<GuildMemberSchema>;
 
 export interface GuildRoleSchema {
   guildId: string;
@@ -128,9 +116,6 @@ export interface GuildRoleSchema {
   xpPerInvite: Generated<number>;
   noXp: Generated<number>;
 }
-export type GuildRole = Selectable<GuildRoleSchema>;
-export type NewGuildRole = Insertable<GuildRoleSchema>;
-export type GuildRoleUpdate = Updateable<GuildRoleSchema>;
 
 export interface InviteSchema {
   guildId: string;
@@ -143,9 +128,6 @@ export interface InviteSchema {
   changeDate: Generated<string>;
   addDate: Generated<string>;
 }
-export type Invite = Selectable<InviteSchema>;
-export type NewInvite = Insertable<InviteSchema>;
-export type InviteUpdate = Updateable<InviteSchema>;
 
 export interface TextMessageSchema {
   guildId: string;
@@ -159,9 +141,6 @@ export interface TextMessageSchema {
   changeDate: Generated<string>;
   addDate: Generated<string>;
 }
-export type TextMessage = Selectable<TextMessageSchema>;
-export type NewTextMessage = Insertable<TextMessageSchema>;
-export type TextMessageUpdate = Updateable<TextMessageSchema>;
 
 export interface UserSchema {
   userId: string;
@@ -177,9 +156,6 @@ export interface UserSchema {
   patreonTierUntilDate: Generated<string>;
   lastTopggUpvoteDate: Generated<string>;
 }
-export type User = Selectable<UserSchema>;
-export type NewUser = Insertable<UserSchema>;
-export type UserUpdate = Updateable<UserSchema>;
 
 export interface VoiceMinuteSchema {
   guildId: string;
@@ -193,9 +169,6 @@ export interface VoiceMinuteSchema {
   changeDate: Generated<string>;
   addDate: Generated<string>;
 }
-export type VoiceMinute = Selectable<VoiceMinuteSchema>;
-export type NewVoiceMinute = Insertable<VoiceMinuteSchema>;
-export type VoiceMinuteUpdate = Updateable<VoiceMinuteSchema>;
 
 export interface VoteSchema {
   guildId: string;
@@ -208,9 +181,6 @@ export interface VoteSchema {
   changeDate: Generated<string>;
   addDate: Generated<string>;
 }
-export type Vote = Selectable<VoteSchema>;
-export type NewVote = Insertable<VoteSchema>;
-export type VoteUpdate = Updateable<VoteSchema>;
 
 export interface ShardDB {
   bonus: BonusSchema;
@@ -226,6 +196,19 @@ export interface ShardDB {
 }
 
 export namespace ShardDB {
+  export namespace Schema {
+    export type Bonus = BonusSchema;
+    export type Guild = GuildSchema;
+    export type GuildChannel = GuildChannelSchema;
+    export type GuildMember = GuildMemberSchema;
+    export type GuildRole = GuildRoleSchema;
+    export type Invite = InviteSchema;
+    export type TextMessage = TextMessageSchema;
+    export type User = UserSchema;
+    export type VoiceMinute = VoiceMinuteSchema;
+    export type Vote = VoteSchema;
+  }
+
   export type Bonus = Selectable<BonusSchema>;
   export type NewBonus = Insertable<BonusSchema>;
   export type BonusUpdate = Updateable<BonusSchema>;

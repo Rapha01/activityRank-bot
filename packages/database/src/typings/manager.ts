@@ -20,9 +20,6 @@ export interface BotShardStatSchema {
   commandsTotal: Generated<number>;
   textMessagesTotal: Generated<number>;
 }
-export type BotShardStat = Selectable<BotShardStatSchema>;
-export type NewBotShardStat = Insertable<BotShardStatSchema>;
-export type BotShardStatUpdate = Updateable<BotShardStatSchema>;
 
 export interface BotStatSchema {
   commands1h: Generated<number>;
@@ -35,25 +32,16 @@ export interface BotStatSchema {
   serverCount: Generated<number>;
   addDate: Generated<number>;
 }
-export type BotStat = Selectable<BotStatSchema>;
-export type NewBotStat = Insertable<BotStatSchema>;
-export type BotStatUpdate = Updateable<BotStatSchema>;
 
 export interface DbShardSchema {
   id: Generated<string>;
   host: Generated<string>;
 }
-export type DbShard = Selectable<DbShardSchema>;
-export type NewDbShard = Insertable<DbShardSchema>;
-export type DbShardUpdate = Updateable<DbShardSchema>;
 
 export interface GuildRouteSchema {
   guildId: Generated<string>;
   dbShardId: Generated<number>;
 }
-export type GuildRoute = Selectable<GuildRouteSchema>;
-export type NewGuildRoute = Insertable<GuildRouteSchema>;
-export type GuildRouteUpdate = Updateable<GuildRouteSchema>;
 
 export interface ProductKeySchema {
   key: string;
@@ -62,25 +50,16 @@ export interface ProductKeySchema {
   consumeDate: Generated<number>;
   addDate: Generated<number>;
 }
-export type ProductKey = Selectable<ProductKeySchema>;
-export type NewProductKey = Insertable<ProductKeySchema>;
-export type ProductKeyUpdate = Updateable<ProductKeySchema>;
 
 export interface SettingSchema {
   id: string;
   value: Generated<string>;
 }
-export type Setting = Selectable<SettingSchema>;
-export type NewSetting = Insertable<SettingSchema>;
-export type SettingUpdate = Updateable<SettingSchema>;
 
 export interface UserRouteSchema {
   userId: Generated<string>;
   dbShardId: Generated<number>;
 }
-export type UserRoute = Selectable<UserRouteSchema>;
-export type NewUserRoute = Insertable<UserRouteSchema>;
-export type UserRouteUpdate = Updateable<UserRouteSchema>;
 
 export interface ManagerDB {
   botShardStat: BotShardStatSchema;
@@ -93,6 +72,16 @@ export interface ManagerDB {
 }
 
 export namespace ManagerDB {
+  export namespace Schema {
+    export type BotShardStat = BotShardStatSchema;
+    export type BotStat = BotStatSchema;
+    export type DbShard = DbShardSchema;
+    export type GuildRoute = GuildRouteSchema;
+    export type ProductKey = ProductKeySchema;
+    export type Setting = SettingSchema;
+    export type UserRoute = UserRouteSchema;
+  }
+
   export type BotShardStat = Selectable<BotShardStatSchema>;
   export type NewBotShardStat = Insertable<BotShardStatSchema>;
   export type BotShardStatUpdate = Updateable<BotShardStatSchema>;
