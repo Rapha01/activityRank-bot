@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import scheduler from './cron/scheduler.js';
 import fct from './util/fct.js';
 import { ShardingManager } from 'discord.js';
@@ -12,7 +13,11 @@ const managerOptions = {
   // shardList: Array.from(Array(20).keys()),
   // totalShards: 20
 };
-const manager = new ShardingManager('./dist/bot/bot.js', managerOptions);
+
+const manager = new ShardingManager(
+  fileURLToPath(new URL('./bot/bot.js', import.meta.url)),
+  managerOptions,
+);
 
 start().catch(async (e) => {
   logger.fatal(e);

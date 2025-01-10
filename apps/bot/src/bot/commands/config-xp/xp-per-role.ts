@@ -6,6 +6,7 @@ import { actionrow, closeButton } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { component } from '#bot/util/registry/component.js';
 import { shards } from '#models/shardDb/shardDb.js';
+import fct from '#util/fct.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({
@@ -86,7 +87,7 @@ export const xpPerRole = subcommand({
     const existingXpPerRoles = await shards
       .get(guildModel.dbHost)
       .db.selectFrom('guildRole')
-      .select((eb) => eb.fn.countAll<string>().as('count'))
+      .select('roleId')
       .where('guildId', '=', role.guild.id)
       .where((w) =>
         w.or([
@@ -96,12 +97,23 @@ export const xpPerRole = subcommand({
           w('xpPerVote', '!=', 0),
         ]),
       )
-      .executeTakeFirstOrThrow();
+      .execute();
 
-    if (Number.parseInt(existingXpPerRoles.count) >= 5) {
+    const patreonTiers = await fct.getPatreonTiers(interaction);
+    const increasedLimit = patreonTiers.ownerTier === 2;
+    const maxRoles = increasedLimit ? 15 : 5;
+
+    if (
+      existingXpPerRoles.length >= maxRoles &&
+      !existingXpPerRoles.map(({ roleId }) => roleId).includes(role.id)
+    ) {
       await interaction.reply({
-        content:
-          'There is a maximum of 5 roles that can be set as xp-per roles. Please remove some first.',
+        content: [
+          `There is a maximum of ${maxRoles} roles that can be set as xp-per roles. Please remove some first.`,
+          increasedLimit
+            ? '\n*Get an extra 10 xp-per roles by subscribing to Patreon Tier 2!*'
+            : '',
+        ].join('\n'),
         ephemeral: true,
       });
       return;
