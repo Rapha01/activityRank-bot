@@ -1,17 +1,16 @@
+import type { ShardDB } from '@activityrank/database';
 import { shards } from '../../../models/shardDb/shardDb.js';
 import type { Guild, GuildMember } from 'discord.js';
-import type {
-  GuildMember as DBMember,
-  GuildMemberSchema,
-  GuildMemberUpdate,
-} from '#models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
 import { fetchMemberTotalXp } from '../rankModel.js';
 import { CachedModel } from '../generic/model.js';
 
-const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const satisfies (keyof DBMember)[];
-let defaultCache: Pick<DBMember, (typeof cachedFields)[number]> | null = null;
-let defaultAll: DBMember | null = null;
+const cachedFields = [
+  'notifyLevelupDm',
+  'reactionVote',
+] as const satisfies (keyof ShardDB.GuildMember)[];
+let defaultCache: Pick<ShardDB.GuildMember, (typeof cachedFields)[number]> | null = null;
+let defaultAll: ShardDB.GuildMember | null = null;
 
 interface MemberCacheStorage {
   totalXp?: number;
@@ -25,7 +24,7 @@ export const memberCache = new WeakMap<GuildMember, GuildMemberModel>();
 
 export class GuildMemberModel extends CachedModel<
   GuildMember,
-  GuildMemberSchema,
+  ShardDB.Schema.GuildMember,
   typeof cachedFields,
   MemberCacheStorage
 > {
@@ -72,7 +71,7 @@ export class GuildMemberModel extends CachedModel<
     return defaultAll;
   }
 
-  async upsert(expr: GuildMemberUpdate) {
+  async upsert(expr: ShardDB.GuildMemberUpdate) {
     await this.handle
       .insertInto('guildMember')
       .values({ userId: this._object.id, guildId: this._object.guild.id, ...expr })

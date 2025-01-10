@@ -1,13 +1,13 @@
+import type { ShardDB } from '@activityrank/database';
 import { shards } from '#models/shardDb/shardDb.js';
 import { manager } from '#models/managerDb/managerDb.js';
 import type { User } from 'discord.js';
-import type { User as DBUser, UserSchema, UserUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from './generic/model.js';
 
-let defaultCache: Pick<DBUser, (typeof cachedFields)[number]> | null = null;
-let defaultAll: DBUser | null = null;
+let defaultCache: Pick<ShardDB.User, (typeof cachedFields)[number]> | null = null;
+let defaultAll: ShardDB.User | null = null;
 
-const cachedFields = ['userId', 'isBanned'] as const satisfies (keyof DBUser)[];
+const cachedFields = ['userId', 'isBanned'] as const satisfies (keyof ShardDB.User)[];
 
 interface UserCacheStorage {
   patreonTier?: number;
@@ -19,7 +19,7 @@ export const userCache = new WeakMap<User, UserModel>();
 
 export class UserModel extends CachedModel<
   User,
-  UserSchema,
+  ShardDB.Schema.User,
   typeof cachedFields,
   UserCacheStorage
 > {
@@ -60,7 +60,7 @@ export class UserModel extends CachedModel<
     return defaultAll;
   }
 
-  async upsert(expr: UserUpdate) {
+  async upsert(expr: ShardDB.UserUpdate) {
     await this.handle
       .insertInto('user')
       .values({ userId: this._object.id, ...expr })

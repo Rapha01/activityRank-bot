@@ -1,3 +1,4 @@
+import type { ShardDB } from '@activityrank/database';
 import {
   ActionRowBuilder,
   EmbedBuilder,
@@ -9,7 +10,6 @@ import {
   type Interaction,
   ApplicationCommandOptionType,
 } from 'discord.js';
-
 import { stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
@@ -18,8 +18,7 @@ import { ParserResponseStatus, parseChannel } from '../util/parser.js';
 import { command, permissions } from '#bot/util/registry/command.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser, requireUserId } from '#bot/util/predicates.js';
-import { actionrow, closeButton } from '#bot/util/component.js';
-import type { GuildChannel } from '#models/types/kysely/shard.js';
+import { closeButton } from '#bot/util/component.js';
 
 type Setting =
   | 'noXp'
@@ -100,7 +99,7 @@ const generateRow = (
   channelId: string,
   type: ChannelType | null,
   myGuild: GuildModel,
-  myChannel: GuildChannel,
+  myChannel: ShardDB.GuildChannel,
 ) => {
   const r = [
     new ButtonBuilder().setLabel('No XP'),

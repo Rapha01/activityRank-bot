@@ -1,3 +1,4 @@
+import type { ShardDB } from '@activityrank/database';
 import {
   EmbedBuilder,
   ButtonStyle,
@@ -25,7 +26,6 @@ import {
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
-import type { Guild as DBGuild } from '#models/types/kysely/shard.js';
 import { command } from '#bot/util/registry/command.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 import { component, ComponentKey } from '#bot/util/registry/component.js';
@@ -147,7 +147,7 @@ async function execCacheSet<T extends keyof CacheInstance>(
 async function generateCard(
   cache: CacheInstance,
   guild: Guild,
-  myGuild: DBGuild,
+  myGuild: ShardDB.Guild,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   if (cache.window === 'rank') {
@@ -170,7 +170,7 @@ const _prettifyTime: { [k in StatTimeInterval]: string } = {
 async function generateChannelCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: DBGuild,
+  myGuild: ShardDB.Guild,
   disabled: boolean,
 ): Promise<InteractionEditReplyOptions> {
   const page = fct.extractPageSimple(state.page ?? 1, myGuild.entriesPerPage);
@@ -287,7 +287,7 @@ async function getTopChannels(
 async function generateRankCard(
   state: CacheInstance,
   guild: Guild,
-  myGuild: DBGuild,
+  myGuild: ShardDB.Guild,
   disabled = false,
 ): Promise<InteractionEditReplyOptions> {
   const scores = await fetchGuildMemberScores(guild, state.targetUser.id);

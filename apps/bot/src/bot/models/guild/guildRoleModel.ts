@@ -1,10 +1,6 @@
+import type { ShardDB } from '@activityrank/database';
 import { shards } from '#models/shardDb/shardDb.js';
 import type { Guild, Role } from 'discord.js';
-import type {
-  GuildRole as DBRole,
-  GuildRoleSchema,
-  GuildRoleUpdate,
-} from '#models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
 import { CachedModel } from '../generic/model.js';
 
@@ -18,10 +14,10 @@ const cachedFields = [
   'xpPerTextMessage',
   'xpPerVote',
   'xpPerInvite',
-] as const satisfies (keyof DBRole)[];
+] as const satisfies (keyof ShardDB.GuildRole)[];
 
-let defaultCache: Pick<DBRole, (typeof cachedFields)[number]> | null = null;
-let defaultAll: DBRole | null = null;
+let defaultCache: Pick<ShardDB.GuildRole, (typeof cachedFields)[number]> | null = null;
+let defaultAll: ShardDB.GuildRole | null = null;
 
 // nothing currently stored here
 type RoleCacheStorage = Record<string, never>;
@@ -35,7 +31,7 @@ export function clearRoleCache() {
 
 export class RoleModel extends CachedModel<
   Role,
-  GuildRoleSchema,
+  ShardDB.Schema.GuildRole,
   typeof cachedFields,
   RoleCacheStorage
 > {
@@ -58,7 +54,7 @@ export class RoleModel extends CachedModel<
     return await this.fetchDefault();
   }
 
-  async upsert(expr: GuildRoleUpdate) {
+  async upsert(expr: ShardDB.GuildRoleUpdate) {
     await this.handle
       .insertInto('guildRole')
       .values({ roleId: this._object.id, guildId: this._object.guild.id, ...expr })

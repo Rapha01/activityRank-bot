@@ -1,4 +1,4 @@
-import type { User } from '#models/types/kysely/shard.js';
+import type { ShardDB } from '@activityrank/database';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { getUserModel } from '../bot/models/userModel.js';
 import type { BaseInteraction, GuildMember } from 'discord.js';
@@ -85,7 +85,7 @@ export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
   return { userTier, ownerTier };
 }
 
-export function getVoteMultiplier(dbUser: User): number {
+export function getVoteMultiplier(dbUser: ShardDB.User): number {
   const lastTopggUpvoteDate = Number.parseInt(dbUser.lastTopggUpvoteDate);
   const patreonTierUntilDate = Number.parseInt(dbUser.patreonTierUntilDate);
 

@@ -1,4 +1,4 @@
-import type { ShardDB } from '#models/types/kysely/shard.js';
+import type { ShardDB } from '@activityrank/database';
 import type { Kysely, Updateable, Selectable } from 'kysely';
 import { shards } from '#models/shardDb/shardDb.js';
 

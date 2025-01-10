@@ -1,6 +1,6 @@
+import type { ShardDB } from '@activityrank/database';
 import { shards } from '#models/shardDb/shardDb.js';
 import { manager } from '#models/managerDb/managerDb.js';
-import type { GuildSchema, GuildUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
 
@@ -61,7 +61,7 @@ export const guildCache = new WeakMap<Guild, GuildModel>();
 
 export class GuildModel extends CachedModel<
   Guild,
-  GuildSchema,
+  ShardDB.Schema.Guild,
   typeof cachedFields,
   GuildCacheStorage
 > {
@@ -76,7 +76,7 @@ export class GuildModel extends CachedModel<
     return guild;
   }
 
-  async upsert(expr: GuildUpdate) {
+  async upsert(expr: ShardDB.GuildUpdate) {
     await this.handle
       .insertInto('guild')
       .values({ guildId: this._object.id, ...expr })
