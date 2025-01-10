@@ -91,3 +91,33 @@ export interface ManagerDB {
   setting: SettingSchema;
   userRoute: UserRouteSchema;
 }
+
+export namespace ManagerDB {
+  export type BotShardStat = Selectable<BotShardStatSchema>;
+  export type NewBotShardStat = Insertable<BotShardStatSchema>;
+  export type BotShardStatUpdate = Updateable<BotShardStatSchema>;
+
+  export type BotStat = Selectable<BotStatSchema>;
+  export type NewBotStat = Insertable<BotStatSchema>;
+  export type BotStatUpdate = Updateable<BotStatSchema>;
+
+  export type DbShard = Selectable<DbShardSchema>;
+  export type NewDbShard = Insertable<DbShardSchema>;
+  export type DbShardUpdate = Updateable<DbShardSchema>;
+
+  export type GuildRoute = Selectable<GuildRouteSchema>;
+  export type NewGuildRoute = Insertable<GuildRouteSchema>;
+  export type GuildRouteUpdate = Updateable<GuildRouteSchema>;
+
+  export type ProductKey = Selectable<ProductKeySchema>;
+  export type NewProductKey = Insertable<ProductKeySchema>;
+  export type ProductKeyUpdate = Updateable<ProductKeySchema>;
+
+  export type Setting = Selectable<SettingSchema>;
+  export type NewSetting = Insertable<SettingSchema>;
+  export type SettingUpdate = Updateable<SettingSchema>;
+
+  export type UserRoute = Selectable<UserRouteSchema>;
+  export type NewUserRoute = Insertable<UserRouteSchema>;
+  export type UserRouteUpdate = Updateable<UserRouteSchema>;
+}

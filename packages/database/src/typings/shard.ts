@@ -224,3 +224,45 @@ export interface ShardDB {
   voiceMinute: VoiceMinuteSchema;
   vote: VoteSchema;
 }
+
+export namespace ShardDB {
+  export type Bonus = Selectable<BonusSchema>;
+  export type NewBonus = Insertable<BonusSchema>;
+  export type BonusUpdate = Updateable<BonusSchema>;
+
+  export type Guild = Selectable<GuildSchema>;
+  export type NewGuild = Insertable<GuildSchema>;
+  export type GuildUpdate = Updateable<GuildSchema>;
+
+  export type GuildChannel = Selectable<GuildChannelSchema>;
+  export type NewGuildChannel = Insertable<GuildChannelSchema>;
+  export type GuildChannelUpdate = Updateable<GuildChannelSchema>;
+
+  export type GuildMember = Selectable<GuildMemberSchema>;
+  export type NewGuildMember = Insertable<GuildMemberSchema>;
+  export type GuildMemberUpdate = Updateable<GuildMemberSchema>;
+
+  export type GuildRole = Selectable<GuildRoleSchema>;
+  export type NewGuildRole = Insertable<GuildRoleSchema>;
+  export type GuildRoleUpdate = Updateable<GuildRoleSchema>;
+
+  export type Invite = Selectable<InviteSchema>;
+  export type NewInvite = Insertable<InviteSchema>;
+  export type InviteUpdate = Updateable<InviteSchema>;
+
+  export type TextMessage = Selectable<TextMessageSchema>;
+  export type NewTextMessage = Insertable<TextMessageSchema>;
+  export type TextMessageUpdate = Updateable<TextMessageSchema>;
+
+  export type User = Selectable<UserSchema>;
+  export type NewUser = Insertable<UserSchema>;
+  export type UserUpdate = Updateable<UserSchema>;
+
+  export type VoiceMinute = Selectable<VoiceMinuteSchema>;
+  export type NewVoiceMinute = Insertable<VoiceMinuteSchema>;
+  export type VoiceMinuteUpdate = Updateable<VoiceMinuteSchema>;
+
+  export type Vote = Selectable<VoteSchema>;
+  export type NewVote = Insertable<VoteSchema>;
+  export type VoteUpdate = Updateable<VoteSchema>;
+}
