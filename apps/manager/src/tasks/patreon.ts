@@ -1,5 +1,5 @@
 import { keys } from '../const/keys.js';
-import { queryAllHosts } from '../models/shardDb.js';
+import { shards } from '../models/shardDb.js';
 import { setUser } from '../models/userModel.js';
 import { backOff } from 'exponential-backoff';
 import { ofetch } from 'ofetch';
@@ -51,11 +51,14 @@ export async function runPatreonTask() {
    * Update DB. Use activePledges to update DB (if information of pledge and DB differ)
    */
 
-  const usersWithActivePledge = await queryAllHosts<{
-    userId: string;
-    patreonTier: number;
-    patreonTierUntilDate: number;
-  }>(`SELECT * FROM user WHERE patreonTier > 0 && patreonTierUntilDate > ${Date.now() / 1000}`);
+  const usersWithActivePledge = await shards.executeOnAllHosts((db) =>
+    db
+      .selectFrom('user')
+      .selectAll()
+      .where('patreonTier', '>', 0)
+      .where('patreonTierUntilDate', '>', Math.floor(Date.now() / 1000).toString())
+      .execute(),
+  );
 
   console.log(`Processing ${entitledPledgesWithDiscord.length} pledges.`);
 
@@ -66,7 +69,10 @@ export async function runPatreonTask() {
 
     // Update DB only if new pledge (update different tier only if new untilDate surpasses old untilDate, to avoid manual grant overridings)
     const pledgeSeconds = pledge.until.getTime() / 1000;
-    if (!userWithActivePledge || pledgeSeconds > userWithActivePledge.patreonTierUntilDate) {
+    if (
+      !userWithActivePledge ||
+      pledgeSeconds > Number.parseInt(userWithActivePledge.patreonTierUntilDate)
+    ) {
       console.log(
         'UPDATE DB \n oldUser: ',
         userWithActivePledge || 'noActiveTier',

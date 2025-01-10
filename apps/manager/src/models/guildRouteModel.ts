@@ -1,16 +1,18 @@
-import { queryManager } from './managerDb.js';
+import { manager } from './managerDb.js';
 
 export async function get(guildId: string) {
-  let res = await queryManager<{ host: string }[]>(
-    `SELECT host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
-  );
+  const select = manager.db
+    .selectFrom('guildRoute')
+    .leftJoin('dbShard', 'guildRoute.dbShardId', 'dbShard.id')
+    .select('host')
+    .where('guildId', '=', guildId);
 
-  if (res.length < 1) {
-    await queryManager(`INSERT INTO guildRoute (guildId) VALUES (${guildId})`);
-    res = await queryManager(
-      `SELECT host FROM guildRoute LEFT JOIN dbShard ON guildRoute.dbShardId = dbShard.id WHERE guildId = ${guildId}`,
-    );
+  const res = await select.executeTakeFirst();
+  if (res) {
+    return res.host;
   }
 
-  return res[0].host;
+  await manager.db.insertInto('guildRoute').values({ guildId }).executeTakeFirstOrThrow();
+  const newValue = await select.executeTakeFirstOrThrow();
+  return newValue.host;
 }

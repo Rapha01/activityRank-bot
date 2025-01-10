@@ -1,9 +1,11 @@
-import { queryManager } from './managerDb.js';
+import { manager } from './managerDb.js';
 
 export async function getShardServerCounts() {
-  const results = await queryManager<{ serverCount: number }[]>(
-    'SELECT serverCount FROM botShardStat WHERE shardId < 1000000',
-  );
+  const results = await manager.db
+    .selectFrom('botShardStat')
+    .select('serverCount')
+    .where('shardId', '<', 1_000_000)
+    .execute();
 
   return results.map((res) => res.serverCount);
 }
@@ -19,15 +21,24 @@ interface ShardStats {
 }
 
 export async function getShardStats() {
-  return await queryManager<ShardStats[]>(
-    'SELECT shardId, status, serverCount, uptimeSeconds, readyDate, ip, changedHealthDate \
-    FROM botShardStat WHERE shardId < 1000000',
-  );
+  return await manager.db
+    .selectFrom('botShardStat')
+    .select([
+      'shardId',
+      'status',
+      'serverCount',
+      'uptimeSeconds',
+      'readyDate',
+      'ip',
+      'changedHealthDate',
+    ])
+    .where('shardId', '<', 1_000_000)
+    .execute();
 }
 
 /** Get the IPs of all shards. */
 export async function getShardIps() {
-  const res = await queryManager<{ ip: string }[]>('SELECT ip FROM botShardStat');
+  const res = await manager.db.selectFrom('botShardStat').select('ip').execute();
   const ips = res.map(({ ip }) => ip);
   return Array.from(new Set(ips));
 }
