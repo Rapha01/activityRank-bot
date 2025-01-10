@@ -1,4 +1,4 @@
-import { getShardDb } from '#models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 import { manager } from '#models/managerDb/managerDb.js';
 import type { GuildSchema, GuildUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
@@ -101,7 +101,7 @@ export async function getGuildModel(guild: Guild): Promise<GuildModel> {
 
 async function buildCache(guild: Guild): Promise<GuildModel> {
   const host = await getDbHost(guild.id);
-  const db = getShardDb(host);
+  const { db } = shards.get(host);
 
   const fetch = db.selectFrom('guild').select(cachedFields).where('guildId', '=', guild.id);
 

@@ -81,7 +81,12 @@ export function createShardInstance(options: PoolOptions) {
     await conn.end();
   }
 
-  return { db, getConnection, testConnection };
+  /** @deprecated Prefer querying with Kysely */
+  async function _query<T>(sql: string): Promise<T> {
+    return (await pool.query(sql))[0] as T;
+  }
+
+  return { db, getConnection, testConnection, _query };
 }
 
 export type ShardInstance = Awaited<ReturnType<typeof createShardInstance>>;

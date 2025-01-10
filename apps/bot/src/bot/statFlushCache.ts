@@ -4,7 +4,7 @@ import type { StatType } from '#models/types/enums.js';
 import { getGuildModel, type GuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
 import { addXp } from './xpFlushCache.js';
-import { getShardDb } from '#models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 
 async function getXpMultiplier(
   member: GuildMember,
@@ -17,8 +17,9 @@ async function getXpMultiplier(
   let highestXpValue = 0;
 
   // TODO: refactor to use cached value
-  const roles = await getShardDb(guildModel.dbHost)
-    .selectFrom('guildRole')
+  const roles = await shards
+    .get(guildModel.dbHost)
+    .db.selectFrom('guildRole')
     .select(['roleId', key])
     .where('guildId', '=', member.guild.id)
     .where('roleId', 'in', roleIds)

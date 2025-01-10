@@ -1,4 +1,4 @@
-import { getShardDb } from '../../../models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 import type { Guild, Role } from 'discord.js';
 import type {
   GuildRole as DBRole,
@@ -79,7 +79,7 @@ export class RoleModel extends CachedModel<
   async fetchDefault() {
     if (defaultAll) return defaultAll;
 
-    const db = getShardDb(this.dbHost);
+    const { db } = shards.get(this.dbHost);
 
     let res = await db
       .selectFrom('guildRole')
@@ -109,8 +109,9 @@ export async function getRoleModel(role: Role): Promise<RoleModel> {
 export async function fetchRoleAssignments(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
-  return await getShardDb(dbHost)
-    .selectFrom('guildRole')
+  return await shards
+    .get(dbHost)
+    .db.selectFrom('guildRole')
     .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
     .where('guildId', '=', guild.id)
     .where((w) => w.or([w('assignLevel', '!=', 0), w('deassignLevel', '!=', 0)]))
@@ -125,8 +126,9 @@ export async function fetchRoleAssignmentsByLevel(
 ) {
   const { dbHost } = await getGuildModel(guild);
 
-  return await getShardDb(dbHost)
-    .selectFrom('guildRole')
+  return await shards
+    .get(dbHost)
+    .db.selectFrom('guildRole')
     .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
     .where('guildId', '=', guild.id)
     .where(type, '=', level)
@@ -136,8 +138,9 @@ export async function fetchRoleAssignmentsByLevel(
 export async function fetchRoleAssignmentsByRole(guild: Guild, roleId: string) {
   const { dbHost } = await getGuildModel(guild);
 
-  return await getShardDb(dbHost)
-    .selectFrom('guildRole')
+  return await shards
+    .get(dbHost)
+    .db.selectFrom('guildRole')
     .select(['roleId', 'assignLevel', 'deassignLevel', 'assignMessage', 'deassignMessage'])
     .where('guildId', '=', guild.id)
     .where('roleId', '=', roleId)
@@ -147,8 +150,9 @@ export async function fetchRoleAssignmentsByRole(guild: Guild, roleId: string) {
 export async function fetchNoXpRoleIds(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
-  const ids = await getShardDb(dbHost)
-    .selectFrom('guildRole')
+  const ids = await shards
+    .get(dbHost)
+    .db.selectFrom('guildRole')
     .select('roleId')
     .where('guildId', '=', guild.id)
     .where('noXp', '=', 1)
@@ -159,10 +163,10 @@ export async function fetchNoXpRoleIds(guild: Guild) {
 
 async function buildCache(role: Role): Promise<RoleModel> {
   const { dbHost } = await getGuildModel(role.guild);
-  const db = getShardDb(dbHost);
 
-  const foundCache = await db
-    .selectFrom('guildRole')
+  const foundCache = await shards
+    .get(dbHost)
+    .db.selectFrom('guildRole')
     .select(cachedFields)
     .where('guildId', '=', role.guild.id)
     .where('roleId', '=', role.id)
@@ -178,7 +182,7 @@ async function buildCache(role: Role): Promise<RoleModel> {
 
 async function loadDefaultCache(dbHost: string) {
   if (defaultCache) return defaultCache;
-  const db = getShardDb(dbHost);
+  const { db } = shards.get(dbHost);
 
   let res = await db
     .selectFrom('guildRole')

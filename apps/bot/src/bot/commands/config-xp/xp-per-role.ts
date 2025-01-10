@@ -5,7 +5,7 @@ import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { component } from '#bot/util/registry/component.js';
-import { getShardDb } from '#models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 
 const xpPerOption = (name: string, object: string, min: number, max: number) =>
   ({
@@ -83,8 +83,9 @@ export const xpPerRole = subcommand({
     const guildModel = await getGuildModel(role.guild);
     const roleModel = await getRoleModel(role);
 
-    const existingXpPerRoles = await getShardDb(guildModel.dbHost)
-      .selectFrom('guildRole')
+    const existingXpPerRoles = await shards
+      .get(guildModel.dbHost)
+      .db.selectFrom('guildRole')
       .select((eb) => eb.fn.countAll<string>().as('count'))
       .where('guildId', '=', role.guild.id)
       .where((w) =>

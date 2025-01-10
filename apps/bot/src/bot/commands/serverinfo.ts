@@ -17,7 +17,7 @@ import {
   fetchRoleAssignments,
   getRoleModel,
 } from '../models/guild/guildRoleModel.js';
-import { getShardDb } from '#models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import nameUtil, { getRoleMention } from '../util/nameUtil.js';
 import { command } from '#bot/util/registry/command.js';
@@ -494,8 +494,9 @@ const xpsettings: Window = {
       .filter((x) => x !== 0)
       .join('\n');
 
-    const relevantRoles = await getShardDb(cachedGuild.dbHost)
-      .selectFrom('guildRole')
+    const relevantRoles = await shards
+      .get(cachedGuild.dbHost)
+      .db.selectFrom('guildRole')
       .select(['roleId', 'xpPerTextMessage', 'xpPerVoiceMinute', 'xpPerInvite', 'xpPerVote'])
       .where('guildId', '=', interaction.guild.id)
       .where((w) =>

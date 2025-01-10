@@ -1,4 +1,4 @@
-import { getShardDb } from '../../../models/shardDb/shardDb.js';
+import { shards } from '../../../models/shardDb/shardDb.js';
 import type { Guild, GuildMember } from 'discord.js';
 import type {
   GuildMember as DBMember,
@@ -51,7 +51,7 @@ export class GuildMemberModel extends CachedModel<
   async fetchDefault() {
     if (defaultAll) return defaultAll;
 
-    const db = getShardDb(this.dbHost);
+    const { db } = shards.get(this.dbHost);
 
     let res = await db
       .selectFrom('guildMember')
@@ -94,10 +94,9 @@ export class GuildMemberModel extends CachedModel<
 export async function getRankedUserIds(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
-  const db = getShardDb(dbHost);
-
-  const rankedMembers = await db
-    .selectFrom('guildMember')
+  const rankedMembers = await shards
+    .get(dbHost)
+    .db.selectFrom('guildMember')
     .select('userId')
     .where('guildId', '=', guild.id)
     .where('alltime', '!=', 0)
@@ -113,7 +112,7 @@ export async function getMemberModel(member: GuildMember): Promise<GuildMemberMo
 
 async function buildCache(member: GuildMember): Promise<GuildMemberModel> {
   const { dbHost } = await getGuildModel(member.guild);
-  const db = getShardDb(dbHost);
+  const { db } = shards.get(dbHost);
 
   const foundCache = await db
     .selectFrom('guildMember')
@@ -134,7 +133,7 @@ async function buildCache(member: GuildMember): Promise<GuildMemberModel> {
 
 const loadDefaultCache = async (dbHost: string) => {
   if (defaultCache) return defaultCache;
-  const db = getShardDb(dbHost);
+  const { db } = shards.get(dbHost);
 
   let res = await db
     .selectFrom('guildMember')

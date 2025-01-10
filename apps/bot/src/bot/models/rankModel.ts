@@ -1,4 +1,4 @@
-import { getShardDb } from '../../models/shardDb/shardDb.js';
+import { shards } from '../../models/shardDb/shardDb.js';
 import fct from '../../util/fct.js';
 import type { Guild } from 'discord.js';
 import type { StatTimeInterval, StatType } from '#models/types/enums.js';
@@ -22,7 +22,7 @@ export async function getGuildMemberRanks(
 ) {
   const cachedGuild = await getGuildModel(guild);
 
-  const db = getShardDb(cachedGuild.dbHost);
+  const { db } = shards.get(cachedGuild.dbHost);
 
   const makeUnionSelect = (table: StatType, eb: ExpressionBuilder<ShardDB, never>) =>
     eb
@@ -137,7 +137,7 @@ export async function getGuildMemberRanks(
 export async function fetchGuildMemberScores(guild: Guild, userId: string) {
   const cachedGuild = await getGuildModel(guild);
 
-  const db = getShardDb(cachedGuild.dbHost);
+  const { db } = shards.get(cachedGuild.dbHost);
 
   const auto = { alltime: 0, year: 0, month: 0, week: 0, day: 0 };
 
@@ -162,7 +162,7 @@ export async function fetchGuildMemberScores(guild: Guild, userId: string) {
 export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
   const cachedGuild = await getGuildModel(guild);
 
-  const db = getShardDb(cachedGuild.dbHost);
+  const { db } = shards.get(cachedGuild.dbHost);
 
   const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
   const times = ['alltime', 'year', 'month', 'week', 'day'] as const;
@@ -268,7 +268,7 @@ export async function getGuildMemberScorePosition(
 ) {
   const cachedGuild = await getGuildModel(guild);
 
-  const db = getShardDb(cachedGuild.dbHost);
+  const { db } = shards.get(cachedGuild.dbHost);
 
   const myRank = db
     .selectFrom('guildMember')
@@ -306,7 +306,7 @@ export async function getGuildMemberStatPosition(
 ) {
   const cachedGuild = await getGuildModel(guild);
 
-  const db = getShardDb(cachedGuild.dbHost);
+  const { db } = shards.get(cachedGuild.dbHost);
 
   const myRank = db
     .selectFrom(statistic)
@@ -346,7 +346,7 @@ export async function getChannelRanks(
   to: number,
 ) {
   const { dbHost } = await getGuildModel(guild);
-  const db = getShardDb(dbHost);
+  const { db } = shards.get(dbHost);
 
   return await db
     .selectFrom(type)
@@ -374,10 +374,10 @@ export async function getChannelMemberRanks(
   to: number,
 ) {
   const cachedGuild = await getGuildModel(guild);
-  const db = getShardDb(cachedGuild.dbHost);
 
-  return await db
-    .selectFrom(type)
+  return await shards
+    .get(cachedGuild.dbHost)
+    .db.selectFrom(type)
     .where('guildId', '=', guild.id)
     .where('channelId', '=', channelId)
     .where('alltime', '!=', 0)
@@ -402,10 +402,10 @@ export async function getGuildMemberTopChannels(
   to: number,
 ) {
   const { dbHost } = await getGuildModel(guild);
-  const db = getShardDb(dbHost);
 
-  return await db
-    .selectFrom(type)
+  return await shards
+    .get(dbHost)
+    .db.selectFrom(type)
     .where('guildId', '=', guild.id)
     .where('userId', '=', userId)
     .where(time, '!=', 0)
@@ -427,11 +427,11 @@ export async function getGuildMemberTopChannels(
  * @returns The total XP accumulated by the member. If no record is found, this resolves to `0`.
  */
 export async function fetchMemberTotalXp(guild: Guild, userId: string) {
-  const cachedGuild = await getGuildModel(guild);
-  const db = getShardDb(cachedGuild.dbHost);
+  const { dbHost } = await getGuildModel(guild);
 
-  const result = await db
-    .selectFrom('guildMember')
+  const result = await shards
+    .get(dbHost)
+    .db.selectFrom('guildMember')
     .select('alltime')
     .where('guildId', '=', guild.id)
     .where('userId', '=', userId)
