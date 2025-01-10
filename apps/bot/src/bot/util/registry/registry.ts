@@ -21,11 +21,11 @@ import { Time } from '@sapphire/duration';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
-const EVENT_PATHS = ['dist/bot/events/*.js'];
+const EVENT_PATHS = [`${import.meta.dirname}/../../events/*.js`];
 const COMMAND_PATHS = [
-  'dist/bot/commands/*.js',
-  'dist/bot/commandsAdmin/*.js',
-  'dist/bot/contextMenus/*.js',
+  `${import.meta.dirname}/../../commands/*.js`,
+  `${import.meta.dirname}/../../commandsAdmin/*.js`,
+  `${import.meta.dirname}/../../contextMenus/*.js`,
 ];
 
 export async function createRegistry() {
