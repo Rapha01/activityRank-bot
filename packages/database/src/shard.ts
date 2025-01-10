@@ -9,7 +9,7 @@ export function createShardInstanceManager(
 ) {
   const instances: Map<string, ShardInstance> = new Map();
 
-  async function get(dbHost: string) {
+  function get(dbHost: string) {
     const instance = instances.get(dbHost);
     if (instance) {
       return instance;
