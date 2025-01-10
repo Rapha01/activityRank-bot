@@ -1,18 +1,13 @@
+import type { ShardDB } from '@activityrank/database';
 import type { Guild, GuildBasedChannel } from 'discord.js';
 import { shards } from '#models/shardDb/shardDb.js';
-import { escape as escapeSQL } from 'mysql2/promise';
-import type {
-  GuildChannelSchema,
-  TextMessageSchema,
-  VoiceMinuteSchema,
-} from '#models/types/shard.js';
 import { getGuildModel } from './guildModel.js';
 
 const cachedFields = ['noXp', 'noCommand'] as const;
 let defaultCache: CachedDbFields | null = null;
-let defaultAll: GuildChannelSchema | null = null;
+let defaultAll: ShardDB.GuildChannel | null = null;
 
-type CachedDbFields = Pick<GuildChannelSchema, (typeof cachedFields)[number]>;
+type CachedDbFields = Pick<ShardDB.GuildChannel, (typeof cachedFields)[number]>;
 
 export interface CachedGuildChannel {
   db: CachedDbFields;
@@ -27,12 +22,12 @@ export const cache = {
   },
 };
 
-function isCachableDbKey(key: keyof GuildChannelSchema): key is keyof CachedDbFields {
+function isCachableDbKey(key: keyof ShardDB.GuildChannel): key is keyof CachedDbFields {
   return cachedFields.includes(key as keyof CachedDbFields);
 }
 
 export const storage = {
-  get: async (guild: Guild, channelId: string): Promise<GuildChannelSchema> => {
+  get: async (guild: Guild, channelId: string): Promise<ShardDB.GuildChannel> => {
     const { dbHost } = await getGuildModel(guild);
     const { db } = shards.get(dbHost);
 
@@ -58,11 +53,11 @@ export const storage = {
     return defaultAll;
   },
 
-  set: async <K extends keyof GuildChannelSchema>(
+  set: async <K extends keyof ShardDB.GuildChannel>(
     guild: Guild,
     channelId: string,
     field: K,
-    value: GuildChannelSchema[K],
+    value: ShardDB.GuildChannel[K],
   ) => {
     const { dbHost } = await getGuildModel(guild);
     const { db } = shards.get(dbHost);
