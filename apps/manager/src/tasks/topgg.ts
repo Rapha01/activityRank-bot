@@ -11,8 +11,6 @@ export async function runTopggTask() {
 
   const count = await getShardServerCounts();
 
-  const headers = new Headers();
-
   const res = await ofetch(`https://top.gg/api/bots/${keys.botId}/stats`, {
     body: { server_count: count },
     headers,
