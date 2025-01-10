@@ -1,5 +1,5 @@
 import { getShardDb } from '#models/shardDb/shardDb.js';
-import { getManagerDb } from '#models/managerDb/managerDb.js';
+import { manager } from '#models/managerDb/managerDb.js';
 import type { GuildSchema, GuildUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
@@ -127,9 +127,7 @@ async function buildCache(guild: Guild): Promise<GuildModel> {
 }
 
 const getDbHost = async (guildId: string): Promise<string> => {
-  const db = getManagerDb();
-
-  const getRoute = db
+  const getRoute = manager.db
     .selectFrom('guildRoute')
     .leftJoin('dbShard', 'guildRoute.dbShardId', 'dbShard.id')
     .select('host')
@@ -138,7 +136,7 @@ const getDbHost = async (guildId: string): Promise<string> => {
   let res = await getRoute.executeTakeFirst();
 
   if (!res) {
-    await db.insertInto('guildRoute').values({ guildId }).executeTakeFirst();
+    await manager.db.insertInto('guildRoute').values({ guildId }).executeTakeFirst();
     res = await getRoute.executeTakeFirstOrThrow();
   }
   if (!res.host) {

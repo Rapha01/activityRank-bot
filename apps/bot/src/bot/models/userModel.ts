@@ -1,5 +1,5 @@
 import { getShardDb } from '#models/shardDb/shardDb.js';
-import { getManagerDb } from '#models/managerDb/managerDb.js';
+import { manager } from '#models/managerDb/managerDb.js';
 import type { User } from 'discord.js';
 import type { User as DBUser, UserSchema, UserUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from './generic/model.js';
@@ -101,9 +101,7 @@ async function buildCache(user: User): Promise<UserModel> {
 }
 
 async function getDbHost(userId: string): Promise<string> {
-  const db = getManagerDb();
-
-  const getRoute = db
+  const getRoute = manager.db
     .selectFrom('userRoute')
     .leftJoin('dbShard', 'userRoute.dbShardId', 'dbShard.id')
     .select('host')
@@ -112,7 +110,7 @@ async function getDbHost(userId: string): Promise<string> {
   let res = await getRoute.executeTakeFirst();
 
   if (!res) {
-    await db.insertInto('userRoute').values({ userId }).executeTakeFirstOrThrow();
+    await manager.db.insertInto('userRoute').values({ userId }).executeTakeFirstOrThrow();
     res = await getRoute.executeTakeFirstOrThrow();
   }
   if (!res.host) {

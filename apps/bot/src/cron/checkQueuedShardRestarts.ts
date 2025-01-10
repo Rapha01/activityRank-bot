@@ -1,11 +1,9 @@
-import { getManagerDb } from '../models/managerDb/managerDb.js';
+import { manager } from '../models/managerDb/managerDb.js';
 import logger from '../util/logger.js';
 import type { ShardingManager } from 'discord.js';
 
-export default async (manager: ShardingManager) => {
-  const db = getManagerDb();
-
-  const res = await db
+export default async (shardManager: ShardingManager) => {
+  const res = await manager.db
     .selectFrom('botShardStat')
     .select('shardId')
     .where('restartQueued', '=', 1)
@@ -13,7 +11,7 @@ export default async (manager: ShardingManager) => {
 
   const shardIdsToRestart = res
     .map(({ shardId }) => shardId)
-    .filter((shardId) => manager.shards.has(shardId));
+    .filter((shardId) => shardManager.shards.has(shardId));
 
   logger.debug(
     `Shards queued for restart: ${
@@ -22,14 +20,14 @@ export default async (manager: ShardingManager) => {
   );
 
   if (shardIdsToRestart.length > 0)
-    await db
+    await manager.db
       .updateTable('botShardStat')
       .set({ restartQueued: 0 })
       .where('shardId', 'in', shardIdsToRestart)
       .executeTakeFirstOrThrow();
 
   for (const shardId of shardIdsToRestart) {
-    const shard = manager.shards.get(shardId);
+    const shard = shardManager.shards.get(shardId);
     if (shard) await shard.respawn();
   }
 };

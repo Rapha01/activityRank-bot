@@ -1,5 +1,4 @@
 import { createPool, type Pool } from 'mysql2/promise';
-import { getAllDbHosts } from '../managerDb/managerDb.js';
 import {
   DummyDriver,
   Kysely,
@@ -11,6 +10,7 @@ import {
 } from 'kysely';
 import type { ShardDB } from '#models/types/kysely/shard.js';
 import { keys } from '#const/config.js';
+import { manager } from '#models/managerDb/managerDb.js';
 
 const pools: Map<string, Pool> = new Map();
 
@@ -40,7 +40,7 @@ export async function getShardConnection(host: string) {
  * ```
  */
 export async function executeQueryAll<D>(query: CompiledQuery<D>) {
-  const hosts = await getAllDbHosts();
+  const hosts = await manager.getAllDbHosts();
 
   const queries = hosts.map(async (host) => await getShardDb(host).executeQuery(query));
   const results = await Promise.all(queries);
@@ -56,7 +56,7 @@ export async function query<T>(dbHost: string, sql: string): Promise<T> {
 
 /** @deprecated Prefer querying with Kysely and executeQueryAll() instead */
 export async function queryAllHosts<T>(sql: string): Promise<T[]> {
-  const hosts = await getAllDbHosts();
+  const hosts = await manager.getAllDbHosts();
 
   let aggregate: T[] = [];
   for (const host of hosts) {

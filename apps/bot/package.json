@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@activityrank/cfg": "workspace:*",
+    "@activityrank/database": "workspace:*",
     "@discordjs/rest": "^2.4.0",
     "@isaacs/ttlcache": "^1.4.1",
     "@sapphire/async-queue": "^1.5.3",
