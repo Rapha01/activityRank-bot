@@ -75,10 +75,12 @@ export const managerKeys = z
     patreonAccessToken: z.string().describe('The Patreon API token'),
     /**The password required by the Manager API*/
     managerApiAuth: z.string().describe('The password required by the Manager API'),
-    /**The host of the Manager API*/
-    managerHost: z.string().describe('The host of the Manager API'),
+    /**The host of the Manager DB*/
+    managerHost: z.string().describe('The host of the Manager DB'),
     /**Properties concerning manager DB connections*/
     managerDb: dbConnection.describe('Properties concerning manager DB connections'),
+    /**Properties concerning shard DB connections*/
+    shardDb: dbConnection.describe('Properties concerning shard DB connections'),
   })
   .describe('The keys to be provided to the Manager module of ActivityRank');
 

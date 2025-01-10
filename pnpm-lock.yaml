@@ -132,6 +132,12 @@ importers:
 
   apps/manager:
     dependencies:
+      '@activityrank/cfg':
+        specifier: workspace:*
+        version: link:../../packages/cfg
+      '@activityrank/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@hono/node-server':
         specifier: ^1.12.2
         version: 1.13.7(hono@4.6.15)
