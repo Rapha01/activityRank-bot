@@ -32,7 +32,6 @@ export const botConfig = z
       .array(z.string())
       .describe('The IDs of servers in which to register development commands'),
   })
-  .strict()
   .describe('The basic config to be provided to the Bot module of ActivityRank');
 
 /** The keys to be provided to the Bot module of ActivityRank */
@@ -53,13 +52,35 @@ export const botKeys = z
     /**Properties concerning shard DB connections*/
     shardDb: dbConnection.describe('Properties concerning shard DB connections'),
   })
-  .strict()
   .describe('The keys to be provided to the Bot module of ActivityRank');
 
 /**The users that are able to use privileged commands*/
 export const privileges = z
   .record(z.string().regex(/^\d+$/), z.enum(['DEVELOPER', 'MODERATOR', 'HELPSTAFF']))
   .describe('The users that are able to use privileged commands');
+
+/**The basic config to be provided to the Manager module of ActivityRank*/
+export const managerConfig = z
+  .object({ disablePatreon: z.boolean().optional() })
+  .describe('The basic config to be provided to the Manager module of ActivityRank');
+
+/** The keys to be provided to the Manager module of ActivityRank */
+export const managerKeys = z
+  .object({
+    /**The Discord ID of the bot*/
+    botId: z.string().describe('The Discord ID of the bot'),
+    /**The Discord Bot List API key*/
+    dblApiKey: z.string().describe('The Discord Bot List API key'),
+    /**The Patreon API token*/
+    patreonAccessToken: z.string().describe('The Patreon API token'),
+    /**The password required by the Manager API*/
+    managerApiAuth: z.string().describe('The password required by the Manager API'),
+    /**The host of the Manager API*/
+    managerHost: z.string().describe('The host of the Manager API'),
+    /**Properties concerning manager DB connections*/
+    managerDb: dbConnection.describe('Properties concerning manager DB connections'),
+  })
+  .describe('The keys to be provided to the Manager module of ActivityRank');
 
 // preset schemas
 export const bot = {
@@ -69,6 +90,6 @@ export const bot = {
 };
 // TODO create more specific manager schemas
 export const manager = {
-  config: botConfig,
-  keys: botKeys,
+  config: managerConfig,
+  keys: managerKeys,
 };
