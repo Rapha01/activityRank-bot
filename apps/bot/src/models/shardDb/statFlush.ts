@@ -1,4 +1,4 @@
-import shardDb from './shardDb.js';
+import { shards } from './shardDb.js';
 import logger from '../../util/logger.js';
 import type { ShardingManager } from 'discord.js';
 import type {
@@ -40,12 +40,14 @@ async function runStatFlush(caches: Record<string, StatFlushCache>[]) {
   const counts: { [k in keyof StatFlushCache]?: number } = {};
 
   for (const dbHost in statFlushCache) {
+    const dbShard = shards.get(dbHost);
     for (const _type in statFlushCache[dbHost]) {
       const type = _type as StatType;
       const count = Object.keys(statFlushCache[dbHost][type]).length;
       if (count < 1) continue;
 
-      promises.push(shardDb.query(dbHost, getSql(type, statFlushCache[dbHost][type])));
+      promises.push(dbShard._query(getSql(type, statFlushCache[dbHost][type])));
+
       if (counts[type]) {
         counts[type] += count;
       } else {
@@ -72,7 +74,9 @@ async function runXpFlush(caches: Record<string, XpFlushCache>[]) {
     const length = Object.keys(flushCache[dbHost]).length;
     if (length < 1) continue;
 
-    promises.push(shardDb.query(dbHost, getXpSql(flushCache[dbHost])));
+    const dbShard = shards.get(dbHost);
+
+    promises.push(dbShard._query(getXpSql(flushCache[dbHost])));
 
     count += length;
   }

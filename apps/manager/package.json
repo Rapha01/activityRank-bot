@@ -11,6 +11,8 @@
     "build": "swc src --out-dir dist --copy-files --strip-leading-paths"
   },
   "dependencies": {
+    "@activityrank/cfg": "workspace:*",
+    "@activityrank/database": "workspace:*",
     "@hono/node-server": "^1.12.2",
     "@hono/zod-validator": "^0.2.2",
     "@sapphire/snowflake": "^3.2.2",

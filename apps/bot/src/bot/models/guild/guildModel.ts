@@ -1,6 +1,6 @@
-import { getShardDb } from '#models/shardDb/shardDb.js';
-import { getManagerDb } from '#models/managerDb/managerDb.js';
-import type { GuildSchema, GuildUpdate } from '#models/types/kysely/shard.js';
+import type { ShardDB } from '@activityrank/database';
+import { shards } from '#models/shardDb/shardDb.js';
+import { manager } from '#models/managerDb/managerDb.js';
 import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
 
@@ -61,7 +61,7 @@ export const guildCache = new WeakMap<Guild, GuildModel>();
 
 export class GuildModel extends CachedModel<
   Guild,
-  GuildSchema,
+  ShardDB.Schema.Guild,
   typeof cachedFields,
   GuildCacheStorage
 > {
@@ -76,7 +76,7 @@ export class GuildModel extends CachedModel<
     return guild;
   }
 
-  async upsert(expr: GuildUpdate) {
+  async upsert(expr: ShardDB.GuildUpdate) {
     await this.handle
       .insertInto('guild')
       .values({ guildId: this._object.id, ...expr })
@@ -101,7 +101,7 @@ export async function getGuildModel(guild: Guild): Promise<GuildModel> {
 
 async function buildCache(guild: Guild): Promise<GuildModel> {
   const host = await getDbHost(guild.id);
-  const db = getShardDb(host);
+  const { db } = shards.get(host);
 
   const fetch = db.selectFrom('guild').select(cachedFields).where('guildId', '=', guild.id);
 
@@ -127,9 +127,7 @@ async function buildCache(guild: Guild): Promise<GuildModel> {
 }
 
 const getDbHost = async (guildId: string): Promise<string> => {
-  const db = getManagerDb();
-
-  const getRoute = db
+  const getRoute = manager.db
     .selectFrom('guildRoute')
     .leftJoin('dbShard', 'guildRoute.dbShardId', 'dbShard.id')
     .select('host')
@@ -138,7 +136,7 @@ const getDbHost = async (guildId: string): Promise<string> => {
   let res = await getRoute.executeTakeFirst();
 
   if (!res) {
-    await db.insertInto('guildRoute').values({ guildId }).executeTakeFirst();
+    await manager.db.insertInto('guildRoute').values({ guildId }).executeTakeFirst();
     res = await getRoute.executeTakeFirstOrThrow();
   }
   if (!res.host) {

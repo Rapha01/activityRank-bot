@@ -1,13 +1,13 @@
-import { getShardDb } from '#models/shardDb/shardDb.js';
-import { getManagerDb } from '#models/managerDb/managerDb.js';
+import type { ShardDB } from '@activityrank/database';
+import { shards } from '#models/shardDb/shardDb.js';
+import { manager } from '#models/managerDb/managerDb.js';
 import type { User } from 'discord.js';
-import type { User as DBUser, UserSchema, UserUpdate } from '#models/types/kysely/shard.js';
 import { CachedModel } from './generic/model.js';
 
-let defaultCache: Pick<DBUser, (typeof cachedFields)[number]> | null = null;
-let defaultAll: DBUser | null = null;
+let defaultCache: Pick<ShardDB.User, (typeof cachedFields)[number]> | null = null;
+let defaultAll: ShardDB.User | null = null;
 
-const cachedFields = ['userId', 'isBanned'] as const satisfies (keyof DBUser)[];
+const cachedFields = ['userId', 'isBanned'] as const satisfies (keyof ShardDB.User)[];
 
 interface UserCacheStorage {
   patreonTier?: number;
@@ -19,7 +19,7 @@ export const userCache = new WeakMap<User, UserModel>();
 
 export class UserModel extends CachedModel<
   User,
-  UserSchema,
+  ShardDB.Schema.User,
   typeof cachedFields,
   UserCacheStorage
 > {
@@ -44,7 +44,7 @@ export class UserModel extends CachedModel<
   async fetchDefault() {
     if (defaultAll) return defaultAll;
 
-    const db = getShardDb(this.dbHost);
+    const { db } = shards.get(this.dbHost);
 
     let res = await db.selectFrom('user').selectAll().where('userId', '=', '0').executeTakeFirst();
 
@@ -60,7 +60,7 @@ export class UserModel extends CachedModel<
     return defaultAll;
   }
 
-  async upsert(expr: UserUpdate) {
+  async upsert(expr: ShardDB.UserUpdate) {
     await this.handle
       .insertInto('user')
       .values({ userId: this._object.id, ...expr })
@@ -85,13 +85,14 @@ export async function getUserModel(user: User): Promise<UserModel> {
 
 async function buildCache(user: User): Promise<UserModel> {
   const host = await getDbHost(user.id);
-  const db = getShardDb(host);
 
-  const foundCache = await db
-    .selectFrom('user')
+  const foundCache = await shards
+    .get(host)
+    .db.selectFrom('user')
     .select(cachedFields)
     .where('userId', '=', user.id)
     .executeTakeFirst();
+
   const cache = foundCache ?? { ...(await loadDefaultCache(host)) };
 
   const built = new UserModel(user, host, cache, {});
@@ -101,9 +102,7 @@ async function buildCache(user: User): Promise<UserModel> {
 }
 
 async function getDbHost(userId: string): Promise<string> {
-  const db = getManagerDb();
-
-  const getRoute = db
+  const getRoute = manager.db
     .selectFrom('userRoute')
     .leftJoin('dbShard', 'userRoute.dbShardId', 'dbShard.id')
     .select('host')
@@ -112,7 +111,7 @@ async function getDbHost(userId: string): Promise<string> {
   let res = await getRoute.executeTakeFirst();
 
   if (!res) {
-    await db.insertInto('userRoute').values({ userId }).executeTakeFirstOrThrow();
+    await manager.db.insertInto('userRoute').values({ userId }).executeTakeFirstOrThrow();
     res = await getRoute.executeTakeFirstOrThrow();
   }
   if (!res.host) {
@@ -124,7 +123,7 @@ async function getDbHost(userId: string): Promise<string> {
 
 async function loadDefaultCache(host: string) {
   if (defaultCache) return defaultCache;
-  const db = getShardDb(host);
+  const { db } = shards.get(host);
 
   let res = await db
     .selectFrom('user')

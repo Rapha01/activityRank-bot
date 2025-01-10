@@ -1,5 +1,5 @@
-import { queryManager } from './managerDb.js';
-import { getShardPool } from './shardDb.js';
+import { manager } from './managerDb.js';
+import { shards } from './shardDb.js';
 
 type ResetPeriod = 'day' | 'week' | 'month' | 'year';
 
@@ -21,13 +21,15 @@ export async function runResetByTime(time: ResetPeriod): Promise<{ errorCount: n
 }
 
 async function resetStatsByTime(time: ResetPeriod): Promise<{ errorCount: number }> {
-  const dbShards = await queryManager<{ host: string; id: number }[]>(
-    'SELECT id,host FROM dbShard ORDER BY id ASC',
-  );
+  const dbShards = await manager.db
+    .selectFrom('dbShard')
+    .select(['id', 'host'])
+    .orderBy('id asc')
+    .execute();
 
   const errors = [];
   for (const shard of dbShards) {
-    const pool = getShardPool(shard.host);
+    const pool = shards.get(shard.host);
     const hrstart = process.hrtime();
 
     for (const statsTable of statsTables) {
@@ -78,13 +80,15 @@ async function resetStatsByTime(time: ResetPeriod): Promise<{ errorCount: number
 }
 
 async function resetMemberScoresByTime(time: ResetPeriod): Promise<{ errorCount: number }> {
-  const dbShards = await queryManager<{ host: string; id: number }[]>(
-    'SELECT id,host FROM dbShard ORDER BY id ASC',
-  );
+  const dbShards = await manager.db
+    .selectFrom('dbShard')
+    .select(['id', 'host'])
+    .orderBy('id asc')
+    .execute();
 
   const errors = [];
   for (const shard of dbShards) {
-    const pool = getShardPool(shard.host);
+    const pool = shards.get(shard.host);
     const hrstart = process.hrtime();
 
     // we paginate via cursor here to reduce the risk of page drift,

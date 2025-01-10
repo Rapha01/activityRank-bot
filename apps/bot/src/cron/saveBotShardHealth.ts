@@ -1,5 +1,5 @@
 import { publicIpv4 } from 'public-ip';
-import { getManagerDb } from '../models/managerDb/managerDb.js';
+import { manager } from '../models/managerDb/managerDb.js';
 import type { Client, ShardingManager } from 'discord.js';
 import { isProduction } from '#const/config.js';
 import { sql, type Expression } from 'kysely';
@@ -21,11 +21,11 @@ function _save(client: Client) {
   return obj;
 }
 
-export default async (manager: ShardingManager) => {
+export default async (shardManager: ShardingManager) => {
   //logger.debug('Saving shard health');
   const round = Math.round;
   const nowDate = round(new Date().getTime() / 1000);
-  const shards = await manager.broadcastEval(_save);
+  const shards = await shardManager.broadcastEval(_save);
 
   const ip = await publicIpv4();
 
@@ -41,7 +41,7 @@ export default async (manager: ShardingManager) => {
     return sql<T>`VALUES(${expr})`;
   }
 
-  await getManagerDb()
+  await manager.db
     .insertInto('botShardStat')
     .values(dataShards)
     .onDuplicateKeyUpdate((eb) => ({

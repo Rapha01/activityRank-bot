@@ -1,17 +1,16 @@
-import { getShardDb } from '../../../models/shardDb/shardDb.js';
+import type { ShardDB } from '@activityrank/database';
+import { shards } from '../../../models/shardDb/shardDb.js';
 import type { Guild, GuildMember } from 'discord.js';
-import type {
-  GuildMember as DBMember,
-  GuildMemberSchema,
-  GuildMemberUpdate,
-} from '#models/types/kysely/shard.js';
 import { getGuildModel } from './guildModel.js';
 import { fetchMemberTotalXp } from '../rankModel.js';
 import { CachedModel } from '../generic/model.js';
 
-const cachedFields = ['notifyLevelupDm', 'reactionVote'] as const satisfies (keyof DBMember)[];
-let defaultCache: Pick<DBMember, (typeof cachedFields)[number]> | null = null;
-let defaultAll: DBMember | null = null;
+const cachedFields = [
+  'notifyLevelupDm',
+  'reactionVote',
+] as const satisfies (keyof ShardDB.GuildMember)[];
+let defaultCache: Pick<ShardDB.GuildMember, (typeof cachedFields)[number]> | null = null;
+let defaultAll: ShardDB.GuildMember | null = null;
 
 interface MemberCacheStorage {
   totalXp?: number;
@@ -25,7 +24,7 @@ export const memberCache = new WeakMap<GuildMember, GuildMemberModel>();
 
 export class GuildMemberModel extends CachedModel<
   GuildMember,
-  GuildMemberSchema,
+  ShardDB.Schema.GuildMember,
   typeof cachedFields,
   MemberCacheStorage
 > {
@@ -51,7 +50,7 @@ export class GuildMemberModel extends CachedModel<
   async fetchDefault() {
     if (defaultAll) return defaultAll;
 
-    const db = getShardDb(this.dbHost);
+    const { db } = shards.get(this.dbHost);
 
     let res = await db
       .selectFrom('guildMember')
@@ -72,7 +71,7 @@ export class GuildMemberModel extends CachedModel<
     return defaultAll;
   }
 
-  async upsert(expr: GuildMemberUpdate) {
+  async upsert(expr: ShardDB.GuildMemberUpdate) {
     await this.handle
       .insertInto('guildMember')
       .values({ userId: this._object.id, guildId: this._object.guild.id, ...expr })
@@ -94,10 +93,9 @@ export class GuildMemberModel extends CachedModel<
 export async function getRankedUserIds(guild: Guild) {
   const { dbHost } = await getGuildModel(guild);
 
-  const db = getShardDb(dbHost);
-
-  const rankedMembers = await db
-    .selectFrom('guildMember')
+  const rankedMembers = await shards
+    .get(dbHost)
+    .db.selectFrom('guildMember')
     .select('userId')
     .where('guildId', '=', guild.id)
     .where('alltime', '!=', 0)
@@ -113,7 +111,7 @@ export async function getMemberModel(member: GuildMember): Promise<GuildMemberMo
 
 async function buildCache(member: GuildMember): Promise<GuildMemberModel> {
   const { dbHost } = await getGuildModel(member.guild);
-  const db = getShardDb(dbHost);
+  const { db } = shards.get(dbHost);
 
   const foundCache = await db
     .selectFrom('guildMember')
@@ -134,7 +132,7 @@ async function buildCache(member: GuildMember): Promise<GuildMemberModel> {
 
 const loadDefaultCache = async (dbHost: string) => {
   if (defaultCache) return defaultCache;
-  const db = getShardDb(dbHost);
+  const { db } = shards.get(dbHost);
 
   let res = await db
     .selectFrom('guildMember')

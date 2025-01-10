@@ -1,4 +1,5 @@
-import { getShardDb } from '../../models/shardDb/shardDb.js';
+import type { ShardDB } from '@activityrank/database';
+import { shards } from '../../models/shardDb/shardDb.js';
 import { isProduction } from '#const/config.js';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { getRankedUserIds, memberCache } from './guild/guildMemberModel.js';
@@ -6,11 +7,6 @@ import { channelCache, getRankedChannelIds } from './guild/guildChannelModel.js'
 import { getGuildModel, guildCache } from './guild/guildModel.js';
 import { clearRoleCache, roleCache } from './guild/guildRoleModel.js';
 import type { ButtonInteraction, ChatInputCommandInteraction, Guild } from 'discord.js';
-import type {
-  Guild as DBGuild,
-  GuildMemberUpdate,
-  GuildUpdate,
-} from '#models/types/kysely/shard.js';
 import { sql } from 'kysely';
 import { sleep } from '#util/fct.js';
 import { logger } from '#bot/util/logger.js';
@@ -308,7 +304,7 @@ export class ResetGuildSettings extends ResetJob {
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // Estimated number of rows: number of channels + number of roles
     const { rowEstimation } = await db
@@ -332,7 +328,7 @@ export class ResetGuildSettings extends ResetJob {
 
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // delete all entries in guildRole and guildChannel;
     // these tables don't store any XP data
@@ -354,12 +350,12 @@ export class ResetGuildSettings extends ResetJob {
     if (!this.canContinue) return false;
 
     // get all keys in the `guild` table - and revert to default not in PERMANENT_GUILD_FIELDS.
-    const dbGuild: Record<keyof DBGuild, unknown> = await db
+    const dbGuild: Record<keyof ShardDB.Guild, unknown> = await db
       .selectFrom('guild')
       .selectAll()
       .where('guildId', '=', this.guild.id)
       .executeTakeFirstOrThrow();
-    const guildKeys: (keyof DBGuild)[] = Object.keys(dbGuild) as (keyof DBGuild)[];
+    const guildKeys: (keyof ShardDB.Guild)[] = Object.keys(dbGuild) as (keyof ShardDB.Guild)[];
 
     const defaultEntries = Object.fromEntries(
       guildKeys.filter((k) => !PERMANENT_GUILD_FIELDS.has(k)).map((k) => [k, sql`DEFAULT`]),
@@ -383,7 +379,7 @@ export class ResetGuildSettings extends ResetJob {
 
 export async function resetGuildChannelsSettings(guild: Guild, channelIds: string[]) {
   const cachedGuild = await getGuildModel(guild);
-  const db = getShardDb(cachedGuild.dbHost);
+  const { db } = shards.get(cachedGuild.dbHost);
 
   await db
     .deleteFrom('guildChannel')
@@ -413,7 +409,7 @@ export class ResetGuildChannelsStatistics extends ResetJob {
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // Estimated number of rows: number of textmessages + voiceminute entries in relevant channels
     const { rowEstimation } = await db
@@ -439,7 +435,7 @@ export class ResetGuildChannelsStatistics extends ResetJob {
 
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // delete all relevant entries in textMessage and voiceMinute
     const tables = ['textMessage', 'voiceMinute'] as const;
@@ -488,7 +484,7 @@ export class ResetGuildMembersStatisticsAndXp extends ResetJob {
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
 
@@ -517,7 +513,7 @@ export class ResetGuildMembersStatisticsAndXp extends ResetJob {
 
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // delete all relevant entries in stats tables
     const tables = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
@@ -536,7 +532,7 @@ export class ResetGuildMembersStatisticsAndXp extends ResetJob {
 
     if (!this.canContinue) return false;
 
-    const resetKeys: (keyof GuildMemberUpdate)[] = [
+    const resetKeys: (keyof ShardDB.GuildMemberUpdate)[] = [
       'inviter',
       'day',
       'week',
@@ -605,7 +601,7 @@ export class ResetGuildStatistics extends ResetJob {
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // Estimated number of rows: number of statistic entries of relevant guilds
     const { rowEstimation } = await db
@@ -638,7 +634,7 @@ export class ResetGuildStatistics extends ResetJob {
 
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // Subtract member's previous `bonus` xp from their total XP if `bonus` is selected for reset
     if (this.tables.includes('bonus') && !this.ranBonusReduction) {
@@ -721,7 +717,7 @@ export class ResetGuildXP extends ResetJob {
 
   protected async getPlan(): Promise<{ rowEstimation: number }> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
     // Estimated number of rows: number of members in guild
     const { count } = await db
@@ -735,9 +731,15 @@ export class ResetGuildXP extends ResetJob {
 
   protected async runIter(): Promise<boolean> {
     const cachedGuild = await getGuildModel(this.guild);
-    const db = getShardDb(cachedGuild.dbHost);
+    const { db } = shards.get(cachedGuild.dbHost);
 
-    const resetKeys: (keyof GuildMemberUpdate)[] = ['day', 'week', 'month', 'year', 'alltime'];
+    const resetKeys: (keyof ShardDB.GuildMemberUpdate)[] = [
+      'day',
+      'week',
+      'month',
+      'year',
+      'alltime',
+    ];
 
     const defaultEntries = Object.fromEntries(resetKeys.map((k) => [k, sql`DEFAULT`]));
 
@@ -870,7 +872,7 @@ export async function fetchDeletedChannelIds(guild: Guild): Promise<string[]> {
 /**
  * Fields in this list won't be reset to DEFAULT when a guild reset is run.
  */
-const PERMANENT_GUILD_FIELDS = new Set<keyof GuildUpdate>([
+const PERMANENT_GUILD_FIELDS = new Set<keyof ShardDB.GuildUpdate>([
   'guildId',
   'lastCommandDate',
   'joinedAtDate',

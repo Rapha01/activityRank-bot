@@ -1,6 +1,6 @@
-import type { ShardDB } from '#models/types/kysely/shard.js';
+import type { ShardDB } from '@activityrank/database';
 import type { Kysely, Updateable, Selectable } from 'kysely';
-import { getShardDb } from '#models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 
 export abstract class CachedModel<
   Object,
@@ -22,7 +22,7 @@ export abstract class CachedModel<
     cachedFields: CachedDBFields,
     defaultStorage: ArbitraryCachedStorage,
   ) {
-    this.handle = getShardDb(dbHost);
+    this.handle = shards.get(dbHost).db;
     this.cache = defaultStorage;
     this._db = { ...cachedFields };
   }

@@ -1,0 +1,92 @@
+import { createPool, createConnection, type PoolOptions } from 'mysql2/promise';
+import { Kysely, MysqlDialect } from 'kysely';
+import type { ShardDB } from './typings/shard.js';
+import type { ManagerInstance } from './manager.js';
+
+export function createShardInstanceManager(
+  options: Omit<PoolOptions, 'host'>,
+  manager: ManagerInstance,
+) {
+  const instances: Map<string, ShardInstance> = new Map();
+
+  function get(dbHost: string) {
+    const instance = instances.get(dbHost);
+    if (instance) {
+      return instance;
+    }
+
+    const newInstance = createShardInstance({ host: dbHost, ...options });
+    instances.set(dbHost, newInstance);
+    return newInstance;
+  }
+
+  /**
+   * Execute a query on all database hosts. Queries are run in parallel where possible.
+   * @example ```ts
+   * const res = await shard.executeOnAllHosts(db => db.selectFrom('user').selectAll().execute());
+   * ```
+   */
+  async function executeOnAllHosts<T>(callback: (instance: ShardInstance['db']) => Promise<T[]>) {
+    const allHosts = await manager.getAllDbHosts();
+
+    const queries = allHosts.map(async (host) => {
+      const instance = await get(host);
+      return await callback(instance.db);
+    });
+
+    const results = await Promise.all(queries);
+    return results.flat();
+  }
+
+  return { get, executeOnAllHosts };
+}
+
+export type ShardInstanceManager = Awaited<ReturnType<typeof createShardInstanceManager>>;
+
+export function createShardInstance(options: PoolOptions) {
+  const pool = createPool({
+    supportBigNumbers: true,
+    bigNumberStrings: true,
+    ...options,
+  });
+
+  /**
+   * The Kysely instance of this shardDB instance.
+   */
+  const db: Kysely<ShardDB> = new Kysely({
+    // `pool.pool` is fed into Kysely because it operates on callback-based
+    // pools, not the promise-based ones we use elsewhere.
+    dialect: new MysqlDialect({ pool: pool.pool }),
+  });
+
+  /**
+   * Returns an async `mysql2.Connection` instance from the pool.
+   *
+   * WARNING: Remember to close the connection after use.
+   * Forgetting this will leave the pool hanging due to exhaustion of the connection limit.
+   * Using Kysely is probably a better idea.
+   *
+   * This is especially dangerous because shards tend to have a low connection limit.
+   */
+  async function getConnection() {
+    return await pool.getConnection();
+  }
+
+  /**
+   * Attempts to create a connection to the database (with a default timeout of 2 seconds).
+   * If it fails, an error will be thrown.
+   */
+  async function testConnection(timeout = 2_000) {
+    const conn = await createConnection({ ...options, connectTimeout: 2_000 });
+    await conn.end();
+  }
+
+  /** @deprecated Prefer querying with Kysely */
+  async function _query<T>(sql: string): Promise<T> {
+    return (await pool.query(sql))[0] as T;
+  }
+
+  return { db, getConnection, testConnection, _query };
+}
+
+export type ShardInstance = Awaited<ReturnType<typeof createShardInstance>>;

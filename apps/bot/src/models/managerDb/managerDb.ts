@@ -1,41 +1,12 @@
-import { createPool, type Pool } from 'mysql2/promise';
-import { Kysely, MysqlDialect } from 'kysely';
-import type { ManagerDB } from '#models/types/kysely/manager.js';
+import { createManagerInstance } from '@activityrank/database';
 import { keys } from '#const/config.js';
 
-let pool: Pool | null = null;
-let db: Kysely<ManagerDB> | null = null;
-
-export function getManagerDb() {
-  const activePool = getManagerPool();
-  db ??= new Kysely({ dialect: new MysqlDialect({ pool: activePool.pool }) });
-  return db;
-}
-
-/** ! Remember to close the connection after use. */
-export async function getManagerConnection() {
-  return await getManagerPool().getConnection();
-}
-
-export async function getAllDbHosts() {
-  const db = getManagerDb();
-  const res = await db.selectFrom('dbShard').select('host').execute();
-
-  return res.map((r) => r.host);
-}
-
-function getManagerPool() {
-  pool ??= createPool({
-    host: keys.managerHost,
-    database: keys.managerDb.dbName,
-    user: keys.managerDb.dbUser,
-    password: keys.managerDb.dbPassword,
-    supportBigNumbers: true,
-    bigNumberStrings: true,
-  });
-
-  return pool;
-}
+export const manager = createManagerInstance({
+  host: keys.managerHost,
+  database: keys.managerDb.dbName,
+  user: keys.managerDb.dbUser,
+  password: keys.managerDb.dbPassword,
+});
 
 type APIPaths = 'texts' | 'stats';
 type AutocompletePaths = `api/${APIPaths}`;
