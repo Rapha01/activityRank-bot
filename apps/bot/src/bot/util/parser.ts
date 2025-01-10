@@ -7,7 +7,7 @@
 */
 
 import type { ChatInputCommandInteraction, GuildBasedChannel, Role, GuildMember } from 'discord.js';
-import { assertUnreachableUnsafe } from './typescript';
+import { assertUnreachableUnsafe } from './typescript.js';
 
 export enum ParserResponseStatus {
   /** Successfully parsed the desired object. */
