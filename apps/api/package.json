@@ -26,10 +26,13 @@
     "@activityrank/database": "workspace:*",
     "@hono/node-server": "^1.12.2",
     "@hono/zod-validator": "^0.2.2",
+    "@scalar/hono-api-reference": "^0.5.165",
     "hono": "^4.5.10",
+    "hono-openapi": "^0.3.1",
     "hono-rate-limiter": "^0.4.2",
     "kysely": "^0.27.4",
-    "zod": "^3.23.8"
+    "zod": "^3.24.1",
+    "zod-openapi": "^4.2.2"
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
@@ -41,10 +44,7 @@
     "vitest": "^2.1.1"
   },
   "nodemonConfig": {
-    "delay": 2500,
     "ext": "js,ts",
-    "watch": [
-      "src/**/*.ts"
-    ]
+    "watch": ["src/**/*.ts"]
   }
 }
