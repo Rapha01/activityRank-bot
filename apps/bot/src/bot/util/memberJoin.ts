@@ -37,7 +37,6 @@ async function autoPostServerJoin(member: GuildMember, roleAssignmentString: str
   if (cachedGuild.db.serverJoinMessage !== '') welcomeMessage = cachedGuild.db.serverJoinMessage;
   else welcomeMessage = 'Welcome <mention>. Have a good time here!';
 
-  welcomeMessage += welcomeMessage;
   welcomeMessage += '\n';
   welcomeMessage += roleAssignmentString;
 
