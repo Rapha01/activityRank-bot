@@ -18,6 +18,55 @@ importers:
         specifier: ^2.3.3
         version: 2.3.3
 
+  apps/api:
+    dependencies:
+      '@activityrank/cfg':
+        specifier: workspace:*
+        version: link:../../packages/cfg
+      '@activityrank/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@hono/node-server':
+        specifier: ^1.12.2
+        version: 1.13.7(hono@4.6.15)
+      '@hono/zod-validator':
+        specifier: ^0.2.2
+        version: 0.2.2(hono@4.6.15)(zod@3.24.1)
+      hono:
+        specifier: ^4.5.10
+        version: 4.6.15
+      hono-rate-limiter:
+        specifier: ^0.4.2
+        version: 0.4.2(hono@4.6.15)
+      kysely:
+        specifier: ^0.27.4
+        version: 0.27.5
+      zod:
+        specifier: ^3.23.8
+        version: 3.24.1
+    devDependencies:
+      '@activityrank/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@swc/cli':
+        specifier: ^0.4.0
+        version: 0.4.0(@swc/core@1.10.1)(chokidar@3.6.0)
+      '@swc/core':
+        specifier: ^1.7.22
+        version: 1.10.1
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.10.2
+      nodemon:
+        specifier: ^3.1.7
+        version: 3.1.9
+      typescript:
+        specifier: ^5.6.2
+        version: 5.7.2
+      vitest:
+        specifier: ^2.1.1
+        version: 2.1.8(@types/node@22.10.2)
+
   apps/bot:
     dependencies:
       '@activityrank/cfg':
@@ -126,6 +175,30 @@ importers:
       vitest:
         specifier: ^2.1.1
         version: 2.1.8(@types/node@22.10.2)
+      zod:
+        specifier: ^3.23.8
+        version: 3.24.1
+
+  apps/cli:
+    dependencies:
+      '@discordjs/core':
+        specifier: ^2.0.0
+        version: 2.0.0
+      '@discordjs/rest':
+        specifier: ^2.4.0
+        version: 2.4.0
+      citty:
+        specifier: ^0.1.6
+        version: 0.1.6
+      consola:
+        specifier: ^3.3.3
+        version: 3.3.3
+      defu:
+        specifier: ^6.1.4
+        version: 6.1.4
+      execa:
+        specifier: ^9.4.0
+        version: 9.5.2
       zod:
         specifier: ^3.23.8
         version: 3.24.1
@@ -1001,8 +1074,8 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  consola@3.3.0:
-    resolution: {integrity: sha512-kxltocVQCwQNFvw40dlVRYeAkAvtYjMFZYNlOcsF5wExPpGwPxMwgx4IfDJvBRPtBpnQwItd5WkTaR0ZwT/TmQ==}
+  consola@3.3.3:
+    resolution: {integrity: sha512-Qil5KwghMzlqd51UXM0b6fyaGHtOC22scxrwrz4A2882LyUMwQjnvaedN1HAeXzphspQ6CpHkzMAWxBTUruDLg==}
     engines: {node: ^14.18.0 || >=16.10.0}
 
   content-disposition@0.5.4:
@@ -1236,6 +1309,11 @@ packages:
 
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
+
+  hono-rate-limiter@0.4.2:
+    resolution: {integrity: sha512-AAtFqgADyrmbDijcRTT/HJfwqfvhalya2Zo+MgfdrMPas3zSMD8SU03cv+ZsYwRU1swv7zgVt0shwN059yzhjw==}
+    peerDependencies:
+      hono: ^4.1.1
 
   hono@4.6.15:
     resolution: {integrity: sha512-OiQwvAOAaI2JrABBH69z5rsctHDzFzIKJge0nYXgtzGJ0KftwLWcBXm1upJC23/omNRtnqM0gjRMbtXshPdqhQ==}
@@ -2644,7 +2722,7 @@ snapshots:
 
   citty@0.1.6:
     dependencies:
-      consola: 3.3.0
+      consola: 3.3.3
 
   clone-regexp@3.0.0:
     dependencies:
@@ -2662,7 +2740,7 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  consola@3.3.0: {}
+  consola@3.3.3: {}
 
   content-disposition@0.5.4:
     dependencies:
@@ -2943,6 +3021,10 @@ snapshots:
   has-flag@3.0.0: {}
 
   help-me@5.0.0: {}
+
+  hono-rate-limiter@0.4.2(hono@4.6.15):
+    dependencies:
+      hono: 4.6.15
 
   hono@4.6.15: {}
 

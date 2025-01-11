@@ -1,0 +1,50 @@
+{
+  "name": "@activityrank/api",
+  "private": true,
+  "version": "0.1.0",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "start": "node ./dist/app.js",
+    "dev": "node --enable-source-maps ./dist/app.js",
+    "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\"",
+    "typecheck": "tsc --noEmit",
+    "build": "swc src --out-dir dist --copy-files --strip-leading-paths"
+  },
+  "imports": {
+    "#*": {
+      "@activityrank/dev": "./src/*",
+      "default": "./dist/*"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rapha01/activityRank-bot.git"
+  },
+  "dependencies": {
+    "@activityrank/cfg": "workspace:*",
+    "@activityrank/database": "workspace:*",
+    "@hono/node-server": "^1.12.2",
+    "@hono/zod-validator": "^0.2.2",
+    "hono": "^4.5.10",
+    "hono-rate-limiter": "^0.4.2",
+    "kysely": "^0.27.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@activityrank/tsconfig": "workspace:*",
+    "@swc/cli": "^0.4.0",
+    "@swc/core": "^1.7.22",
+    "@types/node": "^22.10.2",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  },
+  "nodemonConfig": {
+    "delay": 2500,
+    "ext": "js,ts",
+    "watch": [
+      "src/**/*.ts"
+    ]
+  }
+}
