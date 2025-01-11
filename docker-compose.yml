@@ -2,7 +2,7 @@ name: activityrank
 
 configs:
   privileges:
-    file: ./config/privilege.json
+    file: ./config/privileges.json
   config:
     file: ./config/config.json
 

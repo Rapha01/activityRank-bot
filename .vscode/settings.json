@@ -5,8 +5,8 @@
       "url": "./config/keys.schema.json"
     },
     {
-      "fileMatch": ["config/privilege.json", "config/privilege.example.json"],
-      "url": "./config/privilege.schema.json"
+      "fileMatch": ["config/privileges.json", "config/privileges.example.json"],
+      "url": "./config/privileges.schema.json"
     },
     {
       "fileMatch": ["config/config.json", "config/config.example.json"],
