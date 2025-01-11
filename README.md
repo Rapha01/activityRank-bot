@@ -1,3 +1,5 @@
+<!-- markdownlint-disable-file MD033 -->
+<!-- markdownlint-disable-next-line MD041 -->
 <div align="center">
 
 ![ActivityRank Wordmark](https://raw.githubusercontent.com/activityrankbot/assets/main/banners/wordmark.png)
@@ -22,8 +24,8 @@ This repository houses the core components of [ActivityRank](https://activityran
 
 ActivityRank is a Discord bot focusing on flexible statistics and ranking.
 It is sharded and capable of running in a distributed form across multiple servers.
-This repository contains the source code for the ActivityRank Discord Bot, 
-the Manager service, and the ActivityRank Website. 
+This repository contains the source code for the ActivityRank Discord Bot,
+the Manager service, and the ActivityRank Website.
 It allows all components to be developed, deployed, and maintained in a unified manner.
 
 ## Getting Started
@@ -42,51 +44,65 @@ Before you start developing, make sure you have the following installed:
 ### Setting Up the Project
 
 1. Clone the repository:
-```sh
-git clone https://github.com/Rapha01/activityRank-bot.git activityrank
-cd activityrank
-```
-2. Install dependencies:
-```sh
-pnpm install
-```
-This will install dependencies for all packages within the monorepo, thanks to pnpm Workspaces.
 
-3. Configure your environment: 
-The [config](config) folder hosts configuration files for the various apps in the monorepo. 
-If you're using VSCode or another editor with a JSON Schema plug-in, these files will highlight potential errors.
+    ```sh
+    git clone https://github.com/Rapha01/activityRank-bot.git activityrank
+    cd activityrank
+    ```
+
+2. Install dependencies:
+
+    ```sh
+    pnpm install
+    ```
+
+    This will install dependencies for all packages within the monorepo, thanks to pnpm Workspaces.
+
+3. Configure your environment:
+
+    The [config](config) folder hosts configuration files for the various apps in the monorepo.
+    If you're using VSCode or another editor with a JSON Schema plug-in, these files will highlight potential errors.
 
 ### Running the Services
 
 You can run all the services (bot, manager, and website) individually, or spin up everything at once using Docker or pnpm scripts. It is strongly recommended that you run at least the database via Docker.
 
-#### Running with Docker:
+#### Running with Docker
 
 Build and run the database using Docker:
+
 ```sh
 docker compose up db
 ```
+
 Build and run the database and manager using Docker:
+
 ```sh
 docker compose up db manager
 ```
+
 Build and run the database, manager, and bot using Docker:
+
 ```sh
 docker compose up db manager bot
 ```
+
 This will build and start all the services listed - which are defined in the [docker-compose.yml](docker-compose.yml) file.
 
-#### Running Individually:
+#### Running Individually
 
 1. Ensure a valid MySQL connection is available and configured.
-2. Start the manager: 
-```sh
-pnpm --filter=@activityrank/manager run start
-```
-3. Start the bot: 
-```sh
-pnpm --filter=@activityrank/bot run start
-```
+2. Start the manager:
+
+    ```sh
+    pnpm --filter=@activityrank/manager run start
+    ```
+
+3. Start the bot:
+
+    ```sh
+    pnpm --filter=@activityrank/bot run start
+    ```
 
 ## Contributing
 
@@ -99,7 +115,7 @@ We welcome contributions! If you’d like to contribute, follow these steps:
 
 For large changes, it's a good idea to discuss them first by opening an issue.
 
-Feel free to contact a maintainer on Discord - 
+Feel free to contact a maintainer on Discord -
 send a message request to [`@piemot`](https://discord.com/users/270273690074087427)
 or ask around in the [support server](https://activityrank.me/support).
 
