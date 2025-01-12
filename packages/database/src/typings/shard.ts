@@ -80,6 +80,7 @@ export interface GuildSchema {
   isBanned: Generated<number>;
   resetDeletedMembers: Generated<number>;
   stickyLevelRoles: Generated<number>;
+  apiToken: string | null;
 }
 
 export interface GuildChannelSchema {

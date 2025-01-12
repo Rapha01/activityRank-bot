@@ -79,7 +79,7 @@ async function getRegistry() {
   const build = await $`npm run build`;
 
   consola.start('Launching registry');
-  const { createRegistryCLI } = await import('./dist/bot/util/registry/registry.js');
+  const { createRegistryCLI } = await import('../bot/dist/bot/util/registry/registry.js');
   const registry = /** @type {Registry} */ (await createRegistryCLI());
   await registry.loadCommands();
 
@@ -118,7 +118,7 @@ const deployProd = defineCommand({
     const registry = await getRegistry();
 
     const Deploy = /** @type {Deploy} */ (
-      (await import('./dist/bot/util/registry/command.js')).Deploy
+      (await import('../bot/dist/bot/util/registry/command.js')).Deploy
     );
 
     const GLOBAL = 'Update globally deployed commands';
@@ -188,13 +188,15 @@ const deploy = defineCommand({
     const api = getAPI(conf);
     const guilds = overrideGuilds
       ? // citty doesn't support variadic arguments yet; ctx.args._ is a workaround
-        z.array(snowflakeSchema).parse(args._)
+        z
+          .array(snowflakeSchema)
+          .parse(args._)
       : conf.config.developmentServers;
 
     const registry = await getRegistry();
 
     const Deploy = /** @type {Deploy} */ (
-      (await import('./dist/bot/util/registry/command.js')).Deploy
+      (await import('../bot/dist/bot/util/registry/command.js')).Deploy
     );
 
     /** @type {import('@discordjs/core').RESTPutAPIApplicationGuildCommandsJSONBody} */
@@ -297,7 +299,9 @@ const clear = defineCommand({
     const api = getAPI(conf);
     const guilds = overrideGuilds
       ? // citty doesn't support variadic arguments yet; ctx.args._ is a workaround
-        z.array(snowflakeSchema).parse(args._)
+        z
+          .array(snowflakeSchema)
+          .parse(args._)
       : conf.config.developmentServers;
 
     if (args.global) {

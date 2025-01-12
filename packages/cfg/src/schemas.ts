@@ -84,14 +84,36 @@ export const managerKeys = z
   })
   .describe('The keys to be provided to the Manager module of ActivityRank');
 
+/**The basic config to be provided to the API module of ActivityRank*/
+export const apiConfig = z
+  .object({})
+  .describe('The basic config to be provided to the API module of ActivityRank');
+
+/** The keys to be provided to the API module of ActivityRank */
+export const apiKeys = z
+  .object({
+    /**The host of the Manager DB*/
+    managerHost: z.string().describe('The host of the Manager DB'),
+    /**Properties concerning manager DB connections*/
+    managerDb: dbConnection.describe('Properties concerning manager DB connections'),
+    /**Properties concerning shard DB connections*/
+    shardDb: dbConnection.describe('Properties concerning shard DB connections'),
+  })
+  .describe('The keys to be provided to the API module of ActivityRank');
+
 // preset schemas
 export const bot = {
   config: botConfig,
   keys: botKeys,
   privileges,
 };
-// TODO create more specific manager schemas
+
 export const manager = {
   config: managerConfig,
   keys: managerKeys,
+};
+
+export const api = {
+  config: apiConfig,
+  keys: apiKeys,
 };

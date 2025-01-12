@@ -51,7 +51,7 @@ export default command.basic({
         name: 'search-guild',
         description: 'Get the shard of a specific guild',
         min_length: 17,
-        max_length: 19,
+        max_length: 20,
         type: ApplicationCommandOptionType.String,
       },
     ],

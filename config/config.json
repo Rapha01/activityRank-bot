@@ -15,5 +15,5 @@
     "admin": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=8&scope=bot%20applications.commands%20applications.commands.permissions.update"
   },
   "disablePatreon": true,
-  "developmentServers": []
+  "developmentServers": ["905898879785005106", "534598374985302027"]
 }
