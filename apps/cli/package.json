@@ -1,0 +1,15 @@
+{
+  "name": "@activityrank/cli",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@discordjs/core": "^2.0.0",
+    "@discordjs/rest": "^2.4.0",
+    "citty": "^0.1.6",
+    "consola": "^3.3.3",
+    "defu": "^6.1.4",
+    "execa": "^9.4.0",
+    "zod": "^3.23.8"
+  }
+}

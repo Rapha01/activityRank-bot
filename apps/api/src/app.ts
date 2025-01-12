@@ -11,12 +11,12 @@ import { apiRouter } from '#api.js';
 const app = new Hono();
 app.use(logger());
 
-app.get('/healthcheck', (c) => {
+app.get('/api/healthcheck', (c) => {
   c.status(204);
   return c.body(null);
 });
 app.get(
-  '/openapi.json',
+  '/api/openapi.json',
   openAPISpecs(app, {
     documentation: {
       info: {
@@ -29,7 +29,7 @@ app.get(
           url: 'https://activityrank.me/support',
         },
       },
-      servers: [{ url: 'https://activityrank.me/' }],
+      servers: [{ url: 'http://activityrank.me/' }],
       components: {
         securitySchemes: {
           publicBearerAuth: {
@@ -51,17 +51,17 @@ app.get(
   }),
 );
 app.get(
-  '/docs',
+  '/api/docs',
   apiReference({
     theme: 'saturn',
     spec: {
-      url: '/openapi.json',
+      url: '/api/openapi.json',
     },
   }),
 );
 
-app.route('/api/v1/', apiRouter);
+app.route('/api/v0/', apiRouter);
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
 serve({ fetch: app.fetch, port });
-console.info(`Server listening on port ${port}`);
+console.info(`API Server listening on port ${port}`);
