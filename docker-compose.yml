@@ -54,3 +54,24 @@ services:
       - config
     secrets:
       - keys
+
+  api:
+    container_name: Public API
+    restart: always
+    init: true
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: 'activityrank/api:dev'
+    depends_on:
+      - db
+      - manager
+    links:
+      - db
+      - manager
+    ports:
+      - '8080:3000'
+    secrets:
+      - keys
+    configs:
+      - config
