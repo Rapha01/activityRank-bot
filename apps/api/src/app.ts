@@ -1,59 +1,47 @@
-import { Hono } from 'hono';
+import { OpenAPIHono } from '@hono/zod-openapi';
 import { logger } from 'hono/logger';
 import { serve } from '@hono/node-server';
-import { openAPISpecs } from 'hono-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
-
-import 'zod-openapi/extend';
 
 import { apiRouter } from '#api.js';
 
-const app = new Hono();
+const app = new OpenAPIHono();
 app.use(logger());
+
+app.openAPIRegistry.registerComponent('securitySchemes', 'publicBearerAuth', {
+  type: 'http',
+  scheme: 'bearer',
+  description: 'You can generate a token in the Support Server by running `/api create-token`.',
+  bearerFormat: 'Provided via ActivityRank: `Bearer ar-{ guildId }-{ token }`',
+});
 
 app.get('/api/healthcheck', (c) => {
   c.status(204);
   return c.body(null);
 });
-app.get(
-  '/api/openapi.json',
-  openAPISpecs(app, {
-    documentation: {
-      info: {
-        title: 'ActivityRank API',
-        version: '0.1.0',
-        description: 'A public API for the ActivityRank Bot: https://activityrank.me',
-        termsOfService: 'https://activityrank.me/terms',
-        contact: {
-          name: 'ActivityRank Support (via Discord)',
-          url: 'https://activityrank.me/support',
-        },
-      },
-      servers: [{ url: 'http://activityrank.me/' }],
-      components: {
-        securitySchemes: {
-          publicBearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: '',
-          },
-        },
-        responses: {
-          InvalidAuthError: {
-            description: 'Access token is present but invalid.',
-          },
-          UnauthorizedError: {
-            description: 'Access token is missing.',
-          },
-        },
-      },
+
+app.doc('/api/openapi.json', {
+  openapi: '3.0.0',
+  info: {
+    title: 'ActivityRank API',
+    version: '0.1.0',
+    description:
+      'A public API for the ActivityRank Bot: https://activityrank.me \n\n\
+**WARNING** All API endpoints are in `v0`. Until `v1` is released, \
+endpoints may have breaking changes made without warning.',
+    termsOfService: 'https://activityrank.me/terms',
+    contact: {
+      name: 'ActivityRank Support (via Discord)',
+      url: 'https://activityrank.me/support',
     },
-  }),
-);
+  },
+  servers: [{ url: 'http://activityrank.me/' }],
+});
+
 app.get(
   '/api/docs',
   apiReference({
-    theme: 'saturn',
+    theme: 'purple',
     spec: {
       url: '/api/openapi.json',
     },

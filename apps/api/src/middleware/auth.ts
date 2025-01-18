@@ -11,10 +11,10 @@
  */
 
 import { subtle } from 'node:crypto';
-import { HTTPException } from 'hono/http-exception';
 import { createMiddleware } from 'hono/factory';
 import { getGuildHost } from '#models/guildRouteModel.js';
 import { shards } from '#models/shard.js';
+import { JSONHTTPException } from '#util/errors.js';
 
 const PREFIX = 'Bearer';
 const HEADER = 'Authorization';
@@ -31,18 +31,18 @@ export const PublicAPIAuth = createMiddleware<{ Variables: PublicAPIAuthVariable
     const headerToken = c.req.header(HEADER);
     if (!headerToken) {
       // No Authorization header
-      throw new HTTPException(401);
+      throw new JSONHTTPException(401, 'No Authorization header provided');
     }
     const headerMatch = headerRe.exec(headerToken);
     if (!headerMatch) {
-      // Incorrectly formatted Authentication header
-      throw new HTTPException(400, { message: 'Invalid Authentication Header' });
+      // Incorrectly formatted Authorization header
+      throw new JSONHTTPException(400, 'Invalid Authorization Header');
     }
 
     const tokenMatch = tokenRe.exec(headerMatch[1]);
     if (!tokenMatch?.groups?.guildId || !tokenMatch?.groups?.token) {
-      // Incorrectly formatted Authentication token
-      throw new HTTPException(400, { message: 'Invalid Authentication Token' });
+      // Incorrectly formatted authorization token
+      throw new JSONHTTPException(400, 'Invalid Authorization Token');
     }
     const guildId = tokenMatch.groups.guildId;
     const token = tokenMatch.groups.token;
@@ -57,7 +57,7 @@ export const PublicAPIAuth = createMiddleware<{ Variables: PublicAPIAuthVariable
 
     if (!guild?.apiToken) {
       // This guild's API is disabled
-      throw new HTTPException(400, { message: 'Guild API is disabled' });
+      throw new JSONHTTPException(400, 'Guild API is disabled');
     }
 
     const hashedToken = await sha256(token);
@@ -65,7 +65,7 @@ export const PublicAPIAuth = createMiddleware<{ Variables: PublicAPIAuthVariable
 
     if (!equal) {
       // Invalid Token
-      throw new HTTPException(401);
+      throw new JSONHTTPException(401, 'Invalid Token');
     }
 
     c.set('authorisedGuildId', guildId);
