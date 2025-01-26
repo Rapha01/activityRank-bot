@@ -120,15 +120,49 @@ type CommandPredicateCheck = PredicateCheck<
 >;
 
 export abstract class Command {
+  /**
+   * The data representing the command in the API format.
+   * This is required for registering the command with the API.
+   */
   public abstract readonly data: RESTPostAPIApplicationCommandsJSONBody;
+
+  /**
+   * The mode in which the command is deployed (e.g., LOCAL_ONLY or GLOBAL).
+   * This prevents accidental global deployment of development commands.
+   */
   public abstract readonly deploymentMode: DeploymentMode;
+
+  /**
+   * Executes the command when invoked by an interaction.
+   *
+   * @param index - The index of the command.
+   * @param interaction - The interaction event that triggered the command execution, which can be either
+   *                      a chat input command or a context menu command.
+   * @returns A promise that resolves when the command execution is complete.
+   */
   public abstract execute(
     index: CommandIndex,
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
   ): Promise<void>;
 
+  /**
+   * Checks if the user meets the criteria (predicates) to execute this command.
+   *
+   * **Implementors of this method should call {@link evaluatePredicate()} with this command's predicate config.**
+   *
+   * @param index - The index of the command being checked.
+   * @param user - The user attempting to execute the command.
+   * @returns A result indicating whether the command can be executed by the user and any associated callbacks.
+   */
   public abstract checkPredicate(index: CommandIndex, user: User): CommandPredicateCheck;
 
+  /**
+   * Evaluates a given predicate against a user to determine if they are allowed to execute the command.
+   *
+   * @param predicate - The configuration of the predicate that defines access rules.
+   * @param user - The user to validate against the predicate.
+   * @returns A result object containing the evaluation status and any callback to be executed if denied.
+   */
   protected evaluatePredicate(
     predicate: CommandPredicateConfig | null,
     user: User,
