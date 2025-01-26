@@ -7,7 +7,7 @@ export const isProduction = process.env.NODE_ENV === 'production';
 const loader = () =>
   isProduction
     ? configLoader()
-    : configLoader(process.env.CONFIG_PATH ?? `${process.cwd()}/config`);
+    : configLoader(process.env.CONFIG_PATH ?? `${import.meta.dirname}/../../../../config`);
 
 export const config = await loader().load({
   name: 'config',
