@@ -56,7 +56,7 @@ services:
       - keys
 
   api:
-    container_name: Public API
+    container_name: Public-API
     restart: always
     init: true
     build:
