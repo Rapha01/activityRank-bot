@@ -3,13 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "scripts": {
+    "start": "./src/index.ts"
+  },
   "dependencies": {
-    "@discordjs/core": "^2.0.0",
-    "@discordjs/rest": "^2.4.0",
-    "citty": "^0.1.6",
-    "consola": "^3.3.3",
-    "defu": "^6.1.4",
+    "@activityrank/cfg": "workspace:^",
+    "@clack/core": "^0.4.1",
+    "@clack/prompts": "^0.9.1",
+    "@discordjs/core": "^2.0.1",
+    "@discordjs/rest": "^2.4.2",
+    "clipanion": "4.0.0-rc.4",
     "execa": "^9.4.0",
+    "picocolors": "^1.1.1",
+    "typanion": "^3.14.0",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@activityrank/tsconfig": "workspace:^",
+    "discord-api-types": "^0.37.117"
   }
 }

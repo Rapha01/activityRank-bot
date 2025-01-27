@@ -4,6 +4,7 @@
   "private": "true",
   "type": "module",
   "scripts": {
+    "activityrank": "./apps/cli/src/index.ts",
     "lint": "biome lint",
     "lint:write": "biome lint --write",
     "format": "biome format",
