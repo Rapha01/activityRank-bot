@@ -11,9 +11,6 @@ importers:
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
-      json-schema-to-zod:
-        specifier: ^2.6.0
-        version: 2.6.0
       turbo:
         specifier: ^2.3.3
         version: 2.3.3
@@ -1518,10 +1515,6 @@ packages:
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
-
-  json-schema-to-zod@2.6.0:
-    resolution: {integrity: sha512-6sFZqOzHZeON8g2ZW5HJ114Hb/FffNCjWh8dgulJaKFkUqKCEWZAzF4+g07SQpfBZF7HXemwedtdLypZzmnVpQ==}
-    hasBin: true
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -3331,8 +3324,6 @@ snapshots:
   joycon@3.1.1: {}
 
   json-buffer@3.0.1: {}
-
-  json-schema-to-zod@2.6.0: {}
 
   keyv@4.5.4:
     dependencies:
