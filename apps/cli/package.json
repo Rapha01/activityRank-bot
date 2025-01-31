@@ -3,9 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "start": "./src/index.ts"
-  },
+  "bin": "./src/index.ts",
   "dependencies": {
     "@activityrank/cfg": "workspace:^",
     "@clack/core": "^0.4.1",
