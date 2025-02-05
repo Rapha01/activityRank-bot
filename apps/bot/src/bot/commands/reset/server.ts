@@ -4,6 +4,7 @@ import { settings } from './server/settings.js';
 import { statistics } from './server/statistics.js';
 import { all } from './server/all.js';
 import { xp } from './server/xp.js';
+import { members } from './server/members.js';
 
 export const server = subcommandGroup({
   data: {
@@ -11,5 +12,5 @@ export const server = subcommandGroup({
     description: 'Reset some attributes of the entire server.',
     type: ApplicationCommandOptionType.SubcommandGroup,
   },
-  subcommands: [settings, statistics, xp, all],
+  subcommands: [settings, statistics, xp, all, members],
 });
