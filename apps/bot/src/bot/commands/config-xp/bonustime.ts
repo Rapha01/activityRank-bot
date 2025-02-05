@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 
 export const bonustime = subcommand({
   data: {
@@ -46,7 +46,7 @@ export const bonustime = subcommand({
       content: `Bonus time has started! It will end <t:${bonusUntilDate}:R>.`,
     });
   },
-  autocomplete: {
+  autocompletes: {
     async time({ interaction }) {
       await interaction.respond([
         { name: 'End Now', value: 0 },

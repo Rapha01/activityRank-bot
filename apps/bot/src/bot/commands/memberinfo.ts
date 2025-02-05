@@ -7,22 +7,13 @@ import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { stripIndent } from 'common-tags';
 import fct from '../../util/fct.js';
 import { shards } from '#models/shardDb/shardDb.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
+import { resolveMember } from '#bot/util/parser.js';
 
-export default command.basic({
-  data: {
-    name: 'memberinfo',
-    description: 'Show information about a member.',
-    options: [
-      {
-        type: ApplicationCommandOptionType.User,
-        name: 'member',
-        description: 'The member to show information about.',
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const member = interaction.options.getMember('member') ?? interaction.member;
+export default command({
+  name: 'memberinfo',
+  async execute({ interaction, options }) {
+    const member = (await resolveMember(options.member, interaction)) ?? interaction.member;
 
     const cachedGuild = await getGuildModel(interaction.guild);
 

@@ -2,7 +2,7 @@ import { ButtonStyle, ComponentType, type Interaction } from 'discord.js';
 import { oneLine } from 'common-tags';
 import { type GuildMemberModel, getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel, type GuildModel } from '#bot/models/guild/guildModel.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
@@ -40,8 +40,8 @@ const closeRow = (interaction: Interaction<'cached'>) =>
     },
   ]);
 
-export default command.basic({
-  data: { name: 'config-member', description: 'Change your personal settings.' },
+export default command({
+  name: 'config-member',
   async execute({ interaction }) {
     const cachedGuild = await getGuildModel(interaction.member.guild);
     const cachedMember = await getMemberModel(interaction.member);

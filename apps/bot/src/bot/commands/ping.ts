@@ -1,9 +1,9 @@
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { config, isProduction } from '#const/config.js';
 
-export default command.basic({
-  data: { name: 'ping', description: "Checks the bot's latency" },
+export default command({
+  name: 'ping',
   async execute({ interaction }) {
     const sent = await interaction.deferReply({ fetchReply: true, ephemeral: true });
 

@@ -24,7 +24,7 @@ import {
   type APIEmbed,
 } from 'discord.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { Time } from '@sapphire/duration';
 import { assertUnreachable } from '#bot/util/typescript.js';
 import { actionrow } from '#bot/util/component.js';
@@ -65,11 +65,8 @@ interface CacheInstance {
   componentPredicate: ComponentPredicateConfig;
 }
 
-export default command.basic({
-  data: {
-    name: 'top',
-    description: 'Show the top members and channels in the server.',
-  },
+export default command({
+  name: 'top',
   async execute({ interaction }) {
     await interaction.deferReply();
 

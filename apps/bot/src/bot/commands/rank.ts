@@ -26,7 +26,7 @@ import {
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUserId } from '#bot/util/predicates.js';
@@ -42,19 +42,9 @@ interface CacheInstance {
 
 const activeCache = new Map();
 
-export default command.basic({
-  data: {
-    name: 'rank',
-    description: "Find your or another member's rank",
-    options: [
-      {
-        name: 'member',
-        description: 'The member to check the rank of',
-        type: ApplicationCommandOptionType.User,
-      },
-    ],
-  },
-  async execute({ interaction, client }) {
+export default command({
+  name: 'rank',
+  async execute({ interaction, client, options }) {
     await interaction.deferReply();
 
     if ((await handleStatCommandsCooldown(interaction)).denied) return;
@@ -62,7 +52,7 @@ export default command.basic({
     const cachedGuild = await getGuildModel(interaction.guild);
     const myGuild = await cachedGuild.fetch();
 
-    const targetUser = interaction.options.getUser('member') ?? interaction.user;
+    const targetUser = options.member ?? interaction.user;
 
     const initialState: CacheInstance = {
       window: 'rank',

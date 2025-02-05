@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ButtonStyle, ComponentType, type Role } from 'discord.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { actionrow, closeButton } from '#bot/util/component.js';

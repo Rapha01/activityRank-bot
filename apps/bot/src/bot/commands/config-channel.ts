@@ -8,14 +8,13 @@ import {
   PermissionFlagsBits,
   ComponentType,
   type Interaction,
-  ApplicationCommandOptionType,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
 import { ParserResponseStatus, parseChannel } from '../util/parser.js';
-import { command, permissions } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser, requireUserId } from '#bot/util/predicates.js';
 import { closeButton } from '#bot/util/component.js';
@@ -161,27 +160,8 @@ const _close = (ownerId: string) =>
       .setCustomId(closeButton.instanceId({ predicate: requireUserId(ownerId) })),
   );
 
-export default command.basic({
-  data: {
-    name: 'config-channel',
-    description: "Change a channel's settings.",
-    options: [
-      {
-        name: 'channel',
-        description: 'The channel to modify',
-        channel_types: [ChannelType.GuildText, ChannelType.GuildVoice, ChannelType.GuildForum],
-        type: ApplicationCommandOptionType.Channel,
-      },
-      {
-        name: 'id',
-        description: 'The ID of the channel to modify',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
-      },
-    ],
-    default_member_permissions: permissions(permissions.ManageChannels, permissions.ManageGuild),
-  },
+export default command({
+  name: 'config-channel',
   async execute({ interaction }) {
     const resolvedChannel = parseChannel(interaction);
     if (resolvedChannel.status === ParserResponseStatus.ConflictingInputs) {

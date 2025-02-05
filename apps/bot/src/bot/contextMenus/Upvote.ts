@@ -1,4 +1,4 @@
-import { context } from '#bot/util/registry/command.js';
+import { context } from '#bot/commands.js';
 import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.js';
 
 export default context.user({

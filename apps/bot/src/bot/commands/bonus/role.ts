@@ -14,7 +14,7 @@ import {
   type ReadonlyCollection,
 } from 'discord.js';
 import { DiscordSnowflake } from '@sapphire/snowflake';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 import { Time } from '@sapphire/duration';
 
 export const currentJobs = new Set();

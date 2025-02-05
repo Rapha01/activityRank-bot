@@ -10,7 +10,7 @@ import {
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 import { closeButton } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { component } from '#bot/util/registry/component.js';

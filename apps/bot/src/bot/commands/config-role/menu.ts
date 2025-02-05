@@ -14,7 +14,7 @@ import {
 
 import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import { component, modal } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';

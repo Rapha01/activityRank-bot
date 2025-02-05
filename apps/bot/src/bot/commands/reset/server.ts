@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType } from 'discord.js';
-import { subcommandGroup } from '#bot/util/registry/command.js';
+import { subcommandGroup } from '#bot/commands.js';
 import { settings } from './server/settings.js';
 import { statistics } from './server/statistics.js';
 import { all } from './server/all.js';

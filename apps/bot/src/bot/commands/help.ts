@@ -1,5 +1,4 @@
 import {
-  SlashCommandBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   EmbedBuilder,
@@ -11,15 +10,12 @@ import { stripIndent } from 'common-tags';
 import type { TextsCommands, TextsEntry } from '#models/types/external.js';
 import { getTexts } from '#models/managerDb/textModel.js';
 import { config, version } from '#const/config.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 
-export default command.basic({
-  data: {
-    name: 'help',
-    description: 'Show information for operating the bot',
-  },
+export default command({
+  name: 'help',
   async execute({ interaction }) {
     const { commands } = await getTexts();
     const helpEmbed = helpMainEmbed(commands);

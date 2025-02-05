@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import { parseEmojiString } from '#bot/util/emoji.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 
 export const bonus = subcommand({
   data: {

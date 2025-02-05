@@ -6,7 +6,7 @@ import {
   ComponentType,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 import { actionrow, useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildStatistics } from '#bot/models/resetModel.js';

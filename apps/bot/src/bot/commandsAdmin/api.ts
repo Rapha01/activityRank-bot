@@ -1,4 +1,4 @@
-import { command, subcommand } from '#bot/util/registry/command.js';
+import { command, subcommand } from '#bot/commands.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 import { subtle } from 'node:crypto';
 import { customAlphabet } from 'nanoid';

@@ -7,10 +7,9 @@ import {
   type ModalComponentData,
   type SelectMenuComponentOptionData,
 } from 'discord.js';
-
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { ComponentType } from 'discord.js';
-import { command, permissions } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { component, modal } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { actionrow } from '#bot/util/component.js';
@@ -68,12 +67,8 @@ const generateModal = (message: ServerMessage): ModalComponentData => ({
   ],
 });
 
-export default command.basic({
-  data: {
-    name: 'config-messages',
-    description: "Configure the server's autopost messages.",
-    default_member_permissions: permissions(permissions.ManageGuild),
-  },
+export default command({
+  name: 'config-messages',
   async execute({ interaction }) {
     if (
       interaction.channel &&

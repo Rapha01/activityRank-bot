@@ -1,6 +1,6 @@
 import { actionrow, useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
-import { command, Deploy, type BasicSlashCommandData } from '#bot/util/registry/command.js';
+import { command, Deploy, type BasicSlashCommandData } from '#bot/commands.js';
 import {
   ApplicationCommandType,
   ButtonStyle,

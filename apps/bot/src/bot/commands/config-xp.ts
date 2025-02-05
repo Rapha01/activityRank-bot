@@ -1,4 +1,4 @@
-import { command, permissions } from '#bot/util/registry/command.js';
+import { command, permissions } from '#bot/commands.js';
 import { bonustime } from './config-xp/bonustime.js';
 import { levelfactor } from './config-xp/levelfactor.js';
 import { xpPer } from './config-xp/xp-per.js';

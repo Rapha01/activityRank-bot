@@ -1,4 +1,4 @@
-import { command, Deploy, permissions, subcommand } from '#bot/util/registry/command.js';
+import { command, Deploy, permissions, subcommand } from '#bot/commands.js';
 import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
 import { ApplicationCommandOptionType } from 'discord.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';

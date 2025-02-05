@@ -1,4 +1,4 @@
-import { command, permissions } from '#bot/util/registry/command.js';
+import { command, permissions } from '#bot/commands.js';
 import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
 import { AttachmentBuilder, EmbedBuilder, Status, ApplicationCommandOptionType } from 'discord.js';
 import { DurationFormatter } from '@sapphire/duration';

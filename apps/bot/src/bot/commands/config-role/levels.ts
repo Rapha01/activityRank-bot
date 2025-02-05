@@ -6,7 +6,7 @@ import {
   getRoleModel,
 } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { subcommand } from '#bot/commands.js';
 
 export const levels = subcommand({
   data: {

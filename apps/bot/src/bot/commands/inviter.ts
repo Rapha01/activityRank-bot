@@ -1,6 +1,5 @@
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import {
-  ApplicationCommandOptionType,
   ButtonStyle,
   type ChatInputCommandInteraction,
   ComponentType,
@@ -12,22 +11,12 @@ import statFlushCache from '../statFlushCache.js';
 import fct from '../../util/fct.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
+import { resolveMember } from '#bot/util/parser.js';
 
-export default command.basic({
-  data: {
-    name: 'inviter',
-    description: 'Set a member as your inviter',
-    options: [
-      {
-        name: 'member',
-        description: 'The user that invited you to the server',
-        required: true,
-        type: ApplicationCommandOptionType.User,
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const member = interaction.options.getMember('member');
+export default command({
+  name: 'inviter',
+  async execute({ interaction, options }) {
+    const member = await resolveMember(options.member, interaction);
 
     if (!member) {
       await interaction.reply({
