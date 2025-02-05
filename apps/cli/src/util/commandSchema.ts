@@ -3,6 +3,7 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ApplicationIntegrationType,
+  ChannelType,
   InteractionContextType,
 } from 'discord-api-types/v10';
 
@@ -30,16 +31,19 @@ const baseOptionSchema = z.object({
 const choiceSchema = <T extends z.ZodTypeAny>(t: T) =>
   z.array(z.object({ name: z.string().min(1).max(100), value: t })).max(25);
 
-const basicOptionSchema = z.union([
+export const basicOptionSchema = z.union([
   baseOptionSchema.extend({
     type: z.union([
       z.literal(ApplicationCommandOptionType.Boolean),
       z.literal(ApplicationCommandOptionType.User),
-      z.literal(ApplicationCommandOptionType.Channel),
       z.literal(ApplicationCommandOptionType.Role),
       z.literal(ApplicationCommandOptionType.Mentionable),
       z.literal(ApplicationCommandOptionType.Attachment),
     ]),
+  }),
+  baseOptionSchema.extend({
+    type: z.literal(ApplicationCommandOptionType.Channel),
+    channel_types: z.array(z.nativeEnum(ChannelType)).optional(),
   }),
   baseOptionSchema.extend({
     type: z.literal(ApplicationCommandOptionType.String),
@@ -91,6 +95,12 @@ export const subcommandGroupOptionSchema = baseOptionSchema.extend({
   type: z.literal(ApplicationCommandOptionType.SubcommandGroup),
   options: z.array(subcommandOptionSchema).min(1).max(25),
 });
+
+export const anyOptionSchema = z.union([
+  basicOptionSchema,
+  subcommandOptionSchema,
+  subcommandGroupOptionSchema,
+]);
 
 export const chatInputCommandSchema = z.object({
   name: z.string().regex(NAME_REGEX),

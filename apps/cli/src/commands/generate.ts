@@ -1,19 +1,23 @@
 import { join as joinPath } from 'node:path';
 import { createWriteStream } from 'node:fs';
 import type { Writable } from 'node:stream';
+import { promisify } from 'node:util';
+import { $ } from 'execa';
 import type { z } from 'zod';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';
-import { ConfigurableCommand } from '../util/classes.ts';
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ApplicationIntegrationType,
+  ChannelType,
   InteractionContextType,
 } from 'discord-api-types/v10';
 import { configLoader, schemas } from '@activityrank/cfg';
+import { ConfigurableCommand } from '../util/classes.ts';
 import {
+  type anyOptionSchema,
   commandsSchema,
   type chatInputCommandSchema,
   type subcommandOptionSchema,
@@ -87,7 +91,13 @@ export class GenerateCommand extends ConfigurableCommand {
   outputFile = Option.String('-o,--output', {
     required: false,
     description:
-      'The file to output to. Use `-` to output to stdout. Defaults to `apps/bot/src/bot/commands.generated.ts`.',
+      'The file to output to. Use `-` to output to stdout. Defaults to `apps/bot/src/bot/util/registry/commands.generated.ts`.',
+  });
+
+  postGen = Option.String('--post-gen', {
+    required: false,
+    hidden: true,
+    tolerateBoolean: true,
   });
 
   /**
@@ -125,25 +135,34 @@ export class GenerateCommand extends ConfigurableCommand {
     commandLike:
       | { type: 'command'; value: z.infer<typeof chatInputCommandSchema> }
       | { type: 'subcommand'; value: z.infer<typeof subcommandOptionSchema> },
-  ): string {
+  ): {
+    inputDeclaration: string;
+    metaOptions: { optionGetters: Record<string, string[]> };
+    key: string;
+  } {
     const cachedGeneric = maybeUncached ? '' : "<'cached'>";
-    const wrapInputType = (inputType: string) =>
-      `export function command(options: ${inputType}): Command`;
 
     if (!commandLike.value.options || commandLike.value.options.length < 1) {
       // very simple command; no options at all
-      return wrapInputType(`{
+      return {
+        inputDeclaration: `{
         name: '${id}';
-        predicate?: PredicateConfig;
+        predicate?: CommandPredicateConfig;
         execute: (args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client }) => CommandReturn;
-      }`);
+      }`,
+        metaOptions: { optionGetters: {} },
+        key: id,
+      };
     }
 
     const autocompletableOptions = commandLike.value.options.filter(
       (o) => 'autocomplete' in o && o.autocomplete,
     );
 
-    function getOptionResult(optionType: ApplicationCommandOptionType): string {
+    function getOptionResult(
+      optionType: ApplicationCommandOptionType,
+      channelTypes: ChannelType[] = [],
+    ): string {
       switch (optionType) {
         case ApplicationCommandOptionType.Boolean:
           return 'boolean';
@@ -152,12 +171,18 @@ export class GenerateCommand extends ConfigurableCommand {
           return 'number';
         case ApplicationCommandOptionType.String:
           return 'string';
-        case ApplicationCommandOptionType.Channel:
-        case ApplicationCommandOptionType.Mentionable:
         case ApplicationCommandOptionType.Attachment:
+          return 'Attachment';
         case ApplicationCommandOptionType.Role:
+          return maybeUncached ? 'Role | APIRole' : 'Role';
         case ApplicationCommandOptionType.User:
-          return 'TODO';
+          return maybeUncached ? 'User | APIUser' : 'User';
+        case ApplicationCommandOptionType.Mentionable:
+          // TODO: include possbility of `GuildMember`
+          // TODO: allow requiring GuildMember instead of User
+          return maybeUncached ? 'User | APIUser | Role | APIRole' : 'User | Role';
+        case ApplicationCommandOptionType.Channel:
+          return `Extract<GuildChannel | ThreadChannel ${maybeUncached ? '| APIChannel' : ''}, { type: ${channelTypes.length > 0 ? 'ChannelType' : channelTypes.map((t) => `ChannelType.${ChannelType[t]}`).join(' | ')}; }>`;
         case ApplicationCommandOptionType.Subcommand:
         case ApplicationCommandOptionType.SubcommandGroup:
           throw new Error('Impossible invariant');
@@ -166,7 +191,7 @@ export class GenerateCommand extends ConfigurableCommand {
 
     const res = new ObjectTypeBuilder();
     res.addKey('name', `'${id}'`);
-    res.addKey('predicate', 'PredicateConfig', true);
+    res.addKey('predicate', 'CommandPredicateConfig', true);
 
     const executeArgs = new ObjectTypeBuilder();
     executeArgs.addKey('interaction', `ChatInputCommandInteraction${cachedGeneric}`);
@@ -176,8 +201,11 @@ export class GenerateCommand extends ConfigurableCommand {
       ObjectTypeBuilder.fromArray(
         commandLike.value.options.map((o) => ({
           key: o.name,
-          required: o.required,
-          value: 'choices' in o && o.choices ? o.choices.join('|') : getOptionResult(o.type),
+          optional: !o.required,
+          value:
+            'choices' in o && o.choices
+              ? o.choices.join('|')
+              : getOptionResult(o.type, 'channel_types' in o ? o.channel_types : []),
         })),
       ),
     );
@@ -187,29 +215,60 @@ export class GenerateCommand extends ConfigurableCommand {
     if (autocompletableOptions.length > 0) {
       const autocompletes = new ObjectTypeBuilder();
       for (const option of autocompletableOptions) {
-        const isNumber =
-          option.type === ApplicationCommandOptionType.Integer ||
-          option.type === ApplicationCommandOptionType.Number;
         autocompletes.addKey(
           option.name,
-          `(args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client; focusedValue: ${isNumber ? 'number' : 'string'} }) => CommandReturn`,
+          `(args: { interaction: AutocompleteInteraction${cachedGeneric}; client: Client; focusedValue: string }) => CommandReturn`,
         );
       }
 
       res.addKey('autocompletes', autocompletes);
     }
 
-    return wrapInputType(res.consume());
+    return {
+      inputDeclaration: res.consume(),
+      metaOptions: {
+        optionGetters: Object.fromEntries(
+          commandLike.value.options.map((o) => [o.name, this.getOptionTypes(o)]),
+        ),
+      },
+      key: id,
+    };
   }
 
-  generateCommandTypings(command: z.infer<typeof commandsSchema>[number]): string {
+  getOptionTypes(option: z.infer<typeof anyOptionSchema>): string[] {
+    switch (option.type) {
+      case ApplicationCommandOptionType.Boolean:
+      case ApplicationCommandOptionType.Number:
+      case ApplicationCommandOptionType.Integer:
+      case ApplicationCommandOptionType.String:
+        return ['value'];
+      case ApplicationCommandOptionType.Channel:
+        return ['channel'];
+      case ApplicationCommandOptionType.Attachment:
+        return ['attachment'];
+      case ApplicationCommandOptionType.Role:
+        return ['role'];
+      case ApplicationCommandOptionType.User:
+        return ['user'];
+      case ApplicationCommandOptionType.Mentionable:
+        return ['member', 'user', 'channel'];
+      default:
+        throw new Error();
+    }
+  }
+
+  generateCommandTypings(command: z.infer<typeof commandsSchema>[number]): {
+    inputDeclaration: string;
+    metaOptions: {
+      optionGetters: Record<string, string[]>;
+      type: 'base-command' | 'subcommand' | 'message-command' | 'user-command';
+    };
+    key: string;
+  }[] {
     const isChatInput = command.type === ApplicationCommandType.ChatInput;
 
     const maybeUncached = this.maybeUncachedCommand(command);
     const cachedGeneric = maybeUncached ? '' : "<'cached'>";
-
-    const wrapInputType = (inputType: string) =>
-      `export function command(options: ${inputType}): Command`;
 
     if (!isChatInput) {
       const interaction =
@@ -217,20 +276,35 @@ export class GenerateCommand extends ConfigurableCommand {
           ? 'MessageContextMenuCommandInteraction'
           : 'UserContextMenuCommandInteraction';
 
-      return wrapInputType(`{
+      const type =
+        command.type === ApplicationCommandType.Message ? 'message-command' : 'user-command';
+
+      return [
+        {
+          inputDeclaration: `{
         name: '${command.name}';
-        predicate?: PredicateConfig;
+        predicate?: CommandPredicateConfig;
         execute: (args: { interaction: ${interaction}${cachedGeneric}; client: Client }) => CommandReturn;
-      }`);
+      }`,
+          metaOptions: { optionGetters: {}, type },
+          key: command.name,
+        },
+      ];
     }
 
     if (!command.options || command.options.length < 1) {
       // VERY simple command; no options at all
-      return wrapInputType(`{
+      return [
+        {
+          inputDeclaration: `{
         name: '${command.name}';
-        predicate?: PredicateConfig;
+        predicate?: CommandPredicateConfig;
         execute: (args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client }) => CommandReturn;
-      }`);
+      }`,
+          metaOptions: { optionGetters: {}, type: 'base-command' },
+          key: command.name,
+        },
+      ];
     }
 
     const isSubcommandOrGroup = (type: ApplicationCommandOptionType) =>
@@ -253,23 +327,33 @@ export class GenerateCommand extends ConfigurableCommand {
       });
 
     if (commandBases.length > 0) {
-      return commandBases
-        .map((base) =>
-          this.generateCommandLikeTypings(base.id, maybeUncached, {
-            type: 'subcommand',
-            value: base.data,
-          }),
-        )
-        .join('\n');
+      return commandBases.map((base) => {
+        const generatedTypings = this.generateCommandLikeTypings(base.id, maybeUncached, {
+          type: 'subcommand',
+          value: base.data,
+        });
+        return {
+          ...generatedTypings,
+          metaOptions: { ...generatedTypings.metaOptions, type: 'subcommand' },
+        };
+      });
     }
 
-    return this.generateCommandLikeTypings(command.name, maybeUncached, {
+    const generatedTypings = this.generateCommandLikeTypings(command.name, maybeUncached, {
       type: 'command',
       value: command,
     });
+
+    return [
+      {
+        ...generatedTypings,
+        metaOptions: { ...generatedTypings.metaOptions, type: 'base-command' },
+      },
+    ];
   }
 
   override async execute() {
+    p.intro('Generating command typings');
     const spin = p.spinner();
     spin.start('Loading config...');
 
@@ -289,17 +373,33 @@ export class GenerateCommand extends ConfigurableCommand {
 
     const output = [
       `/* 🛠️ This file was generated with \`activityrank generate\` on ${new Date().toDateString()}. */\n\n`,
-      // TODO: import type PredicateConfig
+      "import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';",
+      `import type {
+  Attachment,
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+  Client,
+  ChannelType,
+  GuildChannel,
+  ThreadChannel,
+  MessageContextMenuCommandInteraction,
+  Role,
+  User,
+  UserContextMenuCommandInteraction,
+} from 'discord.js';`,
       'type CommandReturn = Promise<void> | void\n\n',
     ];
 
     let outputStream: Writable;
+    let outputDisplay: string;
 
     if (this.outputFile) {
       if (this.outputFile.trim() === '-') {
         outputStream = process.stdout;
+        outputDisplay = 'stdout';
       } else {
         outputStream = createWriteStream(this.outputFile);
+        outputDisplay = this.outputFile;
       }
     } else {
       const wsRoot = await this.findWorkspaceRoot();
@@ -308,13 +408,46 @@ export class GenerateCommand extends ConfigurableCommand {
           'Could not find workspace root. Either provide an `--output` option or use an ActivityRank workspace.',
         );
       }
-      const outputFile = joinPath(wsRoot, 'apps/bot/src/bot/commands.generated.ts');
+      const outputFile = joinPath(wsRoot, 'apps/bot/src/bot/util/registry/commands.generated.ts');
       outputStream = createWriteStream(outputFile);
+      outputDisplay = outputFile;
     }
 
-    for (const command of commands) {
-      output.push(this.generateCommandTypings(command));
+    const wrapInputType = (inputType: string) =>
+      `export function command(options: ${inputType}): Command`;
+
+    const typings = commands.map((c) => this.generateCommandTypings(c));
+
+    for (const command of typings) {
+      output.push(command.map((t) => wrapInputType(t.inputDeclaration)).join('\n'));
     }
+
+    output.push(`export function command(options: any): Command {
+  return new Command({
+    name: options.name,
+    predicate: options.predicate,
+    execute: options.execute,
+    autocompletes: options.autocompletes,
+    options: COMMAND_META[options.name].optionGetters,
+  });
+}`);
+
+    output.push(
+      'export const COMMAND_META: { [k: string]: { optionGetters: Record<string, OptionKey[]>; type: string } } = {',
+    );
+    for (const command of typings) {
+      output.push(command.map((t) => `'${t.key}': ${JSON.stringify(t.metaOptions)},`).join('\n'));
+    }
+    output.push('};');
+
     outputStream.write(output.join('\n'));
+
+    await promisify(outputStream.end.bind(outputStream))();
+
+    if (outputDisplay !== 'stdout' && this.postGen !== false) {
+      await $`pnpm exec biome format --write ${outputDisplay}`;
+    }
+
+    p.outro(`Command typings written to ${pc.gray(outputDisplay)}`);
   }
 }
