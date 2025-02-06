@@ -1,11 +1,8 @@
-import { context } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.js';
 
-export default context.user({
-  data: {
-    name: 'Upvote',
-    dm_permission: false,
-  },
+export default command({
+  name: 'Upvote',
   async execute({ interaction }) {
     if (!interaction.inCachedGuild()) throw new Error('Upvote context menu not in cached guild');
     const targetMember = await interaction.guild.members

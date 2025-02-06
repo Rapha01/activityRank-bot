@@ -490,6 +490,7 @@
   {
     "default_member_permissions": "6",
     "type": 1,
+    "deployment": "LOCAL_ONLY",
     "name": "blacklist",
     "options": [
       {
@@ -521,6 +522,7 @@
   {
     "default_member_permissions": "1099511627776",
     "type": 1,
+    "deployment": "LOCAL_ONLY",
     "name": "debug-guild",
     "options": [
       {
@@ -554,6 +556,7 @@
   {
     "default_member_permissions": "4",
     "type": 1,
+    "deployment": "LOCAL_ONLY",
     "name": "eval",
     "options": [
       {
@@ -584,6 +587,7 @@
   {
     "default_member_permissions": "1099511627776",
     "type": 1,
+    "deployment": "LOCAL_ONLY",
     "name": "reset-jobs",
     "options": [
       {
@@ -605,6 +609,7 @@
   {
     "default_member_permissions": "1099511627776",
     "type": 1,
+    "deployment": "LOCAL_ONLY",
     "name": "shard-status",
     "options": [
       {
@@ -644,6 +649,7 @@
   {
     "default_member_permissions": null,
     "type": 1,
+    "deployment": "LOCAL_ONLY",
     "name": "api",
     "options": [
       {

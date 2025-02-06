@@ -1,25 +1,13 @@
-import { command, permissions, subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { MODERATOR_ONLY } from '#bot/util/predicates.js';
-import { ApplicationCommandOptionType } from 'discord.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '#bot/models/userModel.js';
 
-const user = subcommand({
-  data: {
-    name: 'user',
-    description: 'Blacklist a user from the bot.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'user',
-        description: 'The user to blacklist',
-        type: ApplicationCommandOptionType.User,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const user = interaction.options.getUser('user', true);
+const user = command({
+  name: 'blacklist user',
+  predicate: MODERATOR_ONLY,
+  async execute({ interaction, options }) {
+    const user = options.user;
 
     const targetUser = await getUserModel(user);
 
@@ -39,24 +27,11 @@ const user = subcommand({
   },
 });
 
-const guild = subcommand({
-  data: {
-    name: 'guild',
-    description: 'Blacklist a guild from the bot.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'id',
-        description: 'The ID of the guild to blacklist',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction, client }) {
-    const guildId = interaction.options.getString('id', true);
+const guild = command({
+  name: 'blacklist guild',
+  predicate: MODERATOR_ONLY,
+  async execute({ interaction, client, options }) {
+    const guildId = options.id;
     const guild = await client.guilds.fetch(guildId);
 
     const targetGuild = await getGuildModel(guild);
@@ -77,13 +52,4 @@ const guild = subcommand({
   },
 });
 
-export default command.parent({
-  deploymentMode: 'LOCAL_ONLY',
-  data: {
-    name: 'blacklist',
-    description: 'Blacklist a user or server from the bot.',
-    default_member_permissions: permissions(permissions.KickMembers, permissions.BanMembers),
-  },
-  predicate: MODERATOR_ONLY,
-  subcommands: [user, guild],
-});
+export default [user, guild];

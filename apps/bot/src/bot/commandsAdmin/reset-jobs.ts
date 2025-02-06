@@ -1,42 +1,15 @@
-import { command, permissions } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
-import {
-  AttachmentBuilder,
-  ApplicationCommandOptionType,
-  type InteractionReplyOptions,
-} from 'discord.js';
+import { AttachmentBuilder, type InteractionReplyOptions } from 'discord.js';
 import { RESET_JOBS, RESET_QUEUE } from '#bot/models/resetModel.js';
 
-export default command.basic({
-  deploymentMode: 'LOCAL_ONLY',
+export default command({
   predicate: HELPSTAFF_ONLY,
-  data: {
-    name: 'reset-jobs',
-    description: 'Check the status of active reset jobs',
-    default_member_permissions: permissions(permissions.ModerateMembers),
-    options: [
-      {
-        name: 'full',
-        description: 'Send the full contents of resetJobs',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-      {
-        name: 'eph',
-        description: 'Send as an ephemeral message',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-      {
-        name: 'search',
-        description: 'Get the current reset of the specified guild ID',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const useFull = interaction.options.getBoolean('full') ?? false;
-    const search = interaction.options.getString('search');
+  name: 'reset-jobs',
+  async execute({ interaction, options }) {
+    const useFull = options.full ?? false;
+    const search = options.search;
+
     let content: string;
     if (search) {
       const job = [...RESET_JOBS].find((job) => job.guild.id === search);
@@ -45,10 +18,7 @@ export default command.basic({
       content = `${RESET_QUEUE.remaining} remaining jobs in queue. ${RESET_JOBS.size} cached jobs.\n`;
     }
 
-    const res: InteractionReplyOptions = {
-      content,
-      ephemeral: interaction.options.getBoolean('eph') ?? false,
-    };
+    const res: InteractionReplyOptions = { content, ephemeral: options.eph ?? false };
 
     if (useFull) {
       res.files = [
