@@ -1,22 +1,12 @@
-import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-  PermissionFlagsBits,
-} from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildXP } from '#bot/models/resetModel.js';
 import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
 
-export const xp = subcommand({
-  data: {
-    name: 'xp',
-    description: 'Reset XP for all members in the server.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
+export default command({
+  name: 'reset server xp',
   async execute({ interaction }) {
     if (
       interaction.channel &&

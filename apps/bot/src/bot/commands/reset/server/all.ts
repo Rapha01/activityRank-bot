@@ -5,18 +5,14 @@ import {
   ButtonStyle,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildAll } from '#bot/models/resetModel.js';
 import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
 
-export const all = subcommand({
-  data: {
-    name: 'all',
-    description: 'Reset all server settings, XP, and statistics.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
+export default command({
+  name: 'reset server all',
   async execute({ interaction }) {
     if (
       interaction.channel &&

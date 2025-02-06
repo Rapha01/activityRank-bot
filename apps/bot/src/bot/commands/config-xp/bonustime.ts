@@ -1,25 +1,10 @@
-import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 
-export const bonustime = subcommand({
-  data: {
-    name: 'bonustime',
-    description: 'Start bonustime for a specified duration.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'time',
-        description: 'The time for the bonustime to last, in minutes',
-        type: ApplicationCommandOptionType.Integer,
-        required: true,
-        autocomplete: true,
-        min_value: 0,
-        max_value: 60 * 24 * 14,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'config-xp bonustime',
+  async execute({ interaction, options }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -32,9 +17,7 @@ export const bonustime = subcommand({
     }
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    const bonusUntilDate = Math.floor(
-      Date.now() / 1000 + interaction.options.getInteger('time', true) * 60,
-    );
+    const bonusUntilDate = Math.floor(Date.now() / 1000 + options.time * 60);
     await cachedGuild.upsert({ bonusUntilDate: bonusUntilDate.toString() });
 
     if (bonusUntilDate <= Date.now() / 1000) {

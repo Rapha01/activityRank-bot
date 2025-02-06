@@ -1,34 +1,12 @@
-import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import prettyTime from 'pretty-ms';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 
-export const cooldown = subcommand({
-  data: {
-    name: 'cooldown',
-    description: 'Change the message and vote cooldowns.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'message',
-        description: 'The time between messages that can count for XP.',
-        min_value: 0,
-        max_value: 120,
-        type: ApplicationCommandOptionType.Integer,
-        autocomplete: true,
-      },
-      {
-        name: 'vote',
-        description: 'The time members must wait between upvotes.',
-        min_value: 180,
-        max_value: 86400,
-        type: ApplicationCommandOptionType.Integer,
-        autocomplete: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'config-server cooldown',
+  async execute({ interaction, options }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -41,8 +19,8 @@ export const cooldown = subcommand({
     }
 
     const items = {
-      textMessageCooldownSeconds: interaction.options.getInteger('message') ?? undefined,
-      voteCooldownSeconds: interaction.options.getInteger('vote') ?? undefined,
+      textMessageCooldownSeconds: options.message,
+      voteCooldownSeconds: options.vote,
     };
     if (Object.values(items).every((x) => x === undefined)) {
       await interaction.reply({

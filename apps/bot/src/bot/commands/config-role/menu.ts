@@ -8,13 +8,11 @@ import {
   PermissionFlagsBits,
   ComponentType,
   type Interaction,
-  ApplicationCommandOptionType,
   type APIEmbed,
 } from 'discord.js';
-
 import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import { component, modal } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
@@ -82,21 +80,9 @@ const _modal = (role: RoleModel, type: AssignType) =>
       ),
     );
 
-export const menu = subcommand({
-  data: {
-    name: 'menu',
-    description: 'Launches a menu to modify role settings.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'role',
-        description: 'The role to modify.',
-        type: ApplicationCommandOptionType.Role,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'config-role menu',
+  async execute({ interaction, options }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -108,7 +94,7 @@ export const menu = subcommand({
       return;
     }
 
-    const resolvedRole = interaction.options.getRole('role', true);
+    const resolvedRole = options.role;
 
     const cachedRole = await getRoleModel(resolvedRole);
 

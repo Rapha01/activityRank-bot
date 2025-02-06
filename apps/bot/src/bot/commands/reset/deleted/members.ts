@@ -1,21 +1,11 @@
-import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-  PermissionFlagsBits,
-} from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { fetchDeletedUserIds, ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
 
-export const members = subcommand({
-  data: {
-    name: 'members',
-    description: 'Reset the statistics of all members that have left the server.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
+export default command({
+  name: 'reset deleted members',
   async execute({ interaction }) {
     const userIds = await fetchDeletedUserIds(interaction.guild);
 

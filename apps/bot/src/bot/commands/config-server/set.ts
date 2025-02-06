@@ -5,12 +5,11 @@ import {
   type Interaction,
   type ButtonComponentData,
   type ActionRowData,
-  ApplicationCommandOptionType,
   type APIEmbed,
 } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { closeButton } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { component } from '#bot/util/registry/component.js';
@@ -110,12 +109,8 @@ const generateRows = async (
   ];
 };
 
-export const set = subcommand({
-  data: {
-    name: 'set',
-    description: 'Open a menu to configure server settings.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
+export default command({
+  name: 'config-server set',
   async execute({ interaction }) {
     if (
       interaction.channel &&

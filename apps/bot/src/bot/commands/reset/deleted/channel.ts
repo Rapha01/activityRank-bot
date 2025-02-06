@@ -5,7 +5,7 @@ import {
   ButtonStyle,
 } from 'discord.js';
 import nameUtil from '#bot/util/nameUtil.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import {
@@ -13,24 +13,10 @@ import {
   ResetGuildChannelsStatistics,
 } from '#bot/models/resetModel.js';
 
-export const channel = subcommand({
-  data: {
-    name: 'channel',
-    description: "Reset a deleted channel's statistics.",
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'id',
-        description: 'The ID of the channel to reset.',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const channelId = interaction.options.getString('id', true);
+export default command({
+  name: 'reset deleted channel',
+  async execute({ interaction, options }) {
+    const channelId = options.id;
     if (!/^\d*$/.test(channelId)) {
       await interaction.reply({ content: 'Discord IDs are always numbers.', ephemeral: true });
       return;

@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ButtonStyle, ComponentType, type Role } from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
@@ -8,37 +8,12 @@ import { component } from '#bot/util/registry/component.js';
 import { shards } from '#models/shardDb/shardDb.js';
 import fct from '#util/fct.js';
 
-const xpPerOption = (name: string, object: string, min: number, max: number) =>
-  ({
-    name,
-    description: `The amount of XP gained per ${object}`,
-    min_value: min,
-    max_value: max,
-    type: ApplicationCommandOptionType.Integer,
-  }) as const;
-
 type XpPerEntry = 'xpPerTextMessage' | 'xpPerVoiceMinute' | 'xpPerVote' | 'xpPerInvite';
 
-export const xpPerRole = subcommand({
-  data: {
-    name: 'xp-per-role',
-    description: 'Set the amount of XP users with this role will gain from each source.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'role',
-        description: 'The role to configure xp-per values of',
-        required: true,
-        type: ApplicationCommandOptionType.Role,
-      },
-      xpPerOption('message', 'message sent', 0, 30),
-      xpPerOption('voiceminute', 'minute spent in VC', 0, 15),
-      xpPerOption('vote', 'upvote', 0, 300),
-      xpPerOption('invite', 'member invited to the server', 0, 3_000),
-    ],
-  },
-  async execute({ interaction }) {
-    const role = interaction.options.getRole('role', true);
+export default command({
+  name: 'config-xp xp-per-role',
+  async execute({ interaction, options }) {
+    const role = options.role;
 
     if (role.id === interaction.guild.id) {
       await interaction.reply({
@@ -50,10 +25,10 @@ export const xpPerRole = subcommand({
     }
 
     const items = {
-      xpPerTextMessage: interaction.options.getInteger('message') ?? undefined,
-      xpPerVoiceMinute: interaction.options.getInteger('voiceminute') ?? undefined,
-      xpPerVote: interaction.options.getInteger('vote') ?? undefined,
-      xpPerInvite: interaction.options.getInteger('invite') ?? undefined,
+      xpPerTextMessage: options.message,
+      xpPerVoiceMinute: options.voiceminute,
+      xpPerVote: options.vote,
+      xpPerInvite: options.invite,
     };
 
     if (Object.values(items).every((x) => x === undefined)) {

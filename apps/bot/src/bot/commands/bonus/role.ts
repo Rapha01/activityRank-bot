@@ -1,10 +1,8 @@
 import statFlushCache from '../../statFlushCache.js';
 import { oneLine, stripIndent } from 'common-tags';
 import {
-  PermissionFlagsBits,
   Events,
   GatewayOpcodes,
-  ApplicationCommandOptionType,
   type ChatInputCommandInteraction,
   type Role,
   type Client,
@@ -14,41 +12,14 @@ import {
   type ReadonlyCollection,
 } from 'discord.js';
 import { DiscordSnowflake } from '@sapphire/snowflake';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { Time } from '@sapphire/duration';
 
 export const currentJobs = new Set();
 
-export const role = subcommand({
-  data: {
-    name: 'role',
-    description: 'Change the bonus XP of all members with a given role',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'role',
-        description: 'The role to modify',
-        required: true,
-        type: ApplicationCommandOptionType.Role,
-      },
-      {
-        name: 'change',
-        description:
-          'The amount of XP to give to each member with the role. This option may be negative.',
-        min_value: -1_000_000,
-        max_value: 1_000_000,
-        type: ApplicationCommandOptionType.Integer,
-        required: true,
-      },
-      {
-        name: 'use-beta',
-        description:
-          'Enables the beta method of giving bonus to roles. Warning: will not send levelUpMessages',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-    ],
-  },
-  async execute({ interaction, client }) {
+export default command({
+  name: 'bonus role',
+  async execute({ interaction, client, options }) {
     if (currentJobs.has(interaction.guild.id)) {
       await interaction.reply({
         content: 'This server already has a mass role operation running.',
@@ -57,8 +28,8 @@ export const role = subcommand({
       return;
     }
 
-    const role = interaction.options.getRole('role', true);
-    const change = interaction.options.getInteger('change', true);
+    const role = options.role;
+    const change = options.change;
 
     currentJobs.add(interaction.guild.id);
     // backup removes after 1h
@@ -73,7 +44,7 @@ export const role = subcommand({
     };
     setTimeout(clean, Time.Hour);
 
-    if (interaction.options.getBoolean('use-beta')) {
+    if (options['use-beta']) {
       return await betaSystem(interaction, role, change);
     }
     return await oldSystem(interaction, role, change);

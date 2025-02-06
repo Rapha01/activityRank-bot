@@ -2,27 +2,11 @@ import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import { parseEmojiString } from '#bot/util/emoji.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 
-export const bonus = subcommand({
-  data: {
-    name: 'bonus',
-    description: 'Set your bonusTag and emote.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'tag',
-        description: 'The bonusTag to set.',
-        type: ApplicationCommandOptionType.String,
-      },
-      {
-        name: 'emote',
-        description: 'The bonusEmote to set.',
-        type: ApplicationCommandOptionType.String,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'config-server bonus',
+  async execute({ interaction, options }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -34,10 +18,10 @@ export const bonus = subcommand({
       return;
     }
 
-    const rawBonusEmote = interaction.options.getString('emote');
+    const rawBonusEmote = options.emote;
     const items = {
       bonusEmote: (rawBonusEmote && parseEmojiString(rawBonusEmote)) ?? undefined,
-      bonusTag: interaction.options.getString('tag') ?? undefined,
+      bonusTag: options.tag,
     };
 
     if (Object.values(items).every((x) => x === undefined)) {

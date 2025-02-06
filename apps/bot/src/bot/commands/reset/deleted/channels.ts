@@ -1,10 +1,5 @@
-import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import {
@@ -13,12 +8,8 @@ import {
   ResetGuildChannelsStatistics,
 } from '#bot/models/resetModel.js';
 
-export const channels = subcommand({
-  data: {
-    name: 'channels',
-    description: 'Reset the statistics of all deleted channels.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
+export default command({
+  name: 'reset deleted channels',
   async execute({ interaction }) {
     const channelIds = await fetchDeletedChannelIds(interaction.guild);
 

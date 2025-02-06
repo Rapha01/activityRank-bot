@@ -1,38 +1,17 @@
 import {
   ActionRowBuilder,
-  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  ChannelType,
   type ChatInputCommandInteraction,
-  PermissionFlagsBits,
 } from 'discord.js';
 import nameUtil from '../../util/nameUtil.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildChannelsStatistics } from '#bot/models/resetModel.js';
 
-export const channel = subcommand({
-  data: {
-    name: 'channel',
-    description: "Reset a channel's statistics.",
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'channel',
-        description: 'The channel to reset.',
-        type: ApplicationCommandOptionType.Channel,
-        required: true,
-        channel_types: [
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildForum,
-          ChannelType.GuildText,
-          ChannelType.GuildVoice,
-        ],
-      },
-    ],
-  },
+export default command({
+  name: 'reset channel',
   async execute({ interaction }) {
     // because `channel` is a required argument, this will always be the submitted channel ID.
     // https://discord.dev/interactions/receiving-and-responding#interaction-object-application-command-interaction-data-option-structure

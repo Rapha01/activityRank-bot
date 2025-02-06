@@ -6,26 +6,14 @@ import {
   type ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
 
-export const member = subcommand({
-  data: {
-    name: 'member',
-    description: "Reset a member's statistics.",
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'member',
-        description: 'The member to reset.',
-        type: ApplicationCommandOptionType.User,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'reset member',
+  async execute({ interaction, options }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -37,7 +25,7 @@ export const member = subcommand({
       return;
     }
 
-    const user = interaction.options.getUser('member', true);
+    const user = options.member;
 
     const predicate = requireUser(interaction.user);
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(

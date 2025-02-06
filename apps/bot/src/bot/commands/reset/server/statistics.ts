@@ -1,12 +1,11 @@
 import {
   ActionRowBuilder,
-  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 import { actionrow, useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildStatistics } from '#bot/models/resetModel.js';
@@ -16,12 +15,8 @@ import { commaListsAnd } from 'common-tags';
 
 type Table = 'textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus';
 
-export const statistics = subcommand({
-  data: {
-    name: 'statistics',
-    description: 'Reset one or more types of statistic for the entire server.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
+export default command({
+  name: 'reset server statistics',
   async execute({ interaction }) {
     if (
       interaction.channel &&

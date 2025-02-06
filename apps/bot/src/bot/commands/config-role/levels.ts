@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, PermissionFlagsBits, type APIEmbed } from 'discord.js';
+import { PermissionFlagsBits, type APIEmbed } from 'discord.js';
 import { commaListsAnd } from 'common-tags';
 import {
   fetchRoleAssignmentsByLevel,
@@ -6,37 +6,11 @@ import {
   getRoleModel,
 } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { subcommand } from '#bot/commands.js';
+import { command } from '#bot/commands.js';
 
-export const levels = subcommand({
-  data: {
-    name: 'levels',
-    description: 'Set assign/deassign levels for a role.',
-    options: [
-      {
-        name: 'role',
-        description: 'The role to modify.',
-        type: ApplicationCommandOptionType.Role,
-        required: true,
-      },
-      {
-        name: 'assign-level',
-        description: 'The level a member must be at to gain this role.',
-        type: ApplicationCommandOptionType.Integer,
-        min_value: 0,
-        max_value: 500,
-      },
-      {
-        name: 'deassign-level',
-        description: 'The level a member must be at to lose this role.',
-        type: ApplicationCommandOptionType.Integer,
-        min_value: 0,
-        max_value: 500,
-      },
-    ],
-    type: ApplicationCommandOptionType.Subcommand,
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'config-role levels',
+  async execute({ interaction, options }) {
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -48,7 +22,7 @@ export const levels = subcommand({
       return;
     }
 
-    const resolvedRole = interaction.options.getRole('role', true);
+    const resolvedRole = options.role;
 
     if (resolvedRole.id === interaction.guild.id) {
       await interaction.reply({
@@ -73,8 +47,8 @@ export const levels = subcommand({
     }
 
     const items = {
-      assignLevel: interaction.options.getInteger('assign-level'),
-      deassignLevel: interaction.options.getInteger('deassign-level'),
+      assignLevel: options['assign-level'],
+      deassignLevel: options['deassign-level'],
     };
 
     if (items.assignLevel && items.deassignLevel && items.assignLevel >= items.deassignLevel) {
@@ -98,7 +72,7 @@ export const levels = subcommand({
     for (const _k in items) {
       const k = _k as keyof typeof items;
       const item = items[k];
-      if (item === null) continue;
+      if (item === undefined) continue;
 
       const roleAssignmentsByLevel = await fetchRoleAssignmentsByLevel(interaction.guild, k, item);
       if (item !== 0 && roleAssignmentsByLevel.length >= 3) {
