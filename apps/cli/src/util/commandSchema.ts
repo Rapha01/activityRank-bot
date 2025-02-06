@@ -132,4 +132,25 @@ export const contextCommandSchema = z.object({
   contexts: z.array(z.nativeEnum(InteractionContextType)).optional(),
 });
 
-export const commandsSchema = z.array(z.union([chatInputCommandSchema, contextCommandSchema]));
+/** Defines the behaviour of where commands are deployed. */
+export const Deploy = {
+  /** This command can only be deployed manually. */
+  Never: 'NEVER',
+  /** This command will be ignored when deploying globally. */
+  LocalOnly: 'LOCAL_ONLY',
+  /** This command can be automatically deployed to any guild. */
+  Global: 'GLOBAL',
+} as const;
+
+export type DeploymentMode = (typeof Deploy)[keyof typeof Deploy];
+
+const commandExtension = {
+  deployment: z.enum([Deploy.Never, Deploy.LocalOnly, Deploy.Global]).optional(),
+};
+
+export const commandsSchema = z.array(
+  z.union([
+    chatInputCommandSchema.extend(commandExtension),
+    contextCommandSchema.extend(commandExtension),
+  ]),
+);

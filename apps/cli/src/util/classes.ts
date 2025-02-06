@@ -1,15 +1,26 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { z } from 'zod';
+import { z } from 'zod';
 import * as p from '@clack/prompts';
 import { Command, Option, UsageError } from 'clipanion';
 import { configLoader, schemas } from '@activityrank/cfg';
 import { REST } from '@discordjs/rest';
-import { API } from '@discordjs/core';
-import { $ } from 'execa';
+import {
+  API,
+  ApplicationCommandType,
+  type APIApplicationCommandOption,
+  type RESTPutAPIApplicationGuildCommandsJSONBody,
+} from '@discordjs/core';
 import { walkUp } from '../util/walkUp.ts';
-import type { Registry } from '../../../bot/src/bot/util/registry/registry.ts';
-import type { Deploy as TDeploy } from '../../../bot/src/bot/util/registry/command.ts';
+import {
+  type chatInputCommandSchema,
+  commandsSchema,
+  type contextCommandSchema,
+  Deploy,
+  type subcommandGroupOptionSchema,
+  type subcommandOptionSchema,
+  type DeploymentMode,
+} from './commandSchema.ts';
 
 export class ConfigurableCommand extends Command {
   // The path to a config directory.
@@ -18,12 +29,16 @@ export class ConfigurableCommand extends Command {
     description: 'The path to a config directory.',
   });
 
-  // Definitely initialized in the `execute` method
+  // Definitely initialized in the `loadCommands` method (called in `execute`)
   config: z.infer<typeof schemas.bot.config> = null as unknown as z.infer<
     typeof schemas.bot.config
   >;
   keys: z.infer<typeof schemas.bot.keys> = null as unknown as z.infer<typeof schemas.bot.keys>;
 
+  /**
+   * Walks up the directory tree, starting from the cwd, until it finds
+   * one that has a `package.json` file with a `"name"` of "@activityrank/monorepo".
+   */
   async findWorkspaceRoot() {
     for (const dir of walkUp(process.cwd())) {
       const checkFile = path.join(dir, 'package.json');
@@ -49,11 +64,7 @@ export class ConfigurableCommand extends Command {
     return root ? path.join(root, 'config') : null;
   }
 
-  async loadConfig() {
-    const loader = configLoader(
-      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
-    );
-
+  async loadConfig(loader: ReturnType<typeof configLoader>) {
     this.config = await loader.load({
       name: 'config',
       schema: schemas.bot.config,
@@ -67,33 +78,183 @@ export class ConfigurableCommand extends Command {
     const spin = p.spinner();
     spin.start('Loading config...');
 
-    await this.loadConfig();
+    const loader = configLoader(
+      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
+    );
+
+    await this.loadConfig(loader);
 
     spin.stop('Loaded config');
   }
 }
 
+type DeployableCommand = RESTPutAPIApplicationGuildCommandsJSONBody[number] & {
+  deployment: DeploymentMode;
+};
+
+// type DeployableCommand = Omit<
+//   RESTPutAPIApplicationGuildCommandsJSONBody[number],
+//   // unused fields
+//   | 'id'
+//   | 'version'
+//   | 'name_localized'
+//   | 'application_id'
+//   | 'description_localized'
+//   // deprecated fields
+//   | 'dm_permission'
+//   | 'default_permission'
+// > & {
+//   deployment: DeploymentMode;
+// };
+
 export class DiscordCommandManagementCommand extends ConfigurableCommand {
-  async getInternals() {
+  commands: DeployableCommand[] = null as unknown as DeployableCommand[];
+  jsonCommands: z.infer<typeof commandsSchema> = null as unknown as z.infer<typeof commandsSchema>;
+
+  async getDeployableCommands(): Promise<DeployableCommand[]> {
     const root = await this.findWorkspaceRoot();
     if (!root) {
       throw new UsageError('Failed to find workspace root.');
     }
 
-    const botDir = path.join(root, 'apps', 'bot');
+    const localizationDir = path.join(root, 'apps/bot/locales');
 
-    await $({ cwd: botDir })`pnpm run build`;
+    const subdirs = await fs.readdir(localizationDir, { withFileTypes: true });
+    const localizationFiles = subdirs
+      .map((dir) =>
+        dir.isDirectory()
+          ? {
+              lang: dir.name,
+              filePath: path.join(localizationDir, dir.name, 'command-descriptions.json'),
+            }
+          : null,
+      )
+      .filter((d) => d !== null);
 
-    const { createRegistryCLI } = await import(
-      path.join(botDir, './dist/bot/util/registry/registry.js')
+    const jsonSchema = z.record(z.string());
+
+    const parsedLocalizations = await Promise.all(
+      localizationFiles.map(async ({ lang, filePath }) => {
+        const contents = await fs.readFile(filePath);
+
+        let value: unknown;
+        try {
+          value = JSON.parse(contents.toString());
+        } catch {
+          return { lang, success: false } as const;
+        }
+
+        const parse = jsonSchema.safeParse(value);
+
+        if (!parse.success) {
+          return { lang, success: false } as const;
+        }
+        return { lang, data: parse.data, success: true } as const;
+      }),
     );
 
-    const registry = (await createRegistryCLI()) as Registry;
-    await registry.loadCommands();
+    const localizations: Map<string, z.infer<typeof jsonSchema>> = new Map();
 
-    const { Deploy } = await import(path.join(botDir, './dist/bot/util/registry/command.js'));
+    for (const { lang, success, data } of parsedLocalizations) {
+      if (!success) {
+        console.warn(`Language "${lang}" is missing a \`command-descriptions.json\` file.`);
+        continue;
+      }
+      localizations.set(lang, data);
+    }
 
-    return { registry, Deploy: Deploy as typeof TDeploy };
+    const baseLocalization = localizations.get('en-US');
+    if (!baseLocalization) {
+      throw new UsageError('Failed to load base locale "en-US".');
+    }
+
+    const commands: DeployableCommand[] = [];
+    const missingDescriptions: { lang: string; key: string }[] = [];
+
+    for (const command of this.jsonCommands) {
+      const description =
+        command.type === ApplicationCommandType.ChatInput
+          ? baseLocalization[command.name]
+          : undefined;
+
+      if (!description && command.type === ApplicationCommandType.ChatInput) {
+        missingDescriptions.push({ lang: 'en-US', key: command.name });
+        continue;
+      }
+
+      const getDescription = (...components: string[]) => {
+        const key = components.join('.');
+        const res = baseLocalization[key];
+        if (!res) {
+          missingDescriptions.push({ lang: 'en-US', key });
+        }
+        return res;
+      };
+
+      const getOptions = (
+        commandLike:
+          | z.infer<typeof contextCommandSchema>
+          | z.infer<typeof chatInputCommandSchema>
+          | z.infer<typeof subcommandOptionSchema>
+          | z.infer<typeof subcommandGroupOptionSchema>,
+        path: string[] = [],
+      ) => {
+        // TODO: non-"en-US" translations
+        return 'options' in commandLike
+          ? commandLike.options?.map((opt): APIApplicationCommandOption => {
+              if ('options' in opt) {
+                return {
+                  ...opt,
+                  description: getDescription(...path, commandLike.name, opt.name),
+                  // don't love the use of `any` but this is really complicated 😭
+                  options: getOptions(opt, [...path, commandLike.name]) as any,
+                };
+              }
+              return {
+                ...opt,
+                description: getDescription(...path, commandLike.name, opt.name),
+              } as APIApplicationCommandOption;
+            })
+          : undefined;
+      };
+
+      const options = getOptions(command);
+
+      const res: DeployableCommand = {
+        ...command,
+        deployment: command.deployment ?? Deploy.Global,
+        // @ts-expect-error d.js typings are difficult because of the difference between context commands and slash commands.
+        description,
+        options,
+        default_member_permissions: command.default_member_permissions ?? undefined,
+      };
+
+      commands.push(res);
+    }
+
+    if (missingDescriptions.some((d) => d.lang === 'en-US')) {
+      throw new UsageError(
+        `Missing base (en-US) description translations: ${missingDescriptions.map((d) => d.key).join(', ')}`,
+      );
+    }
+    if (missingDescriptions.length > 0) {
+      for (const desc of missingDescriptions) {
+        console.warn(`Missing description translation: ${desc.lang}::${desc.key}`);
+      }
+    }
+
+    return commands;
+  }
+
+  override async loadConfig(loader: ReturnType<typeof configLoader>) {
+    await super.loadConfig(loader);
+    this.jsonCommands = await loader.load({
+      name: 'commands',
+      schema: commandsSchema,
+      devOnly: true,
+    });
+
+    this.commands = await this.getDeployableCommands();
   }
 
   getApi() {

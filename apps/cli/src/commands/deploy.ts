@@ -1,9 +1,13 @@
 import { z } from 'zod';
-import type { RESTPutAPIApplicationGuildCommandsJSONBody } from 'discord-api-types/v10';
+import type {
+  RESTPutAPIApplicationCommandsJSONBody,
+  RESTPutAPIApplicationGuildCommandsJSONBody,
+} from 'discord-api-types/v10';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option } from 'clipanion';
 import { DiscordCommandManagementCommand } from '../util/classes.ts';
+import { Deploy } from '../util/commandSchema.ts';
 
 const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
 
@@ -32,7 +36,7 @@ export class DeployCommand extends DiscordCommandManagementCommand {
   guildIds = Option.Rest({ required: 0 });
 
   override async execute() {
-    p.intro(pc.bgCyan(pc.blackBright('  Local Deployment  ')));
+    p.intro(pc.bgCyan(pc.blackBright('  Development Deployment  ')));
 
     await super.execute();
 
@@ -40,7 +44,6 @@ export class DeployCommand extends DiscordCommandManagementCommand {
     spin.start('Loading internal resources...');
 
     const api = this.getApi();
-    const { registry, Deploy } = await this.getInternals();
 
     spin.stop('Loaded internals');
 
@@ -51,11 +54,11 @@ export class DeployCommand extends DiscordCommandManagementCommand {
     const localCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
     const globalCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
 
-    for (const command of registry.commands.values()) {
-      if (command.deploymentMode === Deploy.Global) {
-        globalCommands.push(command.data);
-      } else if (command.deploymentMode === Deploy.LocalOnly) {
-        localCommands.push(command.data);
+    for (const command of this.commands) {
+      if (command.deployment === Deploy.Global) {
+        globalCommands.push(command);
+      } else if (command.deployment === Deploy.LocalOnly) {
+        localCommands.push(command);
       }
     }
 
@@ -119,7 +122,6 @@ export class DeployProductionCommand extends DiscordCommandManagementCommand {
     spin.start('Loading internal resources...');
 
     const api = this.getApi();
-    const { registry, Deploy } = await this.getInternals();
 
     spin.stop('Loaded internals');
 
@@ -132,11 +134,11 @@ export class DeployProductionCommand extends DiscordCommandManagementCommand {
     });
 
     if (type === 'GLOBAL') {
-      const globalCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
+      const globalCommands: RESTPutAPIApplicationCommandsJSONBody = [];
 
-      for (const command of registry.commands.values()) {
-        if (command.deploymentMode === Deploy.Global) {
-          globalCommands.push(command.data);
+      for (const command of this.commands) {
+        if (command.deployment === Deploy.Global) {
+          globalCommands.push(command);
         }
       }
 
@@ -146,9 +148,9 @@ export class DeployProductionCommand extends DiscordCommandManagementCommand {
     } else if (type === 'ADMIN') {
       const localCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
 
-      for (const command of registry.commands.values()) {
-        if (command.deploymentMode === Deploy.LocalOnly) {
-          localCommands.push(command.data);
+      for (const command of this.commands) {
+        if (command.deployment === Deploy.LocalOnly) {
+          localCommands.push(command);
         }
       }
 
