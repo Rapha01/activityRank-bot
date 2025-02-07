@@ -520,40 +520,6 @@
     ]
   },
   {
-    "default_member_permissions": "1099511627776",
-    "type": 1,
-    "deployment": "LOCAL_ONLY",
-    "name": "debug-guild",
-    "options": [
-      {
-        "type": 1,
-        "name": "enable",
-        "options": [
-          {
-            "type": 3,
-            "name": "id",
-            "required": true,
-            "min_length": 17,
-            "max_length": 20
-          }
-        ]
-      },
-      {
-        "type": 1,
-        "name": "disable",
-        "options": [
-          {
-            "type": 3,
-            "name": "id",
-            "required": true,
-            "min_length": 17,
-            "max_length": 20
-          }
-        ]
-      }
-    ]
-  },
-  {
     "default_member_permissions": "4",
     "type": 1,
     "deployment": "LOCAL_ONLY",
