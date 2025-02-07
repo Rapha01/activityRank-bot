@@ -77,7 +77,7 @@ export default event(Events.InteractionCreate, async (interaction) => {
         `Context command ${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
       );
 
-      await registry.handleContextCommand(interaction);
+      await registry.handleCommand(interaction);
       return;
     }
     if (interaction.isChatInputCommand()) {
@@ -87,7 +87,7 @@ export default event(Events.InteractionCreate, async (interaction) => {
         `/${interaction.commandName} used by ${interaction.user.username} in guild ${interaction.guild.name}`,
       );
 
-      await registry.handleSlashCommand(interaction);
+      await registry.handleCommand(interaction);
       await askForPremium(interaction);
       return;
     }

@@ -92,7 +92,7 @@ export class Command {
   }
 
   async execute(interaction: CommandInteraction) {
-    if (this.#predicate.validate(interaction.user) === Predicate.Deny) {
+    if (this.#predicate.validate(interaction.user) !== Predicate.Allow) {
       await this.#predicate.invalidCallback(interaction);
       return;
     }
@@ -122,5 +122,9 @@ export class Command {
       client: interaction.client,
       focusedValue: interaction.options.getFocused(),
     });
+  }
+
+  hasAutocomplete(key: string): boolean {
+    return Object.hasOwn(this.#autocompletes, key);
   }
 }
