@@ -6,7 +6,7 @@ import type {
   ContextMenuCommandInteraction,
   User,
 } from 'discord.js';
-import { type InvalidPredicateCallback, Predicate } from './predicate';
+import { type InvalidPredicateCallback, Predicate } from './predicate.js';
 
 type CommandInteraction<CT extends CacheType = CacheType> =
   | ChatInputCommandInteraction<CT>
