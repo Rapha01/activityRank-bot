@@ -1,4 +1,4 @@
-/* 🛠️ This file was generated with `activityrank generate` on Tue Feb 04 2025. */
+/* 🛠️ This file was generated with `activityrank generate` on Sat Feb 08 2025. */
 
 import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';
 import type {
@@ -14,6 +14,7 @@ import type {
   User,
   UserContextMenuCommandInteraction,
 } from 'discord.js';
+import type { TFunction } from 'i18next';
 type CommandReturn = Promise<void> | void;
 
 export function command(options: {
@@ -22,6 +23,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       member: User;
     };
@@ -33,6 +35,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -41,6 +44,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       version?: string;
     };
@@ -59,6 +63,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       member: User;
     };
@@ -70,6 +75,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       channel: Extract<GuildChannel | ThreadChannel, { type: ChannelType }>;
     };
@@ -81,6 +87,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -89,6 +96,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -97,6 +105,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -105,6 +114,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -113,6 +123,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       id: string;
     };
@@ -124,6 +135,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -132,6 +144,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -140,6 +153,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       member?: User;
     };
@@ -151,6 +165,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       member: User;
     };
@@ -162,6 +177,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       number?: number;
     };
@@ -180,6 +196,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -188,6 +205,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -196,6 +214,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       tag?: string;
       emote?: string;
@@ -208,6 +227,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       tag?: string;
       emote?: string;
@@ -220,6 +240,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       value: number;
     };
@@ -231,6 +252,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       message?: number;
       vote?: number;
@@ -255,6 +277,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -263,6 +286,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       role: Role;
       'assign-level'?: number;
@@ -276,6 +300,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       role: Role;
     };
@@ -287,6 +312,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       time: number;
     };
@@ -305,6 +331,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       levelfactor: number;
     };
@@ -316,6 +343,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       message?: number;
       voiceminute?: number;
@@ -330,6 +358,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       message?: number;
       voiceminute?: number;
@@ -344,6 +373,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       role: Role;
       message?: number;
@@ -359,6 +389,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       role: Role;
       change: number;
@@ -372,6 +403,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       member: User;
       change: number;
@@ -384,6 +416,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -392,6 +425,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -400,6 +434,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       channel?: Extract<GuildChannel | ThreadChannel, { type: ChannelType }>;
       id?: string;
@@ -412,6 +447,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -420,6 +456,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       member?: User;
     };
@@ -431,6 +468,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       user: User;
     };
@@ -442,28 +480,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
-    options: {
-      id: string;
-    };
-  }) => CommandReturn;
-}): Command;
-export function command(options: {
-  name: 'debug-guild enable';
-  predicate?: CommandPredicateConfig;
-  execute: (args: {
-    interaction: ChatInputCommandInteraction<'cached'>;
-    client: Client;
-    options: {
-      id: string;
-    };
-  }) => CommandReturn;
-}): Command;
-export function command(options: {
-  name: 'debug-guild disable';
-  predicate?: CommandPredicateConfig;
-  execute: (args: {
-    interaction: ChatInputCommandInteraction<'cached'>;
-    client: Client;
+    t: TFunction<'command-content'>;
     options: {
       id: string;
     };
@@ -475,6 +492,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       eval: string;
       async?: boolean;
@@ -490,6 +508,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       full?: boolean;
       eph?: boolean;
@@ -503,6 +522,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       full?: boolean;
       eph?: boolean;
@@ -519,6 +539,7 @@ export function command(options: {
   execute: (args: {
     interaction: UserContextMenuCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
   }) => CommandReturn;
 }): Command;
 export function command(options: {
@@ -527,6 +548,7 @@ export function command(options: {
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
     client: Client;
+    t: TFunction<'command-content'>;
     options: {
       'guild-id': string;
     };
@@ -622,8 +644,6 @@ export const COMMAND_META: {
   rank: { optionGetters: { member: ['user'] }, type: 'base-command' },
   'blacklist user': { optionGetters: { user: ['user'] }, type: 'subcommand' },
   'blacklist guild': { optionGetters: { id: ['value'] }, type: 'subcommand' },
-  'debug-guild enable': { optionGetters: { id: ['value'] }, type: 'subcommand' },
-  'debug-guild disable': { optionGetters: { id: ['value'] }, type: 'subcommand' },
   eval: {
     optionGetters: {
       eval: ['value'],

@@ -7,6 +7,11 @@ import type {
   User,
 } from 'discord.js';
 import { type InvalidPredicateCallback, Predicate } from './predicate.js';
+import { ensureI18nLoaded } from '../i18n.js';
+import type { TFunction } from 'i18next';
+import i18next from 'i18next';
+
+await ensureI18nLoaded();
 
 type CommandInteraction<CT extends CacheType = CacheType> =
   | ChatInputCommandInteraction<CT>
@@ -27,6 +32,7 @@ interface CommandOptions {
     interaction: CommandInteraction;
     client: Client;
     options?: Record<string, unknown>;
+    t: TFunction<'command-content'>;
   }) => Promise<void> | void;
   autocompletes?: Record<
     string,
@@ -50,6 +56,7 @@ export class Command {
     interaction: CommandInteraction;
     client: Client;
     options?: Record<string, unknown>;
+    t: TFunction<'command-content'>;
   }) => Promise<void> | void;
   #autocompletes: Record<
     string,
@@ -101,6 +108,7 @@ export class Command {
       interaction,
       client: interaction.client,
       options: this.getOptions(interaction),
+      t: i18next.getFixedT([interaction.locale, 'en-US'], 'command-content'),
     });
   }
 

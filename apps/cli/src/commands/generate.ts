@@ -148,7 +148,7 @@ export class GenerateCommand extends ConfigurableCommand {
         inputDeclaration: `{
         name: '${id}';
         predicate?: CommandPredicateConfig;
-        execute: (args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client }) => CommandReturn;
+        execute: (args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client; t: TFunction<'command-content'> }) => CommandReturn;
       }`,
         metaOptions: { optionGetters: {} },
         key: id,
@@ -196,6 +196,7 @@ export class GenerateCommand extends ConfigurableCommand {
     const executeArgs = new ObjectTypeBuilder();
     executeArgs.addKey('interaction', `ChatInputCommandInteraction${cachedGeneric}`);
     executeArgs.addKey('client', 'Client');
+    executeArgs.addKey('t', "TFunction<'command-content'>");
     executeArgs.addKey(
       'options',
       ObjectTypeBuilder.fromArray(
@@ -284,7 +285,7 @@ export class GenerateCommand extends ConfigurableCommand {
           inputDeclaration: `{
         name: '${command.name}';
         predicate?: CommandPredicateConfig;
-        execute: (args: { interaction: ${interaction}${cachedGeneric}; client: Client }) => CommandReturn;
+        execute: (args: { interaction: ${interaction}${cachedGeneric}; client: Client; t: TFunction<'command-content'> }) => CommandReturn;
       }`,
           metaOptions: { optionGetters: {}, type },
           key: command.name,
@@ -299,7 +300,7 @@ export class GenerateCommand extends ConfigurableCommand {
           inputDeclaration: `{
         name: '${command.name}';
         predicate?: CommandPredicateConfig;
-        execute: (args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client }) => CommandReturn;
+        execute: (args: { interaction: ChatInputCommandInteraction${cachedGeneric}; client: Client; t: TFunction<'command-content'> }) => CommandReturn;
       }`,
           metaOptions: { optionGetters: {}, type: 'base-command' },
           key: command.name,
@@ -387,6 +388,7 @@ export class GenerateCommand extends ConfigurableCommand {
   User,
   UserContextMenuCommandInteraction,
 } from 'discord.js';`,
+      "import type { TFunction } from 'i18next';",
       'type CommandReturn = Promise<void> | void\n\n',
     ];
 
