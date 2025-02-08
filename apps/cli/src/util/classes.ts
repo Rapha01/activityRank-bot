@@ -171,25 +171,37 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
     const commands: DeployableCommand[] = [];
     const missingDescriptions: { lang: string; key: string }[] = [];
 
+    const getBaseDescription = (...components: string[]) => {
+      const key = components.join('.');
+      const res = baseLocalization[key];
+      if (!res) {
+        missingDescriptions.push({ lang: 'en-US', key });
+      }
+      return res;
+    };
+
+    const getDescriptionLocalizations = (...components: string[]) => {
+      const key = components.join('.');
+      const res: Record<string, string> = {};
+      for (const [lang, value] of localizations.entries()) {
+        if (value?.[key]) {
+          res[lang] = value[key];
+        } else {
+          missingDescriptions.push({ lang, key });
+        }
+      }
+      return res;
+    };
+
     for (const command of this.jsonCommands) {
       const description =
         command.type === ApplicationCommandType.ChatInput
-          ? baseLocalization[command.name]
+          ? getBaseDescription(command.name)
           : undefined;
-
-      if (!description && command.type === ApplicationCommandType.ChatInput) {
-        missingDescriptions.push({ lang: 'en-US', key: command.name });
-        continue;
-      }
-
-      const getDescription = (...components: string[]) => {
-        const key = components.join('.');
-        const res = baseLocalization[key];
-        if (!res) {
-          missingDescriptions.push({ lang: 'en-US', key });
-        }
-        return res;
-      };
+      const description_localizations =
+        command.type === ApplicationCommandType.ChatInput
+          ? getDescriptionLocalizations(command.name)
+          : undefined;
 
       const getOptions = (
         commandLike:
@@ -199,20 +211,29 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
           | z.infer<typeof subcommandGroupOptionSchema>,
         path: string[] = [],
       ) => {
-        // TODO: non-"en-US" translations
         return 'options' in commandLike
           ? commandLike.options?.map((opt): APIApplicationCommandOption => {
               if ('options' in opt) {
                 return {
                   ...opt,
-                  description: getDescription(...path, commandLike.name, opt.name),
+                  description: getBaseDescription(...path, commandLike.name, opt.name),
+                  description_localizations: getDescriptionLocalizations(
+                    ...path,
+                    commandLike.name,
+                    opt.name,
+                  ),
                   // don't love the use of `any` but this is really complicated 😭
                   options: getOptions(opt, [...path, commandLike.name]) as any,
                 };
               }
               return {
                 ...opt,
-                description: getDescription(...path, commandLike.name, opt.name),
+                description: getBaseDescription(...path, commandLike.name, opt.name),
+                description_localizations: getDescriptionLocalizations(
+                  ...path,
+                  commandLike.name,
+                  opt.name,
+                ),
               } as APIApplicationCommandOption;
             })
           : undefined;
@@ -225,6 +246,7 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
         deployment: command.deployment ?? Deploy.Global,
         // @ts-expect-error d.js typings are difficult because of the difference between context commands and slash commands.
         description,
+        description_localizations,
         options,
         default_member_permissions: command.default_member_permissions ?? undefined,
       };
@@ -232,15 +254,19 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
       commands.push(res);
     }
 
-    if (missingDescriptions.some((d) => d.lang === 'en-US')) {
-      throw new UsageError(
-        `Missing base (en-US) description translations: ${missingDescriptions.map((d) => d.key).join(', ')}`,
-      );
-    }
     if (missingDescriptions.length > 0) {
-      for (const desc of missingDescriptions) {
+      for (const desc of missingDescriptions.filter((d) => d.lang !== 'en-US')) {
         console.warn(`Missing description translation: ${desc.lang}::${desc.key}`);
       }
+    }
+    if (missingDescriptions.some((d) => d.lang === 'en-US')) {
+      // throw error for en-US errors
+      throw new UsageError(
+        `Missing base (en-US) description translations: ${missingDescriptions
+          .filter((d) => d.lang === 'en-US')
+          .map((d) => d.key)
+          .join(', ')}`,
+      );
     }
 
     return commands;

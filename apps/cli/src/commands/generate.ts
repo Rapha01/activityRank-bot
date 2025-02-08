@@ -178,8 +178,6 @@ export class GenerateCommand extends ConfigurableCommand {
         case ApplicationCommandOptionType.User:
           return maybeUncached ? 'User | APIUser' : 'User';
         case ApplicationCommandOptionType.Mentionable:
-          // TODO: include possbility of `GuildMember`
-          // TODO: allow requiring GuildMember instead of User
           return maybeUncached ? 'User | APIUser | Role | APIRole' : 'User | Role';
         case ApplicationCommandOptionType.Channel:
           return `Extract<GuildChannel | ThreadChannel ${maybeUncached ? '| APIChannel' : ''}, { type: ${channelTypes.length > 0 ? 'ChannelType' : channelTypes.map((t) => `ChannelType.${ChannelType[t]}`).join(' | ')}; }>`;
