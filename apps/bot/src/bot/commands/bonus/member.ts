@@ -4,28 +4,25 @@ import { resolveMember } from '#bot/util/parser.js';
 
 export default command({
   name: 'bonus member',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     const member = await resolveMember(options.member, interaction);
 
     if (!member) {
-      await interaction.reply({
-        content: "This user isn't in the server.",
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.notOnServer'), ephemeral: true });
       return;
     }
 
     if (member.user.bot) {
-      await interaction.reply({
-        content: 'You cannot add bonus XP to bots.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('bonus.cannotAddXP'), ephemeral: true });
       return;
     }
 
     await statFlushCache.addBonus(member, options.change);
     await interaction.reply({
-      content: `Successfully gave \`${options.change}\` bonus XP to ${member}!`,
+      content: t(options.change >= 0 ? 'bonus.successPositive' : 'bonus.successNegative', {
+        change: options.change,
+        member: member.toString(),
+      }),
       allowedMentions: { parse: [] },
     });
   },
