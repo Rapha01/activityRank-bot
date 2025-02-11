@@ -1,5 +1,5 @@
 {
-  "api": "Manage your access to the Public API.",
+  "api": "",
   "bonus": "Give or take bonus XP to a user or role.",
   "blacklist": "Blacklist a guild from the bot.",
   "bonus.member": "Change the bonus XP of a member.",
@@ -94,7 +94,7 @@
   "config-xp.xp-per-role.invite": "TODO",
   "bonus.role.role": "TODO",
   "blacklist.user": "Blacklist a user from the bot.",
-  "blacklist.user.user": "The user to blacklist",
+  "blacklist.user.user": "[EXAMPLE TRANSLATED STRING] The user to blacklist",
   "blacklist.guild": "Blacklist a guild from the bot.",
   "blacklist.guild.id": "The ID of the guild to blacklist",
   "eval.eval": "The code to evaluate",
@@ -111,6 +111,6 @@
   "shard-status.page": "Find a page",
   "shard-status.search": "Get a specific shard",
   "shard-status.search-guild": "Get the shard of a specific guild",
-  "api.create-token": "Create a token to access the API.",
+  "api.create-token": "",
   "api.create-token.guild-id": "The ID of the guild the token is valid for."
 }
