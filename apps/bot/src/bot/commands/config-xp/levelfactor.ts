@@ -5,14 +5,14 @@ import { resetGuildCache } from '#bot/models/resetModel.js';
 
 export default command({
   name: 'config-xp levelfactor',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     const cachedGuild = await getGuildModel(interaction.guild);
     await cachedGuild.upsert({ levelFactor: options.levelfactor });
 
     resetGuildCache(interaction.guild).allMembers();
 
     await interaction.reply({
-      content: `Your server's levelfactor is now set to \`${options.levelfactor}\`.`,
+      content: t('config-xp.levelfactor', { levelfactor: options.levelfactor }),
       ephemeral: true,
     });
   },

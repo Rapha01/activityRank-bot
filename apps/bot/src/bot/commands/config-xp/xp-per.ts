@@ -1,19 +1,15 @@
 import { PermissionFlagsBits } from 'discord.js';
-import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import { command } from '#bot/commands.js';
 
 export default command({
   name: 'config-xp xp-per',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
@@ -25,10 +21,7 @@ export default command({
     };
 
     if (Object.values(items).every((x) => x === undefined)) {
-      await interaction.reply({
-        content: 'You must specify at least one option for this command to do anything!',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.option'), ephemeral: true });
       return;
     }
 
@@ -38,16 +31,9 @@ export default command({
     await interaction.reply({
       embeds: [
         {
-          author: { name: 'XP Values' },
+          author: { name: t('config-xp.xpValues') },
           color: 0x00ae86,
-          description: stripIndent`
-            Modified XP Values! New values:
-      
-            \`${cachedGuild.db.xpPerTextMessage} xp\` per text message
-            \`${cachedGuild.db.xpPerVoiceMinute} xp\` per minute in VC
-            \`${cachedGuild.db.xpPerVote} xp\` per vote
-            \`${cachedGuild.db.xpPerInvite} xp\` per invite
-          `,
+          description: t('config-xp.modifiedXPValues', cachedGuild.db),
         },
       ],
       ephemeral: true,

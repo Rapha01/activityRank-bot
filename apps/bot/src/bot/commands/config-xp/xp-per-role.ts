@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, ButtonStyle, ComponentType, type Role } from 'discord.js';
+import { ButtonStyle, ComponentType, type Role } from 'discord.js';
 import { command } from '#bot/commands.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
@@ -12,12 +12,12 @@ type XpPerEntry = 'xpPerTextMessage' | 'xpPerVoiceMinute' | 'xpPerVote' | 'xpPer
 
 export default command({
   name: 'config-xp xp-per-role',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     const role = options.role;
 
     if (role.id === interaction.guild.id) {
       await interaction.reply({
-        content: 'You cannot configure the xp-per @everyone. Try `/config-xp xp-per` instead.',
+        content: t('config-xp.cannotEveryone'),
         ephemeral: true,
         allowedMentions: { parse: [] },
       });
@@ -34,7 +34,7 @@ export default command({
     if (Object.values(items).every((x) => x === undefined)) {
       const predicate = requireUser(interaction.user);
       await interaction.reply({
-        content: `Are you sure you want to reset the special XP settings of ${role}?`,
+        content: t('config-xp.resetXPper', { role: role.toString() }),
         ephemeral: true,
         components: [
           actionrow([
@@ -84,10 +84,8 @@ export default command({
     ) {
       await interaction.reply({
         content: [
-          `There is a maximum of ${maxRoles} roles that can be set as xp-per roles. Please remove some first.`,
-          increasedLimit
-            ? '\n*Get an extra 10 xp-per roles by subscribing to Patreon Tier 2!*'
-            : '',
+          t('config-xp.maxRoles', { maxRoles }),
+          increasedLimit ? `\n*${t('config-xp.extraMaxRoles')}*` : '',
         ].join('\n'),
         ephemeral: true,
       });
@@ -102,15 +100,19 @@ export default command({
     };
 
     const keyToName: Record<XpPerEntry, string> = {
-      xpPerTextMessage: 'text message',
-      xpPerVoiceMinute: 'voice minute',
-      xpPerInvite: 'invite',
-      xpPerVote: 'upvote',
+      xpPerTextMessage: t('config-xp.textmessage'),
+      xpPerVoiceMinute: t('config-xp.voiceminute'),
+      xpPerInvite: t('config-xp.invite'),
+      xpPerVote: t('config-xp.upvote'),
     };
 
     const getMessage = (key: XpPerEntry): string | null => {
       if (roleModel.db[key] > 0) {
-        return `\`${roleModel.db[key]} xp\` per ${keyToName[key]} (**${relativeValue(key)}x** the default)`;
+        return t('config-xp.newValue', {
+          xp: roleModel.db[key],
+          per: keyToName[key],
+          multi: relativeValue(key),
+        });
       }
       return null;
     };
@@ -121,7 +123,7 @@ export default command({
           author: { name: 'Role XP Values' },
           color: 0x00ae86,
           description: [
-            `Modified XP Values for ${role}! New values:`,
+            t('config-xp.modified', { role: role.toString() }),
             '',
             getMessage('xpPerTextMessage'),
             getMessage('xpPerVoiceMinute'),
@@ -139,7 +141,7 @@ export default command({
 
 const resetSettings = component<{ role: Role }>({
   type: ComponentType.Button,
-  async callback({ interaction, data }) {
+  async callback({ interaction, data, t }) {
     await interaction.deferUpdate();
 
     const roleModel = await getRoleModel(data.role);
@@ -151,7 +153,7 @@ const resetSettings = component<{ role: Role }>({
     });
 
     await interaction.followUp({
-      content: `Users' XP will no longer be affected by ${data.role}!`,
+      content: t('config-xp.notAffected', { role: data.role.toString() }),
     });
   },
 });

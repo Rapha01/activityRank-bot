@@ -28,7 +28,7 @@ export default command({
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setLabel('Invite the bot')
+        .setLabel(t('ping.invite'))
         .setURL(config.invite.standard)
         .setStyle(ButtonStyle.Link),
     );
