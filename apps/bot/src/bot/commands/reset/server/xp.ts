@@ -7,15 +7,12 @@ import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
 
 export default command({
   name: 'reset server xp',
-  async execute({ interaction }) {
+  async execute({ interaction, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
@@ -26,18 +23,18 @@ export default command({
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(confirmButton.instanceId({ predicate }))
-        .setLabel('Reset')
+        .setLabel(t('reset.server.reset'))
         .setEmoji('✅')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId(denyButton.instanceId({ predicate }))
-        .setLabel('Cancel')
+        .setLabel(t('reset.server.cancel'))
         .setEmoji('❎')
         .setStyle(ButtonStyle.Secondary),
     );
 
     await interaction.reply({
-      content: `Are you sure you want to reset **all server members' XP**?\n\nThis will not reset associated statistics - try \`/reset server statistics\`! **This cannot be undone.**`,
+      content: t('reset.server.confirmationXP'),
       ephemeral: true,
       components: [confirmRow],
     });
@@ -45,10 +42,10 @@ export default command({
 });
 
 const { confirmButton, denyButton } = useConfirm({
-  async confirmFn({ interaction }) {
+  async confirmFn({ interaction, t }) {
     const job = new ResetGuildXP(interaction.guild);
 
-    await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
+    await interaction.update({ content: t('reset.preparing'), components: [] });
 
     await job.plan();
     await job.logStatus(interaction);
@@ -60,7 +57,7 @@ const { confirmButton, denyButton } = useConfirm({
     });
     await job.logStatus(interaction);
   },
-  async denyFn({ interaction }) {
-    await interaction.update({ components: [], content: 'Reset cancelled.' });
+  async denyFn({ interaction, t }) {
+    await interaction.update({ components: [], content: t('reset.cancelled') });
   },
 });

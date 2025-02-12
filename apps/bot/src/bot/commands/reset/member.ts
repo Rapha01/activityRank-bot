@@ -1,6 +1,5 @@
 import {
   ActionRowBuilder,
-  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
   type ChatInputCommandInteraction,
@@ -13,15 +12,12 @@ import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
 
 export default command({
   name: 'reset member',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
@@ -47,7 +43,7 @@ export default command({
     );
 
     await interaction.reply({
-      content: `Are you sure you want to reset all the statistics and XP of ${user}?`,
+      content: t('reset.user', { user: user.toString() }),
       ephemeral: true,
       components: [confirmRow],
     });
@@ -58,10 +54,10 @@ const { confirmButton, denyButton } = useConfirm<{
   initialInteraction: ChatInputCommandInteraction<'cached'>;
   targetId: string;
 }>({
-  async confirmFn({ interaction, data }) {
+  async confirmFn({ interaction, data, t }) {
     const job = new ResetGuildMembersStatisticsAndXp(interaction.guild, [data.targetId]);
 
-    await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
+    await interaction.update({ content: t('reset.preparing'), components: [] });
 
     await job.plan();
     await job.logStatus(interaction);
@@ -73,7 +69,7 @@ const { confirmButton, denyButton } = useConfirm<{
     });
     await job.logStatus(interaction);
   },
-  async denyFn({ interaction }) {
-    await interaction.update({ components: [], content: 'Reset cancelled.' });
+  async denyFn({ interaction, t }) {
+    await interaction.update({ components: [], content: t('reset.cancelled') });
   },
 });

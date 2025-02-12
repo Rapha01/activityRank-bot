@@ -4,13 +4,10 @@ import { resolveMember } from '#bot/util/parser.js';
 
 export default command({
   name: 'upvote',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     const targetMember = await resolveMember(options.member, interaction);
     if (!targetMember) {
-      await interaction.reply({
-        content: 'This member is not in the server.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.notOnServer'), ephemeral: true });
       return;
     }
 

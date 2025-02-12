@@ -1,9 +1,4 @@
-import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import nameUtil from '#bot/util/nameUtil.js';
 import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
@@ -15,7 +10,7 @@ import {
 
 export default command({
   name: 'reset deleted channel',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     const channelId = options.id;
     if (!/^\d*$/.test(channelId)) {
       await interaction.reply({ content: 'Discord IDs are always numbers.', ephemeral: true });
@@ -40,7 +35,7 @@ export default command({
     const channelMention = nameUtil.getChannelMention(interaction.guild.channels.cache, channelId);
 
     await interaction.reply({
-      content: `Are you sure you want to reset all the statistics of ${channelMention}?`,
+      content: t('reset.channel', { channelMention }),
       ephemeral: true,
       components: [confirmRow],
     });
@@ -48,10 +43,10 @@ export default command({
 });
 
 const { confirmButton, denyButton } = useConfirm<{ targetId: string }>({
-  async confirmFn({ interaction, data }) {
+  async confirmFn({ interaction, data, t }) {
     const job = new ResetGuildChannelsStatistics(interaction.guild, [data.targetId]);
 
-    await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
+    await interaction.update({ content: t('reset.preparing'), components: [] });
 
     await job.plan();
     await job.logStatus(interaction);
@@ -64,7 +59,7 @@ const { confirmButton, denyButton } = useConfirm<{ targetId: string }>({
     await resetGuildChannelsSettings(interaction.guild, [data.targetId]);
     await job.logStatus(interaction);
   },
-  async denyFn({ interaction }) {
-    await interaction.update({ components: [], content: 'Reset cancelled.' });
+  async denyFn({ interaction, t }) {
+    await interaction.update({ components: [], content: t('reset.cancelled') });
   },
 });

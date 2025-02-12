@@ -56,7 +56,6 @@
     "levelupChannelDescription": "If this is enabled, levelup messages will be sent to this channel.",
     "conflict": "You have specified both a channel and an ID, but they do not match.\nDid you mean: \"/config-channel channel:{{value}}\"?",
     "notSpecified": "You need to specify either a channel or a channel's ID!",
-    "missingPerms": "You need the permission to manage the server in order to use this command.",
     "channelSettings": "Channel Settings"
   },
   "config-member": {
@@ -155,6 +154,7 @@
     "close": "Close"
   },
   "missing": {
+    "administrator": "You need to be a server administrator in order to use this command.",
     "manageServer": "You need the permission to manage the server in order to use this command.",
     "option": "You must specify at least one option for this command to do anything!",
     "notOnServer": "This member is not on the server."
@@ -193,6 +193,8 @@
     "channel": "Are you sure you want to reset all the statistics of {{channelMention}}?",
     "user": "Are you sure you want to reset all the statistics and XP of {{user}}?",
     "deleted": {
+      "noChannelsToReset": "There are no deleted channels to reset.",
+      "noUsersToReset": "There are no deleted users to reset.",
       "confirmationChannel": "Are you sure you want to reset all the statistics of **all {{size}} deleted channels in the server**?\n\n**This cannot be undone.**",
       "confirmationUser": "Are you sure you want to reset all the statistics of **all {{size}} users that have left the server**?\n\n**This cannot be undone.**"
     },
@@ -207,9 +209,18 @@
       "type": "Which types of XP would you like to reset?",
       "reset": "Reset",
       "cancel": "Cancel",
-      "explanation": "",
-      "confirmationStats": "",
-      "confirmationXP": "Are you sure you want to reset **all server members XP**?\n\nThis will not reset associated statistics - try **/reset server statistics**! **This cannot be undone.**"
+      "explainBonus": "XP granted via bonus will be reset, but no other statistics will reset XP. You may be looking for `/reset server xp`.",
+      "explainBonusAndStats": "Since you are resetting the bonus statistic, this **will impact** the XP of any users that have bonus XP.",
+      "explainStats": "XP associated with those statistics will not be reset - try `/reset server xp`!",
+      "confirmationStats": "Are you sure you want to reset all the **{{values, list}}** statistics?\n\n{{explanation}}\n\n**This cannot be undone.**",
+      "confirmationXP": "Are you sure you want to reset **all server members XP**?\n\nThis will not reset associated statistics - try **/reset server statistics**! **This cannot be undone.**",
+      "table": {
+        "textMessage": "text",
+        "voiceMinute": "voice",
+        "vote": "upvote",
+        "invite": "invite",
+        "bonus": "bonus"
+      }
     }
   },
   "inviter": {
