@@ -1,4 +1,4 @@
-/* 🛠️ This file was generated with `activityrank generate` on Sat Feb 08 2025. */
+/* 🛠️ This file was generated with `activityrank generate` on Tue Feb 11 2025. */
 
 import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';
 import type {
@@ -54,6 +54,7 @@ export function command(options: {
       interaction: AutocompleteInteraction<'cached'>;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => CommandReturn;
   };
 }): Command;
@@ -187,6 +188,7 @@ export function command(options: {
       interaction: AutocompleteInteraction<'cached'>;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => CommandReturn;
   };
 }): Command;
@@ -263,11 +265,13 @@ export function command(options: {
       interaction: AutocompleteInteraction<'cached'>;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => CommandReturn;
     vote: (args: {
       interaction: AutocompleteInteraction<'cached'>;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => CommandReturn;
   };
 }): Command;
@@ -322,6 +326,7 @@ export function command(options: {
       interaction: AutocompleteInteraction<'cached'>;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => CommandReturn;
   };
 }): Command;

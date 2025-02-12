@@ -216,7 +216,7 @@ export class GenerateCommand extends ConfigurableCommand {
       for (const option of autocompletableOptions) {
         autocompletes.addKey(
           option.name,
-          `(args: { interaction: AutocompleteInteraction${cachedGeneric}; client: Client; focusedValue: string }) => CommandReturn`,
+          `(args: { interaction: AutocompleteInteraction${cachedGeneric}; client: Client; focusedValue: string; t: TFunction<'command-content'> }) => CommandReturn`,
         );
       }
 

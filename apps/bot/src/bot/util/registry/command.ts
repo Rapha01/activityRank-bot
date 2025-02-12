@@ -40,6 +40,7 @@ interface CommandOptions {
       interaction: AutocompleteInteraction;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => Promise<void> | void
   >;
 }
@@ -64,6 +65,7 @@ export class Command {
       interaction: AutocompleteInteraction;
       client: Client;
       focusedValue: string;
+      t: TFunction<'command-content'>;
     }) => Promise<void> | void
   >;
   #optionMeta: Record<string, OptionKey[]>;
@@ -129,6 +131,7 @@ export class Command {
       interaction,
       client: interaction.client,
       focusedValue: interaction.options.getFocused(),
+      t: i18next.getFixedT([interaction.locale, 'en-US'], 'command-content'),
     });
   }
 
