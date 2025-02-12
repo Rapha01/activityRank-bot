@@ -108,10 +108,10 @@
   "config-server": {
     "bonusTitle": "Bonus Tag/Emote",
     "voteTitle": "Vote Tag/Emote",
-    "modifiedVote": "Modified the server's settings!\n\nVote Tag: {{voteTag}}\nVoteEmote {{voteEmote}}",
-    "values": "Cooldown Values",
-    "modifiedBonus": "Modified the server's settings!\n\nBonus Tag: {{bonusTag}}\nBonus Emote: {{bonusEmote}}",
-    "modifiedCD": "Modified Cooldown Values! New values:\n\nMessages: {{textMessageCooldownSeconds}}\nVotes {{voteCooldownSeconds}}",
+    "modifiedVote": "Modified the server's settings!\n\nVote Tag: `{{voteTag}}`\nVote Emote: {{voteEmote}}",
+    "cooldownValues": "Cooldown Values",
+    "modifiedBonus": "Modified the server's settings!\n\nBonus Tag: `{{bonusTag}}`\nBonus Emote: {{bonusEmote}}",
+    "modifiedCD": "Modified Cooldown Values! New values:\nMessages will only give XP if their author has not sent one in the last `{{messageTime}}`.\nVotes will have a cooldown of `{{voteTime}}`.",
     "noCD": "No Cooldown",
     "5sec": "5 Seconds",
     "15sec": "15 Seconds",
@@ -127,7 +127,7 @@
     "6h": "6 Hours",
     "12h": "12 Hours",
     "24h": "24 Hours",
-    "entriesPerPage": "The server will now see {{entriesPerPage}} entries per page.",
+    "entriesPerPage": "The server will now see `{{entriesPerPage}}` entries per page.",
     "useNickname": "Use Nicknames",
     "useNicknameDescription": "If this is enabled, nicknames will be used to represent members instead of their Discord usernames",
     "reactVote": "Reaction Voting",
@@ -150,6 +150,8 @@
     "emojiDescription": "These will enable or disable text, voice, invite, and upvoteXP respectively.\nYou may want to reset these categories, as disabling them will only hide them and prevent more from being added.",
     "reset": "Reset Deleted Members",
     "resetDescription": "This will reset the XP of members when they leave the server.",
+    "stickyRoles": "Give roles on rejoin",
+    "stickyRolesDescription": "This will give members that have left the server the appropriate roles for the level they had when they left.",
     "close": "Close"
   },
   "missing": {

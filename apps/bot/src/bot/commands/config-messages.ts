@@ -13,8 +13,12 @@ import { command } from '#bot/commands.js';
 import { component, modal } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { actionrow } from '#bot/util/component.js';
+import type { TFunction } from 'i18next';
 
-const generateRows = async (interaction: Interaction<'cached'>) => {
+const generateRows = async (
+  t: TFunction<'command-content'>,
+  interaction: Interaction<'cached'>,
+) => {
   const predicate = requireUser(interaction.user);
 
   return [
@@ -23,7 +27,7 @@ const generateRows = async (interaction: Interaction<'cached'>) => {
         type: ComponentType.StringSelect,
         placeholder: 'The message to set',
         customId: messageSelect.instanceId({ predicate }),
-        options: selectOptions,
+        options: selectOptions(t),
       },
     ]),
     actionrow([
@@ -43,21 +47,26 @@ type ServerMessage =
   | 'roleAssignMessage'
   | 'roleDeassignMessage';
 
-const _prettifyId: Record<ServerMessage, string> = {
-  serverJoinMessage: 'Server Join Message',
-  levelupMessage: 'Levelup Message',
-  roleAssignMessage: 'Role Assign Message',
-  roleDeassignMessage: 'Role Deassign Message',
+const idToName = (id: ServerMessage, t: TFunction<'command-content'>): string => {
+  return {
+    serverJoinMessage: t('config-messages.joinMessage'),
+    levelupMessage: t('config-messages.levelupMessage'),
+    roleAssignMessage: t('config-messages.assignMessage'),
+    roleDeassignMessage: t('config-messages.deassignMessage'),
+  }[id];
 };
 
-const generateModal = (message: ServerMessage): ModalComponentData => ({
+const generateModal = (
+  t: TFunction<'command-content'>,
+  message: ServerMessage,
+): ModalComponentData => ({
   customId: setModal.instanceId({ data: { message } }),
-  title: 'Message Selection',
+  title: t('config-messages.select'),
   components: [
     actionrow([
       {
         customId: 'msg-component-1',
-        label: `The ${_prettifyId[message]}`,
+        label: `The ${idToName(message, t)}`,
         type: ComponentType.TextInput,
         style: TextInputStyle.Paragraph,
         maxLength: message === 'levelupMessage' ? 1000 : 500,
@@ -69,15 +78,12 @@ const generateModal = (message: ServerMessage): ModalComponentData => ({
 
 export default command({
   name: 'config-messages',
-  async execute({ interaction }) {
+  async execute({ interaction, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
@@ -86,27 +92,27 @@ export default command({
       color: 0x00ae86,
       fields: [
         {
-          name: 'Server Join Message',
-          value: 'The message to send when a member joins the server',
+          name: t('config-messages.joinMessage'),
+          value: t('config-messages.joinMessageDescription'),
         },
         {
-          name: 'Levelup Message',
-          value: 'The message to send when a member gains a level',
+          name: t('config-messages.levelupMessage'),
+          value: t('config-messages.levelupMessageDescription'),
         },
         {
-          name: 'Role Assign Message',
-          value: 'The message to send when a member gains a role, unless overridden',
+          name: t('config-messages.assignMessage'),
+          value: t('config-messages.assignMessageDescription'),
         },
         {
-          name: 'Role Deassign Message',
-          value: 'The message to send when a member loses a role, unless overridden',
+          name: t('config-messages.deassignMessage'),
+          value: t('config-messages.deassignMessageDescription'),
         },
       ],
     };
 
     await interaction.reply({
       embeds: [embed],
-      components: await generateRows(interaction),
+      components: await generateRows(t, interaction),
       ephemeral: true,
     });
   },
@@ -114,16 +120,16 @@ export default command({
 
 const clearButton = component({
   type: ComponentType.Button,
-  async callback({ interaction }) {
+  async callback({ interaction, t }) {
     await interaction.reply({
-      content: 'Which message do you want to clear?',
+      content: t('config-messages.askClear'),
       components: [
         actionrow([
           {
             customId: clearMessageSelect.instanceId({ predicate: requireUser(interaction.user) }),
             type: ComponentType.StringSelect,
-            placeholder: 'The message to clear',
-            options: selectOptions,
+            placeholder: t('config-messages.toClear'),
+            options: selectOptions(t),
           },
         ]),
       ],
@@ -134,26 +140,29 @@ const clearButton = component({
 
 const clearMessageSelect = component({
   type: ComponentType.StringSelect,
-  async callback({ interaction }) {
+  async callback({ interaction, t }) {
     const clearItem = interaction.values[0] as ServerMessage;
 
     const model = await getGuildModel(interaction.guild);
     model.upsert({ [clearItem]: '' });
 
-    await interaction.reply({ content: `Cleared \`${_prettifyId[clearItem]}\``, ephemeral: true });
+    await interaction.reply({
+      content: t('config-messages.cleared', { value: idToName(clearItem, t) }),
+      ephemeral: true,
+    });
   },
 });
 
 const messageSelect = component({
   type: ComponentType.StringSelect,
-  async callback({ interaction }) {
+  async callback({ interaction, t }) {
     const editItem = interaction.values[0] as ServerMessage;
-    await interaction.showModal(generateModal(editItem));
+    await interaction.showModal(generateModal(t, editItem));
   },
 });
 
 const setModal = modal<{ message: ServerMessage }>({
-  async callback({ interaction, data }) {
+  async callback({ interaction, data, t }) {
     const value = interaction.fields.getTextInputValue('msg-component-1');
     await interaction.deferReply({ ephemeral: true });
 
@@ -161,16 +170,20 @@ const setModal = modal<{ message: ServerMessage }>({
     model.upsert({ [data.message]: value });
 
     await interaction.followUp({
-      content: `Set ${_prettifyId[data.message]}`,
+      content: `Set ${idToName(data.message, t)}`,
       embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
       ephemeral: true,
     });
   },
 });
 
-const selectOptions: readonly SelectMenuComponentOptionData[] = [
-  { label: 'Server Join Message', value: 'serverJoinMessage' },
-  { label: 'Levelup Message', value: 'levelupMessage' },
-  { label: 'Default Role Assign Message', value: 'roleAssignMessage' },
-  { label: 'Default Role Deassign Message', value: 'roleDeassignMessage' },
-] satisfies { label: string; value: ServerMessage }[];
+const selectOptions = (
+  t: TFunction<'command-content'>,
+): readonly SelectMenuComponentOptionData[] => {
+  return [
+    { label: t('config-messages.joinMessage'), value: 'serverJoinMessage' },
+    { label: t('config-messages.levelupMessage'), value: 'levelupMessage' },
+    { label: t('config-messages.assignMessage'), value: 'roleAssignMessage' },
+    { label: t('config-messages.deassignMessage'), value: 'roleDeassignMessage' },
+  ] satisfies { label: string; value: ServerMessage }[];
+};

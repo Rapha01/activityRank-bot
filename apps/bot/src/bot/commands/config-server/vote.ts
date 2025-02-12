@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits } from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import { parseEmojiString } from '#bot/util/emoji.js';
@@ -6,15 +6,12 @@ import { command } from '#bot/commands.js';
 
 export default command({
   name: 'config-server vote',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
@@ -24,10 +21,7 @@ export default command({
     };
 
     if (Object.values(items).every((x) => x === undefined)) {
-      await interaction.reply({
-        content: 'You must specify at least one option for this command to do anything!',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.option'), ephemeral: true });
       return;
     }
 
@@ -37,14 +31,9 @@ export default command({
     await interaction.reply({
       embeds: [
         {
-          author: { name: 'Vote Tag/Emote' },
+          author: { name: t('config-server.voteTitle') },
           color: 0x00ae86,
-          description: stripIndent`
-            Modified the server's settings!
-      
-            Vote Tag: \`${cachedGuild.db.voteTag}\`
-            Vote Emote: ${cachedGuild.db.voteEmote}
-            `,
+          description: t('config-server.modifiedVote', cachedGuild.db),
         },
       ],
       ephemeral: true,

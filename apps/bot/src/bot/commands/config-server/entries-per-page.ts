@@ -4,15 +4,12 @@ import { command } from '#bot/commands.js';
 
 export default command({
   name: 'config-server entries-per-page',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     if (
       !interaction.channel ||
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
@@ -20,7 +17,7 @@ export default command({
     await guildModel.upsert({ entriesPerPage: options.value });
 
     await interaction.reply({
-      content: `The server will now see \`${options.value}\` entries per page.`,
+      content: t('config-server.entriesPerPage', { entriesPerPage: options.value }),
       ephemeral: true,
     });
   },
