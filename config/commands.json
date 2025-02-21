@@ -1,0 +1,640 @@
+[
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "upvote",
+    "options": [
+      {
+        "type": 6,
+        "name": "member",
+        "required": true
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "serverinfo"
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "patchnote",
+    "options": [
+      {
+        "type": 3,
+        "name": "version",
+        "autocomplete": true
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "8",
+    "type": 1,
+    "name": "reset",
+    "options": [
+      {
+        "type": 1,
+        "name": "member",
+        "options": [
+          {
+            "type": 6,
+            "name": "member",
+            "required": true
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "channel",
+        "options": [
+          {
+            "type": 7,
+            "name": "channel",
+            "required": true,
+            "channel_types": [0, 2, 5, 15]
+          }
+        ]
+      },
+      {
+        "type": 2,
+        "name": "server",
+        "options": [
+          {
+            "type": 1,
+            "name": "settings"
+          },
+          {
+            "type": 1,
+            "name": "statistics"
+          },
+          {
+            "type": 1,
+            "name": "members"
+          },
+          {
+            "type": 1,
+            "name": "xp"
+          },
+          {
+            "type": 1,
+            "name": "all"
+          }
+        ]
+      },
+      {
+        "type": 2,
+        "name": "deleted",
+        "options": [
+          {
+            "type": 1,
+            "name": "channel",
+            "options": [
+              {
+                "type": 3,
+                "name": "id",
+                "required": true,
+                "min_length": 17,
+                "max_length": 20
+              }
+            ]
+          },
+          {
+            "type": 1,
+            "name": "channels"
+          },
+          {
+            "type": 1,
+            "name": "members"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "memberinfo",
+    "options": [
+      {
+        "type": 6,
+        "name": "member"
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "inviter",
+    "options": [
+      {
+        "type": 6,
+        "name": "member",
+        "required": true
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "faq",
+    "options": [
+      {
+        "type": 4,
+        "name": "number",
+        "autocomplete": true,
+        "min_value": 1,
+        "max_value": 50
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "help"
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "ping"
+  },
+  {
+    "default_member_permissions": "32",
+    "type": 1,
+    "name": "config-server",
+    "options": [
+      {
+        "type": 1,
+        "name": "bonus",
+        "options": [
+          {
+            "type": 3,
+            "name": "tag"
+          },
+          {
+            "type": 3,
+            "name": "emote"
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "vote",
+        "options": [
+          {
+            "type": 3,
+            "name": "tag"
+          },
+          {
+            "type": 3,
+            "name": "emote"
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "entries-per-page",
+        "options": [
+          {
+            "type": 4,
+            "name": "value",
+            "required": true,
+            "min_value": 4,
+            "max_value": 20
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "cooldown",
+        "options": [
+          {
+            "type": 4,
+            "name": "message",
+            "autocomplete": true,
+            "min_value": 0,
+            "max_value": 120
+          },
+          {
+            "type": 4,
+            "name": "vote",
+            "autocomplete": true,
+            "min_value": 180,
+            "max_value": 86400
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "set"
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "32",
+    "type": 1,
+    "name": "config-role",
+    "options": [
+      {
+        "type": 1,
+        "name": "levels",
+        "options": [
+          {
+            "type": 8,
+            "name": "role",
+            "required": true
+          },
+          {
+            "type": 4,
+            "name": "assign-level",
+            "min_value": 0,
+            "max_value": 500
+          },
+          {
+            "type": 4,
+            "name": "deassign-level",
+            "min_value": 0,
+            "max_value": 500
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "menu",
+        "options": [
+          {
+            "type": 8,
+            "name": "role",
+            "required": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "32",
+    "type": 1,
+    "name": "config-xp",
+    "options": [
+      {
+        "type": 1,
+        "name": "bonustime",
+        "options": [
+          {
+            "type": 4,
+            "name": "time",
+            "required": true,
+            "autocomplete": true,
+            "min_value": 0,
+            "max_value": 20160
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "levelfactor",
+        "options": [
+          {
+            "type": 4,
+            "name": "levelfactor",
+            "required": true,
+            "min_value": 20,
+            "max_value": 400
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "xp-per",
+        "options": [
+          {
+            "type": 4,
+            "name": "message",
+            "min_value": 0,
+            "max_value": 10
+          },
+          {
+            "type": 4,
+            "name": "voiceminute",
+            "min_value": 0,
+            "max_value": 5
+          },
+          {
+            "type": 4,
+            "name": "vote",
+            "min_value": 0,
+            "max_value": 100
+          },
+          {
+            "type": 4,
+            "name": "invite",
+            "min_value": 0,
+            "max_value": 1000
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "bonus-xp-per",
+        "options": [
+          {
+            "type": 4,
+            "name": "message",
+            "min_value": 0,
+            "max_value": 20
+          },
+          {
+            "type": 4,
+            "name": "voiceminute",
+            "min_value": 0,
+            "max_value": 10
+          },
+          {
+            "type": 4,
+            "name": "vote",
+            "min_value": 0,
+            "max_value": 200
+          },
+          {
+            "type": 4,
+            "name": "invite",
+            "min_value": 0,
+            "max_value": 2000
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "xp-per-role",
+        "options": [
+          {
+            "type": 8,
+            "name": "role",
+            "required": true
+          },
+          {
+            "type": 4,
+            "name": "message",
+            "min_value": 0,
+            "max_value": 30
+          },
+          {
+            "type": 4,
+            "name": "voiceminute",
+            "min_value": 0,
+            "max_value": 15
+          },
+          {
+            "type": 4,
+            "name": "vote",
+            "min_value": 0,
+            "max_value": 300
+          },
+          {
+            "type": 4,
+            "name": "invite",
+            "min_value": 0,
+            "max_value": 3000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "32",
+    "type": 1,
+    "name": "bonus",
+    "options": [
+      {
+        "type": 1,
+        "name": "role",
+        "options": [
+          {
+            "type": 8,
+            "name": "role",
+            "required": true
+          },
+          {
+            "type": 4,
+            "name": "change",
+            "required": true,
+            "min_value": -1000000,
+            "max_value": 1000000
+          },
+          {
+            "type": 5,
+            "name": "use-beta"
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "member",
+        "options": [
+          {
+            "type": 6,
+            "name": "member",
+            "required": true
+          },
+          {
+            "type": 4,
+            "name": "change",
+            "required": true,
+            "min_value": -1000000,
+            "max_value": 1000000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "32",
+    "type": 1,
+    "name": "config-messages"
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "config-member"
+  },
+  {
+    "default_member_permissions": "48",
+    "type": 1,
+    "name": "config-channel",
+    "options": [
+      {
+        "type": 7,
+        "name": "channel",
+        "channel_types": [0, 2, 5, 15]
+      },
+      {
+        "type": 3,
+        "name": "id",
+        "min_length": 17,
+        "max_length": 20
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "top"
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "rank",
+    "options": [
+      {
+        "type": 6,
+        "name": "member"
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "6",
+    "type": 1,
+    "deployment": "LOCAL_ONLY",
+    "name": "blacklist",
+    "options": [
+      {
+        "type": 1,
+        "name": "user",
+        "options": [
+          {
+            "type": 6,
+            "name": "user",
+            "required": true
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "guild",
+        "options": [
+          {
+            "type": 3,
+            "name": "id",
+            "required": true,
+            "min_length": 17,
+            "max_length": 20
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "4",
+    "type": 1,
+    "deployment": "LOCAL_ONLY",
+    "name": "eval",
+    "options": [
+      {
+        "type": 3,
+        "name": "eval",
+        "required": true
+      },
+      {
+        "type": 5,
+        "name": "async"
+      },
+      {
+        "type": 4,
+        "name": "depth",
+        "min_value": 0,
+        "max_value": 10
+      },
+      {
+        "type": 5,
+        "name": "show-hidden"
+      },
+      {
+        "type": 5,
+        "name": "visible"
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "1099511627776",
+    "type": 1,
+    "deployment": "LOCAL_ONLY",
+    "name": "reset-jobs",
+    "options": [
+      {
+        "type": 5,
+        "name": "full"
+      },
+      {
+        "type": 5,
+        "name": "eph"
+      },
+      {
+        "type": 3,
+        "name": "search",
+        "min_length": 17,
+        "max_length": 20
+      }
+    ]
+  },
+  {
+    "default_member_permissions": "1099511627776",
+    "type": 1,
+    "deployment": "LOCAL_ONLY",
+    "name": "shard-status",
+    "options": [
+      {
+        "type": 5,
+        "name": "full"
+      },
+      {
+        "type": 5,
+        "name": "eph"
+      },
+      {
+        "type": 5,
+        "name": "filtered"
+      },
+      {
+        "type": 4,
+        "name": "page",
+        "max_value": 200
+      },
+      {
+        "type": 4,
+        "name": "search"
+      },
+      {
+        "type": 3,
+        "name": "search-guild",
+        "min_length": 17,
+        "max_length": 20
+      }
+    ]
+  },
+  {
+    "default_member_permissions": null,
+    "type": 2,
+    "name": "Upvote"
+  },
+  {
+    "default_member_permissions": null,
+    "type": 1,
+    "deployment": "LOCAL_ONLY",
+    "name": "api",
+    "options": [
+      {
+        "type": 1,
+        "name": "create-token",
+        "options": [
+          {
+            "type": 3,
+            "name": "guild-id",
+            "required": true,
+            "min_length": 17,
+            "max_length": 20
+          }
+        ]
+      }
+    ]
+  }
+]

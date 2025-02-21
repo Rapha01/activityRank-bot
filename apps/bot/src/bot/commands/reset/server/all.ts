@@ -1,31 +1,18 @@
-import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-  PermissionFlagsBits,
-} from 'discord.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildAll } from '#bot/models/resetModel.js';
 import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
 
-export const all = subcommand({
-  data: {
-    name: 'all',
-    description: 'Reset all server settings, XP, and statistics.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'reset server all',
+  async execute({ interaction, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.Administrator)
     ) {
-      await interaction.reply({
-        content: 'You need the ADMINISTRATOR permission to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.administrator'), ephemeral: true });
       return;
     }
 
@@ -46,8 +33,7 @@ export const all = subcommand({
     );
 
     await interaction.reply({
-      content:
-        'Are you sure you want to reset **all server settings, XP, and statistics?**\n\n**This cannot be undone.**',
+      content: t('reset.server.confirmationAll'),
       ephemeral: true,
       components: [confirmRow],
     });
@@ -55,15 +41,14 @@ export const all = subcommand({
 });
 
 const { confirmButton, denyButton } = useConfirm({
-  async confirmFn({ interaction }) {
+  async confirmFn({ interaction, t }) {
     const job = new ResetGuildAll(interaction.guild);
 
-    await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
+    await interaction.update({ content: t('reset.preparing'), components: [] });
 
     await job.plan();
     await job.logStatus(interaction);
 
-    console.debug('Running job');
     await job.runUntilComplete({
       onPause: async () => await job.logStatus(interaction),
       globalBufferTime: 100,
@@ -71,7 +56,7 @@ const { confirmButton, denyButton } = useConfirm({
     });
     await job.logStatus(interaction);
   },
-  async denyFn({ interaction }) {
-    await interaction.update({ components: [], content: 'Reset cancelled.' });
+  async denyFn({ interaction, t }) {
+    await interaction.update({ components: [], content: t('reset.cancelled') });
   },
 });

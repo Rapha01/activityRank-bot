@@ -1,43 +1,27 @@
 import {
   ActionRowBuilder,
-  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
   type ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
 
-export const member = subcommand({
-  data: {
-    name: 'member',
-    description: "Reset a member's statistics.",
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'member',
-        description: 'The member to reset.',
-        type: ApplicationCommandOptionType.User,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'reset member',
+  async execute({ interaction, options, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
     ) {
-      await interaction.reply({
-        content: 'You need the permission to manage the server in order to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply({ content: t('missing.manageServer'), ephemeral: true });
       return;
     }
 
-    const user = interaction.options.getUser('member', true);
+    const user = options.member;
 
     const predicate = requireUser(interaction.user);
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -59,7 +43,7 @@ export const member = subcommand({
     );
 
     await interaction.reply({
-      content: `Are you sure you want to reset all the statistics and XP of ${user}?`,
+      content: t('reset.user', { user: user.toString() }),
       ephemeral: true,
       components: [confirmRow],
     });
@@ -70,10 +54,10 @@ const { confirmButton, denyButton } = useConfirm<{
   initialInteraction: ChatInputCommandInteraction<'cached'>;
   targetId: string;
 }>({
-  async confirmFn({ interaction, data }) {
+  async confirmFn({ interaction, data, t }) {
     const job = new ResetGuildMembersStatisticsAndXp(interaction.guild, [data.targetId]);
 
-    await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
+    await interaction.update({ content: t('reset.preparing'), components: [] });
 
     await job.plan();
     await job.logStatus(interaction);
@@ -85,7 +69,7 @@ const { confirmButton, denyButton } = useConfirm<{
     });
     await job.logStatus(interaction);
   },
-  async denyFn({ interaction }) {
-    await interaction.update({ components: [], content: 'Reset cancelled.' });
+  async denyFn({ interaction, t }) {
+    await interaction.update({ components: [], content: t('reset.cancelled') });
   },
 });

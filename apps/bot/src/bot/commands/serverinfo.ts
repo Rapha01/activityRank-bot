@@ -20,17 +20,14 @@ import {
 import { shards } from '#models/shardDb/shardDb.js';
 import fct, { type Pagination } from '../../util/fct.js';
 import nameUtil, { getRoleMention } from '../util/nameUtil.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import Cron from 'croner';
 
-export default command.basic({
-  data: {
-    name: 'serverinfo',
-    description: 'Get information about your server.',
-  },
+export default command({
+  name: 'serverinfo',
   async execute({ interaction }) {
     await render(interaction, 1, 'general');
   },

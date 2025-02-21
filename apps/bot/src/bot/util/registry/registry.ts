@@ -1,5 +1,5 @@
 import { EventHandler } from './event.js';
-import { AutocompleteIndex, Command, CommandIndex, SlashCommand } from './command.js';
+import { Command } from './command.js';
 import type {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
@@ -23,9 +23,9 @@ const glob = async (paths: string | string[]) => await fg(paths, { absolute: tru
 
 const EVENT_PATHS = [`${import.meta.dirname}/../../events/*.js`];
 const COMMAND_PATHS = [
-  `${import.meta.dirname}/../../commands/*.js`,
-  `${import.meta.dirname}/../../commandsAdmin/*.js`,
-  `${import.meta.dirname}/../../contextMenus/*.js`,
+  `${import.meta.dirname}/../../commands/**/*.js`,
+  `${import.meta.dirname}/../../commandsAdmin/**/*.js`,
+  `${import.meta.dirname}/../../contextMenus/**/*.js`,
 ];
 
 export async function createRegistry() {
@@ -100,13 +100,24 @@ export class Registry {
       const file = await import(commandFile);
 
       const handler = file.default;
-      if (!(handler instanceof Command)) {
+      if (!(handler instanceof Command) && !Array.isArray(handler)) {
         throw new Error(
-          `The default export of the command file ${commandFile} must be a Command (found ${handler}). It can be constructed with the command.basic(), command.parent(), context.user(), or context.message() functions.`,
+          `The default export of the command file ${commandFile} must be a Command or an array of Commands (found ${handler}). It can be constructed with the command() function.`,
         );
       }
 
-      this.#commands.set(handler.data.name, handler);
+      if (Array.isArray(handler)) {
+        for (const h of handler) {
+          if (!(h instanceof Command)) {
+            throw new Error(
+              `The default export of the command file ${commandFile} must be a Command or an array of Commands (found Array<${handler}>). It can be constructed with the command() function.`,
+            );
+          }
+          this.#commands.set(h.name, h);
+        }
+      } else {
+        this.#commands.set(handler.name, handler);
+      }
     }
   }
 
@@ -124,42 +135,22 @@ export class Registry {
 
   public async handleAutocomplete(interaction: AutocompleteInteraction<'cached'>): Promise<void> {
     const command = this.getCommand(interaction.commandName);
-    const idx = new AutocompleteIndex(interaction);
-    if (command instanceof SlashCommand) {
-      await command.autocomplete(idx, interaction);
-    } else {
-      throw new Error(`Attempted to call autocomplete method of non-slash command ${idx}`);
+    const focusedName = interaction.options.getFocused(true).name;
+    if (!command.hasAutocomplete(focusedName)) {
+      throw new Error(
+        `Command "${command.name}" does not have autocomplete method "${focusedName}"`,
+      );
     }
+
+    await command.autocomplete(interaction);
   }
 
-  public async handleSlashCommand(
-    interaction: ChatInputCommandInteraction<'cached'>,
+  public async handleCommand(
+    interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
   ): Promise<void> {
     const command = this.getCommand(interaction.commandName);
-    const index = new CommandIndex(interaction);
 
-    const predicate = command.checkPredicate(index, interaction.user);
-    if (predicate.status !== Predicate.Allow) {
-      await predicate.callback(interaction);
-      return;
-    }
-
-    await command.execute(index, interaction);
-  }
-
-  public async handleContextCommand(
-    interaction: ContextMenuCommandInteraction<'cached'>,
-  ): Promise<void> {
-    const command = this.getCommand(interaction.commandName);
-    const index = new CommandIndex(interaction);
-
-    const predicate = command.checkPredicate(index, interaction.user);
-    if (predicate.status !== Predicate.Allow) {
-      await predicate.callback(interaction);
-      return;
-    }
-
-    await command.execute(index, interaction);
+    await command.execute(interaction);
   }
 
   public get components(): ReadonlyMap<string, Component<ComponentInteraction, unknown>> {

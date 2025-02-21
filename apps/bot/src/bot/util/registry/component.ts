@@ -12,6 +12,8 @@ import type {
 import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
 import { nanoid } from 'nanoid';
 import { registry } from './registry.js';
+import i18n from 'i18next';
+import type { TFunction } from 'i18next';
 
 interface PredicateConfig<I extends ComponentInteraction> {
   validate: (interaction: I) => Predicate;
@@ -28,6 +30,7 @@ type ComponentPredicateCheck = PredicateCheck<ComponentInteraction>;
 export type ComponentCallback<TInteraction extends ComponentInteraction, TData> = (args: {
   interaction: TInteraction;
   data: TData;
+  t: TFunction<'command-content'>;
   drop: () => void;
 }) => Promise<void> | void;
 
@@ -145,6 +148,7 @@ class MessageComponentInstance<
       interaction,
       data: this.data,
       drop: this.drop,
+      t: i18n.getFixedT([interaction.locale, 'en-US'], 'command-content'),
     });
   }
 }
@@ -176,6 +180,7 @@ class ModalComponentInstance<
       interaction,
       data: this.data,
       drop: this.drop,
+      t: i18n.getFixedT([interaction.locale, 'en-US'], 'command-content'),
     });
   }
 }

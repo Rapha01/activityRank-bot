@@ -1,23 +1,10 @@
-import { command } from '#bot/util/registry/command.js';
-import { EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
+import { command } from '#bot/commands.js';
+import { EmbedBuilder } from 'discord.js';
 import { getTexts } from '#models/managerDb/textModel.js';
 import type { TextsFaqs } from '#models/types/external.js';
 
-export default command.basic({
-  data: {
-    name: 'faq',
-    description: 'Display a list of Frequently Asked Questions',
-    options: [
-      {
-        name: 'number',
-        description: 'The specific FAQ to show',
-        autocomplete: true,
-        type: ApplicationCommandOptionType.Integer,
-        min_value: 1,
-        max_value: 50,
-      },
-    ],
-  },
+export default command({
+  name: 'faq',
   async execute({ interaction }) {
     const faq = interaction.options.getInteger('number');
     const { faqs } = await getTexts();
@@ -47,7 +34,7 @@ export default command.basic({
 
     await interaction.reply({ embeds: [embed] });
   },
-  autocomplete: {
+  autocompletes: {
     async number({ interaction }) {
       const { faqs } = await getTexts();
 

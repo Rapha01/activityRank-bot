@@ -29,6 +29,7 @@
     "@activityrank/cfg": "workspace:*",
     "@activityrank/database": "workspace:*",
     "@discordjs/rest": "^2.4.0",
+    "@formatjs/intl-durationformat": "^0.7.3",
     "@isaacs/ttlcache": "^1.4.1",
     "@sapphire/async-queue": "^1.5.3",
     "@sapphire/duration": "^1.1.2",
@@ -40,6 +41,8 @@
     "croner": "^8.1.1",
     "discord.js": "^14.16.2",
     "fast-glob": "^3.3.2",
+    "i18next": "^24.2.2",
+    "i18next-fs-backend": "^2.6.0",
     "kysely": "^0.27.4",
     "mysql2": "^3.11.3",
     "nanoid": "^5.0.7",
@@ -47,6 +50,7 @@
     "pino": "^9.4.0",
     "pretty-ms": "^9.1.0",
     "public-ip": "^7.0.1",
+    "temporal-polyfill": "^0.2.5",
     "unicode-emoji-json": "^0.6.0"
   },
   "devDependencies": {
@@ -54,7 +58,6 @@
     "@discordjs/core": "^2.0.0",
     "@types/common-tags": "^1.8.4",
     "@types/node-cron": "^3.0.11",
-    "citty": "^0.1.6",
     "colorette": "^2.0.20",
     "defu": "^6.1.4",
     "execa": "^9.4.0",

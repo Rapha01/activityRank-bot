@@ -1,10 +1,5 @@
-import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js';
-import { subcommand } from '#bot/util/registry/command.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { useConfirm } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import {
@@ -13,17 +8,13 @@ import {
   ResetGuildChannelsStatistics,
 } from '#bot/models/resetModel.js';
 
-export const channels = subcommand({
-  data: {
-    name: 'channels',
-    description: 'Reset the statistics of all deleted channels.',
-    type: ApplicationCommandOptionType.Subcommand,
-  },
-  async execute({ interaction }) {
+export default command({
+  name: 'reset deleted channels',
+  async execute({ interaction, t }) {
     const channelIds = await fetchDeletedChannelIds(interaction.guild);
 
     if (channelIds.length < 1) {
-      await interaction.reply({ content: 'There are no deleted channels to reset.' });
+      await interaction.reply({ content: t('reset.deleted.noChannelsToReset') });
       return;
     }
 
@@ -43,7 +34,7 @@ export const channels = subcommand({
     );
 
     await interaction.reply({
-      content: `Are you sure you want to reset all the statistics of **all ${channelIds.length} deleted channels in the server**?\n\n**This cannot be undone.**`,
+      content: t('reset.deleted.confirmationChannel', { size: channelIds.length }),
       ephemeral: true,
       components: [confirmRow],
     });
@@ -51,10 +42,10 @@ export const channels = subcommand({
 });
 
 const { confirmButton, denyButton } = useConfirm<{ channelIds: string[] }>({
-  async confirmFn({ interaction, data }) {
+  async confirmFn({ interaction, data, t }) {
     const job = new ResetGuildChannelsStatistics(interaction.guild, data.channelIds);
 
-    await interaction.update({ content: 'Preparing to reset. Please wait...', components: [] });
+    await interaction.update({ content: t('reset.preparing'), components: [] });
 
     await job.plan();
     await job.logStatus(interaction);
@@ -67,7 +58,7 @@ const { confirmButton, denyButton } = useConfirm<{ channelIds: string[] }>({
     await resetGuildChannelsSettings(interaction.guild, data.channelIds);
     await job.logStatus(interaction);
   },
-  async denyFn({ interaction }) {
-    await interaction.update({ components: [], content: 'Reset cancelled.' });
+  async denyFn({ interaction, t }) {
+    await interaction.update({ components: [], content: t('reset.cancelled') });
   },
 });

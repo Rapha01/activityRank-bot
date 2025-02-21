@@ -4,11 +4,17 @@ import { pathToFileURL } from 'node:url';
 import type { z } from 'zod';
 import * as schemas from './schemas.js';
 
-interface LoadOptions<T extends z.ZodTypeAny> {
-  name: string;
-  schema: T;
-  secret: boolean;
-}
+type LoadOptions<T extends z.ZodTypeAny> =
+  | {
+      name: string;
+      schema: T;
+      secret: boolean;
+    }
+  | {
+      name: string;
+      schema: T;
+      devOnly: true;
+    };
 
 function configLoader(basePath?: string | null) {
   if (process.env.NODE_ENV === 'production' && basePath) {
@@ -20,7 +26,7 @@ function configLoader(basePath?: string | null) {
 
   const path = basePath ? Path.resolve(basePath) : null;
 
-  function getLoadPath(opts: { name: string; secret: boolean }): URL {
+  function getLoadPath(opts: { name: string; secret?: boolean }): URL {
     if (path) {
       // Use `config.json` in dev; `config` for Secrets
       // `path` is only provided in dev, so the .json file ending is valid

@@ -1,28 +1,13 @@
-import { command, subcommand } from '#bot/util/registry/command.js';
-import { ApplicationCommandOptionType } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { subtle } from 'node:crypto';
 import { customAlphabet } from 'nanoid';
 import { shards } from '#models/shardDb/shardDb.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 
-const maketoken = subcommand({
-  data: {
-    name: 'create-token',
-    description: 'Create a token to access the API.',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'guild-id',
-        description: 'The ID of the guild the token is valid for.',
-        type: ApplicationCommandOptionType.String,
-        min_length: 17,
-        max_length: 20,
-        required: true,
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const guildId = interaction.options.getString('guild-id', true);
+export default command({
+  name: 'api create-token',
+  async execute({ interaction, options }) {
+    const guildId = options['guild-id'];
     await interaction.deferReply();
 
     if (!interaction.client.shard) {
@@ -73,15 +58,6 @@ const maketoken = subcommand({
       ephemeral: true,
     });
   },
-});
-
-export default command.parent({
-  deploymentMode: 'LOCAL_ONLY',
-  data: {
-    name: 'api',
-    description: 'Manage your access to the Public API.',
-  },
-  subcommands: [maketoken],
 });
 
 // 24 characters -> log2(36**24) = appx. 124 bits of entropy (min. 120 for security)

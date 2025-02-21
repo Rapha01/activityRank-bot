@@ -1,8 +1,7 @@
 import { ButtonStyle, ComponentType, type Interaction } from 'discord.js';
-import { oneLine } from 'common-tags';
 import { type GuildMemberModel, getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel, type GuildModel } from '#bot/models/guild/guildModel.js';
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
@@ -40,27 +39,22 @@ const closeRow = (interaction: Interaction<'cached'>) =>
     },
   ]);
 
-export default command.basic({
-  data: { name: 'config-member', description: 'Change your personal settings.' },
-  async execute({ interaction }) {
+export default command({
+  name: 'config-member',
+  async execute({ interaction, t }) {
     const cachedGuild = await getGuildModel(interaction.member.guild);
     const cachedMember = await getMemberModel(interaction.member);
 
     const fields = [
+      { name: t('config-member.notifyDM'), value: t('config-member.notifyDMDescription') },
       {
-        name: 'Notify Levelup via DM',
-        value: 'If this is enabled, the bot will send you a DM when you level up.',
-      },
-      {
-        name: 'Reaction Voting',
-        value: oneLine`
-        If this is enabled, reacting with the server's voteEmote, ${cachedGuild.db.voteEmote},
-        will give an upvote to the member that sent the message.`,
+        name: t('config-member.reactVote'),
+        value: t('config-member.reactVoteDescription', { emote: cachedGuild.db.voteEmote }),
       },
     ];
 
     await interaction.reply({
-      embeds: [{ author: { name: 'Personal Settings' }, fields }],
+      embeds: [{ author: { name: t('config-member.personalSettings') }, fields }],
       components: [generateRow(interaction, cachedMember, cachedGuild), closeRow(interaction)],
     });
   },

@@ -12,7 +12,6 @@ import {
   type InteractionEditReplyOptions,
   type ActionRowData,
   type MessageActionRowComponentData,
-  time,
 } from 'discord.js';
 import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
@@ -26,10 +25,10 @@ import {
 import fct from '../../util/fct.js';
 import nameUtil from '../util/nameUtil.js';
 import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
-import { command } from '#bot/util/registry/command.js';
-import { ApplicationCommandOptionType } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUserId } from '#bot/util/predicates.js';
+import type { TFunction } from 'i18next';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
@@ -38,23 +37,14 @@ interface CacheInstance {
   targetUser: User;
   page: number;
   interaction: ChatInputCommandInteraction<'cached'>;
+  t: TFunction<'command-content'>;
 }
 
 const activeCache = new Map();
 
-export default command.basic({
-  data: {
-    name: 'rank',
-    description: "Find your or another member's rank",
-    options: [
-      {
-        name: 'member',
-        description: 'The member to check the rank of',
-        type: ApplicationCommandOptionType.User,
-      },
-    ],
-  },
-  async execute({ interaction, client }) {
+export default command({
+  name: 'rank',
+  async execute({ interaction, client, options, t }) {
     await interaction.deferReply();
 
     if ((await handleStatCommandsCooldown(interaction)).denied) return;
@@ -62,7 +52,7 @@ export default command.basic({
     const cachedGuild = await getGuildModel(interaction.guild);
     const myGuild = await cachedGuild.fetch();
 
-    const targetUser = interaction.options.getUser('member') ?? interaction.user;
+    const targetUser = options.member ?? interaction.user;
 
     const initialState: CacheInstance = {
       window: 'rank',
@@ -71,6 +61,7 @@ export default command.basic({
       targetUser,
       page: 1,
       interaction,
+      t,
     };
 
     const { id } = await interaction.editReply(
@@ -159,13 +150,7 @@ async function generateCard(
   throw new Error();
 }
 
-const _prettifyTime: { [k in StatTimeInterval]: string } = {
-  day: 'Today',
-  week: 'This week',
-  month: 'This month',
-  year: 'This year',
-  alltime: 'Forever',
-};
+const fmtTime = (t: TFunction<'command-content'>, k: StatTimeInterval): string => t(`rank.${k}`);
 
 async function generateChannelCard(
   state: CacheInstance,
@@ -177,23 +162,26 @@ async function generateChannelCard(
 
   const guildMemberInfo = await nameUtil.getGuildMemberInfo(guild, state.targetUser.id);
 
-  const header = `Channel toplist for ${guildMemberInfo.name} | ${_prettifyTime[state.time]}`;
+  const header = state.t('rank.channelTop', {
+    name: guildMemberInfo.name,
+    time: fmtTime(state.t, state.time),
+  });
 
   const embed = new EmbedBuilder()
     .setTitle(header)
     .setColor('#4fd6c8')
     .addFields(
       {
-        name: 'Text',
+        name: state.t('rank.text'),
         value: (
-          await getTopChannels(page, guild, state.targetUser.id, state.time, 'textMessage')
+          await getTopChannels(state.t, page, guild, state.targetUser.id, state.time, 'textMessage')
         ).slice(0, 1024),
         inline: true,
       },
       {
-        name: 'Voice',
+        name: state.t('rank.voice'),
         value: (
-          await getTopChannels(page, guild, state.targetUser.id, state.time, 'voiceMinute')
+          await getTopChannels(state.t, page, guild, state.targetUser.id, state.time, 'voiceMinute')
         ).slice(0, 1024),
         inline: true,
       },
@@ -251,6 +239,7 @@ function getPaginationComponents(
 }
 
 async function getTopChannels(
+  t: TFunction<'command-content'>,
   page: { from: number; to: number },
   guild: Guild,
   memberId: string,
@@ -266,8 +255,9 @@ async function getTopChannels(
     page.to,
   );
 
-  if (!guildMemberTopChannels || guildMemberTopChannels.length === 0)
-    return 'No entries found for this page.';
+  if (!guildMemberTopChannels || guildMemberTopChannels.length === 0) {
+    return t('rank.noEntries');
+  }
 
   const channelMention = (index: number) =>
     nameUtil.getChannelMention(guild.channels.cache, guildMemberTopChannels[index].channelId);
@@ -308,19 +298,23 @@ async function generateRankCard(
   const levelProgression = fct.getLevelProgression(scores.alltime, guildCache.db.levelFactor);
 
   const embed = new EmbedBuilder()
-    .setAuthor({ name: `${state.time} stats on server ${guild.name}` })
+    .setAuthor({
+      name: state.t('rank.statsOnServer', { time: fmtTime(state.t, state.time), name: guild.name }),
+    })
     .setColor('#4fd6c8')
     .setThumbnail(state.targetUser.avatarURL());
 
   const bonusUntil = new Date(Number.parseInt(myGuild.bonusUntilDate) * 1000);
 
   if (bonusUntil.getTime() > Date.now()) {
-    embed.setDescription(`**!! Bonus XP ends ${time(bonusUntil, 'R')} !!**\n`);
+    embed.setDescription(
+      `**!! ${state.t('rank.bonusEnds', { date: `<t:${bonusUntil}:R>` })} !!**\n`,
+    );
   }
 
   const infoStrings = [
-    `Total XP: ${Math.round(scores[state.time])} (#${positions.xp})`,
-    `Next Level: ${Math.floor((levelProgression % 1) * 100)}%`,
+    state.t('rank.totalXP', { xp: Math.round(scores[state.time]), rank: positions.xp }),
+    state.t('rank.nextLevel', { percent: Math.floor((levelProgression % 1) * 100) }),
   ].join('\n');
 
   embed.addFields(
@@ -329,7 +323,7 @@ async function generateRankCard(
       value: infoStrings,
     },
     {
-      name: 'Stats',
+      name: state.t('rank.stats'),
       value: getStatisticStrings(guildCache, statistics, positions, state.time),
     },
   );
@@ -355,7 +349,10 @@ function getGlobalComponents(
   return [
     {
       type: ComponentType.ActionRow,
-      components: [component('rank', 'Stats'), component('topChannels', 'Top Channels')],
+      components: [
+        component('rank', state.t('rank.stats')),
+        component('topChannels', state.t('rank.topChannels')),
+      ],
     },
     {
       type: ComponentType.ActionRow,

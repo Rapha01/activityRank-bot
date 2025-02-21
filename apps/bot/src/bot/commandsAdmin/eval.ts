@@ -3,50 +3,15 @@
   https://github.com/sapphiredev/examples/blob/main/examples/with-typescript-complete/src/commands/General/eval.ts
  */
 
-import { command, permissions } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { DEVELOPER_ONLY } from '#bot/util/predicates.js';
 import { inspect } from 'node:util';
-import { ApplicationCommandOptionType, codeBlock } from 'discord.js';
+import { codeBlock } from 'discord.js';
 
-export default command.basic({
+export default command({
   predicate: DEVELOPER_ONLY,
-  deploymentMode: 'LOCAL_ONLY',
-  data: {
-    name: 'eval',
-    description: "Evaluates an arbitrary script in the shard's environment.",
-    default_member_permissions: permissions(permissions.BanMembers),
-    options: [
-      {
-        name: 'eval',
-        description: 'The code to evaluate',
-        required: true,
-        type: ApplicationCommandOptionType.String,
-      },
-      {
-        name: 'async',
-        description: 'Whether to evaluate the code in an async context',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-      {
-        name: 'depth',
-        description: 'How deep to recurse when inspecting the result',
-        max_value: 10,
-        min_value: 0,
-        type: ApplicationCommandOptionType.Integer,
-      },
-      {
-        name: 'show-hidden',
-        description: 'Whether or not to show hidden properties when inspecting the result',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-      {
-        name: 'visible',
-        description: 'Whether the result should be non-ephemeral',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-    ],
-  },
-  async execute({ interaction }) {
+  name: 'eval',
+  async execute({ interaction, options }) {
     if (!['370650814223482880', '774660568728469585'].includes(interaction.user.id)) {
       // sanity check
       console.log(`!!! Unauthorized use of /eval command by ${interaction.user.id}`, {
@@ -55,16 +20,16 @@ export default command.basic({
       process.exit(1);
     }
 
-    const visible = interaction.options.getBoolean('visible') ?? false;
+    const visible = options.visible ?? false;
 
     await interaction.deferReply({ ephemeral: !visible });
 
-    let code = interaction.options.getString('eval', true);
-    const async = interaction.options.getBoolean('async') ?? false;
+    let code = options.eval;
+    const async = options.async ?? false;
     if (async) code = `(async () => {\n${code}\n})();`;
 
-    const depth = interaction.options.getInteger('depth') ?? 3;
-    const showHidden = interaction.options.getBoolean('show-hidden') ?? false;
+    const depth = options.depth ?? 3;
+    const showHidden = options['show-hidden'] ?? false;
 
     let success = true;
     let result = null;

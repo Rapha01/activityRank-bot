@@ -1,9 +1,9 @@
 {
   "name": "@activityrank/monorepo",
-  "version": "0.0.1",
   "private": "true",
   "type": "module",
   "scripts": {
+    "activityrank": "./apps/cli/src/index.ts",
     "lint": "biome lint",
     "lint:write": "biome lint --write",
     "format": "biome format",
@@ -16,8 +16,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "json-schema-to-zod": "^2.6.0",
     "turbo": "^2.3.3"
   },
-  "packageManager": "pnpm@9.15.1"
+  "packageManager": "pnpm@10.3.0"
 }

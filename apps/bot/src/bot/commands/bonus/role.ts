@@ -1,10 +1,8 @@
 import statFlushCache from '../../statFlushCache.js';
 import { oneLine, stripIndent } from 'common-tags';
 import {
-  PermissionFlagsBits,
   Events,
   GatewayOpcodes,
-  ApplicationCommandOptionType,
   type ChatInputCommandInteraction,
   type Role,
   type Client,
@@ -14,51 +12,25 @@ import {
   type ReadonlyCollection,
 } from 'discord.js';
 import { DiscordSnowflake } from '@sapphire/snowflake';
-import { subcommand } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { Time } from '@sapphire/duration';
+import type { TFunction } from 'i18next';
 
 export const currentJobs = new Set();
 
-export const role = subcommand({
-  data: {
-    name: 'role',
-    description: 'Change the bonus XP of all members with a given role',
-    type: ApplicationCommandOptionType.Subcommand,
-    options: [
-      {
-        name: 'role',
-        description: 'The role to modify',
-        required: true,
-        type: ApplicationCommandOptionType.Role,
-      },
-      {
-        name: 'change',
-        description:
-          'The amount of XP to give to each member with the role. This option may be negative.',
-        min_value: -1_000_000,
-        max_value: 1_000_000,
-        type: ApplicationCommandOptionType.Integer,
-        required: true,
-      },
-      {
-        name: 'use-beta',
-        description:
-          'Enables the beta method of giving bonus to roles. Warning: will not send levelUpMessages',
-        type: ApplicationCommandOptionType.Boolean,
-      },
-    ],
-  },
-  async execute({ interaction, client }) {
+export default command({
+  name: 'bonus role',
+  async execute({ interaction, client, options, t }) {
     if (currentJobs.has(interaction.guild.id)) {
       await interaction.reply({
-        content: 'This server already has a mass role operation running.',
+        content: t('bonus.massXP'),
         ephemeral: true,
       });
       return;
     }
 
-    const role = interaction.options.getRole('role', true);
-    const change = interaction.options.getInteger('change', true);
+    const role = options.role;
+    const change = options.change;
 
     currentJobs.add(interaction.guild.id);
     // backup removes after 1h
@@ -73,14 +45,15 @@ export const role = subcommand({
     };
     setTimeout(clean, Time.Hour);
 
-    if (interaction.options.getBoolean('use-beta')) {
-      return await betaSystem(interaction, role, change);
+    if (options['use-beta']) {
+      return await betaSystem(t, interaction, role, change);
     }
-    return await oldSystem(interaction, role, change);
+    return await oldSystem(t, interaction, role, change);
   },
 });
 
 async function oldSystem(
+  t: TFunction<'command-content'>,
   interaction: ChatInputCommandInteraction<'cached'>,
   role: Role,
   changeAmount: number,
@@ -95,10 +68,7 @@ async function oldSystem(
 
   interaction.client.logger.debug(`Old role give to ${members.size} members`);
 
-  await interaction.editReply({
-    content: `Applying \`${changeAmount}\` XP...`,
-    allowedMentions: { parse: [] },
-  });
+  await interaction.editReply({ content: t('bonus.applying', { changeAmount }) });
 
   let affected = 0;
   for (const member of members.values()) {
@@ -113,13 +83,18 @@ async function oldSystem(
   interaction.client.logger.debug(`Old role give affected ${affected} members`);
 
   await interaction.editReply({
-    content: oneLine`Successfully gave \`${changeAmount}\` bonus XP 
-      to \`${affected}\` member${affected === 1 ? '' : 's'} with role ${role}`,
+    content: t('bonus.successfully', {
+      changeAmount,
+      affected,
+      role: role.toString(),
+      count: affected,
+    }),
     allowedMentions: { parse: [] },
   });
 }
 
 async function betaSystem(
+  t: TFunction<'command-content'>,
   interaction: ChatInputCommandInteraction<'cached'>,
   role: Role,
   changeAmount: number,
@@ -128,7 +103,7 @@ async function betaSystem(
   // https://github.com/discordjs/discord.js/blob/ff85481d3e7cd6f7c5e38edbe43b27b104e82fba/packages/discord.js/src/managers/GuildMemberManager.js#L493
 
   await interaction.reply({
-    content: `Processing ${interaction.guild.memberCount} members`,
+    content: t('bonus.processing', { count: interaction.guild.memberCount }),
     ephemeral: true,
   });
 
@@ -154,14 +129,11 @@ async function betaSystem(
     nonce,
     interaction.client,
     (c) => interaction.editReply(c),
-    interaction.guild.memberCount,
+    t,
   );
   console.debug(`${members.size} Members found`);
 
-  await interaction.followUp({
-    content: 'Applying XP...',
-    ephemeral: true,
-  });
+  await interaction.followUp({ content: t('bonus.applyXP'), ephemeral: true });
 
   let affected = 0;
   for (const member of members) {
@@ -176,7 +148,7 @@ async function betaSystem(
     if (affected % 2000 === 0) {
       await interaction.editReply({
         content: stripIndent`
-          Processing \`${members.size}\` members...
+          ${t('bonus.processing', { count: members.size })}
           \`\`\`yml
           ${progressBar(affected, members.size)}
           \`\`\`
@@ -190,8 +162,12 @@ async function betaSystem(
   interaction.client.logger.debug(`New role give affected ${affected} members`);
 
   await interaction.followUp({
-    content: oneLine`Successfully gave \`${changeAmount}\` bonus XP
-      to \`${affected}\` member${affected === 1 ? '' : 's'} with role ${role}`,
+    content: t('bonus.successfully', {
+      changeAmount,
+      affected,
+      role: role.toString(),
+      count: affected,
+    }),
     allowedMentions: { parse: [] },
     ephemeral: true,
   });
@@ -203,7 +179,7 @@ async function getApplicableMembers(
   nonce: string,
   client: Client,
   reply: (opt: InteractionEditReplyOptions) => unknown,
-  memberCount: number,
+  t: TFunction<'command-content'>,
 ): Promise<Set<string>> {
   return new Promise((resolve) => {
     const applicableMembers = new Set<string>();
@@ -222,7 +198,7 @@ async function getApplicableMembers(
       if (i % 20 === 0) {
         reply({
           content: stripIndent`
-            Processing \`${memberCount}\` members...
+            ${t('bonus.processing', { count: members.size })}
             \`\`\`yml
             ${progressBar(i, chunk.count)}
             \`\`\`

@@ -1,23 +1,12 @@
-import { command } from '#bot/util/registry/command.js';
+import { command } from '#bot/commands.js';
 import { EmbedBuilder, ApplicationCommandOptionType } from 'discord.js';
 import { getTexts } from '#models/managerDb/textModel.js';
 import type { PatchnotesEntry, TextsPatchnotes } from '#models/types/external.js';
 
-export default command.basic({
-  data: {
-    name: 'patchnote',
-    description: 'Show patchnotes.',
-    options: [
-      {
-        name: 'version',
-        description: 'The specific version to show. Defaults to the latest version.',
-        autocomplete: true,
-        type: ApplicationCommandOptionType.String,
-      },
-    ],
-  },
-  async execute({ interaction }) {
-    const version = interaction.options.getString('version');
+export default command({
+  name: 'patchnote',
+  async execute({ interaction, options }) {
+    const version = options.version;
     const { patchnotes } = await getTexts();
 
     const applicableVersions = patchnotes.map((note) => note.version);
@@ -38,7 +27,7 @@ export default command.basic({
 
     await interaction.reply({ embeds: [embed] });
   },
-  autocomplete: {
+  autocompletes: {
     async version({ interaction }) {
       const { patchnotes } = await getTexts();
 

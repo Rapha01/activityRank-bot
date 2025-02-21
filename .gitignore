@@ -9,3 +9,4 @@ config/privileges.json
 config/*.local.*
 
 docker/db/data
+apps/bot/accent.json
