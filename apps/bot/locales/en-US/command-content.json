@@ -91,7 +91,7 @@
     "noXPDescription": "If this is enabled, no xp will be given to members that have this role.",
     "assignMessage": "Assignment Message",
     "assignMessageDescription": "This is the message sent when this role is given to a member. Defaults to the global assignMessage.",
-    "deassigMessage": "Deassignment Message",
+    "deassignMessage": "Deassignment Message",
     "deassignMessageDescription": "This is the message sent when this role is removed from a member. Defaults to the global deassignMessage.",
     "clearMessage": "Clear a message",
     "toClear": "Which message do you want to clear?'",

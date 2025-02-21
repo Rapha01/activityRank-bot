@@ -1,4 +1,4 @@
-/* 🛠️ This file was generated with `activityrank generate` on Tue Feb 11 2025. */
+/* 🛠️ This file was generated with `activityrank generate` on Fri Feb 21 2025. */
 
 import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';
 import type {
@@ -93,6 +93,15 @@ export function command(options: {
 }): Command;
 export function command(options: {
   name: 'reset server statistics';
+  predicate?: CommandPredicateConfig;
+  execute: (args: {
+    interaction: ChatInputCommandInteraction<'cached'>;
+    client: Client;
+    t: TFunction<'command-content'>;
+  }) => CommandReturn;
+}): Command;
+export function command(options: {
+  name: 'reset server members';
   predicate?: CommandPredicateConfig;
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
@@ -578,6 +587,7 @@ export const COMMAND_META: {
   'reset channel': { optionGetters: { channel: ['channel'] }, type: 'subcommand' },
   'reset server settings': { optionGetters: {}, type: 'subcommand' },
   'reset server statistics': { optionGetters: {}, type: 'subcommand' },
+  'reset server members': { optionGetters: {}, type: 'subcommand' },
   'reset server xp': { optionGetters: {}, type: 'subcommand' },
   'reset server all': { optionGetters: {}, type: 'subcommand' },
   'reset deleted channel': { optionGetters: { id: ['value'] }, type: 'subcommand' },

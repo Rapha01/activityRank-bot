@@ -70,6 +70,10 @@
           },
           {
             "type": 1,
+            "name": "members"
+          },
+          {
+            "type": 1,
             "name": "xp"
           },
           {
