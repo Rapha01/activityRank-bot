@@ -133,8 +133,23 @@ export class Registry {
     return command;
   }
 
+  private getName(
+    interaction:
+      | AutocompleteInteraction
+      | ChatInputCommandInteraction
+      | ContextMenuCommandInteraction,
+  ): string {
+    const acc: (string | null)[] = [];
+    acc.push(interaction.commandName);
+    if (interaction.isChatInputCommand() || interaction.isAutocomplete()) {
+      acc.push(interaction.options.getSubcommandGroup(false));
+      acc.push(interaction.options.getSubcommand(false));
+    }
+    return acc.filter((d) => d !== null).join(' ');
+  }
+
   public async handleAutocomplete(interaction: AutocompleteInteraction<'cached'>): Promise<void> {
-    const command = this.getCommand(interaction.commandName);
+    const command = this.getCommand(this.getName(interaction));
     const focusedName = interaction.options.getFocused(true).name;
     if (!command.hasAutocomplete(focusedName)) {
       throw new Error(
@@ -148,7 +163,7 @@ export class Registry {
   public async handleCommand(
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
   ): Promise<void> {
-    const command = this.getCommand(interaction.commandName);
+    const command = this.getCommand(this.getName(interaction));
 
     await command.execute(interaction);
   }
@@ -246,3 +261,4 @@ export class Registry {
 }
 
 export const registry = await createRegistry();
+
