@@ -760,6 +760,70 @@ export class ResetGuildXP extends ResetJob {
   }
 }
 
+export class ResetGuildStatisticsAndXp extends ResetJob {
+  private resetStatistics: ResetJob;
+  private resetXp: ResetJob;
+
+  constructor(guild: Guild) {
+    super(guild);
+    this.resetStatistics = new ResetGuildStatistics(guild, ResetGuildStatistics.ALL_TABLES);
+    this.resetXp = new ResetGuildXP(guild);
+  }
+
+  protected getStatusContent(): string {
+    const estimate = this.rowEstimation as number;
+    if (this.totalRowsAffected >= estimate) {
+      return `### Reset complete!\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
+    }
+    return `### Resetting Server...\n${renderProgressBar(this.totalRowsAffected / estimate)}`;
+  }
+
+  protected async getPlan(): Promise<{ rowEstimation: number }> {
+    const { rowEstimation: statisticEstimation } = await this.resetStatistics.plan();
+    const { rowEstimation: xpEstimation } = await this.resetXp.plan();
+
+    return { rowEstimation: statisticEstimation + xpEstimation };
+  }
+
+  // identical to parent method, but without queueing because sub-jobs will queue themselves.
+  override async run(): Promise<boolean> {
+    if (this.status !== ResetStatus.Ready && this.status !== ResetStatus.Executing) {
+      throw new Error(
+        `run() should only be called when the job is [Ready: ${ResetStatus.Ready}] or [Executing: ${ResetStatus.Executing}] (found ${this.status})`,
+      );
+    }
+
+    this._resetStatus = ResetStatus.Executing;
+
+    this.rowsAffectedIter = 0;
+
+    const resetIsCompleted = await this.runIter();
+
+    if (resetIsCompleted) {
+      this._resetStatus = ResetStatus.Complete;
+      this.rowEstimation = this.totalRowsAffected;
+      RESET_JOBS.delete(this);
+      RESET_GUILD_IDS.delete(this.guild.id);
+    }
+
+    return resetIsCompleted;
+  }
+
+  protected async runIter(): Promise<boolean> {
+    for (const job of [this.resetStatistics, this.resetXp]) {
+      if (job.status !== ResetStatus.Complete) {
+        await job.run();
+
+        this._totalRowsAffected =
+          this.resetStatistics.totalRowsAffected + this.resetXp.totalRowsAffected;
+
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
 export class ResetGuildAll extends ResetJob {
   private resetSettings: ResetJob;
   private resetStatistics: ResetJob;
