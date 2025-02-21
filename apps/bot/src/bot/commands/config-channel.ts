@@ -202,7 +202,9 @@ export default command({
 
     if (
       !resolvedChannel.object ||
-      [ChannelType.GuildText, ChannelType.GuildForum].includes(resolvedChannel.object.type)
+      [ChannelType.GuildText, ChannelType.GuildForum, ChannelType.GuildAnnouncement].includes(
+        resolvedChannel.object.type,
+      )
     ) {
       embed.addFields(
         { name: t('config-channel.noCommand'), value: t('config-channel.noCommandDescription') },

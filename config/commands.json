@@ -461,7 +461,7 @@
       {
         "type": 7,
         "name": "channel",
-        "channel_types": [0, 2, 15]
+        "channel_types": [0, 2, 5, 15]
       },
       {
         "type": 3,
