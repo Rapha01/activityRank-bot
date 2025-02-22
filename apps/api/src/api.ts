@@ -4,9 +4,16 @@ import { rateLimiter } from 'hono-rate-limiter';
 
 import { PublicAPIAuth, type PublicAPIAuthVariables } from '#middleware/auth.js';
 import { Error400, Error401, Error403, zSnowflake } from '#util/zod.js';
-import { getGuildMemberRanks } from '#services/ranks.js';
+import {
+  fetchGuildMemberScores,
+  fetchGuildMemberStatistics,
+  getGuildMemberRanks,
+  getLevelfactor,
+  getLevelProgression,
+} from '#services/ranks.js';
 import { topMembers } from '#schemas/topMembers.js';
 import { JSONHTTPException } from '#util/errors.js';
+import { rank } from '#schemas/rank.js';
 
 export const apiRouter = new OpenAPIHono<{ Variables: PublicAPIAuthVariables }>();
 apiRouter.use(PublicAPIAuth);
@@ -80,6 +87,60 @@ apiRouter.openapi(topRoute, async (c) => {
   }
 
   return c.json(await getGuildMemberRanks(guildId, time, statType, topRank, topRank + size), 200);
+});
+
+const rankRoute = createRoute({
+  method: 'get',
+  path: '/guilds/:guildId/member/:userId/rank',
+  description: "Returns a description of a member's XP and statistic counts.",
+  security: [{ publicBearerAuth: [] }],
+  request: {
+    params: z
+      .object({ guildId: zSnowflake, userId: zSnowflake })
+      .openapi({ example: { guildId: '12345678901234567', userId: '774660568728469585' } }),
+  },
+  responses: {
+    200: {
+      description: 'Successful rank response',
+      content: {
+        'application/json': {
+          schema: rank.response,
+        },
+      },
+    },
+    400: Error400,
+    401: Error401,
+    403: Error403,
+  },
+  middleware: [rateLimiter({ windowMs: 10_000, limit: 10, keyGenerator })] as const,
+});
+
+apiRouter.openapi(rankRoute, async (c) => {
+  const { guildId, userId } = c.req.valid('param');
+
+  if (guildId !== c.get('authorisedGuildId')) {
+    throw new JSONHTTPException(403, 'Inconsistent Guild IDs');
+  }
+
+  const [scores, stats, levelfactor] = await Promise.all([
+    fetchGuildMemberScores(guildId, userId),
+    fetchGuildMemberStatistics(guildId, userId),
+    getLevelfactor(guildId),
+  ]);
+
+  const levelProgression = getLevelProgression(scores.alltime, levelfactor);
+
+  return c.json(
+    {
+      ...scores,
+      ...stats,
+      levelProgression,
+      level: Math.floor(levelProgression),
+    },
+    200,
+  );
+
+  // return c.json(await getGuildMemberRanks(guildId, time, statType, topRank, topRank + size), 200);
 });
 
 /*

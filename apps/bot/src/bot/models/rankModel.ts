@@ -132,7 +132,7 @@ export async function getGuildMemberRanks(
  * @param guild The guild to fetch XP scores from.
  * @param userId The ID of the member whose XP scores are to be fetched.
  * @returns An object containing the XP totals for the member categorized by `alltime`, `year`, `month`, `week`, and `day`.
- * If no record is found, the function resolves to `undefined`.
+ * Does not throw if there is no member in the guild; instead, all stats are set to `0`.
  */
 export async function fetchGuildMemberScores(guild: Guild, userId: string) {
   const cachedGuild = await getGuildModel(guild);
