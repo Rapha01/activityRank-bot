@@ -13,6 +13,7 @@ export async function ensureI18nLoaded() {
     preload: SUPPORTED_LOCALES,
     backend: { loadPath },
     ns: ['command-content'] as const satisfies (keyof CustomTypeOptions['resources'])[],
+    interpolation: { escapeValue: false },
   });
   loaded = true;
 }
