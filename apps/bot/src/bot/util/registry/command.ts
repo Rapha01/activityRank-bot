@@ -79,6 +79,7 @@ export class Command {
     this.#autocompletes = options.autocompletes ?? {};
   }
 
+  // Get a Record<string, option_type> of the options provided to the command.
   getOptions(interaction: CommandInteraction): Record<string, unknown> {
     const returnedOptions: Record<string, unknown> = {};
     let data = interaction.options.data;
@@ -100,23 +101,33 @@ export class Command {
       }
     }
 
-    options: for (const option of data) {
+    for (const option of data) {
       if (!Object.hasOwn(this.#optionMeta, option.name)) {
         throw new Error(
-          `Command "${this.name}" option "${option.name}" does not have an optionMeta entry. Have you synced slash commands?`,
+          `Command "${this.name}" option "${option.name}" does not have an optionMeta entry. 
+Have you synced slash commands?`,
         );
       }
 
-      for (const key of this.#optionMeta[option.name]) {
+      const meta = this.#optionMeta[option.name];
+
+      let set = false;
+      for (const key of meta) {
         if (option[key] !== undefined) {
           returnedOptions[option.name] = option[key];
-          break options;
+          set = true;
+          break;
         }
       }
-      throw new Error(
-        `Command "${this.name}" option "${option.name}" was not provided with any value in these fields: ${this.#optionMeta[option.name]}`,
-      );
+
+      if (!set) {
+        throw new Error(
+          `Command "${this.name}" option "${option.name}" was not provided with any value in \
+these fields: ${this.#optionMeta[option.name]}`,
+        );
+      }
     }
+
     return returnedOptions;
   }
 

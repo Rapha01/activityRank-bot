@@ -6,6 +6,7 @@ export default command({
   name: 'bonus member',
   async execute({ interaction, options, t }) {
     const member = await resolveMember(options.member, interaction);
+    console.log(options);
 
     if (!member) {
       await interaction.reply({ content: t('missing.notOnServer'), ephemeral: true });
@@ -20,7 +21,7 @@ export default command({
     await statFlushCache.addBonus(member, options.change);
     await interaction.reply({
       content: t(options.change >= 0 ? 'bonus.successPositive' : 'bonus.successNegative', {
-        change: options.change,
+        change: Math.abs(options.change),
         member: member.toString(),
       }),
       allowedMentions: { parse: [] },
