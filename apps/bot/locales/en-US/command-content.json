@@ -99,10 +99,10 @@
     "assignToSend": "The message to send upon assignment",
     "deassignToSend": "The message to send upon deassignment",
     "roleSettings": "Role Settings",
-    "removedAssign": "Removed assignmessage of role {{value}}.",
-    "removedDeassign": "Removed deassignmessage of role {{value}}",
-    "addedAssign": "Added assignmessage for role {{value}}",
-    "addedDeassign": "Added deassignmessage for {{value}}"
+    "removedAssign": "Removed assignmessage of role <@&{{roleId}}>.",
+    "removedDeassign": "Removed deassignmessage of role <@&{{roleId}}>.",
+    "addedAssign": "Added assignmessage for role <@&{{roleId}}>.",
+    "addedDeassign": "Added deassignmessage for <@&{{roleId}}>."
   },
   "config-server": {
     "bonusTitle": "Bonus Tag/Emote",

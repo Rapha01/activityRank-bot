@@ -3,6 +3,7 @@ import type {
   CacheType,
   ChatInputCommandInteraction,
   Client,
+  CommandInteractionOption,
   ContextMenuCommandInteraction,
   User,
 } from 'discord.js';
@@ -80,7 +81,26 @@ export class Command {
 
   getOptions(interaction: CommandInteraction): Record<string, unknown> {
     const returnedOptions: Record<string, unknown> = {};
-    for (const option of interaction.options.data) {
+    let data = interaction.options.data;
+    if (interaction.isChatInputCommand() || interaction.isAutocomplete()) {
+      const group = interaction.options.getSubcommandGroup(false);
+      const sub = interaction.options.getSubcommand(false);
+
+      if (group) {
+        data = data.find((n) => n.name === group)?.options as CommandInteractionOption[];
+      }
+      if (sub) {
+        data = data.find((n) => n.name === sub)?.options as CommandInteractionOption[];
+      }
+
+      if (!data) {
+        throw new Error(`Command "${this.name}" has invalid options data`, {
+          cause: interaction.options.data,
+        });
+      }
+    }
+
+    options: for (const option of data) {
       if (!Object.hasOwn(this.#optionMeta, option.name)) {
         throw new Error(
           `Command "${this.name}" option "${option.name}" does not have an optionMeta entry. Have you synced slash commands?`,
@@ -90,7 +110,7 @@ export class Command {
       for (const key of this.#optionMeta[option.name]) {
         if (option[key] !== undefined) {
           returnedOptions[option.name] = option[key];
-          break;
+          break options;
         }
       }
       throw new Error(

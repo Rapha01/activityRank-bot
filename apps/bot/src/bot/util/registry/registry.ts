@@ -261,4 +261,3 @@ export class Registry {
 }
 
 export const registry = await createRegistry();
-
