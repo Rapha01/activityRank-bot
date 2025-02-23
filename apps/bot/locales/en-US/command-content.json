@@ -44,8 +44,8 @@
   "config-channel": {
     "oops": "Oops!",
     "deprecated": "## No-Command and Command-Only Channels are __deprecated__.\n\nManage Application Command permissions in **Server Settings ❯ Integrations ❯ ActivityRank** instead!\n\n*You can still **disable** No-Command and Command-Only channels.*'",
-    "noXP": "noXP",
-    "noXPDescription": "If this is enabled, no xp will be given in this channel.",
+    "noXP": "No XP",
+    "noXPDescription": "If this is enabled, no XP will be given in this channel.",
     "noCommand": "No Commands",
     "noCommandDescription": "If this is enabled, commands will not work in this channel.\n> **Note:** It is recommended to use the Discord native system in **Server Settings ❯ Integrations ❯ ActivityRank** instead",
     "commandOnly": "Command Only",

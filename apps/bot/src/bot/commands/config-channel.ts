@@ -9,7 +9,6 @@ import {
   ComponentType,
   type Interaction,
 } from 'discord.js';
-import { stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
@@ -18,7 +17,6 @@ import { command } from '#bot/commands.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser, requireUserId } from '#bot/util/predicates.js';
 import { closeButton } from '#bot/util/component.js';
-import channel from './reset/channel.js';
 import type { TFunction } from 'i18next';
 
 type Setting =
@@ -109,8 +107,8 @@ const generateRow = (
     new ButtonBuilder().setLabel(t('config-channel.levelupChannel')),
   ];
 
-  function disableIfNotText(builder: ButtonBuilder) {
-    if (type !== ChannelType.GuildText) {
+  function disableIfNotAutosendable(builder: ButtonBuilder) {
+    if (!AUTOSENDABLE_CHANNEL_TYPES.includes(type)) {
       builder.setDisabled(true);
       builder.setStyle(ButtonStyle.Secondary);
     }
@@ -145,10 +143,10 @@ const generateRow = (
   r[4].setCustomId(getButton('autopost_levelup'));
   r[4].setStyle(getStyleFromEquivalence(myGuild.db.autopost_levelup));
 
-  disableIfNotText(r[1]);
-  disableIfNotText(r[2]);
-  disableIfNotText(r[3]);
-  disableIfNotText(r[4]);
+  disableIfNotAutosendable(r[1]);
+  disableIfNotAutosendable(r[2]);
+  disableIfNotAutosendable(r[3]);
+  disableIfNotAutosendable(r[4]);
 
   return r;
 };
@@ -160,6 +158,11 @@ const _close = (ownerId: string) =>
       .setStyle(ButtonStyle.Danger)
       .setCustomId(closeButton.instanceId({ predicate: requireUserId(ownerId) })),
   );
+
+const AUTOSENDABLE_CHANNEL_TYPES: (ChannelType | null)[] = [
+  ChannelType.GuildText,
+  ChannelType.GuildAnnouncement,
+];
 
 export default command({
   name: 'config-channel',
@@ -202,9 +205,7 @@ export default command({
 
     if (
       !resolvedChannel.object ||
-      [ChannelType.GuildText, ChannelType.GuildForum, ChannelType.GuildAnnouncement].includes(
-        resolvedChannel.object.type,
-      )
+      AUTOSENDABLE_CHANNEL_TYPES.includes(resolvedChannel.object.type)
     ) {
       embed.addFields(
         { name: t('config-channel.noCommand'), value: t('config-channel.noCommandDescription') },
