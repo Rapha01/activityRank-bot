@@ -1,0 +1,21 @@
+[github]
+owner = "rapha01"
+repo = "activityRank-bot"
+
+[packages.api]
+versioned_files = ["apps/api/package.json"]
+changelog = "apps/api/CHANGELOG.md"
+scopes = ["api", "pub-api"]
+
+[packages.bot]
+versioned_files = ["apps/bot/package.json"]
+changelog = "apps/bot/CHANGELOG.md"
+scopes = ["bot"]
+extra_changelog_sections = [
+    { name = "Notes", footers = ["Changelog-Note"], types = ["note"] }
+]
+
+[packages.manager]
+versioned_files = ["apps/manager/package.json"]
+changelog = "apps/manager/CHANGELOG.md"
+scopes = ["manager", "mgr"]
