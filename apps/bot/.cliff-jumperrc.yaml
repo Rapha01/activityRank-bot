@@ -1,0 +1,4 @@
+$schema: https://raw.githubusercontent.com/favware/cliff-jumper/main/assets/cliff-jumper.schema.json
+name: bot
+org: actvityrank
+packagePath: apps/bot

@@ -1,15 +1,17 @@
 # Bot Changelog
 
-This changelog lists all changes that have been made to the ActivityRank Bot Module.
+All notable changes to this project will be documented in this file.
 
-> [!CAUTION] The latest version described here may not necessarily be the version that is running on our servers.
-## 7.4.4 (2025-02-23)
+# [@actvityrank/bot@7.7.0](https://github.com/rapha01/activityRank-bot/compare/manager/v7.1.2...@actvityrank/bot@7.7.0) - (2025-03-01)
 
-### Fixes
+## <!-- 1 -->🚀 Features
 
-- hotfix Dockerfiles
-- allow announcement channels to be autosends
+- **all:** Use Knope for versioning ([06809f1](https://github.com/rapha01/activityRank-bot/commit/06809f1a67252d8d671054014556d6bb77a95871))
 
-### Notes
+## <!-- 2 -->🐛 Bug Fixes
 
-- Use Knope for versioning management
+- **bot:** Allow announcement channels to be autosends ([f82fe96](https://github.com/rapha01/activityRank-bot/commit/f82fe9669cd7b059382fffc31d74bb5e5bbbde57))
+
+## <!-- 7 -->⚙️ Other
+
+- Prepare releases ([a8e7a09](https://github.com/rapha01/activityRank-bot/commit/a8e7a095981243a9a40530269ee44edd1fbd31e5))
