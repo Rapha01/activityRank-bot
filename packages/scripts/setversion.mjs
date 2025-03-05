@@ -21,17 +21,17 @@ const SEMVER_REGEX =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
 if (!SEMVER_REGEX.test(newversion)) {
-  throw new Error('`newversion` is not a valid SemVer version.');
+  throw new Error(`\`newversion\` "${newversion}" is not a valid SemVer version.`);
 }
 
 const content = JSON.parse(await readFile(filepath));
 
 if (!SEMVER_REGEX.test(content.version)) {
   throw new Error(
-    `The current value of the \`version\` field of ${filepath} is not a valid SemVer version.`,
+    `The current value of the \`version\` field of ${filepath} "${content.version}" is not a valid SemVer version.`,
   );
 }
 
 content.version = newversion;
 
-await writeFile(filepath, JSON.stringify(content, null, 4));
+await writeFile(filepath, JSON.stringify(content, null, 2));

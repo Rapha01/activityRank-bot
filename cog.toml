@@ -11,7 +11,7 @@ pre_bump_hooks = []
 post_bump_hooks = []
 pre_package_bump_hooks = [
     "echo '    [^^] upgrading {{package}} to {{version}}'",
-    "pnpm set-version -- {{package}}/package.json {{version}}"
+    "pnpm --workspace-root run set-version apps/{{package}}/package.json {{version}}"
 ]
 post_package_bump_hooks = []
 
