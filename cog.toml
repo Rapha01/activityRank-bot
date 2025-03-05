@@ -1,0 +1,20 @@
+pre_package_bump_hooks = [
+    "echo '    [^^] upgrading {{package}} to {{version}}'",
+    "pnpm --workspace-root run set-version apps/{{package}}/package.json {{version}}"
+]
+
+# separator between package name & version in generated tags
+monorepo_version_separator = "/"
+tag_prefix = "v"
+
+[changelog]
+path = "CHANGELOG.md"
+remote = "github.com"
+repository = "activityRank-bot"
+owner = "rapha01"
+authors = []
+
+[packages]
+api = { path = "apps/api" }
+bot = { path = "apps/bot" }
+manager = { path = "apps/manager" }

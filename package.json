@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "activityrank": "./apps/cli/src/index.ts",
+    "set-version": "./packages/scripts/setversion.mjs",
     "lint": "biome lint",
     "lint:write": "biome lint --write",
     "format": "biome format",
     "format:write": "biome format --write"
   },
+  "workspaces": ["apps/api", "apps/bot", "apps/cli", "apps/manager"],
   "contributors": [
     "@rapha01 (https://github.com/rapha01)",
     "@piemot (https://github.com/piemot)",
