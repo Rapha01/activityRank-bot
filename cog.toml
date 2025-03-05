@@ -1,29 +1,18 @@
-from_latest_tag = false
-ignore_merge_commits = false
-disable_changelog = false
-disable_bump_commit = false
-generate_mono_repository_global_tag = true
-generate_mono_repository_package_tags = true
-branch_whitelist = []
-skip_ci = "[skip ci]"
-skip_untracked = false
-pre_bump_hooks = []
-post_bump_hooks = []
 pre_package_bump_hooks = [
     "echo '    [^^] upgrading {{package}} to {{version}}'",
     "pnpm --workspace-root run set-version apps/{{package}}/package.json {{version}}"
 ]
-post_package_bump_hooks = []
 
-[git_hooks]
-
-[commit_types]
+# separator between package name & version in generated tags
+monorepo_version_separator = "/"
+tag_prefix = "v"
 
 [changelog]
 path = "CHANGELOG.md"
+remote = "github.com"
+repository = "activityRank-bot"
+owner = "rapha01"
 authors = []
-
-[bump_profiles]
 
 [packages]
 api = { path = "apps/api" }
