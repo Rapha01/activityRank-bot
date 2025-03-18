@@ -35,8 +35,19 @@ jobs:
 
       - name: Run Cocogitto
         uses: cocogitto/cocogitto-action@v3
+        id: release
         with:
           check: false
           release: true
           git-user-email: "${GITHUB_EMAIL}"
           git-user: "${GITHUB_USER}"
+
+      - name: Generate Changelog
+        run: cog changelog --at ${{ steps.release.outputs.version }} -t full_hash > GITHUB_CHANGELOG.md
+
+      - name: Upload GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: GITHUB_CHANGELOG.md
+          tag_name: ${{ steps.release.outputs.version }}
+
