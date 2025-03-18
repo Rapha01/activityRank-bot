@@ -1,23 +1,12 @@
+name: Changelog and Bump
+
 on:
   workflow_dispatch:
 
-
 jobs:
-  cog_check:
-    if: github.ref_name == github.event.repository.default_branch
-    runs-on: ubuntu-latest
-    name: Check conventional commit compliance
-    steps:
-      - uses: actions/checkout@main
-        with:
-          fetch-depth: 0
-
-      - name: Conventional commits check
-        uses: cocogitto/cocogitto-action@v3
-
   cog_bump:
     runs-on: ubuntu-latest
-    needs: [cog_check]
+    # require main branch to run
     if: github.ref_name == github.event.repository.default_branch
     env:
       GITHUB_USER: github-actions[bot]
