@@ -27,6 +27,7 @@ jobs:
       - name: Run Cocogitto
         uses: cocogitto/cocogitto-action@v3
         with:
+          check: false
           release: true
           git-user-email: "${GITHUB_EMAIL}"
           git-user: "${GITHUB_USER}"
