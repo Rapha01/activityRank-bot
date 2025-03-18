@@ -1,3 +1,5 @@
+generate_mono_repository_global_tag = false
+
 pre_package_bump_hooks = [
     "echo '    [^^] upgrading {{package}} to {{version}}'",
     "pnpm --workspace-root run set-version apps/{{package}}/package.json {{version}}"
