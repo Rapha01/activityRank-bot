@@ -6,7 +6,6 @@ export default command({
   name: 'bonus member',
   async execute({ interaction, options, t }) {
     const member = await resolveMember(options.member, interaction);
-    console.log(options);
 
     if (!member) {
       await interaction.reply({ content: t('missing.notOnServer'), ephemeral: true });

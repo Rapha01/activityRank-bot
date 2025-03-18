@@ -87,7 +87,7 @@ export async function resolveMember(
       throw new Error('Failed to resolve member: interaction run outside of a guild');
     }
   }
-  return await guild.members.fetch(user).catch(catchDjsError(RESTJSONErrorCodes.UnknownUser));
+  return await guild.members.fetch(user).catch(catchDjsError(RESTJSONErrorCodes.UnknownMember));
 }
 
 /**
