@@ -104,6 +104,14 @@ export default command({
     }
 
     const resolvedRole = options.role;
+    if (resolvedRole.id === interaction.guild.id) {
+      await interaction.reply({
+        content: t('config-role.everyone'),
+        ephemeral: true,
+        allowedMentions: { parse: [] },
+      });
+      return;
+    }
 
     const cachedRole = await getRoleModel(resolvedRole);
 
