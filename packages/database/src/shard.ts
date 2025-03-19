@@ -30,7 +30,7 @@ export function createShardInstanceManager(
     const allHosts = await manager.getAllDbHosts();
 
     const queries = allHosts.map(async (host) => {
-      const instance = await get(host);
+      const instance = get(host);
       return await callback(instance.db);
     });
 
@@ -38,7 +38,15 @@ export function createShardInstanceManager(
     return results.flat();
   }
 
-  return { get, executeOnAllHosts };
+  /**
+   * Attempts to create a connection to each database host (with a default timeout of 2 seconds).
+   * If any of them fails, an error will be thrown.
+   */
+  async function testConnections(timeout = 2_000) {
+    await Promise.all([...instances.values()].map(async (i) => i.testConnection(timeout)));
+  }
+
+  return { get, executeOnAllHosts, testConnections };
 }
 
 export type ShardInstanceManager = Awaited<ReturnType<typeof createShardInstanceManager>>;

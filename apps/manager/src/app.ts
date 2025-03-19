@@ -7,6 +7,13 @@ import { runResetByTime } from './models/resetModel.js';
 import { runPatreonTask } from './tasks/patreon.js';
 import { runTopggTask } from './tasks/topgg.js';
 import { apiRouter } from './routes/api.js';
+import { shards } from './models/shardDb.js';
+import { manager } from './models/managerDb.js';
+
+console.info('Testing database connections...');
+await manager.testConnection();
+await shards.testConnections();
+console.info('Successfully connected to database.');
 
 const app = new Hono();
 
