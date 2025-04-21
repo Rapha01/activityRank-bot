@@ -11,6 +11,7 @@ import {
 import { PermissionFlagsBits } from 'discord.js';
 import { getGuildModel } from './models/guild/guildModel.js';
 import { getMemberModel } from './models/guild/guildMemberModel.js';
+import { emoji } from '#const/config.js';
 
 export async function checkLevelUp(
   member: GuildMember,
@@ -149,7 +150,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
 
   const levelupEmbed = new EmbedBuilder()
     .setTitle(
-      `${nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1)} 🎖${level}`,
+      `${nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1)} ${emoji('level')}${level}`,
     )
     .setColor('#4fd6c8')
     .setDescription(gratulationMessage)

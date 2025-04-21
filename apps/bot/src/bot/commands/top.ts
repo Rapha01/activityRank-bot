@@ -34,6 +34,7 @@ import {
   type ComponentPredicateConfig,
 } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
+import { emoji } from '#const/config.js';
 
 const _prettifyTime = {
   day: 'Today',
@@ -394,7 +395,7 @@ async function generateGuildMembers(
     embed.fields = [
       ...(embed.fields ?? []),
       {
-        name: `**#${page.from + i} ${memberRank.name}** \\🎖${Math.floor(
+        name: `**#${page.from + i} ${memberRank.name}** ${emoji('level')}${Math.floor(
           memberRank.levelProgression,
         )}`,
         value: `Total: ${memberRank.totalScore} XP ${getFieldScoreString(state.orderType)}`,

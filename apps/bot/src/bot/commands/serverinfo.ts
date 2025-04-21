@@ -25,6 +25,7 @@ import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import Cron from 'croner';
+import { emoji } from '#const/config.js';
 
 export default command({
   name: 'serverinfo',
@@ -302,7 +303,7 @@ const levels: Window = {
       color: 0x4fd6c8,
       description: `Levelfactor: ${cachedGuild.db.levelFactor}\n-# The levelfactor is the amount of extra XP each level needs.\n*XP needed to reach the next level (xp needed to reach this level from Level 1)*`,
       fields: levels.map((level) => ({
-        name: `🎖${level.number}`,
+        name: `${emoji('level')}${level.number}`,
         value: levelValue(
           level.number < 2
             ? '*All members start at Level 1.*'
