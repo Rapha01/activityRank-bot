@@ -182,7 +182,7 @@
     "invite": "invite",
     "upvote": "upvote",
     "newValue": "`{{xp}} xp` per {{per}} (**{{multi}}x** the default)",
-    "modified": "Modified XP Values for {{role}! New values:",
+    "modified": "Modified XP Values for {{role}}! New values:",
     "notAffected": "Users XP will no longer be affected by {{role}}.",
     "xpValues": "XP values",
     "modifiedXPValues": "Modified XP Values! New values:\n\n* `{{xpPerTextMessage}} xp` per text message\n* `{{xpPerVoiceMinute}} xp` per minute in VC\n* `{{xpPerVote}} xp` per vote\n* `{{xpPerInvite}} xp` per invite"
