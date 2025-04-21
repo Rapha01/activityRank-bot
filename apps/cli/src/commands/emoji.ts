@@ -3,9 +3,11 @@ import TOML from 'smol-toml';
 import { z } from 'zod';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
-import { Command, UsageError } from 'clipanion';
+import { Command, Option, UsageError } from 'clipanion';
 import { ConfigurableCommand } from '../util/classes.ts';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
+import type { Writable } from 'node:stream';
+import { createWriteStream } from 'node:fs';
 
 export class EmojiDeployCommand extends ConfigurableCommand {
   static override paths = [['emoji', 'deploy']];
@@ -13,6 +15,17 @@ export class EmojiDeployCommand extends ConfigurableCommand {
     category: 'Deploy',
     description: "Update the bot's Bot Emoji.",
     details: 'Reading from `packages/assets/emoji`, allows deletion and addition of Bot Emoji.',
+  });
+
+  outputFile = Option.String('-o,--output', {
+    required: false,
+    description:
+      'The file to output emoji typings to. Use `-` to output to stdout. Defaults to `apps/bot/src/const/emoji.generated.ts`.',
+  });
+
+  updateConfig = Option.Boolean('-u,--update,--update-cfg', {
+    required: false,
+    description: 'Whether to update the IDs in `config/emoji.json`.',
   });
 
   override async execute() {
@@ -26,13 +39,36 @@ export class EmojiDeployCommand extends ConfigurableCommand {
     const api = this.getApi();
     const botInfo = await api.applications.getCurrent();
 
+    let outputStream: Writable;
+    let outputDisplay: string;
+
+    if (this.outputFile) {
+      if (this.outputFile.trim() === '-') {
+        outputStream = process.stdout;
+        outputDisplay = 'stdout';
+      } else {
+        outputStream = createWriteStream(this.outputFile);
+        outputDisplay = this.outputFile;
+      }
+    } else {
+      const wsRoot = await this.findWorkspaceRoot();
+      if (!wsRoot) {
+        throw new UsageError(
+          'Could not find workspace root. Either provide an `--output` option or use an ActivityRank workspace.',
+        );
+      }
+      const outputFile = joinPath(wsRoot, 'apps/bot/src/const/emoji.generated.ts');
+      outputStream = createWriteStream(outputFile);
+      outputDisplay = outputFile;
+    }
+
     spin.stop('Loaded internals');
 
     const currentlyDeployedEmojis = await api.applications.getEmojis(botInfo.id);
     const currentlyDeployedEmojiNames = new Set(
       currentlyDeployedEmojis.items.map((e) => e.name as string),
     );
-    const awaitedEmojis = await this.loadEmojis();
+    const awaitedEmojis = await this.loadEmojiManifest();
     const awaitedEmojiNames = new Set(Object.keys(awaitedEmojis));
 
     const deleting = currentlyDeployedEmojis.items
@@ -58,7 +94,7 @@ export class EmojiDeployCommand extends ConfigurableCommand {
     if (deleting.length > 0) {
       const rm = await p.multiselect({
         message: 'Choose which emojis to delete.',
-        options: deleting.map((del) => ({ label: del.name, value: del.id })),
+        options: deleting.map((del) => ({ label: del.name, value: del })),
         required: false,
       });
 
@@ -67,8 +103,8 @@ export class EmojiDeployCommand extends ConfigurableCommand {
         return;
       }
 
-      for (const id of rm) {
-        await api.applications.deleteEmoji(botInfo.id, id);
+      for (const del of rm) {
+        await api.applications.deleteEmoji(botInfo.id, del.id);
       }
 
       p.log.success(`Deleted ${rm.length} emoji${plural(rm.length)}`);
@@ -120,9 +156,64 @@ export class EmojiDeployCommand extends ConfigurableCommand {
 
       p.log.success(`Recreated ${edit.length} emoji${plural(edit.length)}`);
     }
+
+    outputStream.write(
+      [
+        `/* 🛠️ This file was generated with \`activityrank emoji deploy\` on ${new Date().toDateString()}. */\n\n`,
+        `export type EmojiNames = ${[...awaitedEmojiNames].map((n) => `'${n}'`).join(' | ')};\n`,
+      ].join('\n'),
+    );
+
+    if (!this.updateConfig) {
+      p.outro(`Emoji typings written to ${pc.gray(outputDisplay)}`);
+      return;
+    }
+    p.log.success(`Emoji typings written to ${pc.gray(outputDisplay)}`);
+
+    const wsRoot = await this.findWorkspaceRoot();
+    if (!wsRoot) {
+      throw new UsageError(
+        'Could not find workspace root. Either provide an `--output` option or use an ActivityRank workspace.',
+      );
+    }
+
+    const emojiFilePath = joinPath(wsRoot, 'config/emoji.json');
+    const emojiFile = (await readFile(emojiFilePath)).toString();
+    const emojiFileData = JSON.parse(emojiFile);
+
+    const currentEmojis = await api.applications.getEmojis(botInfo.id);
+    const currentEmojiNames = currentEmojis.items.map((e) => {
+      if (!e.name) throw new Error();
+      return e.name;
+    });
+
+    function arraysAreEqual(a: string[], b: string[]): boolean {
+      return a.length === b.length && a.every((v, i) => v === b[i]);
+    }
+
+    if (!arraysAreEqual([...Object.keys(emojiFileData)].sort(), currentEmojiNames.sort())) {
+      p.log.warn(
+        'The keys listed in `config/emoji.json` are different from those currently in the bot.',
+      );
+      const confirm = await p.confirm({
+        message: 'Are you sure you would like to continue?',
+      });
+
+      if (p.isCancel(confirm) || !confirm) {
+        p.cancel('Cancelled operation.');
+        return;
+      }
+    }
+
+    await writeFile(
+      emojiFilePath,
+      JSON.stringify(Object.fromEntries(currentEmojis.items.map((e) => [e.name, e.id])), null, 2),
+    );
+
+    p.outro(`Emoji IDs written to ${pc.gray('config/emoji.json')}`);
   }
 
-  async loadEmojis() {
+  async loadEmojiManifest() {
     const wsRoot = await this.findWorkspaceRoot();
     if (!wsRoot) {
       throw new UsageError(
