@@ -59,7 +59,7 @@ importers:
         version: 1.10.1
       '@types/node':
         specifier: ^22.10.2
-        version: 22.10.2
+        version: 22.10.10
       nodemon:
         specifier: ^3.1.7
         version: 3.1.9
@@ -68,7 +68,7 @@ importers:
         version: 5.7.2
       vitest:
         specifier: ^2.1.1
-        version: 2.1.8(@types/node@22.10.2)
+        version: 2.1.8(@types/node@22.10.10)
 
   apps/bot:
     dependencies:
@@ -80,7 +80,7 @@ importers:
         version: link:../../packages/database
       '@discordjs/rest':
         specifier: ^2.4.0
-        version: 2.4.0
+        version: 2.4.2
       '@formatjs/intl-durationformat':
         specifier: ^0.7.3
         version: 0.7.3
@@ -128,7 +128,7 @@ importers:
         version: 0.27.5
       mysql2:
         specifier: ^3.11.3
-        version: 3.11.5
+        version: 3.12.0
       nanoid:
         specifier: ^5.0.7
         version: 5.0.9
@@ -156,7 +156,7 @@ importers:
         version: link:../../packages/tsconfig
       '@discordjs/core':
         specifier: ^2.0.0
-        version: 2.0.0
+        version: 2.0.1
       '@types/common-tags':
         specifier: ^1.8.4
         version: 1.8.4
@@ -217,6 +217,9 @@ importers:
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
+      smol-toml:
+        specifier: ^1.3.1
+        version: 1.3.1
       typanion:
         specifier: ^3.14.0
         version: 3.14.0
@@ -265,7 +268,7 @@ importers:
         version: 4.6.15
       mysql2:
         specifier: ^3.11.5
-        version: 3.11.5
+        version: 3.12.0
       ofetch:
         specifier: ^1.3.4
         version: 1.4.1
@@ -283,6 +286,25 @@ importers:
         specifier: ^5.4.4
         version: 5.7.2
 
+  packages/assets:
+    dependencies:
+      '@activityrank/cfg':
+        specifier: workspace:*
+        version: link:../cfg
+      zod:
+        specifier: ^3.24.3
+        version: 3.24.3
+    devDependencies:
+      '@activityrank/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.10.10
+      typescript:
+        specifier: ^5.7.2
+        version: 5.7.2
+
   packages/cfg:
     dependencies:
       zod:
@@ -294,13 +316,13 @@ importers:
         version: link:../tsconfig
       '@types/node':
         specifier: ^22.10.2
-        version: 22.10.2
+        version: 22.10.10
       typescript:
         specifier: ^5.7.2
         version: 5.7.2
       vitest:
         specifier: ^2.1.1
-        version: 2.1.8(@types/node@22.10.2)
+        version: 2.1.8(@types/node@22.10.10)
 
   packages/database:
     dependencies:
@@ -316,13 +338,13 @@ importers:
         version: link:../tsconfig
       '@types/node':
         specifier: ^22.10.2
-        version: 22.10.2
+        version: 22.10.10
       typescript:
         specifier: ^5.7.2
         version: 5.7.2
       vitest:
         specifier: ^2.1.1
-        version: 2.1.8(@types/node@22.10.2)
+        version: 2.1.8(@types/node@22.10.10)
 
   packages/tsconfig: {}
 
@@ -408,20 +430,12 @@ packages:
     resolution: {integrity: sha512-LiSusze9Tc7qF03sLCujF5iZp7K+vRNEDBZ86FT9aQAv3vxMLihUvKvpsCWiQ2DJq1tVckopKm1rxomgNUc9hg==}
     engines: {node: '>=18'}
 
-  '@discordjs/core@2.0.0':
-    resolution: {integrity: sha512-N5PaTaEsEJyX9/KpcRN4+Jzc2qWvi55DVD2U6PXlbK1+C1du+B7yC4ey5yNeI2lG8k4vha3iGPR0LPemUkvIZA==}
-    engines: {node: '>=20'}
-
   '@discordjs/core@2.0.1':
     resolution: {integrity: sha512-tj//rnPhdniq+Clxq0tq5wI7QTMH4IgyXkUFI32+ashIRpFJ1+J1btNG3FA74oATFu2sYy/zT9CKLWW4jp2RGQ==}
     engines: {node: '>=20'}
 
   '@discordjs/formatters@0.5.0':
     resolution: {integrity: sha512-98b3i+Y19RFq1Xke4NkVY46x8KjJQjldHUuEbCqMvp1F5Iq9HgnGpu91jOi/Ufazhty32eRsKnnzS8n4c+L93g==}
-    engines: {node: '>=18'}
-
-  '@discordjs/rest@2.4.0':
-    resolution: {integrity: sha512-Xb2irDqNcq+O8F0/k/NaDp7+t091p+acb51iA4bCKfIn+WFWd6HrNvcsSbMMxIR9NjcMZS6NReTKygqiQN+ntw==}
     engines: {node: '>=18'}
 
   '@discordjs/rest@2.4.2':
@@ -435,10 +449,6 @@ packages:
   '@discordjs/ws@1.1.1':
     resolution: {integrity: sha512-PZ+vLpxGCRtmr2RMkqh8Zp+BenUaJqlS6xhgWKEZcgC/vfHLEzpHtKkB0sl3nZWpwtcKk6YWy+pU3okL2I97FA==}
     engines: {node: '>=16.11.0'}
-
-  '@discordjs/ws@2.0.0':
-    resolution: {integrity: sha512-VSVFMOFE+G9bp/2+4e/lFySIU+urxW8NPRXPsKLbP9AUl1MvQxoUVIUfPjZkUP23jjQh+AvWWm6vaA0A5Rb2Rg==}
-    engines: {node: '>=20'}
 
   '@discordjs/ws@2.0.1':
     resolution: {integrity: sha512-5etVbXdwThIT5+KfU+uiBh358Ql58f2vf1W9B5ZXxaZuIlpiX/VC/G0Lr/xuEcs6cL+/HZtEIUf0p9dQfEDang==}
@@ -1006,9 +1016,6 @@ packages:
 
   '@types/node@22.10.10':
     resolution: {integrity: sha512-X47y/mPNzxviAGY5TcYPtYL8JsY3kAq2n8fMmKoRCxq/c4v4pyGNCzM2R6+M5/umG4ZfHuT+sgqDYqWc9rJ6ww==}
-
-  '@types/node@22.10.2':
-    resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
 
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
@@ -1625,10 +1632,6 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  mysql2@3.11.5:
-    resolution: {integrity: sha512-0XFu8rUmFN9vC0ME36iBvCUObftiMHItrYFhlCRvFWbLgpNqtC4Br/NmZX1HNCszxT0GGy5QtP+k3Q3eCJPaYA==}
-    engines: {node: '>= 8.0'}
-
   mysql2@3.12.0:
     resolution: {integrity: sha512-C8fWhVysZoH63tJbX8d10IAoYCyXy4fdRFz2Ihrt9jtPILYynFEKUUzpp1U7qxzDc3tMbotvaBH+sl6bFnGZiw==}
     engines: {node: '>= 8.0'}
@@ -1923,6 +1926,10 @@ packages:
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+
+  smol-toml@1.3.1:
+    resolution: {integrity: sha512-tEYNll18pPKHroYSmLLrksq233j021G0giwW7P3D24jC54pQ5W5BXMsQ/Mvw1OJCmEYDgY+lrzT+3nNUtoNfXQ==}
+    engines: {node: '>= 18'}
 
   sonic-boom@4.2.0:
     resolution: {integrity: sha512-INb7TM37/mAcsGmc9hyyI6+QR3rR1zVRu36B0NeGXKnOOLiZOfER5SA+N7X7k3yUYRzLWafduTDvJAfDswwEww==}
@@ -2240,6 +2247,9 @@ packages:
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
+  zod@3.24.3:
+    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
+
 snapshots:
 
   '@asteasolutions/zod-to-openapi@7.3.0(zod@3.24.1)':
@@ -2311,18 +2321,6 @@ snapshots:
 
   '@discordjs/collection@2.1.1': {}
 
-  '@discordjs/core@2.0.0':
-    dependencies:
-      '@discordjs/rest': 2.4.0
-      '@discordjs/util': 1.1.1
-      '@discordjs/ws': 2.0.0
-      '@sapphire/snowflake': 3.5.5
-      '@vladfrangu/async_event_emitter': 2.4.6
-      discord-api-types: 0.37.97
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@discordjs/core@2.0.1':
     dependencies:
       '@discordjs/rest': 2.4.2
@@ -2338,18 +2336,6 @@ snapshots:
   '@discordjs/formatters@0.5.0':
     dependencies:
       discord-api-types: 0.37.97
-
-  '@discordjs/rest@2.4.0':
-    dependencies:
-      '@discordjs/collection': 2.1.1
-      '@discordjs/util': 1.1.1
-      '@sapphire/async-queue': 1.5.5
-      '@sapphire/snowflake': 3.5.5
-      '@vladfrangu/async_event_emitter': 2.4.6
-      discord-api-types: 0.37.97
-      magic-bytes.js: 1.10.0
-      tslib: 2.8.1
-      undici: 6.19.8
 
   '@discordjs/rest@2.4.2':
     dependencies:
@@ -2368,27 +2354,12 @@ snapshots:
   '@discordjs/ws@1.1.1':
     dependencies:
       '@discordjs/collection': 2.1.1
-      '@discordjs/rest': 2.4.0
+      '@discordjs/rest': 2.4.2
       '@discordjs/util': 1.1.1
       '@sapphire/async-queue': 1.5.5
       '@types/ws': 8.5.13
       '@vladfrangu/async_event_emitter': 2.4.6
       discord-api-types: 0.37.83
-      tslib: 2.8.1
-      ws: 8.18.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@discordjs/ws@2.0.0':
-    dependencies:
-      '@discordjs/collection': 2.1.1
-      '@discordjs/rest': 2.4.0
-      '@discordjs/util': 1.1.1
-      '@sapphire/async-queue': 1.5.5
-      '@types/ws': 8.5.13
-      '@vladfrangu/async_event_emitter': 2.4.6
-      discord-api-types: 0.37.97
       tslib: 2.8.1
       ws: 8.18.0
     transitivePeerDependencies:
@@ -2789,7 +2760,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 22.10.2
+      '@types/node': 22.10.10
       '@types/responselike': 1.0.3
 
   '@types/common-tags@1.8.4': {}
@@ -2800,7 +2771,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.10
 
   '@types/node-cron@3.0.11': {}
 
@@ -2808,17 +2779,13 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/node@22.10.2':
-    dependencies:
-      undici-types: 6.20.0
-
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.10
 
   '@types/ws@8.5.13':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.10
 
   '@types/ws@8.5.14':
     dependencies:
@@ -2843,14 +2810,6 @@ snapshots:
       magic-string: 0.30.17
     optionalDependencies:
       vite: 5.4.11(@types/node@22.10.10)
-
-  '@vitest/mocker@2.1.8(vite@5.4.11(@types/node@22.10.2))':
-    dependencies:
-      '@vitest/spy': 2.1.8
-      estree-walker: 3.0.3
-      magic-string: 0.30.17
-    optionalDependencies:
-      vite: 5.4.11(@types/node@22.10.2)
 
   '@vitest/pretty-format@2.1.8':
     dependencies:
@@ -3065,7 +3024,7 @@ snapshots:
       '@discordjs/builders': 1.9.0
       '@discordjs/collection': 1.5.3
       '@discordjs/formatters': 0.5.0
-      '@discordjs/rest': 2.4.0
+      '@discordjs/rest': 2.4.2
       '@discordjs/util': 1.1.1
       '@discordjs/ws': 1.1.1
       '@sapphire/snowflake': 3.5.3
@@ -3439,18 +3398,6 @@ snapshots:
 
   ms@2.1.3: {}
 
-  mysql2@3.11.5:
-    dependencies:
-      aws-ssl-profiles: 1.1.2
-      denque: 2.1.0
-      generate-function: 2.3.1
-      iconv-lite: 0.6.3
-      long: 5.2.3
-      lru.min: 1.1.1
-      named-placeholders: 1.1.3
-      seq-queue: 0.0.5
-      sqlstring: 2.3.3
-
   mysql2@3.12.0:
     dependencies:
       aws-ssl-profiles: 1.1.2
@@ -3753,6 +3700,8 @@ snapshots:
 
   slash@3.0.0: {}
 
+  smol-toml@1.3.1: {}
+
   sonic-boom@4.2.0:
     dependencies:
       atomic-sleep: 1.0.0
@@ -3918,24 +3867,6 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@2.1.8(@types/node@22.10.2):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.0(supports-color@5.5.0)
-      es-module-lexer: 1.5.4
-      pathe: 1.1.2
-      vite: 5.4.11(@types/node@22.10.2)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
   vite-tsconfig-paths@5.1.4(typescript@5.7.2)(vite@5.4.11(@types/node@22.10.10)):
     dependencies:
       debug: 4.4.0(supports-color@5.5.0)
@@ -3954,15 +3885,6 @@ snapshots:
       rollup: 4.29.1
     optionalDependencies:
       '@types/node': 22.10.10
-      fsevents: 2.3.3
-
-  vite@5.4.11(@types/node@22.10.2):
-    dependencies:
-      esbuild: 0.21.5
-      postcss: 8.4.49
-      rollup: 4.29.1
-    optionalDependencies:
-      '@types/node': 22.10.2
       fsevents: 2.3.3
 
   vitest@2.1.8(@types/node@22.10.10):
@@ -4000,41 +3922,6 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@2.1.8(@types/node@22.10.2):
-    dependencies:
-      '@vitest/expect': 2.1.8
-      '@vitest/mocker': 2.1.8(vite@5.4.11(@types/node@22.10.2))
-      '@vitest/pretty-format': 2.1.8
-      '@vitest/runner': 2.1.8
-      '@vitest/snapshot': 2.1.8
-      '@vitest/spy': 2.1.8
-      '@vitest/utils': 2.1.8
-      chai: 5.1.2
-      debug: 4.4.0(supports-color@5.5.0)
-      expect-type: 1.1.0
-      magic-string: 0.30.17
-      pathe: 1.1.2
-      std-env: 3.8.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.1
-      tinypool: 1.0.2
-      tinyrainbow: 1.2.0
-      vite: 5.4.11(@types/node@22.10.2)
-      vite-node: 2.1.8(@types/node@22.10.2)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 22.10.2
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
   which@1.3.1:
     dependencies:
       isexe: 2.0.0
@@ -4061,3 +3948,5 @@ snapshots:
   zhead@2.2.4: {}
 
   zod@3.24.1: {}
+
+  zod@3.24.3: {}

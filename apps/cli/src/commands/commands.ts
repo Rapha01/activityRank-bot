@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import * as t from 'typanion';
-import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';
 import { DiscordCommandManagementCommand } from '../util/classes.ts';
@@ -10,6 +9,7 @@ import {
   type APIApplicationCommand,
   type APIApplicationCommandOption,
 } from 'discord-api-types/v10';
+import { configLoader } from '@activityrank/cfg';
 
 const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
 
@@ -150,7 +150,10 @@ export class CommandsCommand extends DiscordCommandManagementCommand {
   override async execute() {
     // super.execute() is intentionally not called here to avoid printing before the `this.raw` path returns.
     // this.loadConfig() should function the same.
-    await this.loadConfig();
+    const loader = configLoader(
+      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
+    );
+    await this.loadConfig(loader);
     const api = this.getApi();
 
     const global = Symbol('global');

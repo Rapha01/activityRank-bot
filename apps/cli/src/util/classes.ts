@@ -86,6 +86,13 @@ export class ConfigurableCommand extends Command {
 
     spin.stop('Loaded config');
   }
+
+  getApi() {
+    const rest = new REST();
+    rest.setToken(this.keys.botAuth);
+
+    return new API(rest);
+  }
 }
 
 type DeployableCommand = RESTPutAPIApplicationGuildCommandsJSONBody[number] & {
@@ -281,12 +288,5 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
     });
 
     this.commands = await this.getDeployableCommands();
-  }
-
-  getApi() {
-    const rest = new REST();
-    rest.setToken(this.keys.botAuth);
-
-    return new API(rest);
   }
 }

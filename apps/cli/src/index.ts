@@ -5,6 +5,7 @@ import { ClearCommand, ClearProductionCommand } from './commands/clear.ts';
 import { CommandsCommand } from './commands/commands.ts';
 import { GenerateCommand } from './commands/generate.ts';
 import { ValidateCommand } from './commands/validate.ts';
+import { EmojiDeployCommand } from './commands/emoji.ts';
 
 const [_node, _app, ...args] = process.argv;
 
@@ -20,6 +21,7 @@ cli.register(DeployProductionCommand);
 cli.register(ClearCommand);
 cli.register(ClearProductionCommand);
 cli.register(CommandsCommand);
+cli.register(EmojiDeployCommand);
 cli.register(GenerateCommand);
 cli.register(ValidateCommand);
 cli.register(Builtins.HelpCommand);
