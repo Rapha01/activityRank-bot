@@ -9,7 +9,6 @@ import {
   ComponentType,
   type Interaction,
 } from 'discord.js';
-import { stripIndent } from 'common-tags';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import nameUtil from '../util/nameUtil.js';
@@ -18,15 +17,9 @@ import { command } from '#bot/commands.js';
 import { component } from '#bot/util/registry/component.js';
 import { requireUser, requireUserId } from '#bot/util/predicates.js';
 import { closeButton } from '#bot/util/component.js';
-import channel from './reset/channel.js';
 import type { TFunction } from 'i18next';
 
-type Setting =
-  | 'noXp'
-  | 'noCommand'
-  | 'commandOnlyChannel'
-  | 'autopost_serverJoin'
-  | 'autopost_levelup';
+type Setting = 'noXp' | 'autopost_serverJoin' | 'autopost_levelup';
 
 const settingButton = component<{
   channelId: string;
@@ -47,36 +40,6 @@ const settingButton = component<{
       else await guildChannelModel.storage.set(interaction.guild, channelId, 'noXp', 1);
 
       myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
-    } else if (setting === 'noCommand') {
-      if (myChannel.noCommand) {
-        await guildChannelModel.storage.set(interaction.guild, channelId, 'noCommand', 0);
-      } else {
-        await interaction.reply({
-          embeds: [
-            {
-              title: t('config-channel.oops'),
-              description: t('config-channel.deprecated'),
-              color: 0xfe5326,
-            },
-          ],
-        });
-        return;
-      }
-    } else if (setting === 'commandOnlyChannel') {
-      if (cachedGuild.db.commandOnlyChannel === channelId) {
-        await cachedGuild.upsert({ commandOnlyChannel: '0' });
-      } else {
-        await interaction.reply({
-          embeds: [
-            {
-              title: t('config-channel.oops'),
-              description: t('config-channel.deprecated'),
-              color: 0xfe5326,
-            },
-          ],
-        });
-        return;
-      }
     } else {
       if (cachedGuild.db[setting] === channelId) await cachedGuild.upsert({ [setting]: '0' });
       else await cachedGuild.upsert({ [setting]: channelId });
@@ -103,8 +66,6 @@ const generateRow = (
 ) => {
   const r = [
     new ButtonBuilder().setLabel(t('config-channel.noXP')),
-    new ButtonBuilder().setLabel(t('config-channel.noCommand')),
-    new ButtonBuilder().setLabel(t('config-channel.commandOnly')),
     new ButtonBuilder().setLabel(t('config-channel.joinChannel')),
     new ButtonBuilder().setLabel(t('config-channel.levelupChannel')),
   ];
@@ -129,26 +90,14 @@ const generateRow = (
   r[0].setCustomId(getButton('noXp'));
   r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  r[1].setCustomId(getButton('noCommand'));
-  r[1].setDisabled(Boolean(Number.parseInt(myGuild.db.commandOnlyChannel)));
-  r[1].setStyle(myChannel.noCommand ? ButtonStyle.Success : ButtonStyle.Danger);
-  // r[1].setDisabled(type !== ChannelType.GuildText);
-  // if (r[1].disabled) r[1].setStyle(ButtonStyle.Secondary);
+  r[1].setCustomId(getButton('autopost_serverJoin'));
+  r[1].setStyle(getStyleFromEquivalence(myGuild.db.autopost_serverJoin));
 
-  r[2].setCustomId(getButton('commandOnlyChannel'));
-  r[2].setStyle(getStyleFromEquivalence(myGuild.db.commandOnlyChannel));
-  // r[2].setStyle(i.guild.appData.commandOnlyChannel === channelId ? ButtonStyle.Success : ButtonStyle.Danger);
-
-  r[3].setCustomId(getButton('autopost_serverJoin'));
-  r[3].setStyle(getStyleFromEquivalence(myGuild.db.autopost_serverJoin));
-
-  r[4].setCustomId(getButton('autopost_levelup'));
-  r[4].setStyle(getStyleFromEquivalence(myGuild.db.autopost_levelup));
+  r[2].setCustomId(getButton('autopost_levelup'));
+  r[2].setStyle(getStyleFromEquivalence(myGuild.db.autopost_levelup));
 
   disableIfNotText(r[1]);
   disableIfNotText(r[2]);
-  disableIfNotText(r[3]);
-  disableIfNotText(r[4]);
 
   return r;
 };
@@ -207,11 +156,6 @@ export default command({
       )
     ) {
       embed.addFields(
-        { name: t('config-channel.noCommand'), value: t('config-channel.noCommandDescription') },
-        {
-          name: t('config-channel.commandOnly'),
-          value: t('config-channel.commandOnlyDescription'),
-        },
         {
           name: t('config-channel.joinChannel'),
           value: t('config-channel.joinChannelDescription'),

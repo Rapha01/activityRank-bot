@@ -2,12 +2,10 @@ import { event } from '#bot/util/registry/event.js';
 import { Events } from 'discord.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
-import guildChannelModel from '../models/guild/guildChannelModel.js';
 import askForPremium from '../util/askForPremium.js';
 import {
   type Interaction,
   type AutocompleteInteraction,
-  PermissionFlagsBits,
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
@@ -33,33 +31,6 @@ export default event(Events.InteractionCreate, async (interaction) => {
 
     if (!interaction.channel) {
       interaction.client.logger.error(interaction, 'interaction is lacking channel');
-      return;
-    }
-
-    const cachedChannel = await guildChannelModel.cache.get(interaction.channel);
-    const cachedGuild = await getGuildModel(interaction.guild);
-
-    if (
-      cachedChannel.db.noCommand &&
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      await interaction.reply({
-        content: 'This is a noCommand channel, and you are not an admin.',
-        ephemeral: true,
-      });
-      return;
-    }
-
-    // TODO: deprecate in favor of native Discord slash command configs
-    if (
-      cachedGuild.db.commandOnlyChannel !== '0' &&
-      cachedGuild.db.commandOnlyChannel !== interaction.channel.id &&
-      !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
-    ) {
-      await interaction.reply({
-        content: `Commands can only be used in <#${cachedGuild.db.commandOnlyChannel}> unless you are an admin.`,
-        ephemeral: true,
-      });
       return;
     }
 

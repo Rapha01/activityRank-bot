@@ -62,11 +62,6 @@ async function render(
           { label: 'Roles', value: 'roles', default: windowName === 'roles' },
           { label: 'XP Settings', value: 'xpsettings', default: windowName === 'xpsettings' },
           {
-            label: 'No-Command Channels',
-            value: 'nocommandchannels',
-            default: windowName === 'nocommandchannels',
-          },
-          {
             label: 'No-Xp Channels',
             value: 'noxpchannels',
             default: windowName === 'noxpchannels',
@@ -356,54 +351,6 @@ const roles: Window = {
   },
 };
 
-const nocommandchannels: Window = {
-  additionalComponents: () => [],
-  enablePagination: true,
-  async embed({ interaction, cachedGuild, page }) {
-    const description: string[] = [];
-    const isAdmin = interaction.memberPermissions.has('ManageGuild');
-    if (isAdmin) {
-      description.push(
-        `## No-Command Channels are __deprecated__.\n\nManage Application Command permissions in **[Server Settings](discord://-/guilds/${interaction.guild.id}/settings)** > **Integrations** > **ActivityRank**!\n`,
-      );
-    }
-
-    if (cachedGuild.db.commandOnlyChannel !== '0') {
-      description.push(
-        `:warning: The \`commandOnly\` channel is set. The bot will only respond in <#${cachedGuild.db.commandOnlyChannel}>.\n`,
-      );
-    }
-
-    const noCommandChannelIds = await guildChannelModel.getNoCommandChannelIds(interaction.guild);
-    const noCommandChannels = noCommandChannelIds.map((id) => ({
-      id,
-      channel: interaction.guild.channels.cache.get(id),
-    }));
-
-    description.push(
-      ...noCommandChannels
-        .sort((a, b) => (a.channel ? (b.channel ? a.channel.type - b.channel.type : 0) : -1))
-        .slice(page.from - 1, page.to)
-        .map(
-          (channel) =>
-            `- ${nameUtil.getChannelMention(interaction.guild.channels.cache, channel.id)}`,
-        ),
-    );
-
-    if (noCommandChannelIds.length > page.to)
-      description.push(`- *and ${noCommandChannelIds.length - page.to} more...*`);
-
-    return {
-      author: {
-        name: 'No-Command Channels',
-        icon_url: clientURL(interaction.client),
-      },
-      color: isAdmin ? 0xb75cff : 0x4fd6c8,
-      description: description.join('\n'),
-    };
-  },
-};
-
 const noxpchannels: Window = {
   additionalComponents: () => [],
   enablePagination: true,
@@ -578,7 +525,6 @@ const windows = {
   general,
   levels,
   roles,
-  nocommandchannels,
   noxpchannels,
   noxproles,
   messages,
