@@ -90,6 +90,7 @@ export default command({
     const embed = {
       author: { name: 'Server Messages' },
       color: 0x00ae86,
+      description: t('config-messages.description'),
       fields: [
         {
           name: t('config-messages.joinMessage'),
