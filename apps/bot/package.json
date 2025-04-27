@@ -57,7 +57,7 @@
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
     "@crowdin/cli": "^4.7.0",
-    "@discordjs/core": "^2.0.0",
+    "@discordjs/core": "^2.0.1",
     "@types/common-tags": "^1.8.4",
     "@types/node-cron": "^3.0.11",
     "colorette": "^2.0.20",
