@@ -2,19 +2,19 @@ import {
   ButtonStyle,
   ComponentType,
   type APIActionRowComponent,
-  type APIMessageActionRowComponent,
+  type APIComponentInActionRow,
 } from 'discord.js';
 
 export const PATREON_URL = 'https://www.patreon.com/rapha01';
 
-export const PATREON_BUTTON: APIMessageActionRowComponent = {
+export const PATREON_BUTTON: APIComponentInActionRow = {
   type: ComponentType.Button,
   style: ButtonStyle.Link,
   url: PATREON_URL,
   label: 'Support us on Patreon!',
 };
 
-export const PATREON_ACTION_ROW: APIActionRowComponent<APIMessageActionRowComponent> = {
+export const PATREON_ACTION_ROW: APIActionRowComponent<APIComponentInActionRow> = {
   type: ComponentType.ActionRow,
   components: [PATREON_BUTTON],
 };
