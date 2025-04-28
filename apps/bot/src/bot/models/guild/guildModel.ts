@@ -41,7 +41,6 @@ const cachedFields = [
   'takeAwayAssignedRolesOnLevelDown',
   'roleAssignMessage',
   'roleDeassignMessage',
-  'commandOnlyChannel',
   'autopost_serverJoin',
   'autopost_levelup',
   'levelupMessage',

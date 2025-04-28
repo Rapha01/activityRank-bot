@@ -13,7 +13,8 @@
     "test:check": "vitest --run",
     "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
     "dev": "node --enable-source-maps ./dist/app.js",
-    "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\""
+    "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\"",
+    "crowdin": "crowdin"
   },
   "imports": {
     "#*": {
@@ -28,26 +29,26 @@
   "dependencies": {
     "@activityrank/cfg": "workspace:*",
     "@activityrank/database": "workspace:*",
-    "@discordjs/rest": "^2.4.0",
-    "@formatjs/intl-durationformat": "^0.7.3",
+    "@discordjs/rest": "^2.4.3",
+    "@formatjs/intl-durationformat": "^0.7.4",
     "@isaacs/ttlcache": "^1.4.1",
     "@sapphire/async-queue": "^1.5.3",
-    "@sapphire/duration": "^1.1.2",
+    "@sapphire/duration": "^1.2.0",
     "@sapphire/snowflake": "^3.5.3",
     "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.7.28",
+    "@swc/core": "^1.11.21",
     "callsites": "^4.2.0",
     "common-tags": "^1.8.2",
     "croner": "^8.1.1",
-    "discord.js": "^14.16.2",
-    "fast-glob": "^3.3.2",
-    "i18next": "^24.2.2",
+    "discord.js": "^14.19.1",
+    "fast-glob": "^3.3.3",
+    "i18next": "^24.2.3",
     "i18next-fs-backend": "^2.6.0",
-    "kysely": "^0.27.4",
-    "mysql2": "^3.11.3",
-    "nanoid": "^5.0.7",
+    "kysely": "^0.27.6",
+    "mysql2": "^3.14.0",
+    "nanoid": "^5.1.5",
     "node-emoji": "^2.1.3",
-    "pino": "^9.4.0",
+    "pino": "^9.6.0",
     "pretty-ms": "^9.1.0",
     "public-ip": "^7.0.1",
     "temporal-polyfill": "^0.2.5",
@@ -55,7 +56,8 @@
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
-    "@discordjs/core": "^2.0.0",
+    "@crowdin/cli": "^4.7.0",
+    "@discordjs/core": "^2.0.1",
     "@types/common-tags": "^1.8.4",
     "@types/node-cron": "^3.0.11",
     "colorette": "^2.0.20",
@@ -63,14 +65,16 @@
     "execa": "^9.4.0",
     "nodemon": "^3.1.7",
     "pino-pretty": "^11.2.2",
-    "typescript": "^5.6.2",
+    "typescript": "^5.8.3",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.1.1",
-    "zod": "^3.23.8"
+    "vitest": "^2.1.9",
+    "zod": "^3.24.3"
   },
   "nodemonConfig": {
     "delay": 2500,
     "ext": "js,ts",
-    "watch": ["src/**/*.ts"]
+    "watch": [
+      "src/**/*.ts"
+    ]
   }
 }

@@ -10,7 +10,12 @@
     "format": "biome format",
     "format:write": "biome format --write"
   },
-  "workspaces": ["apps/api", "apps/bot", "apps/cli", "apps/manager"],
+  "workspaces": [
+    "apps/api",
+    "apps/bot",
+    "apps/cli",
+    "apps/manager"
+  ],
   "contributors": [
     "@rapha01 (https://github.com/rapha01)",
     "@piemot (https://github.com/piemot)",
@@ -18,7 +23,8 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "turbo": "^2.3.3"
+    "syncpack": "^13.0.4",
+    "turbo": "^2.5.2"
   },
   "packageManager": "pnpm@10.9.0"
 }

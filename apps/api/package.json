@@ -30,17 +30,17 @@
     "@scalar/hono-api-reference": "^0.5.165",
     "hono": "^4.5.10",
     "hono-rate-limiter": "^0.4.2",
-    "kysely": "^0.27.4",
-    "zod": "^3.24.1"
+    "kysely": "^0.27.6",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
     "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.7.22",
+    "@swc/core": "^1.11.21",
     "@types/node": "^22.10.2",
     "nodemon": "^3.1.7",
-    "typescript": "^5.6.2",
-    "vitest": "^2.1.1"
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
   },
   "nodemonConfig": {
     "ext": "js,ts",
