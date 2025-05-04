@@ -59,6 +59,11 @@ export const privileges = z
   .record(z.string().regex(/^\d+$/), z.enum(['DEVELOPER', 'MODERATOR', 'HELPSTAFF']))
   .describe('The users that are able to use privileged commands');
 
+/**A record of bot emoji names to IDs*/
+export const emojis = z
+  .record(z.string(), z.string().regex(/\d{17,20}/))
+  .describe('A record of bot emoji names to IDs');
+
 /**The basic config to be provided to the Manager module of ActivityRank*/
 export const managerConfig = z
   .object({ disablePatreon: z.boolean().optional() })
@@ -106,6 +111,7 @@ export const bot = {
   config: botConfig,
   keys: botKeys,
   privileges,
+  emojis,
 };
 
 export const manager = {
