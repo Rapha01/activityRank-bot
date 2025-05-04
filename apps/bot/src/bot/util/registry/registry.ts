@@ -191,6 +191,10 @@ export class Registry {
     this.#activeComponents.delete(instance.identifier);
   }
 
+  public dropComponentId(id: string) {
+    this.#activeComponents.delete(id);
+  }
+
   public managesComponent(
     interaction: MessageComponentInteraction<'cached'> | ModalSubmitInteraction<'cached'>,
   ): boolean {

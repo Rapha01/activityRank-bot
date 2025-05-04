@@ -283,6 +283,7 @@ function renderPageItem({
 
 const setPage = component({
   type: ComponentType.StringSelect,
+  autoDestroy: true,
   async callback({ interaction, t }) {
     const cachedGuild = await getGuildModel(interaction.guild);
 
@@ -299,6 +300,7 @@ const setPage = component({
 
 const setBoolButton = component<{ key: BooleanGuildKey; page: PageId }>({
   type: ComponentType.Button,
+  autoDestroy: true,
   async callback({ interaction, data, t }) {
     const cachedGuild = await getGuildModel(interaction.guild);
 
@@ -313,6 +315,7 @@ const setBoolButton = component<{ key: BooleanGuildKey; page: PageId }>({
 
 const clearLevelupChannel = component<{ page: PageId }>({
   type: ComponentType.Button,
+  autoDestroy: true,
   async callback({ interaction, data, t }) {
     const cachedGuild = await getGuildModel(interaction.guild);
 
@@ -326,6 +329,7 @@ const clearLevelupChannel = component<{ page: PageId }>({
 
 const setLevelupChannel = component<{ page: PageId }>({
   type: ComponentType.ChannelSelect,
+  autoDestroy: true,
   async callback({ interaction, data, t }) {
     const cachedGuild = await getGuildModel(interaction.guild);
 
