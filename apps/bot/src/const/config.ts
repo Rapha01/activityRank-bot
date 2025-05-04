@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import { packageFile } from './paths.js';
-import { z } from 'zod';
 
 import { configLoader, schemas } from '@activityrank/cfg';
 import type { EmojiNames } from './emoji.generated.js';
@@ -24,7 +23,7 @@ export const privileges = await loader().load({
 });
 export const emojiIds = await loader().load({
   name: 'emoji',
-  schema: z.record(z.string(), z.string().regex(/\d{17,20}/)),
+  schema: schemas.bot.emojis,
   secret: false,
 });
 
