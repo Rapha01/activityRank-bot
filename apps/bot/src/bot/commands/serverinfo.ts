@@ -83,7 +83,7 @@ async function render(
             predicate,
           }),
           style: ButtonStyle.Primary,
-          emoji: '⬅',
+          emoji: { name: '⬅' },
           disabled: disableComponents || pageNumber < 2,
         },
         {
@@ -100,7 +100,7 @@ async function render(
             predicate,
           }),
           style: ButtonStyle.Primary,
-          emoji: '➡️',
+          emoji: { name: '➡️' },
           disabled: disableComponents || pageNumber > 100,
         },
       ]),

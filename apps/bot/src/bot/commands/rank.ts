@@ -210,7 +210,7 @@ function getPaginationComponents(
     components: [
       {
         type: ComponentType.Button,
-        emoji: '⬅',
+        emoji: { name: '⬅' },
         customId: pageButton.instanceId({
           data: { page: state.page - 1 },
           predicate: requireUserId(state.owner),
@@ -227,7 +227,7 @@ function getPaginationComponents(
       },
       {
         type: ComponentType.Button,
-        emoji: '➡️',
+        emoji: { name: '➡️' },
         customId: pageButton.instanceId({
           data: { page: state.page + 1 },
           predicate: requireUserId(state.owner),

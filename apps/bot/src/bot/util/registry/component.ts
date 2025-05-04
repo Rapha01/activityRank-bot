@@ -1,13 +1,21 @@
-import type {
-  ComponentType,
-  ButtonInteraction,
-  ChannelSelectMenuInteraction,
-  MentionableSelectMenuInteraction,
-  RoleSelectMenuInteraction,
-  StringSelectMenuInteraction,
-  UserSelectMenuInteraction,
-  MessageComponentInteraction,
-  ModalSubmitInteraction,
+import {
+  type ComponentType,
+  type ButtonInteraction,
+  type ChannelSelectMenuInteraction,
+  type MentionableSelectMenuInteraction,
+  type RoleSelectMenuInteraction,
+  type StringSelectMenuInteraction,
+  type UserSelectMenuInteraction,
+  type MessageComponentInteraction,
+  type ModalSubmitInteraction,
+  ButtonComponent,
+  BaseSelectMenuComponent,
+  ActionRow,
+  ContainerComponent,
+  type TopLevelComponent,
+  type MessageActionRowComponent,
+  SectionComponent,
+  type ThumbnailComponent,
 } from 'discord.js';
 import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
 import { nanoid } from 'nanoid';
@@ -57,14 +65,23 @@ export abstract class ComponentInstance<I extends ComponentInteraction, D> {
   public drop = () => {
     registry.dropComponentInstance(this);
   };
+
+  protected dropComponentWithCustomId(id: string) {
+    const split = Component.splitCustomId(id);
+    if (split.status === 'SUCCESS') {
+      registry.dropComponentId(split.instance);
+    }
+  }
 }
 
 export abstract class Component<I extends ComponentInteraction, D> {
   public readonly identifier: string;
+  public readonly autoDestroy: boolean;
   public abstract readonly callback: ComponentCallback<I, any>;
 
-  constructor() {
+  constructor(autoDestroy: boolean) {
     this.identifier = nanoid(20);
+    this.autoDestroy = autoDestroy;
     registry.registerComponent(this);
   }
 
@@ -144,13 +161,46 @@ class MessageComponentInstance<
   }
 
   public async execute(interaction: I): Promise<void> {
+    let ids: string[] | null = null;
+    if (this.parent.autoDestroy) {
+      ids = getAllCustomIds(interaction.message.components);
+    }
+
     await this.parent.callback({
       interaction,
       data: this.data,
       drop: this.drop,
       t: i18n.getFixedT([interaction.locale, 'en-US'], 'command-content'),
     });
+
+    if (this.parent.autoDestroy) {
+      if (ids === null) throw new Error();
+
+      for (const id of ids) {
+        this.dropComponentWithCustomId(id);
+      }
+    }
   }
+}
+
+function getAllCustomIds(
+  components: (TopLevelComponent | MessageActionRowComponent | ThumbnailComponent)[],
+): string[] {
+  const customIds: (string | null)[] = [];
+
+  for (const component of components) {
+    if (component instanceof ButtonComponent && component.customId) {
+      customIds.push(component.customId);
+    } else if (component instanceof BaseSelectMenuComponent) {
+      customIds.push(component.customId);
+    } else if (component instanceof ContainerComponent || component instanceof ActionRow) {
+      customIds.push(...getAllCustomIds(component.components));
+    } else if (component instanceof SectionComponent) {
+      customIds.push(...getAllCustomIds(component.components));
+      customIds.push(...getAllCustomIds([component.accessory]));
+    }
+  }
+  return customIds.filter((c) => c !== null);
 }
 
 class ModalComponentInstance<
@@ -186,8 +236,11 @@ class ModalComponentInstance<
 }
 
 class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> extends Component<I, D> {
-  constructor(public readonly callback: ComponentCallback<I, any>) {
-    super();
+  constructor(
+    public readonly callback: ComponentCallback<I, any>,
+    autoDestroy: boolean,
+  ) {
+    super(autoDestroy);
   }
 
   public instanceId(
@@ -206,7 +259,7 @@ class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> exten
 
 class ModalComponent<I extends ModalSubmitInteraction<'cached'>, D> extends Component<I, D> {
   constructor(public readonly callback: ComponentCallback<I, any>) {
-    super();
+    super(false);
   }
 
   public instanceId(
@@ -225,31 +278,38 @@ class ModalComponent<I extends ModalSubmitInteraction<'cached'>, D> extends Comp
 
 export function component<D = void>(args: {
   type: ComponentType.Button;
+  autoDestroy?: boolean;
   callback: ComponentCallback<ButtonInteraction<'cached'>, D>;
 }): Component<ButtonInteraction<'cached'>, D>;
 export function component<D = void>(args: {
   type: ComponentType.ChannelSelect;
+  autoDestroy?: boolean;
   callback: ComponentCallback<ChannelSelectMenuInteraction<'cached'>, D>;
 }): Component<ChannelSelectMenuInteraction<'cached'>, D>;
 export function component<D = void>(args: {
   type: ComponentType.MentionableSelect;
+  autoDestroy?: boolean;
   callback: ComponentCallback<MentionableSelectMenuInteraction<'cached'>, D>;
 }): Component<MentionableSelectMenuInteraction<'cached'>, D>;
 export function component<D = void>(args: {
   type: ComponentType.RoleSelect;
+  autoDestroy?: boolean;
   callback: ComponentCallback<RoleSelectMenuInteraction<'cached'>, D>;
 }): Component<RoleSelectMenuInteraction<'cached'>, D>;
 export function component<D = void>(args: {
   type: ComponentType.StringSelect;
+  autoDestroy?: boolean;
   callback: ComponentCallback<StringSelectMenuInteraction<'cached'>, D>;
 }): Component<StringSelectMenuInteraction<'cached'>, D>;
 export function component<D = void>(args: {
   type: ComponentType.UserSelect;
+  autoDestroy?: boolean;
   callback: ComponentCallback<UserSelectMenuInteraction<'cached'>, D>;
 }): Component<UserSelectMenuInteraction<'cached'>, D>;
 
 export function component<D = void>(args: {
   type: ComponentType;
+  autoDestroy?: boolean;
   callback:
     | ComponentCallback<ButtonInteraction<'cached'>, D>
     | ComponentCallback<ChannelSelectMenuInteraction<'cached'>, D>
@@ -262,6 +322,7 @@ export function component<D = void>(args: {
   // therefore this coersion is safe.
   return new MessageComponent(
     args.callback as ComponentCallback<MessageComponentInteraction<'cached'>, D>,
+    args.autoDestroy ?? false,
   );
 }
 

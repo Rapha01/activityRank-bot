@@ -1,5 +1,6 @@
 /**
  * Ensures an exhaustive if-ladder. This is useful if it relies on an enum or sum type that may have future attributes added to it.
+ * If TypeScript cannot verify the invariant, use {@link assertUnreachableUnsafe}.
  * @example
  * type Item = 1 | 2;
  * function doSomething(item: Item): boolean {
@@ -16,6 +17,16 @@ export function assertUnreachable(_: never): never {
   );
 }
 
+/**
+ * Throws an error if reached. Unlike {@link assertUnreachable}, `assertUnreachableUnsafe` does not have any compile-time implications.
+ * {@link assertUnreachable} is better if TypeScript can verify the invariant.
+ * @example
+ * type Item = 1 | 2;
+ * function doSomething(item: Item): boolean {
+ *  if (item === 1) return true;
+ *  assertUnreachableUnsafe('`item` can never be set to `2`.');
+ * }
+ */
 export function assertUnreachableUnsafe(details = ''): never {
   throw new TypeError(
     `Reached an assertUnreachableUnsafe() statement. \
