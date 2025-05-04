@@ -1,7 +1,9 @@
 import {
   type ActionRowData,
   type ButtonInteraction,
+  type ComponentInContainerData,
   ComponentType,
+  type ContainerComponentData,
   type MessageActionRowComponentBuilder,
   type MessageActionRowComponentData,
   type ModalActionRowComponentData,
@@ -42,6 +44,13 @@ export function actionrow(
   | ActionRowData<ModalActionRowComponentData> {
   // the function overrides do all necessary type validation; coersion is fine here.
   return { type: ComponentType.ActionRow, components } as any;
+}
+
+export function container(
+  components: ComponentInContainerData[],
+  opts?: Omit<ContainerComponentData, 'type' | 'components'>,
+): ContainerComponentData {
+  return { type: ComponentType.Container, components, ...opts };
 }
 
 /**

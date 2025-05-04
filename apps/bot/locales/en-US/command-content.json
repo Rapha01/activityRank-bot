@@ -124,30 +124,92 @@
     "12h": "12 Hours",
     "24h": "24 Hours",
     "entriesPerPage": "The server will now see `{{entriesPerPage}}` entries per page.",
-    "useNickname": "Use Nicknames",
-    "useNicknameDescription": "If this is enabled, nicknames will be used to represent members instead of their Discord usernames",
-    "reactVote": "Reaction Voting",
-    "reactVoteDescription": "If this is enabled, members will be permitted to vote using the server's voteEmote, {{value}}",
-    "mutedXP": "Allow Muted XP",
-    "mutedXPDescription": "If this is enabled, members will be permitted to gain XP in VCs, even when they are muted.",
-    "deafenedXP": "Allow deafened XP",
-    "deafenedXPDescription": "If this is enabled, members will be permitted to gain XP in VCs, even when they are deafened.",
-    "soloXP": "Allow solo XP",
-    "soloXPDescription": "If this is enabled, members will be permitted to gain XP in VCs, even when they are alone. Bots do not count.",
-    "TAAROLDshort": "TAAROLD",
-    "TAAROLDfull": "TAAROLD (Take Away Assigned Roles On Level Down)",
-    "TAAROLDDescription": "If this is enabled, the bot will remove roles when the member falls below their assignLevel.",
-    "notifyDM": "Notify via DM",
-    "notifyDMDescription": "If this is enabled, the bot will allow members to receive levelup notifications via DM.\nYou cannot select this if either of the below two options are enabled, because they will take priority.",
-    "lastChannel": "Notify in last active channel",
-    "lastChannelDescription": "If this is enabled, the bot will notify members of their levelups in their last used text channel.\nYou cannot select this if the below option is enabled, because it will take priority.",
-    "includeLVLup": "Include Levelup Message",
-    "includeLVLupDescription": "If this is enabled, when a role has a custom roleAssign message, the bot will also send the default levelup message.\nOtherwise, it will only send the roleAssign message.",
-    "emojiDescription": "These will enable or disable text, voice, invite, and upvoteXP respectively.\nYou may want to reset these categories, as disabling them will only hide them and prevent more from being added.",
-    "reset": "Reset Deleted Members",
-    "resetDescription": "This will reset the XP of members when they leave the server.",
-    "stickyRoles": "Give roles on rejoin",
-    "stickyRolesDescription": "This will give members that have left the server the appropriate roles for the level they had when they left.",
+    "settings": "Server Settings",
+    "showNicknames": {
+      "label": "Use Nicknames",
+      "description": "Display users' nicknames instead of their Discord usernames."
+    },
+    "reactionVote": {
+      "label": "Reaction Voting",
+      "description": "Allow members to give upvotes using the server's voteEmote, :heart:."
+    },
+    "takeAwayAssignedRolesOnLevelDown": {
+      "label": "Update Roles on Level Down",
+      "description": "Remove roles when a member loses XP."
+    },
+    "resetDeletedMembers": {
+      "label": "Reset Deleted Members",
+      "description": "Reset the XP of members when they leave the server."
+    },
+    "stickyLevelRoles": {
+      "label": "Give Roles on Rejoin",
+      "description": "Gives members that have left the server the appropriate roles for the level they had when they left."
+    },
+    "allowMutedXp": {
+      "label": "Muted XP",
+      "description": "Allow members to gain voice XP while muted."
+    },
+    "allowDeafenedXp": {
+      "label": "Deafened XP",
+      "description": "Allow members to gain voice XP while deafened."
+    },
+    "allowSoloXp": {
+      "label": "Solo XP",
+      "description": "Allow members to gain voice XP while alone in a voice channel. Bots don't count."
+    },
+    "notifyLevelupDm": {
+      "label": "Notify by DM",
+      "description": "Allow members to recieve levelup notifications by DM."
+    },
+    "notifyLevelupCurrentChannel": {
+      "label": "Notify in Last Active Channel",
+      "description": "Send levelup notifications in a member's last active text channel."
+    },
+    "notifyLevelupSetChannel": {
+      "label": "Notify in Channel",
+      "description": "Send levelup notifications to a specific channel."
+    },
+    "notifyLevelupWithRole": {
+      "label": "Include Levelup Message",
+      "description": "When a role has a custom roleAssign message, also send the default levelup message.\nOtherwise, it will only send the roleAssign message."
+    },
+    "textXp": {
+      "label": "✍️ Text XP"
+    },
+    "voiceXp": {
+      "label": "🎙️ Voice XP"
+    },
+    "inviteXp": {
+      "label": "✉️ Invite XP"
+    },
+    "voteXp": {
+      "label": "❤️ Upvote XP"
+    },
+    "button": {
+      "enabled": "Enabled",
+      "not-enabled": "Disabled",
+      "allowed": "Allowed",
+      "not-allowed": "Disallowed",
+      "clear": "Clear"
+    },
+    "page": {
+      "general": {
+        "label": "General",
+        "description": "General server-wide config options"
+      },
+      "voice": {
+        "label": "Voice Options",
+        "description": "Change when members gain voice XP"
+      },
+      "notify": {
+        "label": "Notifications",
+        "description": "Change where levelup messages are sent"
+      },
+      "types": {
+        "label": "XP Types",
+        "description": "Enable or disable types of XP"
+      }
+    },
     "close": "Close"
   },
   "missing": {
