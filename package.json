@@ -23,6 +23,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "release-please": "^17.0.0",
     "syncpack": "^13.0.4",
     "turbo": "^2.5.2"
   },
