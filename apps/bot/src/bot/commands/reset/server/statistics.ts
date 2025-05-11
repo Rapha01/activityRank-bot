@@ -11,7 +11,6 @@ import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildStatistics } from '#bot/models/resetModel.js';
 import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
 import { component } from '#bot/util/registry/component.js';
-import { commaListsAnd } from 'common-tags';
 
 type Table = 'textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus';
 

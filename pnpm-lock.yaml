@@ -111,9 +111,6 @@ importers:
       callsites:
         specifier: ^4.2.0
         version: 4.2.0
-      common-tags:
-        specifier: ^1.8.2
-        version: 1.8.2
       croner:
         specifier: ^8.1.1
         version: 8.1.2
@@ -141,6 +138,9 @@ importers:
       node-emoji:
         specifier: ^2.1.3
         version: 2.2.0
+      outdent:
+        specifier: ^0.8.0
+        version: 0.8.0
       pino:
         specifier: ^9.6.0
         version: 9.6.0
@@ -166,21 +166,6 @@ importers:
       '@discordjs/core':
         specifier: ^2.0.1
         version: 2.1.0
-      '@types/common-tags':
-        specifier: ^1.8.4
-        version: 1.8.4
-      '@types/node-cron':
-        specifier: ^3.0.11
-        version: 3.0.11
-      colorette:
-        specifier: ^2.0.20
-        version: 2.0.20
-      defu:
-        specifier: ^6.1.4
-        version: 6.1.4
-      execa:
-        specifier: ^9.4.0
-        version: 9.5.2
       nodemon:
         specifier: ^3.1.7
         version: 3.1.10
@@ -1094,9 +1079,6 @@ packages:
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
-  '@types/common-tags@1.8.4':
-    resolution: {integrity: sha512-S+1hLDJPjWNDhcGxsxEbepzaxWqURP/o+3cP4aa2w7yBXgdcmKGQtZzP8JbyfOd0m+33nh+8+kvxYE2UJtBDkg==}
-
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
@@ -1111,9 +1093,6 @@ packages:
 
   '@types/minimist@1.2.5':
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
-
-  '@types/node-cron@3.0.11':
-    resolution: {integrity: sha512-0ikrnug3/IyneSHqCBeslAhlK2aBfYek1fGo4bP4QnZPmiqSGRK+Oy7ZMisLWkesffJvQ1cqAcBnJC+8+nxIAg==}
 
   '@types/node@22.15.2':
     resolution: {integrity: sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==}
@@ -1401,10 +1380,6 @@ packages:
     resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
     engines: {node: '>= 12'}
 
-  common-tags@1.8.2:
-    resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
-    engines: {node: '>=4.0.0'}
-
   compare-func@2.0.0:
     resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==}
 
@@ -1496,9 +1471,6 @@ packages:
   defer-to-connect@2.0.1:
     resolution: {integrity: sha512-4tvttepXG1VaYGrRibk5EwJd1t4udunSOVMdLSAL6mId1ix438oPwPZMALY41FCijukO1L0twNcGsdzS7dHgDg==}
     engines: {node: '>=10'}
-
-  defu@6.1.4:
-    resolution: {integrity: sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==}
 
   denque@2.1.0:
     resolution: {integrity: sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw==}
@@ -2288,6 +2260,9 @@ packages:
   os-filter-obj@2.0.0:
     resolution: {integrity: sha512-uksVLsqG3pVdzzPvmAHpBK0wKxYItuzZr7SziusRPoz67tGV8rL1szZ6IdeUrbqLjGDwApBtN29eEE3IqGHOjg==}
     engines: {node: '>=4'}
+
+  outdent@0.8.0:
+    resolution: {integrity: sha512-KiOAIsdpUTcAXuykya5fnVVT+/5uS0Q1mrkRHcF89tpieSmY33O/tmc54CqwA+bfhbtEfZUNLHaPUiB9X3jt1A==}
 
   p-cancelable@2.1.1:
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
@@ -3759,8 +3734,6 @@ snapshots:
       '@types/node': 22.15.2
       '@types/responselike': 1.0.3
 
-  '@types/common-tags@1.8.4': {}
-
   '@types/estree@1.0.6': {}
 
   '@types/estree@1.0.7': {}
@@ -3772,8 +3745,6 @@ snapshots:
       '@types/node': 22.15.2
 
   '@types/minimist@1.2.5': {}
-
-  '@types/node-cron@3.0.11': {}
 
   '@types/node@22.15.2':
     dependencies:
@@ -4062,8 +4033,6 @@ snapshots:
 
   commander@8.3.0: {}
 
-  common-tags@1.8.2: {}
-
   compare-func@2.0.0:
     dependencies:
       array-ify: 1.0.0
@@ -4155,8 +4124,6 @@ snapshots:
   deep-eql@5.0.2: {}
 
   defer-to-connect@2.0.1: {}
-
-  defu@6.1.4: {}
 
   denque@2.1.0: {}
 
@@ -4939,6 +4906,8 @@ snapshots:
   os-filter-obj@2.0.0:
     dependencies:
       arch: 2.2.0
+
+  outdent@0.8.0: {}
 
   p-cancelable@2.1.1: {}
 

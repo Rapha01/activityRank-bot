@@ -1,11 +1,11 @@
 import { PermissionFlagsBits, type APIEmbed } from 'discord.js';
-import { commaListsAnd } from 'common-tags';
 import {
   fetchRoleAssignmentsByLevel,
   fetchRoleAssignmentsByRole,
   getRoleModel,
 } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
+import { formatListAnd } from '#bot/util/i18n.js';
 import { command } from '#bot/commands.js';
 
 export default command({
@@ -89,14 +89,14 @@ export default command({
     if (!roleAssignLevels.every((o) => o === null)) {
       embed.fields = [
         ...(embed.fields ?? []),
-        { name: t('config-role.assignlevel'), value: commaListsAnd(`${roleAssignLevels}`) },
+        { name: t('config-role.assignlevel'), value: formatListAnd(roleAssignLevels) },
       ];
     }
 
     if (!roleDeassignLevels.every((o) => o === null)) {
       embed.fields = [
         ...(embed.fields ?? []),
-        { name: t('config-role.deassignlevel'), value: commaListsAnd(`${roleDeassignLevels}`) },
+        { name: t('config-role.deassignlevel'), value: formatListAnd(roleDeassignLevels) },
       ];
     }
 

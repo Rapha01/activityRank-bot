@@ -1,5 +1,4 @@
 import { PermissionFlagsBits } from 'discord.js';
-import { stripIndent } from 'common-tags';
 import { getGuildModel } from '../../models/guild/guildModel.js';
 import { parseEmojiString } from '#bot/util/emoji.js';
 import { command } from '#bot/commands.js';
