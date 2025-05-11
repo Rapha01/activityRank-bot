@@ -2,7 +2,6 @@ import { getUserModel } from '../models/userModel.js';
 import fct from '../../util/fct.js';
 import { getWaitTime } from './cooldownUtil.js';
 import { type ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
-import { oneLine } from 'common-tags';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 
@@ -43,10 +42,10 @@ async function sendAskForPremiumEmbed(interaction: ChatInputCommandInteraction<'
 
   e.addFields({
     name: 'The maintenance and development of this bot depend on your support!',
-    value: oneLine`${interaction.user}, please consider helping us by becoming a Patron. 
-      The bot is mostly free! Activating Premium for you or your server can unlock some new 
-      features and gives you quality of life upgrades, like reduced cooldowns on commands. 
-      Simply [select your preferred tier and become a Patron!](<${PATREON_URL}>). **Thank you!**`,
+    value: `${interaction.user}, please consider helping us by becoming a Patron. \
+The bot is mostly free! Activating Premium for you or your server can unlock some new \
+features and gives you quality of life upgrades, like reduced cooldowns on commands. \
+Simply [select your preferred tier and become a Patron!](<${PATREON_URL}>). **Thank you!**`,
   });
 
   await interaction.followUp({

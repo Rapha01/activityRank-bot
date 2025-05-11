@@ -4,7 +4,7 @@ import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
 import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
 import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import { stripIndent } from 'common-tags';
+import outdent from 'outdent';
 import fct from '../../util/fct.js';
 import { shards } from '#models/shardDb/shardDb.js';
 import { command } from '#bot/commands.js';
@@ -64,7 +64,7 @@ export default command({
 
     const patreonText =
       patreonTierUntilDate.getTime() > Date.now() / 1000 && myTargetUser.patreonTier > 0
-        ? stripIndent`
+        ? outdent`
           Active Tier: ${myTargetUser.patreonTier} (${fct.getPatreonTierName(
             myTargetUser.patreonTier,
           )})
@@ -78,16 +78,16 @@ export default command({
       fields: [
         {
           name: 'General',
-          value: stripIndent`
-        Joined: <t:${targetMemberInfo.joinedAt}:D>, <t:${targetMemberInfo.joinedAt}:R>
-        Inviter: ${inviterInfo.name}`,
+          value: outdent`
+            Joined: <t:${targetMemberInfo.joinedAt}:D>, <t:${targetMemberInfo.joinedAt}:R>
+            Inviter: ${inviterInfo.name}`,
         },
         { name: 'Patreon', value: patreonText },
         {
           name: 'Settings',
-          value: stripIndent`
-        Notify levelup via Direct Message: ${cachedGuild.db.notifyLevelupDm ? 'Yes' : 'No'}
-        Reaction Vote: ${cachedGuild.db.reactionVote ? 'Yes' : 'No'}`,
+          value: outdent`
+            Notify levelup via Direct Message: ${cachedGuild.db.notifyLevelupDm ? 'Yes' : 'No'}
+            Reaction Vote: ${cachedGuild.db.reactionVote ? 'Yes' : 'No'}`,
         },
         { name: 'Recent Activity', value: lastActivityStr },
       ],

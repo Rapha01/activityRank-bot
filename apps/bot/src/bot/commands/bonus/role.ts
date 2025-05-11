@@ -1,5 +1,5 @@
 import statFlushCache from '../../statFlushCache.js';
-import { oneLine, stripIndent } from 'common-tags';
+import outdent from 'outdent';
 import {
   Events,
   GatewayOpcodes,
@@ -147,7 +147,7 @@ async function betaSystem(
     affected++;
     if (affected % 2000 === 0) {
       await interaction.editReply({
-        content: stripIndent`
+        content: outdent`
           ${t('bonus.processing', { count: members.size })}
           \`\`\`yml
           ${progressBar(affected, members.size)}
@@ -197,7 +197,7 @@ async function getApplicableMembers(
 
       if (i % 20 === 0) {
         reply({
-          content: stripIndent`
+          content: outdent`
             ${t('bonus.processing', { count: members.size })}
             \`\`\`yml
             ${progressBar(i, chunk.count)}

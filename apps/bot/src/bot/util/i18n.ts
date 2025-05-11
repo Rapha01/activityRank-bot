@@ -2,6 +2,9 @@ import i18next, { type CustomTypeOptions } from 'i18next';
 import Backend, { type FsBackendOptions } from 'i18next-fs-backend';
 import { fileURLToPath } from 'node:url';
 
+export const formatListAnd = new Intl.ListFormat('en-US', { style: 'long', type: 'conjunction' })
+  .format;
+
 let loaded = false;
 export async function ensureI18nLoaded() {
   if (loaded) return;

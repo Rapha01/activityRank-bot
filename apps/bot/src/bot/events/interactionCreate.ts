@@ -13,7 +13,7 @@ import {
   type DiscordAPIError,
   RESTJSONErrorCodes,
 } from 'discord.js';
-import { stripIndent } from 'common-tags';
+import outdent from 'outdent';
 import { config } from '#const/config.js';
 import { registry } from '#bot/util/registry/registry.js';
 
@@ -67,9 +67,9 @@ export default event(Events.InteractionCreate, async (interaction) => {
       if (interaction.isAutocomplete()) return;
 
       const message = {
-        content: stripIndent`
-        There was an error while executing this command! 
-        If this error persists, report it [in our support server](${config.supportServer.invite})`,
+        content: outdent`
+          There was an error while executing this command! 
+          If this error persists, report it [in our support server](${config.supportServer.invite})`,
         ephemeral: true,
       };
 
