@@ -29,6 +29,7 @@ jobs:
       # * @activityrank/bot:v1.2.3
       # * bot:v1.2.3
       # * bot/v1.2.3
+      # * bot-1.2.3
 
       # Example invalid names: 
       # * v1.2.3, 
@@ -42,7 +43,7 @@ jobs:
         id: regex-match
         with:
           text: ${{ github.ref_name }}
-          regex: '(?:@activityrank\/)?([a-z-]+)[\/:]v\d+\.\d+\.\d+'
+          regex: '(?:@activityrank\/)?([a-z-]+)[\/:-](?:v)\d+\.\d+\.\d+'
 
       - name: Exit if tag not matched
         if: ${{ steps.regex-match.outputs.match == '' }}
@@ -78,15 +79,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/rapha01/activityrank/${{ env.APP }}
           tags: |
-            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:]v(\d+\.\d+\.\d+),group=1
-            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:]v(\d+\.\d+)\.\d+,group=1
-            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:]v(\d+)\.\d+\.\d+,group=1
+            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:-](?:v)(\d+\.\d+\.\d+),group=1
+            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:-](?:v)(\d+\.\d+)\.\d+,group=1
+            type=match,pattern=(?:@activityrank\/)?(?:[a-z-]+)[\/:-](?:v)(\d+)\.\d+\.\d+,group=1
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+        if: env.APP != "cli"
         with:
           context: .
           file: ./apps/${{ env.APP }}/Dockerfile
