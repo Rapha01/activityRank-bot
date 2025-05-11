@@ -6,6 +6,9 @@
     "apps/cli": {},
     "apps/manager": {}
   },
+  "separate-pull-requests": true,
+  "pull-request-title-pattern": "chore: release${component} ${version}",
+  "commit-search-depth": 50,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true
 }
