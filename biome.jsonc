@@ -12,7 +12,8 @@
   "formatter": {
     "enabled": true,
     "useEditorconfig": true,
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "ignore": ["package.json", "CHANGELOG.md"]
   },
   "organizeImports": {
     "enabled": true

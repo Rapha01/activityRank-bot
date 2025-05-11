@@ -1,0 +1,8 @@
+name: bot
+org: actvityrank
+packagePath: apps/bot
+gitRepo: "rapha01/activityRank-bot"
+pushTag: true
+githubRelease: true
+githubReleaseLatest: true
+githubReleaseNameTemplate: "{{name}} {{new-version}}"

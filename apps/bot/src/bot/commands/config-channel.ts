@@ -70,8 +70,8 @@ const generateRow = (
     new ButtonBuilder().setLabel(t('config-channel.levelupChannel')),
   ];
 
-  function disableIfNotText(builder: ButtonBuilder) {
-    if (type !== ChannelType.GuildText) {
+  function disableIfNotAutosendable(builder: ButtonBuilder) {
+    if (!AUTOSENDABLE_CHANNEL_TYPES.includes(type)) {
       builder.setDisabled(true);
       builder.setStyle(ButtonStyle.Secondary);
     }
@@ -109,6 +109,11 @@ const _close = (ownerId: string) =>
       .setStyle(ButtonStyle.Danger)
       .setCustomId(closeButton.instanceId({ predicate: requireUserId(ownerId) })),
   );
+
+const AUTOSENDABLE_CHANNEL_TYPES: (ChannelType | null)[] = [
+  ChannelType.GuildText,
+  ChannelType.GuildAnnouncement,
+];
 
 export default command({
   name: 'config-channel',
@@ -151,9 +156,7 @@ export default command({
 
     if (
       !resolvedChannel.object ||
-      [ChannelType.GuildText, ChannelType.GuildForum, ChannelType.GuildAnnouncement].includes(
-        resolvedChannel.object.type,
-      )
+      AUTOSENDABLE_CHANNEL_TYPES.includes(resolvedChannel.object.type)
     ) {
       embed.addFields(
         {
