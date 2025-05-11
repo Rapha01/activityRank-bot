@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/refs/tags/v17.0.0/schemas/config.json",
+  "packages": {
+    "apps/api": {},
+    "apps/bot": {},
+    "apps/cli": {},
+    "apps/manager": {}
+  },
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true
+}
