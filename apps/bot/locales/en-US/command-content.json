@@ -26,6 +26,7 @@
     "text": "text",
     "voice": "voice",
     "totalXP": "Total XP: {{xp}} (#{{rank}})",
+    "zeroXp": "Total XP: 0",
     "nextLevel": "Next Level: {{percent}}%",
     "stats": "Stats",
     "topChannels": "Top Channels"

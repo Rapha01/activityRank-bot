@@ -260,12 +260,13 @@ export async function fetchGuildMemberStatistics(guild: Guild, userId: string) {
 /**
  * Retrieve the rank of a single member in the guild, ranked by total XP over a given time period.
  * @returns The rank of the specified member: `1` represents the member with the most XP over the given time period.
+ *  Returns `null` if the amount of XP is zero.
  */
 export async function getGuildMemberScorePosition(
   guild: Guild,
   userId: string,
   time: StatTimeInterval,
-) {
+): Promise<number | null> {
   const cachedGuild = await getGuildModel(guild);
 
   const { db } = shards.get(cachedGuild.dbHost);
@@ -283,12 +284,32 @@ export async function getGuildMemberScorePosition(
     .as('guild_ranks');
 
   // SELECT COUNT of all ranks where their rank > this member's rank
-  const { count } = await db
+  const { count, member_score } = await db
     .selectFrom([myRank, guildRanks])
     // count is returned as a string - presumably because it could be a bigint.
-    .select((eb) => eb.fn.countAll<string>().as('count'))
+    .select((eb) => [
+      eb.fn.countAll<string>().as('count'),
+      /* 
+        member_score returns either:
+          a) the amount of XP held by the member
+          b) if that value is NULL, `coalesce` makes the result equal to `-1`.
+        This is necessary because comparing numbers and NULLs (via < or >) always returns NULL.
+
+        For instance, if `member_rank.score` was NULL (because there is no member_rank; 
+        they haven't ever generated XP), comparing `guild_ranks.score > member_rank.score` returns 1.
+        Number.parseInt(null) produces 0, and so users with no score at all have a rank of `#1`.
+        */
+      eb.fn
+        .coalesce('member_rank.score', eb.lit(-1))
+        .as('member_score'),
+    ])
     .whereRef('guild_ranks.score', '>', 'member_rank.score')
     .executeTakeFirstOrThrow();
+
+  if (typeof member_score === 'number' && member_score < 1) {
+    // If the member_score is either 0 or NULL, return `null`
+    return null;
+  }
 
   // make it 1-indexed
   return Number.parseInt(count) + 1;
@@ -297,13 +318,14 @@ export async function getGuildMemberScorePosition(
 /**
  * Retrieve the rank of a single member in the guild, ranked by a given statistic over a given time period.
  * @returns The rank of the specified member: `1` represents the member with the most instances of the statistic over the given time period.
+ *  Returns `null` if the statistic in the category is zero.
  */
 export async function getGuildMemberStatPosition(
   guild: Guild,
   userId: string,
   statistic: StatType,
   time: StatTimeInterval,
-) {
+): Promise<number | null> {
   const cachedGuild = await getGuildModel(guild);
 
   const { db } = shards.get(cachedGuild.dbHost);
@@ -322,12 +344,32 @@ export async function getGuildMemberStatPosition(
     .as('guild_ranks');
 
   // SELECT COUNT of all ranks where their rank > this member's rank
-  const { count } = await db
+  const { count, member_count } = await db
     .selectFrom([myRank, guildRanks])
     // count is returned as a string - presumably because it could be a bigint.
-    .select((eb) => eb.fn.countAll<string>().as('count'))
+    .select((eb) => [
+      eb.fn.countAll<string>().as('count'),
+      /* 
+        member_count returns either:
+          a) the count of the statistic held by the member
+          b) if that statistic is NULL, `coalesce` makes the result equal to `-1`.
+        This is necessary because comparing numbers and NULLs (via < or >) always returns NULL.
+
+        For instance, if `member_rank.count` was NULL (because there is no member_rank; 
+        they haven't ever created the requested statistic), comparing `guild_ranks.count > member_rank.count` returns 1.
+        Number.parseInt(null) produces 0, and so users with no statistic at all have a rank of `#1`.
+        */
+      eb.fn
+        .coalesce('member_rank.count', eb.lit(-1))
+        .as('member_count'),
+    ])
     .whereRef('guild_ranks.count', '>', 'member_rank.count')
     .executeTakeFirstOrThrow();
+
+  // If the member_count is either 0 or NULL, return `null`
+  if (typeof member_count === 'number' && member_count < 1) {
+    return null;
+  }
 
   // make it 1-indexed
   return Number.parseInt(count) + 1;
