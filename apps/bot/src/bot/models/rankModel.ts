@@ -377,7 +377,7 @@ export async function getGuildMemberStatPosition(
     .executeTakeFirstOrThrow();
 
   // If the member_count is either 0 or NULL, return `null`
-  if (typeof member_count === 'number' || member_count < 1) {
+  if (typeof member_count === 'number' || Number.parseInt(member_count.toString()) < 1) {
     return null;
   }
 
