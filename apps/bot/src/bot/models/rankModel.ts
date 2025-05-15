@@ -284,11 +284,17 @@ export async function getGuildMemberScorePosition(
     .as('guild_ranks');
 
   // SELECT COUNT of all ranks where their rank > this member's rank
-  const { count, member_score } = await db
+  const selectCount = db
     .selectFrom([myRank, guildRanks])
-    // count is returned as a string - presumably because it could be a bigint.
+    // `count` is returned as a string - presumably because it could be a bigint.
+    .select((eb) => eb.fn.countAll<string>().as('count'))
+    .whereRef('guild_ranks.score', '>', 'member_rank.score')
+    .as('score');
+
+  const { count, member_score } = await db
+    .selectFrom([myRank, selectCount])
     .select((eb) => [
-      eb.fn.countAll<string>().as('count'),
+      'score.count',
       /* 
         member_score returns either:
           a) the amount of XP held by the member
@@ -303,10 +309,9 @@ export async function getGuildMemberScorePosition(
         .coalesce('member_rank.score', eb.lit(-1))
         .as('member_score'),
     ])
-    .whereRef('guild_ranks.score', '>', 'member_rank.score')
     .executeTakeFirstOrThrow();
 
-  if (typeof member_score === 'number' && member_score < 1) {
+  if (typeof member_score === 'number' || member_score < 1) {
     // If the member_score is either 0 or NULL, return `null`
     return null;
   }
@@ -344,11 +349,17 @@ export async function getGuildMemberStatPosition(
     .as('guild_ranks');
 
   // SELECT COUNT of all ranks where their rank > this member's rank
-  const { count, member_count } = await db
+  const selectCount = db
     .selectFrom([myRank, guildRanks])
-    // count is returned as a string - presumably because it could be a bigint.
+    // `count` is returned as a string - presumably because it could be a bigint.
+    .select((eb) => eb.fn.countAll<string>().as('count'))
+    .whereRef('guild_ranks.count', '>', 'member_rank.count')
+    .as('count');
+
+  const { count, member_count } = await db
+    .selectFrom([myRank, selectCount])
     .select((eb) => [
-      eb.fn.countAll<string>().as('count'),
+      'count.count',
       /* 
         member_count returns either:
           a) the count of the statistic held by the member
@@ -358,16 +369,15 @@ export async function getGuildMemberStatPosition(
         For instance, if `member_rank.count` was NULL (because there is no member_rank; 
         they haven't ever created the requested statistic), comparing `guild_ranks.count > member_rank.count` returns 1.
         Number.parseInt(null) produces 0, and so users with no statistic at all have a rank of `#1`.
-        */
+      */
       eb.fn
         .coalesce('member_rank.count', eb.lit(-1))
         .as('member_count'),
     ])
-    .whereRef('guild_ranks.count', '>', 'member_rank.count')
     .executeTakeFirstOrThrow();
 
   // If the member_count is either 0 or NULL, return `null`
-  if (typeof member_count === 'number' && member_count < 1) {
+  if (typeof member_count === 'number' || member_count < 1) {
     return null;
   }
 
