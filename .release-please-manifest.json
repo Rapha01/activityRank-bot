@@ -1,6 +1,6 @@
 {
   "apps/api": "0.3.3",
-  "apps/bot": "7.6.1",
+  "apps/bot": "7.7.0",
   "apps/manager": "7.1.2",
   "apps/cli": "1.0.0"
 }
