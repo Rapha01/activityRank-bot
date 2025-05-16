@@ -492,6 +492,11 @@
     ]
   },
   {
+    "default_member_permissions": "8",
+    "type": 1,
+    "name": "update-roles"
+  },
+  {
     "default_member_permissions": "6",
     "type": 1,
     "deployment": "LOCAL_ONLY",
