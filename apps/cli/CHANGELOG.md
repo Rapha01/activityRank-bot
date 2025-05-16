@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Rapha01/activityRank-bot/compare/cli-v1.0.0...cli-v1.0.1) (2025-05-16)
+
+
+### Bug Fixes
+
+* translate cli locales ([05e355a](https://github.com/Rapha01/activityRank-bot/commit/05e355a4769ea1191b3a929e9a41e76be48f8095))
+
 ## 1.0.0 (2025-05-11)
 
 
