@@ -164,7 +164,7 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
 
     for (const { lang, success, data } of parsedLocalizations) {
       if (!success) {
-        console.warn(`Language "${lang}" is missing a \`command-descriptions.json\` file.`);
+        p.log.warn(`Language "${lang}" is missing a \`command-descriptions.json\` file.`);
         continue;
       }
       localizations.set(lang, data);
@@ -192,7 +192,7 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
       const res: Record<string, string> = {};
       for (const [lang, value] of localizations.entries()) {
         if (value?.[key]) {
-          res[lang] = value[key];
+          res[mapLanguageKey(lang)] = value[key];
         } else {
           missingDescriptions.push({ lang, key });
         }
@@ -263,7 +263,7 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
 
     if (missingDescriptions.length > 0) {
       for (const desc of missingDescriptions.filter((d) => d.lang !== 'en-US')) {
-        console.warn(`Missing description translation: ${desc.lang}::${desc.key}`);
+        p.log.warn(`Missing description translation: ${desc.lang}::${desc.key}`);
       }
     }
     if (missingDescriptions.some((d) => d.lang === 'en-US')) {
@@ -288,5 +288,16 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
     });
 
     this.commands = await this.getDeployableCommands();
+  }
+}
+
+function mapLanguageKey(key: string): string {
+  switch (key) {
+    case 'es':
+      return 'es-ES';
+    case 'pt-PT':
+      return 'pt-BR';
+    default:
+      return key;
   }
 }

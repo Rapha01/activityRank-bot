@@ -26,6 +26,7 @@
     "text": "text",
     "voice": "voice",
     "totalXP": "Total XP: {{xp}} (#{{rank}})",
+    "zeroXp": "Total XP: 0",
     "nextLevel": "Next Level: {{percent}}%",
     "stats": "Stats",
     "topChannels": "Top Channels"
@@ -80,7 +81,7 @@
     "everyone": "You cannot make @everyone a level role.",
     "manageRoles": "Please ensure the bot has the permission to manage roles.",
     "error1": "Using an assignLevel higher than or equal to a deassignLevel will not work: the role gets removed as soon as it gets added!\nDid you mean: **assign-level:{{deassignLevel}} deassign-level:{{assignLevel}}**?",
-    "maxRoles": "There is a maximum of 3 roles that can be assigned or deassigned from each level. Please remove some first.",
+    "maxRoles": "There is a maximum of 3 roles that can be assigned or deassigned from each level. Level {{level}} is full - please remove some first.",
     "roleAdded": "Assign/Deassignments for this role",
     "assignlevel": "Assignment Level",
     "deassignlevel": "Deassignment Level",

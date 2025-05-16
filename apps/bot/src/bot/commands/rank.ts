@@ -314,13 +314,23 @@ async function generateRankCard(
   }
 
   const infoStrings = [
-    state.t('rank.totalXP', { xp: Math.round(scores[state.time]), rank: positions.xp }),
-    state.t('rank.nextLevel', { percent: Math.floor((levelProgression % 1) * 100) }),
-  ].join('\n');
+    positions.xp !== null
+      ? state.t('rank.totalXP', { xp: Math.round(scores[state.time]), rank: positions.xp })
+      : state.t('rank.zeroXp'),
+    // only show percentage to next level for alltime; showing it for time-based xp is misleading
+    state.time === 'alltime'
+      ? state.t('rank.nextLevel', { percent: Math.floor((levelProgression % 1) * 100) })
+      : null,
+  ]
+    .filter((d) => d !== null)
+    .join('\n');
 
   embed.addFields(
     {
-      name: `#${positions.xp} **${guildMemberInfo.name}** ${emoji('level')}${Math.floor(levelProgression)}`,
+      name:
+        positions.xp !== null
+          ? `#${positions.xp} **${guildMemberInfo.name}** ${emoji('level')}${Math.floor(levelProgression)}`
+          : `**${guildMemberInfo.name}** ${emoji('level')}0`,
       value: infoStrings,
     },
     {
@@ -387,18 +397,42 @@ function getStatisticStrings(
   time: StatTimeInterval,
 ) {
   const scoreStrings = [];
-  if (myGuild.db.textXp)
-    scoreStrings.push(`:writing_hand: ${stats.textMessage[time]} (#${positions.textMessage})`);
-  if (myGuild.db.voiceXp)
+  if (myGuild.db.textXp) {
     scoreStrings.push(
-      `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`,
+      positions.textMessage !== null
+        ? `:writing_hand: ${stats.textMessage[time]} (#${positions.textMessage})`
+        : // don't show the rank if it's 0
+          `:writing_hand: ${stats.textMessage[time]}`,
     );
-  if (myGuild.db.inviteXp)
-    scoreStrings.push(`:envelope: ${stats.invite[time]} (#${positions.invite})`);
-  if (myGuild.db.voteXp)
-    scoreStrings.push(`${myGuild.db.voteEmote} ${stats.vote[time]} (#${positions.vote})`);
-  if (myGuild.db.bonusXp)
-    scoreStrings.push(`${myGuild.db.bonusEmote} ${stats.bonus[time]} (#${positions.bonus})`);
+  }
+  if (myGuild.db.voiceXp) {
+    scoreStrings.push(
+      positions.voiceMinute !== null
+        ? `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`
+        : `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10}`,
+    );
+  }
+  if (myGuild.db.inviteXp) {
+    scoreStrings.push(
+      positions.invite !== null
+        ? `:envelope: ${stats.invite[time]} (#${positions.invite})`
+        : `:envelope: ${stats.invite[time]}`,
+    );
+  }
+  if (myGuild.db.voteXp) {
+    scoreStrings.push(
+      positions.vote !== null
+        ? `${myGuild.db.voteEmote} ${stats.vote[time]} (#${positions.vote})`
+        : `${myGuild.db.voteEmote} ${stats.vote[time]}`,
+    );
+  }
+  if (myGuild.db.bonusXp) {
+    scoreStrings.push(
+      positions.bonus !== null
+        ? `${myGuild.db.bonusEmote} ${stats.bonus[time]} (#${positions.bonus})`
+        : `${myGuild.db.bonusEmote} ${stats.bonus[time]}`,
+    );
+  }
 
   return scoreStrings.join('\n');
 }
@@ -408,7 +442,7 @@ async function getPositions<T extends StatType[]>(
   memberId: string,
   types: T,
   time: StatTimeInterval,
-): Promise<Record<T[number] | 'xp', number>> {
+): Promise<Record<T[number] | 'xp', number | null>> {
   const positions = types.map(
     async (t) =>
       [t, await getGuildMemberStatPosition(guild, memberId, t, time)] as [T[number], number],

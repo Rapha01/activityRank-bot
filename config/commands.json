@@ -248,13 +248,13 @@
             "type": 4,
             "name": "assign-level",
             "min_value": 0,
-            "max_value": 500
+            "max_value": 1000
           },
           {
             "type": 4,
             "name": "deassign-level",
             "min_value": 0,
-            "max_value": 500
+            "max_value": 1000
           }
         ]
       },
@@ -490,6 +490,11 @@
         "name": "member"
       }
     ]
+  },
+  {
+    "default_member_permissions": "8",
+    "type": 1,
+    "name": "update-roles"
   },
   {
     "default_member_permissions": "6",

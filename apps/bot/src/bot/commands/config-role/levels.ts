@@ -1,11 +1,10 @@
 import { PermissionFlagsBits, type APIEmbed } from 'discord.js';
 import {
   fetchRoleAssignmentsByLevel,
-  fetchRoleAssignmentsByRole,
+  fetchRoleAssignmentByRole,
   getRoleModel,
 } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { formatListAnd } from '#bot/util/i18n.js';
 import { command } from '#bot/commands.js';
 
 export default command({
@@ -43,15 +42,10 @@ export default command({
     const items = {
       assignLevel: options['assign-level'],
       deassignLevel: options['deassign-level'],
-    };
+    } as const;
 
     if (items.assignLevel && items.deassignLevel && items.assignLevel >= items.deassignLevel) {
       await interaction.reply({ content: t('config-role.error1', items), ephemeral: true });
-      return;
-    }
-
-    if (Object.values(items).every((x) => x === undefined)) {
-      await interaction.reply({ content: t('missing.option'), ephemeral: true });
       return;
     }
 
@@ -64,42 +58,40 @@ export default command({
 
       const roleAssignmentsByLevel = await fetchRoleAssignmentsByLevel(interaction.guild, k, item);
       if (item !== 0 && roleAssignmentsByLevel.length >= 3) {
-        await interaction.reply({ content: t('config-role.maxRoles'), ephemeral: true });
+        await interaction.reply({
+          content: t('config-role.maxRoles', { level: item }),
+          ephemeral: true,
+        });
         return;
       }
       await cachedRole.upsert({ [k]: item });
     }
 
-    const roleAssignments = await fetchRoleAssignmentsByRole(interaction.guild, resolvedRole.id);
+    const roleAssignment = await fetchRoleAssignmentByRole(interaction.guild, resolvedRole.id);
 
-    const embed: APIEmbed = {
-      author: { name: t('config-role.roleAdded') },
-      color: 0x00ae86,
-      description: nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id),
-    };
+    const description = [
+      `> ${nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id)}`,
+    ];
 
-    const roleAssignLevels = roleAssignments
-      .map((o) => (o.assignLevel !== 0 ? `\`${o.assignLevel}\`` : null))
-      .filter((o) => o !== null);
-
-    const roleDeassignLevels = roleAssignments
-      .map((o) => (o.deassignLevel !== 0 ? `\`${o.deassignLevel}\`` : null))
-      .filter((o) => o !== null);
-
-    if (!roleAssignLevels.every((o) => o === null)) {
-      embed.fields = [
-        ...(embed.fields ?? []),
-        { name: t('config-role.assignlevel'), value: formatListAnd(roleAssignLevels) },
-      ];
+    if (roleAssignment?.assignLevel && roleAssignment.assignLevel !== 0) {
+      description.push(`* **${t('config-role.assignlevel')}**: \`${roleAssignment.assignLevel}\``);
     }
 
-    if (!roleDeassignLevels.every((o) => o === null)) {
-      embed.fields = [
-        ...(embed.fields ?? []),
-        { name: t('config-role.deassignlevel'), value: formatListAnd(roleDeassignLevels) },
-      ];
+    if (roleAssignment?.deassignLevel && roleAssignment.deassignLevel !== 0) {
+      description.push(
+        `* **${t('config-role.deassignlevel')}**: \`${roleAssignment.deassignLevel}\``,
+      );
     }
 
-    await interaction.reply({ embeds: [embed], ephemeral: true });
+    await interaction.reply({
+      embeds: [
+        {
+          author: { name: t('config-role.roleAdded') },
+          color: 0x00ae86,
+          description: description.join('\n'),
+        },
+      ],
+      ephemeral: true,
+    });
   },
 });

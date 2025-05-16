@@ -31,7 +31,7 @@ export default command({
       let dura = Temporal.Duration.from({ seconds });
       // balances `dura` up until "x days"
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration#duration_balancing
-      dura = dura.round('days');
+      dura = dura.round({ largestUnit: 'days' });
 
       return new DurationFormat([interaction.locale, 'en-US'], { style: 'long' }).format(dura);
     }
