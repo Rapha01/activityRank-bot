@@ -271,6 +271,7 @@ export async function getGuildMemberScorePosition(
 
   const { db } = shards.get(cachedGuild.dbHost);
 
+  // TODO: rename everything here for clarity
   const myRank = db
     .selectFrom('guildMember')
     .select(`${time} as score`)
@@ -291,33 +292,20 @@ export async function getGuildMemberScorePosition(
     .whereRef('guild_ranks.score', '>', 'member_rank.score')
     .as('score');
 
-  const { count, member_score } = await db
+  const result = await db
     .selectFrom([myRank, selectCount])
-    .select((eb) => [
-      'score.count',
-      /* 
-        member_score returns either:
-          a) the amount of XP held by the member
-          b) if that value is NULL, `coalesce` makes the result equal to `-1`.
-        This is necessary because comparing numbers and NULLs (via < or >) always returns NULL.
+    .select(['score.count', 'member_rank.score as member_score'])
+    .executeTakeFirst();
 
-        For instance, if `member_rank.score` was NULL (because there is no member_rank; 
-        they haven't ever generated XP), comparing `guild_ranks.score > member_rank.score` returns 1.
-        Number.parseInt(null) produces 0, and so users with no score at all have a rank of `#1`.
-        */
-      eb.fn
-        .coalesce('member_rank.score', eb.lit(-1))
-        .as('member_score'),
-    ])
-    .executeTakeFirstOrThrow();
-
-  if (typeof member_score === 'number' || member_score < 1) {
-    // If the member_score is either 0 or NULL, return `null`
-    return null;
+  // If the member has a score of 0, they don't have a place on the leaderboard.
+  // Members with a score of 0 are often new, and therefore have a score of `NULL`.
+  // Because comparing `NULL` with a number results in a NULL, `result.count` ends up being `0`.
+  // Obviously, a new member isn't rank #1.
+  if (result?.member_score && result.member_score > 0) {
+    // make it 1-indexed
+    return Number.parseInt(result.count) + 1;
   }
-
-  // make it 1-indexed
-  return Number.parseInt(count) + 1;
+  return null;
 }
 
 /**
@@ -356,33 +344,16 @@ export async function getGuildMemberStatPosition(
     .whereRef('guild_ranks.count', '>', 'member_rank.count')
     .as('count');
 
-  const { count, member_count } = await db
+  const result = await db
     .selectFrom([myRank, selectCount])
-    .select((eb) => [
-      'count.count',
-      /* 
-        member_count returns either:
-          a) the count of the statistic held by the member
-          b) if that statistic is NULL, `coalesce` makes the result equal to `-1`.
-        This is necessary because comparing numbers and NULLs (via < or >) always returns NULL.
+    .select(['count.count', 'member_rank.count as member_count'])
+    .executeTakeFirst();
 
-        For instance, if `member_rank.count` was NULL (because there is no member_rank; 
-        they haven't ever created the requested statistic), comparing `guild_ranks.count > member_rank.count` returns 1.
-        Number.parseInt(null) produces 0, and so users with no statistic at all have a rank of `#1`.
-      */
-      eb.fn
-        .coalesce('member_rank.count', eb.lit(-1))
-        .as('member_count'),
-    ])
-    .executeTakeFirstOrThrow();
-
-  // If the member_count is either 0 or NULL, return `null`
-  if (typeof member_count === 'number' || Number.parseInt(member_count.toString()) < 1) {
-    return null;
+  if (result?.member_count && Number.parseInt(result.member_count.toString()) > 0) {
+    // make it 1-indexed
+    return Number.parseInt(result.count) + 1;
   }
-
-  // make it 1-indexed
-  return Number.parseInt(count) + 1;
+  return null;
 }
 
 /**
