@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.7.1](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.7.0...bot-v7.7.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* errors with getting rank of empty members ([419c5f2](https://github.com/Rapha01/activityRank-bot/commit/419c5f287dbb488ca544ee25ca7811a91e0a5931))
+* errors with getting rank of empty members ([e554f75](https://github.com/Rapha01/activityRank-bot/commit/e554f75eb682aabaf4ba32ac6bada8d802f740f5))
+
 ## [7.7.0](https://github.com/Rapha01/activityRank-bot/compare/bot/v7.6.1...bot-v7.7.0) (2025-05-16)
 
 
