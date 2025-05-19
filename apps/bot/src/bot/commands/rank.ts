@@ -330,7 +330,7 @@ async function generateRankCard(
       name:
         positions.xp !== null
           ? `#${positions.xp} **${guildMemberInfo.name}** ${emoji('level')}${Math.floor(levelProgression)}`
-          : `**${guildMemberInfo.name}** ${emoji('level')}0`,
+          : `**${guildMemberInfo.name}** ${emoji('level')}1`,
       value: infoStrings,
     },
     {
