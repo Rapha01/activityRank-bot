@@ -20,7 +20,8 @@ import {
   type chatInputCommandSchema,
   type subcommandOptionSchema,
 } from '../util/commandSchema.ts';
-import { findWorkspaceRoot, getConfigLoader } from '../util/loaders.ts';
+import { ConfigurableCommand2 } from '../util/classes.ts';
+import { findWorkspaceRoot } from '../util/loaders.ts';
 
 class ObjectTypeBuilder {
   #internal = new Map<string, { value: string; optional: boolean }>();
@@ -76,7 +77,7 @@ class ObjectTypeBuilder {
   }
 }
 
-export class GenerateCommand extends Command {
+export class GenerateCommand extends ConfigurableCommand2 {
   static override paths = [['generate'], ['gen']];
   static override usage = Command.Usage({
     category: 'Develop',
@@ -353,7 +354,7 @@ export class GenerateCommand extends Command {
   override async execute() {
     p.intro('Generating command typings');
 
-    const loader = await getConfigLoader();
+    const loader = await this.getConfigLoader();
     const commands = await loader.load({ name: 'commands', schema: commandsSchema, secret: false });
 
     const output = [

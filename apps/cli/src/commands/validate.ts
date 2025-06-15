@@ -1,10 +1,10 @@
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command } from 'clipanion';
+import { ConfigurableCommand2 } from '../util/classes.ts';
 import { commandsSchema } from '../util/commandSchema.ts';
-import { getConfigLoader } from '../util/loaders.ts';
 
-export class ValidateCommand extends Command {
+export class ValidateCommand extends ConfigurableCommand2 {
   static override paths = [['validate']];
   static override usage = Command.Usage({
     category: 'Develop',
@@ -18,7 +18,7 @@ export class ValidateCommand extends Command {
     const spin = p.spinner();
     spin.start('Validating config...');
 
-    const loader = await getConfigLoader();
+    const loader = await this.getConfigLoader();
     await loader.load({ name: 'commands', schema: commandsSchema, secret: false });
 
     spin.stop(pc.green('✔︎ commands.json validated'));

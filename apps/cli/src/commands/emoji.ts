@@ -7,9 +7,10 @@ import { Command, Option } from 'clipanion';
 import { readFile, writeFile } from 'node:fs/promises';
 import type { Writable } from 'node:stream';
 import { createWriteStream } from 'node:fs';
-import { findWorkspaceRoot, loadBaseConfig } from '../util/loaders.ts';
+import { ConfigurableCommand2 } from '../util/classes.ts';
+import { findWorkspaceRoot } from '../util/loaders.ts';
 
-export class EmojiDeployCommand extends Command {
+export class EmojiDeployCommand extends ConfigurableCommand2 {
   static override paths = [['emoji', 'deploy']];
   static override usage = Command.Usage({
     category: 'Deploy',
@@ -31,7 +32,7 @@ export class EmojiDeployCommand extends Command {
   override async execute() {
     p.intro(pc.bgCyan(pc.blackBright('  Emoji Deployment  ')));
 
-    const { api } = await loadBaseConfig();
+    const { api } = await this.loadBaseConfig();
     const workspaceRoot = await findWorkspaceRoot(
       `Could not find the root of the ${pc.cyan('activityrank')} monorepo. A properly configured ActivityRank workspace is necessary for this command to function.`,
     );

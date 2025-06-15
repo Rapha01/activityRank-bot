@@ -6,7 +6,8 @@ import { createConnection, type RowDataPacket } from 'mysql2/promise';
 import { Command, Option, UsageError } from 'clipanion';
 import type { Writable } from 'node:stream';
 import { createWriteStream } from 'node:fs';
-import { loadBaseConfig, type BaseConfig } from '../util/loaders.ts';
+import { ConfigurableCommand2 } from '../util/classes.ts';
+import type { BaseConfig } from '../util/loaders.ts';
 import type { API } from '@discordjs/core';
 
 const FORMATS = ['table', 'csv', 'json', 'toml'] as const;
@@ -14,7 +15,7 @@ type OutputFormat = (typeof FORMATS)[number];
 
 const isValidOutputFormat = (s: string): s is OutputFormat => FORMATS.includes(s as OutputFormat);
 
-export class ExportCommand extends Command {
+export class ExportCommand extends ConfigurableCommand2 {
   static override paths = [['export']];
   static override usage = Command.Usage({
     category: 'Other',
@@ -48,7 +49,7 @@ export class ExportCommand extends Command {
   guildId = Option.String({ validator: t.cascade(t.isString(), t.matchesRegExp(/^\d{17,20}$/)) });
 
   override async execute() {
-    const { keys, api } = await loadBaseConfig();
+    const { keys, api } = await this.loadBaseConfig();
 
     const format = this.getOutputFormat();
 
