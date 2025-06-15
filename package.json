@@ -27,5 +27,5 @@
     "syncpack": "^13.0.4",
     "turbo": "^2.5.2"
   },
-  "packageManager": "pnpm@10.9.0"
+  "packageManager": "pnpm@10.12.1"
 }
