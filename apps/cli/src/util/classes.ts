@@ -21,6 +21,60 @@ import {
   type subcommandOptionSchema,
   type DeploymentMode,
 } from './commandSchema.ts';
+import { findWorkspaceRoot, type BaseConfig } from './loaders.ts';
+
+export abstract class ConfigurableCommand2 extends Command {
+  // The path to a config directory.
+  configPath = Option.String('--config', {
+    required: false,
+    description: 'The path to a config directory.',
+  });
+
+  /**
+   * Gets a configLoader object, from (in order):
+   *
+   * 1. the provided path argument
+   * 2. the --config flag
+   * 3. the CONFIG_PATH environment variable
+   * 4. the workspace root
+   */
+  async getConfigLoader(_path?: string | undefined): Promise<ReturnType<typeof configLoader>> {
+    const cfgPath =
+      _path ??
+      this.configPath ??
+      process.env.CONFIG_PATH ??
+      path.join(await findWorkspaceRoot(), 'config');
+    return configLoader(cfgPath);
+  }
+
+  /**
+   * Loads frequently-required config objects, like the config and keys from:
+   *
+   * 1. the provided path argument
+   * 2. the --config flag
+   * 3. the CONFIG_PATH environment variable
+   * 4. the workspace root
+   *
+   * If only the `configLoader` object is required, prefer {@link getConfigLoader}
+   * as it will avoid validating the `config.json` and `keys.json` files.
+   */
+  async loadBaseConfig(configDirPath?: string | undefined): Promise<BaseConfig> {
+    const loader = await this.getConfigLoader(configDirPath);
+
+    const config = await loader.load({
+      name: 'config',
+      schema: schemas.bot.config,
+      secret: false,
+    });
+    const keys = await loader.load({ name: 'keys', schema: schemas.bot.keys, secret: true });
+
+    const rest = new REST();
+    rest.setToken(keys.botAuth);
+    const api = new API(rest);
+
+    return { config, keys, api, loader };
+  }
+}
 
 export class ConfigurableCommand extends Command {
   // The path to a config directory.

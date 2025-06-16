@@ -14,14 +14,14 @@ import {
   ChannelType,
   InteractionContextType,
 } from 'discord-api-types/v10';
-import { configLoader, schemas } from '@activityrank/cfg';
-import { ConfigurableCommand } from '../util/classes.ts';
 import {
   type anyOptionSchema,
   commandsSchema,
   type chatInputCommandSchema,
   type subcommandOptionSchema,
 } from '../util/commandSchema.ts';
+import { ConfigurableCommand2 } from '../util/classes.ts';
+import { findWorkspaceRoot } from '../util/loaders.ts';
 
 class ObjectTypeBuilder {
   #internal = new Map<string, { value: string; optional: boolean }>();
@@ -77,7 +77,7 @@ class ObjectTypeBuilder {
   }
 }
 
-export class GenerateCommand extends ConfigurableCommand {
+export class GenerateCommand extends ConfigurableCommand2 {
   static override paths = [['generate'], ['gen']];
   static override usage = Command.Usage({
     category: 'Develop',
@@ -353,22 +353,9 @@ export class GenerateCommand extends ConfigurableCommand {
 
   override async execute() {
     p.intro('Generating command typings');
-    const spin = p.spinner();
-    spin.start('Loading config...');
 
-    const loader = configLoader(
-      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
-    );
-
-    this.config = await loader.load({
-      name: 'config',
-      schema: schemas.bot.config,
-      secret: false,
-    });
-    this.keys = await loader.load({ name: 'keys', schema: schemas.bot.keys, secret: true });
+    const loader = await this.getConfigLoader();
     const commands = await loader.load({ name: 'commands', schema: commandsSchema, secret: false });
-
-    spin.stop('Loaded config');
 
     const output = [
       `/* 🛠️ This file was generated with \`activityrank generate\` on ${new Date().toDateString()}. */\n\n`,
@@ -402,7 +389,7 @@ export class GenerateCommand extends ConfigurableCommand {
         outputDisplay = this.outputFile;
       }
     } else {
-      const wsRoot = await this.findWorkspaceRoot();
+      const wsRoot = await findWorkspaceRoot();
       if (!wsRoot) {
         throw new UsageError(
           'Could not find workspace root. Either provide an `--output` option or use an ActivityRank workspace.',
