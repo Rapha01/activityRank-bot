@@ -1,7 +1,7 @@
 #!/usr/bin/env node --experimental-strip-types --no-warnings
 
 import { Builtins, Cli } from 'clipanion';
-import { DeployCommand, DeployProductionCommand } from './commands/deploy.ts';
+import { DeployCommand } from './commands/deploy.ts';
 import { ClearCommand } from './commands/clear.ts';
 import { CommandsCommand } from './commands/commands.ts';
 import { GenerateCommand } from './commands/generate.ts';
@@ -19,7 +19,6 @@ const cli = new Cli({
 });
 
 cli.register(DeployCommand);
-cli.register(DeployProductionCommand);
 cli.register(ClearCommand);
 cli.register(CommandsCommand);
 cli.register(EmojiDeployCommand);

@@ -62,7 +62,6 @@ export class ClearCommand extends ConfigurableCommand2 {
     }
 
     if (this.local) {
-      console.log(this.local, config.developmentServers);
       const localServers = new Set([...this.local, ...config.developmentServers]);
       const guildsData = await Promise.all(
         [...localServers].map(
@@ -105,7 +104,7 @@ export class ClearCommand extends ConfigurableCommand2 {
           spin.message(`Clearing local commands • ${name}`);
           await api.applicationCommands.bulkOverwriteGuildCommands(ownUser.id, guildId, []);
         }
-        spin.start('Cleared local commands');
+        spin.stop('Cleared local commands');
       }
     }
   }
