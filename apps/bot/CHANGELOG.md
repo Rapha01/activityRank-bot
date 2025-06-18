@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.8.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.7.1...bot-v7.8.0) (2025-06-18)
+
+
+### Features
+
+* allow resetting settings of a deleted role ([fdb61c3](https://github.com/Rapha01/activityRank-bot/commit/fdb61c3a78101e6dbd5eb52523cbc1982bdfb47e))
+
+
+### Bug Fixes
+
+* reduce risk of uncaught errors with eval ([de30c07](https://github.com/Rapha01/activityRank-bot/commit/de30c076dfe3a6f82b9c3621f1b53471a50913ed))
+
 ## [7.7.1](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.7.0...bot-v7.7.1) (2025-05-19)
 
 

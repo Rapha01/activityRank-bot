@@ -1,7 +1,7 @@
 {
   "name": "@activityrank/bot",
   "private": true,
-  "version": "7.7.1",
+  "version": "7.8.0",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
