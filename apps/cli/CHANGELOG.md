@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/Rapha01/activityRank-bot/compare/cli-v1.0.1...cli-v1.1.0) (2025-06-18)
+
+
+### Features
+
+* **cli:** add export command ([a2999df](https://github.com/Rapha01/activityRank-bot/commit/a2999dfbdd5b57b83cae18e60266dae0fecee62f))
+* improve clear command ergonomics ([9280e99](https://github.com/Rapha01/activityRank-bot/commit/9280e992b4dc58c2d96ff011de119c1eaad2f0fd))
+* improve deploy command functionality ([e3d8c28](https://github.com/Rapha01/activityRank-bot/commit/e3d8c28c8e9a6d079533b02ea1b05c89cf442953))
+
 ## [1.0.1](https://github.com/Rapha01/activityRank-bot/compare/cli-v1.0.0...cli-v1.0.1) (2025-05-16)
 
 
