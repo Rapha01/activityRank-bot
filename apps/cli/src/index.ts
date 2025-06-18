@@ -2,7 +2,7 @@
 
 import { Builtins, Cli } from 'clipanion';
 import { DeployCommand, DeployProductionCommand } from './commands/deploy.ts';
-import { ClearCommand, ClearProductionCommand } from './commands/clear.ts';
+import { ClearCommand } from './commands/clear.ts';
 import { CommandsCommand } from './commands/commands.ts';
 import { GenerateCommand } from './commands/generate.ts';
 import { ValidateCommand } from './commands/validate.ts';
@@ -21,7 +21,6 @@ const cli = new Cli({
 cli.register(DeployCommand);
 cli.register(DeployProductionCommand);
 cli.register(ClearCommand);
-cli.register(ClearProductionCommand);
 cli.register(CommandsCommand);
 cli.register(EmojiDeployCommand);
 cli.register(GenerateCommand);

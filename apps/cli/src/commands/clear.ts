@@ -1,98 +1,112 @@
-import { z } from 'zod';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option } from 'clipanion';
-import { DiscordCommandManagementCommand } from '../util/classes.ts';
+import { ConfigurableCommand2 } from '../util/classes.ts';
 
-const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
-
-export class ClearCommand extends DiscordCommandManagementCommand {
+export class ClearCommand extends ConfigurableCommand2 {
   static override paths = [['clear']];
   static override usage = Command.Usage({
     category: 'Deploy',
-    description: 'Clear local Slash Commands.',
-    details: `
-      Clears the bot's Slash Commands. This command should mostly be used in development.
-
-      If a list of guild IDs is provided, all global and guild-specific commands will be cleared 
-      in the list of guild IDs. Otherwise, the list defined in \`config.developmentServers\` will be used.
-    `,
-    examples: [['Clear slash commands globally and from `config.developmentServers`', '$0 clear']],
-  });
-
-  guildIds = Option.Rest({ required: 0 });
-
-  override async execute() {
-    p.intro(pc.bgCyan(pc.blackBright('  Clear Local Commands  ')));
-
-    await super.execute();
-
-    const api = this.getApi();
-    const guilds = z
-      .array(snowflakeSchema)
-      .parse(this.guildIds.length > 0 ? this.guildIds : this.config.developmentServers);
-
-    const spin = p.spinner();
-    spin.start('Clearing commands...');
-
-    await api.applicationCommands.bulkOverwriteGlobalCommands(this.keys.botId, []);
-    for (const [i, guild] of guilds.entries()) {
-      spin.message(`Clearing commands [${i}/${guilds.length}]`);
-      await api.applicationCommands.bulkOverwriteGuildCommands(this.keys.botId, guild, []);
-    }
-
-    spin.stop(`Cleared global commands and local commands from ${guilds.length} guilds`);
-  }
-}
-export class ClearProductionCommand extends DiscordCommandManagementCommand {
-  static override paths = [['clear', 'production']];
-  static override usage = Command.Usage({
-    category: 'Deploy',
-    description: 'Clear production Slash Commands.',
-    details: `
-      Clears the bot's Slash Commands. This command should mostly be used in production.
-
-      This command can be used to clear either all globally deployed commands, or all 
-      locally deployed commands in \`config.developmentServers\` - which should be admin commands.
-    `,
+    description: 'Clear Slash Commands.',
+    details: "Clears the bot's Slash Commands. This command should mostly be used in development.",
     examples: [
-      ['Clear globally deployed slash commands', '$0 clear production'],
+      ['Clear slash commands globally', '$0 clear --global'],
+      ['Clear slash commands from a single server', '$0 clear --local <serverId>'],
       [
-        'Clear locally deployed slash commands in `config.developmentServers`',
-        '$0 clear production',
+        'Clear slash commands from multiple servers',
+        '$0 clear --local <serverId1> --local <serverId2>',
+      ],
+      [
+        'Clear slash commands globally and local commands from a single server',
+        '$0 clear --global --local <serverId>',
       ],
     ],
   });
 
+  global = Option.Boolean('-g,--global', {
+    description: 'Whether to clear globally deployed commands.',
+    required: false,
+  });
+
+  local = Option.Array('-l,--local', {
+    description: 'Guilds to clear local commands from.',
+    required: false,
+  });
+
   override async execute() {
-    p.intro(pc.bgCyan(pc.blackBright('  Clear Production Commands  ')));
+    p.intro(pc.bgCyan(pc.blackBright('  Clear Commands  ')));
 
-    await super.execute();
+    const { api, config } = await this.loadBaseConfig();
 
-    const api = this.getApi();
-    const type = await p.select({
-      message: `You are clearing with ${pc.cyan('production credentials')}. What commands would you like to clear?`,
-      options: [
-        { label: 'Clear globally deployed commands', value: 'GLOBAL' },
-        { label: 'Clear administrative commands', value: 'ADMIN' },
-      ],
-    });
+    const ownUser = await api.users.getCurrent();
 
-    if (type === 'GLOBAL') {
-      await api.applicationCommands.bulkOverwriteGlobalCommands(this.keys.botId, []);
+    p.log.info(
+      `Clearing Commands For: ${pc.blueBright(`${ownUser.username}#${ownUser.discriminator}`)} (${pc.dim(ownUser.id)})`,
+    );
 
-      p.outro(
-        `Successfully cleared all global commands. Run ${pc.magenta('activityrank deploy production')} to recreate them.`,
+    if (this.global) {
+      const confirm = await p.confirm({
+        message: `Are you sure you would like to ${pc.bold(pc.red('clear all global commands'))}?`,
+        initialValue: false,
+      });
+      if (p.isCancel(confirm)) {
+        p.cancel('Cancelled.');
+        return 8;
+      }
+      if (confirm) {
+        const spin = p.spinner();
+        spin.start('Clearing global commands');
+        await api.applicationCommands.bulkOverwriteGlobalCommands(ownUser.id, []);
+        spin.stop('Cleared global commands');
+      }
+    }
+
+    if (this.local) {
+      console.log(this.local, config.developmentServers);
+      const localServers = new Set([...this.local, ...config.developmentServers]);
+      const guildsData = await Promise.all(
+        [...localServers].map(
+          async (id) =>
+            await api.guilds
+              .get(id)
+              .then((guild) => ({ success: true as const, id, guild }))
+              .catch((e) => ({ success: false as const, id })),
+        ),
       );
-    } else if (type === 'ADMIN') {
-      for (const guild of this.config.developmentServers) {
-        await api.applicationCommands.bulkOverwriteGuildCommands(this.keys.botId, guild, []);
+
+      for (const guild of guildsData.filter((s) => !s.success)) {
+        p.log.warn(`Failed to fetch server ${pc.underline(pc.yellow(guild.id))}.`);
       }
 
-      p.outro(
-        `Successfully cleared local commands in ${this.config.developmentServers.length} servers.
-        Run ${pc.magenta('activityrank deploy production')} to recreate them.`,
-      );
+      const validGuilds = guildsData.filter((s) => s.success);
+
+      const selected = await p.multiselect({
+        message: `Confirm which guilds you would like to ${pc.bold(pc.red('clear local commands from'))}.`,
+        options: validGuilds.map(({ guild }) => ({
+          value: guild.id,
+          label: guild.name,
+          hint: `${guild.id}${config.developmentServers.includes(guild.id) ? ` • from ${pc.blue('config.developmentServers')}` : ''}`,
+        })),
+        // all guilds are selected by default
+        initialValues: validGuilds.map((guild) => guild.id),
+      });
+
+      if (p.isCancel(selected)) {
+        p.cancel('Cancelled.');
+        return 8;
+      }
+
+      if (selected.length > 0) {
+        const spin = p.spinner();
+        spin.start('Clearing local commands');
+
+        for (const guildId of selected) {
+          const name = validGuilds.find((g) => g.id === guildId)?.guild.name;
+          spin.message(`Clearing local commands • ${name}`);
+          await api.applicationCommands.bulkOverwriteGuildCommands(ownUser.id, guildId, []);
+        }
+        spin.start('Cleared local commands');
+      }
     }
   }
 }
