@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import t from 'typanion';
 import type {
   RESTPutAPIApplicationCommandsJSONBody,
   RESTPutAPIApplicationGuildCommandsJSONBody,
@@ -6,18 +7,18 @@ import type {
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option } from 'clipanion';
-import { DiscordCommandManagementCommand } from '../util/classes.ts';
+import { ConfigurableCommand2 } from '../util/classes.ts';
 import { Deploy } from '../util/commandSchema.ts';
 
 const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
 
-export class DeployCommand extends DiscordCommandManagementCommand {
+export class DeployCommand extends ConfigurableCommand2 {
   static override paths = [['deploy']];
   static override usage = Command.Usage({
     category: 'Deploy',
     description: 'Deploy Slash Commands to Discord.',
     details: `
-      Deploy the bot's Slash Commands. This command should mostly be used in development.
+      Deploy the bot's Slash Commands.
 
       If a list of guild IDs is provided, all \`Global\` and \`LocalOnly\` commands will be deployed 
       to the list of guild IDs. Otherwise, they will be deployed to the list defined in \`config.developmentServers\`.
@@ -30,141 +31,118 @@ export class DeployCommand extends DiscordCommandManagementCommand {
   });
 
   global = Option.Boolean('-g,--global', {
-    description: `Set this flag to deploy commands to ${pc.underline('all servers')}.`,
+    description: 'Whether to deploy commands globally.',
     required: false,
   });
-  guildIds = Option.Rest({ required: 0 });
 
-  override async execute() {
-    p.intro(pc.bgCyan(pc.blackBright('  Development Deployment  ')));
+  local = Option.Array('-l,--local', {
+    description: 'Guilds to deploy local commands into.',
+    required: false,
+  });
 
-    await super.execute();
-
-    const spin = p.spinner();
-    spin.start('Loading internal resources...');
-
-    const api = this.getApi();
-
-    spin.stop('Loaded internals');
-
-    const guilds = z
-      .array(snowflakeSchema)
-      .parse(this.guildIds.length > 0 ? this.guildIds : this.config.developmentServers);
-
-    const localCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
-    const globalCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
-
-    for (const command of this.commands) {
-      if (command.deployment === Deploy.Global) {
-        globalCommands.push(command);
-      } else if (command.deployment === Deploy.LocalOnly) {
-        localCommands.push(command);
-      }
-    }
-
-    if (this.global) {
-      const resp = await p.confirm({
-        message: `${pc.bgRed(' Are you sure ')} you want to deploy ${globalCommands.length} commands globally?
-        This is a ${pc.green('development command')}; you may have meant ${pc.magenta('activityrank deploy production')}
-        instead of the ${pc.magenta('--global')} flag.`,
-        initialValue: false,
-      });
-
-      if (resp === true) {
-        const spin = p.spinner();
-        spin.start('Deploying commands...');
-
-        await api.applicationCommands.bulkOverwriteGlobalCommands(this.keys.botId, globalCommands);
-
-        spin.stop(
-          `Wrote ${globalCommands.length} commands globally. 
-          Commands that were not permitted to be deployed globally have been ignored.`,
-        );
-      }
-    } else {
-      const spin = p.spinner();
-      spin.start(`Deploying commands [0/${guilds.length} guilds]`);
-
-      for (const [i, guild] of guilds.entries()) {
-        spin.message(`Deploying commands [${i}/${guilds.length} guilds]`);
-        const commands = [...localCommands, ...globalCommands];
-        await api.applicationCommands.bulkOverwriteGuildCommands(this.keys.botId, guild, commands);
-      }
-
-      spin.stop(
-        `Wrote ${localCommands.length + globalCommands.length} commands to ${guilds.length} guilds.`,
-      );
-    }
-  }
-}
-
-export class DeployProductionCommand extends DiscordCommandManagementCommand {
-  static override paths = [['deploy', 'production']];
-  static override usage = Command.Usage({
-    category: 'Deploy',
-    description: 'Deploy production Slash Commands to Discord.',
-    details: `
-      Deploy the bot's Slash Commands. This command should mostly be used with production credentials.
-      \`LocalOnly\` slash commands will be ignored when deployed this way.
-      
-      This command can also be used to update admin commands; they will be updated in 
-      all guilds specified in \`config.developmentGuilds\`.
-      `,
-    examples: [['Update production commands', '$0 deploy production']],
+  globalDeploy = Option.String('--deploy-global', {
+    description:
+      'How to deploy Global commands (default: `global`). \
+      Setting `--deploy-global=local` deploys global commands as local commands.',
+    required: false,
+    validator: t.isOneOf([t.isLiteral('global'), t.isLiteral('local'), t.isLiteral('never')]),
   });
 
   override async execute() {
-    p.intro(pc.bgCyan(pc.blackBright('  Production Deployment  ')));
+    p.intro(pc.bgCyan(pc.blackBright('  Deploy Commands  ')));
 
-    await super.execute();
+    const { api, config } = await this.loadBaseConfig();
 
-    const spin = p.spinner();
-    spin.start('Loading internal resources...');
+    const ownUser = await api.users.getCurrent();
 
-    const api = this.getApi();
+    p.log.info(
+      `Deploying Commands For: ${pc.blueBright(`${ownUser.username}#${ownUser.discriminator}`)} (${pc.dim(ownUser.id)})`,
+    );
 
-    spin.stop('Loaded internals');
+    this.globalDeploy ??= 'global';
 
-    const type = await p.select({
-      message: `You are deploying with ${pc.cyan('production credentials')}. How would you like to deploy?`,
-      options: [
-        { label: 'Update globally deployed commands', value: 'GLOBAL' },
-        { label: 'Update administrative commands', value: 'ADMIN' },
-      ],
-    });
+    const commands = await this.getDeployableCommands();
 
-    if (type === 'GLOBAL') {
-      const globalCommands: RESTPutAPIApplicationCommandsJSONBody = [];
+    const globalCommands: RESTPutAPIApplicationGuildCommandsJSONBody = commands.filter(
+      (c) => c.deployment === Deploy.Global,
+    );
+    const localCommands: RESTPutAPIApplicationGuildCommandsJSONBody =
+      this.globalDeploy === 'local'
+        ? commands.filter(
+            (c) => c.deployment === Deploy.LocalOnly || c.deployment === Deploy.Global,
+          )
+        : commands.filter((c) => c.deployment === Deploy.LocalOnly);
 
-      for (const command of this.commands) {
-        if (command.deployment === Deploy.Global) {
-          globalCommands.push(command);
-        }
-      }
-
-      await api.applicationCommands.bulkOverwriteGlobalCommands(this.keys.botId, globalCommands);
-
-      p.outro(`Successfully deployed ${globalCommands.length} commands to production.`);
-    } else if (type === 'ADMIN') {
-      const localCommands: RESTPutAPIApplicationGuildCommandsJSONBody = [];
-
-      for (const command of this.commands) {
-        if (command.deployment === Deploy.LocalOnly) {
-          localCommands.push(command);
-        }
-      }
-
-      for (const guild of this.config.developmentServers) {
-        await api.applicationCommands.bulkOverwriteGuildCommands(
-          this.keys.botId,
-          guild,
-          localCommands,
-        );
-      }
-
-      p.outro(
-        `Successfully deployed ${localCommands.length} administrative commands to ${this.config.developmentServers.length} production servers.`,
+    if (this.global && this.globalDeploy === 'never') {
+      p.log.warn(
+        `Skipped deploying commands globally because ${pc.magenta('--deploy-global=never')}`,
       );
+    } else if (this.global && this.globalDeploy === 'global') {
+      const confirm = await p.confirm({
+        message: `Are you sure you would like to ${pc.bold(`deploy ${pc.green(globalCommands.length)} global commands`)}?`,
+        initialValue: true,
+      });
+      if (p.isCancel(confirm)) {
+        p.cancel('Cancelled.');
+        return 8;
+      }
+      if (confirm) {
+        const spin = p.spinner();
+        spin.start('Deploying global commands');
+        await api.applicationCommands.bulkOverwriteGlobalCommands(ownUser.id, globalCommands);
+        spin.stop('Deployed global commands');
+      }
+    }
+
+    if (this.local) {
+      const localServers = new Set([...this.local, ...config.developmentServers]);
+      const guildsData = await Promise.all(
+        [...localServers].map(
+          async (id) =>
+            await api.guilds
+              .get(id)
+              .then((guild) => ({ success: true as const, id, guild }))
+              .catch((e) => ({ success: false as const, id })),
+        ),
+      );
+
+      for (const guild of guildsData.filter((s) => !s.success)) {
+        p.log.warn(`Failed to fetch server ${pc.underline(pc.yellow(guild.id))}.`);
+      }
+
+      const validGuilds = guildsData.filter((s) => s.success);
+
+      const selected = await p.multiselect({
+        message: `Confirm which guilds you would like to ${pc.bold(`update ${pc.green(localCommands.length)} local commands in`)}.`,
+        options: validGuilds.map(({ guild }) => ({
+          value: guild.id,
+          label: guild.name,
+          hint: `${guild.id}${config.developmentServers.includes(guild.id) ? ` • from ${pc.blue('config.developmentServers')}` : ''}`,
+        })),
+        // all guilds are selected by default
+        initialValues: validGuilds.map((guild) => guild.id),
+      });
+
+      if (p.isCancel(selected)) {
+        p.cancel('Cancelled.');
+        return 8;
+      }
+
+      if (selected.length > 0) {
+        const spin = p.spinner();
+        spin.start('Deploying local commands');
+
+        for (const guildId of selected) {
+          const name = validGuilds.find((g) => g.id === guildId)?.guild.name;
+          spin.message(`Deploying local commands • ${name}`);
+          await api.applicationCommands.bulkOverwriteGuildCommands(
+            ownUser.id,
+            guildId,
+            localCommands,
+          );
+        }
+        spin.stop('Deployed local commands');
+      }
     }
   }
 }

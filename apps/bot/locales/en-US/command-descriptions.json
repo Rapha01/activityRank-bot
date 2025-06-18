@@ -103,6 +103,7 @@
   "blacklist.guild.id": "The ID of the guild to blacklist",
   "eval.eval": "The code to evaluate",
   "eval.async": "Whether to evaluate the code in an async context",
+  "eval.server-id": "The ID of the server to evaluate the code in the shard of. Implies async.",
   "eval.depth": "How deep to recurse when inspecting the result",
   "eval.show-hidden": "Whether or not to show hidden properties when inspecting the result",
   "eval.visible": "Whether the result should be non-ephemeral",

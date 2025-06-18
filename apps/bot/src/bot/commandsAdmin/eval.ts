@@ -7,6 +7,7 @@ import { command } from '#bot/commands.js';
 import { DEVELOPER_ONLY } from '#bot/util/predicates.js';
 import { inspect } from 'node:util';
 import { codeBlock } from 'discord.js';
+import { outdent } from 'outdent';
 
 export default command({
   predicate: DEVELOPER_ONLY,
@@ -20,13 +21,36 @@ export default command({
       process.exit(1);
     }
 
-    const visible = options.visible ?? false;
+    const serverId = options['server-id'];
+    if (serverId && !/^\d{17,20}$/.test(serverId)) {
+      await interaction.reply({ content: 'Invalid ID provided to `server-id`.', ephemeral: true });
+      return;
+    }
 
-    await interaction.deferReply({ ephemeral: !visible });
+    const ephemeral = !options.visible;
+    await interaction.deferReply({ ephemeral });
 
     let code = options.eval;
-    const async = options.async ?? false;
-    if (async) code = `(async () => {\n${code}\n})();`;
+    const async = options.async ?? serverId !== undefined ?? false;
+
+    if (async) {
+      code = outdent`
+        (async () => {\n
+          ${code}\n
+        })();`;
+    } else if (serverId) {
+      code = outdent`
+        (async () => {
+          const res = await this.client.shard.broadcastEval(async c => {
+            if (!c.shard.client.guilds.cache.has("${serverId}")) {
+              return null;
+            } else {
+              ${code}
+            }
+          });
+          return res.find(d => d !== null);
+        })();`;
+    }
 
     const depth = options.depth ?? 3;
     const showHidden = options['show-hidden'] ?? false;
@@ -41,31 +65,28 @@ export default command({
       const ctx = { interaction, client: interaction.client };
 
       // biome-ignore lint/security/noGlobalEval: necessary
-      result = ((str: string) => eval(str)).call(ctx, code);
+      result = await eval.call(ctx, code);
     } catch (err) {
       if (err && err instanceof Error && err.stack) {
-        console.error('Error found in eval command', err);
+        console.error('Error found in eval command:\n', err);
       }
       result = err;
       success = false;
     }
 
-    result = await Promise.resolve(result);
-
     if (typeof result !== 'string') {
-      result = inspect(result, { depth, showHidden });
+      result = inspect(result, { depth, showHidden, numericSeparator: true });
     }
 
-    const output = success ? codeBlock('js', result) : `**ERROR**: ${codeBlock('bash', result)}`;
-
-    if (output.length > 2000) {
+    if (result.length > 1950) {
       await interaction.followUp({
         content: 'Output was too long. Result sent as a file.',
-        files: [{ attachment: Buffer.from(output), name: 'output.js' }],
+        files: [{ attachment: Buffer.from(result), name: success ? 'output.js' : 'error.txt' }],
       });
-      return;
+    } else {
+      await interaction.followUp({
+        content: success ? codeBlock('js', result) : `**ERROR**: ${codeBlock(result)}`,
+      });
     }
-
-    await interaction.followUp({ content: output });
   },
 });

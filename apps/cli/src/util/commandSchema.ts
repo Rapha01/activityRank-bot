@@ -138,7 +138,7 @@ export const Deploy = {
   Never: 'NEVER',
   /** This command will be ignored when deploying globally. */
   LocalOnly: 'LOCAL_ONLY',
-  /** This command can be automatically deployed to any guild. */
+  /** This command can be automatically deployed to any and all guilds. */
   Global: 'GLOBAL',
 } as const;
 

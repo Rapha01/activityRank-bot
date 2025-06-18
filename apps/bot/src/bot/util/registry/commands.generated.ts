@@ -1,4 +1,4 @@
-/* 🛠️ This file was generated with `activityrank generate` on Wed May 21 2025. */
+/* 🛠️ This file was generated with `activityrank generate` on Wed Jun 18 2025. */
 
 import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';
 import type {
@@ -531,6 +531,7 @@ export function command(options: {
     options: {
       eval: string;
       async?: boolean;
+      'server-id'?: string;
       depth?: number;
       'show-hidden'?: boolean;
       visible?: boolean;
@@ -686,6 +687,7 @@ export const COMMAND_META: {
     optionGetters: {
       eval: ['value'],
       async: ['value'],
+      'server-id': ['value'],
       depth: ['value'],
       'show-hidden': ['value'],
       visible: ['value'],

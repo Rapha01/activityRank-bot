@@ -557,6 +557,12 @@
         "name": "async"
       },
       {
+        "type": 3,
+        "name": "server-id",
+        "min_length": 17,
+        "max_length": 20
+      },
+      {
         "type": 4,
         "name": "depth",
         "min_value": 0,

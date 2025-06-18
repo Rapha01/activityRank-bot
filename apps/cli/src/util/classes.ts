@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { z } from 'zod';
 import * as p from '@clack/prompts';
+import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';
 import { configLoader, schemas } from '@activityrank/cfg';
 import { REST } from '@discordjs/rest';
@@ -73,6 +74,194 @@ export abstract class ConfigurableCommand2 extends Command {
     const api = new API(rest);
 
     return { config, keys, api, loader };
+  }
+
+  async getDeployableCommands(): Promise<DeployableCommand[]> {
+    const root = await findWorkspaceRoot();
+    const localizationDir = path.join(root, 'apps/bot/locales');
+
+    const subdirs = await fs.readdir(localizationDir, { withFileTypes: true });
+    const localizationFiles = subdirs
+      .map((dir) =>
+        dir.isDirectory()
+          ? {
+              lang: dir.name,
+              filePath: path.join(localizationDir, dir.name, 'command-descriptions.json'),
+            }
+          : null,
+      )
+      .filter((d) => d !== null);
+
+    const jsonSchema = z.record(z.string());
+
+    const parsedLocalizations = await Promise.all(
+      localizationFiles.map(async ({ lang, filePath }) => {
+        const contents = await fs.readFile(filePath);
+
+        let value: unknown;
+        try {
+          value = JSON.parse(contents.toString());
+        } catch {
+          return { lang, success: false } as const;
+        }
+
+        const parse = jsonSchema.safeParse(value);
+
+        if (!parse.success) {
+          return { lang, success: false } as const;
+        }
+        return { lang, data: parse.data, success: true } as const;
+      }),
+    );
+
+    const localizations: Map<string, z.infer<typeof jsonSchema>> = new Map();
+
+    for (const { lang, success, data } of parsedLocalizations) {
+      if (!success) {
+        p.log.warn(`Language "${lang}" is missing a \`command-descriptions.json\` file.`);
+        continue;
+      }
+      localizations.set(lang, data);
+    }
+
+    const baseLocalization = localizations.get('en-US');
+    if (!baseLocalization) {
+      throw new UsageError(`Failed to load base locale ${pc.green('en-US')}.`);
+    }
+
+    const commands: DeployableCommand[] = [];
+    const missingDescriptions: { lang: string; key: string }[] = [];
+
+    const getBaseDescription = (...components: string[]) => {
+      const key = components.join('.');
+      const res = baseLocalization[key];
+      if (!res) {
+        missingDescriptions.push({ lang: 'en-US', key });
+      }
+      return res;
+    };
+
+    const getDescriptionLocalizations = (...components: string[]) => {
+      const key = components.join('.');
+      const res: Record<string, string> = {};
+      for (const [lang, value] of localizations.entries()) {
+        if (value?.[key]) {
+          res[mapLanguageKey(lang)] = value[key];
+        } else {
+          missingDescriptions.push({ lang, key });
+        }
+      }
+      return res;
+    };
+
+    const loader = await this.getConfigLoader();
+    const commandData = await loader.load({
+      name: 'commands',
+      schema: commandsSchema,
+      devOnly: true,
+    });
+
+    for (const command of commandData) {
+      const description =
+        command.type === ApplicationCommandType.ChatInput
+          ? getBaseDescription(command.name)
+          : undefined;
+      const description_localizations =
+        command.type === ApplicationCommandType.ChatInput
+          ? getDescriptionLocalizations(command.name)
+          : undefined;
+
+      const getOptions = (
+        commandLike:
+          | z.infer<typeof contextCommandSchema>
+          | z.infer<typeof chatInputCommandSchema>
+          | z.infer<typeof subcommandOptionSchema>
+          | z.infer<typeof subcommandGroupOptionSchema>,
+        path: string[] = [],
+      ) => {
+        return 'options' in commandLike
+          ? commandLike.options?.map((opt): APIApplicationCommandOption => {
+              if ('options' in opt) {
+                return {
+                  ...opt,
+                  description: getBaseDescription(...path, commandLike.name, opt.name),
+                  description_localizations: getDescriptionLocalizations(
+                    ...path,
+                    commandLike.name,
+                    opt.name,
+                  ),
+                  // don't love the use of `any` but this is really complicated 😭
+                  options: getOptions(opt, [...path, commandLike.name]) as any,
+                };
+              }
+              return {
+                ...opt,
+                description: getBaseDescription(...path, commandLike.name, opt.name),
+                description_localizations: getDescriptionLocalizations(
+                  ...path,
+                  commandLike.name,
+                  opt.name,
+                ),
+              } as APIApplicationCommandOption;
+            })
+          : undefined;
+      };
+
+      const options = getOptions(command);
+
+      const res: DeployableCommand = {
+        ...command,
+        deployment: command.deployment ?? Deploy.Global,
+        // @ts-expect-error d.js typings are difficult because of the difference between context
+        // commands (which never have a description) and slash commands (which always have a description).
+        description,
+        description_localizations,
+        options,
+        default_member_permissions: command.default_member_permissions ?? undefined,
+      };
+
+      commands.push(res);
+    }
+
+    function comparator(
+      a: { lang: string; key: string },
+      b: { lang: string; key: string },
+    ): number {
+      if (a.lang > b.lang) return 1;
+      if (a.lang < b.lang) return -1;
+      if (a.key > b.key) return 1;
+      if (a.key < b.key) return -1;
+      return 0;
+    }
+    missingDescriptions.sort(comparator);
+
+    const missingLanguages = new Set(missingDescriptions.map((mis) => mis.lang));
+    missingLanguages.delete('en-US');
+
+    for (const lang of [...missingLanguages].sort()) {
+      const langDescriptions = missingDescriptions.filter((d) => d.lang === lang);
+      if (langDescriptions.length > 7) {
+        p.log.warn(
+          `Missing ${pc.bold(pc.red(langDescriptions.length))} description translations from ${lang}`,
+        );
+      } else {
+        for (const desc of langDescriptions) {
+          p.log.warn(`Missing description translation: ${desc.lang}::${desc.key}`);
+        }
+      }
+    }
+
+    if (missingDescriptions.some((d) => d.lang === 'en-US')) {
+      // throw error for base language errors
+      throw new UsageError(
+        `Missing base (${pc.green('en-US')}) description translations: ${missingDescriptions
+          .filter((d) => d.lang === 'en-US')
+          .map((d) => d.key)
+          .join(', ')}`,
+      );
+    }
+
+    return commands;
   }
 }
 
@@ -153,31 +342,12 @@ type DeployableCommand = RESTPutAPIApplicationGuildCommandsJSONBody[number] & {
   deployment: DeploymentMode;
 };
 
-// type DeployableCommand = Omit<
-//   RESTPutAPIApplicationGuildCommandsJSONBody[number],
-//   // unused fields
-//   | 'id'
-//   | 'version'
-//   | 'name_localized'
-//   | 'application_id'
-//   | 'description_localized'
-//   // deprecated fields
-//   | 'dm_permission'
-//   | 'default_permission'
-// > & {
-//   deployment: DeploymentMode;
-// };
-
 export class DiscordCommandManagementCommand extends ConfigurableCommand {
   commands: DeployableCommand[] = null as unknown as DeployableCommand[];
   jsonCommands: z.infer<typeof commandsSchema> = null as unknown as z.infer<typeof commandsSchema>;
 
   async getDeployableCommands(): Promise<DeployableCommand[]> {
-    const root = await this.findWorkspaceRoot();
-    if (!root) {
-      throw new UsageError('Failed to find workspace root.');
-    }
-
+    const root = await findWorkspaceRoot();
     const localizationDir = path.join(root, 'apps/bot/locales');
 
     const subdirs = await fs.readdir(localizationDir, { withFileTypes: true });
@@ -226,7 +396,7 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
 
     const baseLocalization = localizations.get('en-US');
     if (!baseLocalization) {
-      throw new UsageError('Failed to load base locale "en-US".');
+      throw new UsageError(`Failed to load base locale ${pc.green('en-US')}.`);
     }
 
     const commands: DeployableCommand[] = [];
