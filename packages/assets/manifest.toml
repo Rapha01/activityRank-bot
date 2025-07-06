@@ -3,3 +3,6 @@ path = "emoji/level-128.png"
 
 [activityrank]
 path = "emoji/logo-128.png"
+
+[deleteduser]
+path = "emoji/deleted-user-128.png"
