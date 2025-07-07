@@ -214,7 +214,7 @@ async function generateChannels(
 
   const embed = {
     title,
-    color: 0x4fd6c8,
+    color: 0x01c3d9,
     fields: [
       { name: 'Text', value: await topTypeChannels('textMessage'), inline: true },
       { name: 'Voice', value: await topTypeChannels('voiceMinute'), inline: true },
@@ -262,7 +262,7 @@ async function generateChannelMembers(
       embeds: [
         {
           title: `Toplist | ${_prettifyTime[state.time]}`,
-          color: 0x4fd6c8,
+          color: 0x01c3d9,
           description: 'Select a channel.',
         },
       ],
@@ -287,14 +287,14 @@ async function generateChannelMembers(
 
   if (!channelMemberRanks || channelMemberRanks.length === 0) {
     return {
-      embeds: [{ title, color: 0x4fd6c8, description: 'No entries found for this page.' }],
+      embeds: [{ title, color: 0x01c3d9, description: 'No entries found for this page.' }],
       components: getChannelMembersComponents(state, disabled),
     };
   }
 
   const ranksWithNames = await getGuildMemberNamesWithRanks(guild, channelMemberRanks);
 
-  const embed: APIEmbed = { title, color: 0x4fd6c8 };
+  const embed: APIEmbed = { title, color: 0x01c3d9 };
 
   const bonusUntil = new Date(Number.parseInt(cachedGuild.db.bonusUntilDate) * 1000);
 
@@ -350,14 +350,14 @@ async function generateGuildMembers(
 
   if (!memberRanks || memberRanks.length === 0) {
     return {
-      embeds: [{ title, color: 0x4fd6c8, description: 'No entries found for this page.' }],
+      embeds: [{ title, color: 0x01c3d9, description: 'No entries found for this page.' }],
       components: getMembersComponents(state, disabled),
     };
   }
 
   const memberRanksWithNames = await getGuildMemberNamesWithRanks(guild, memberRanks);
 
-  const embed: APIEmbed = { title, color: 0x4fd6c8 };
+  const embed: APIEmbed = { title, color: 0x01c3d9 };
 
   const bonusUntil = new Date(Number.parseInt(cachedGuild.db.bonusUntilDate) * 1000);
 

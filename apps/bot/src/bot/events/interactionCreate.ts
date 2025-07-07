@@ -101,7 +101,7 @@ async function executeBans(
       embeds: [
         new EmbedBuilder()
           .setDescription('❌ This server been blacklisted from the bot.')
-          .setColor(0xff0000),
+          .setColor(0xe7000b),
       ],
       components: [
         new ActionRowBuilder<ButtonBuilder>().setComponents(
@@ -124,7 +124,7 @@ async function executeBans(
       embeds: [
         new EmbedBuilder()
           .setDescription('❌ You have been blacklisted from the bot.')
-          .setColor(0xff0000),
+          .setColor(0xe7000b),
       ],
       components: [
         new ActionRowBuilder<ButtonBuilder>().setComponents(

@@ -15,7 +15,7 @@ export default command({
     }
 
     const item = faqs.find((o) => o.id === faq);
-    const embed = new EmbedBuilder().setTitle(`**ActivityRank FAQ #${faq}**`).setColor(0x00ae86);
+    const embed = new EmbedBuilder().setTitle(`**ActivityRank FAQ #${faq}**`).setColor(0x01c3d9);
     if (!item) {
       embed.setDescription(`Could not find an FAQ with ID ${faq}!`);
     } else {
@@ -51,7 +51,7 @@ export default command({
 });
 
 function faqReducedEmbed(faqs: TextsFaqs) {
-  const embed = new EmbedBuilder().setTitle('**ActivityRank FAQ**').setColor(0x00ae86);
+  const embed = new EmbedBuilder().setTitle('**ActivityRank FAQ**').setColor(0x01c3d9);
 
   if (faqs.length === 0) embed.setDescription('No FAQs to show!');
 

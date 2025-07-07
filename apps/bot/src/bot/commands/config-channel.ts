@@ -146,7 +146,7 @@ export default command({
       .setDescription(
         nameUtil.getChannelMention(interaction.guild.channels.cache, resolvedChannel.id),
       )
-      .setColor(0x00ae86)
+      .setColor(0x01c3d9)
       .addFields({ name: t('config-channel.noXP'), value: t('config-channel.noXPDescription') });
 
     if (

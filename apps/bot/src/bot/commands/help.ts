@@ -74,7 +74,7 @@ const close = component({
 function helpMainEmbed(sections: TextsCommands) {
   const embed = new EmbedBuilder()
     .setAuthor({ name: 'ActivityRank Manual' })
-    .setColor(0x00ae86)
+    .setColor(0x01c3d9)
     .setDescription(outdent`
       *v${version}*
       **[Website](https://activityrank.me/commands)**
@@ -94,7 +94,7 @@ function helpMainEmbed(sections: TextsCommands) {
 
 function helpFeatureEmbed(section: TextsEntry) {
   const embed = new EmbedBuilder()
-    .setColor(0x00ae86)
+    .setColor(0x01c3d9)
     .setTitle(`**Manual - ${section.title}**`)
     .setDescription(section.subdesc);
 

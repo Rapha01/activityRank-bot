@@ -37,7 +37,7 @@ export default async function (interaction: ChatInputCommandInteraction<'cached'
 async function sendAskForPremiumEmbed(interaction: ChatInputCommandInteraction<'cached'>) {
   const e = new EmbedBuilder()
     .setTitle('Thank you for using ActivityRank!')
-    .setColor(0x00ae86)
+    .setColor(0x01c3d9)
     .setThumbnail(interaction.client.user.displayAvatarURL());
 
   e.addFields({

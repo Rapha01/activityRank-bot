@@ -118,7 +118,7 @@ export default command({
     const embed: APIEmbed = {
       author: { name: t('config-role.roleSettings') },
       description: nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id),
-      color: 0x00ae86,
+      color: 0x01c3d9,
       fields: [
         {
           name: t('config-role.noXP'),

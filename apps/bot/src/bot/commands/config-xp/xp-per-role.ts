@@ -121,7 +121,7 @@ export default command({
       embeds: [
         {
           author: { name: 'Role XP Values' },
-          color: 0x00ae86,
+          color: 0x01c3d9,
           description: [
             t('config-xp.modified', { role: role.toString() }),
             '',

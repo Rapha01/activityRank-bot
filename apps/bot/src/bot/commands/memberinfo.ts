@@ -73,7 +73,7 @@ export default command({
 
     const embed: APIEmbed = {
       author: { name: `Info for ${targetMemberInfo.name} in ${interaction.guild.name}` },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       thumbnail: targetMemberInfo.avatarUrl ? { url: targetMemberInfo.avatarUrl } : undefined,
       fields: [
         {

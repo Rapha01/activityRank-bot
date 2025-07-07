@@ -8,7 +8,7 @@ export default command({
     const sent = await interaction.deferReply({ fetchReply: true, ephemeral: true });
 
     const pingEmbed = new EmbedBuilder()
-      .setColor(0x00ae86)
+      .setColor(0x01c3d9)
       .setTitle(t('ping.title'))
       .setDescription(isProduction ? null : t('ping.isDev'))
       .addFields(
