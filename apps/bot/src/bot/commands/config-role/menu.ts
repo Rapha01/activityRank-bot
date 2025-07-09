@@ -231,7 +231,7 @@ const messageModal = modal<{ type: AssignType; role: RoleModel }>({
         type === 'assignMessage' ? 'config-role.addedAssign' : 'config-role.addedDeassign',
         { roleId: role.object.id },
       ),
-      embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
+      embeds: [new EmbedBuilder().setDescription(value).setColor(0x01c3d9)],
       ephemeral: true,
     });
   },

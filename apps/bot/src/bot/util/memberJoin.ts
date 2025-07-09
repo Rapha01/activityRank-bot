@@ -47,7 +47,7 @@ async function autoPostServerJoin(member: GuildMember, roleAssignmentString: str
 
   const welcomeEmbed = new EmbedBuilder()
     .setTitle(member.user.username)
-    .setColor('#4fd6c8')
+    .setColor(0x01c3d9)
     .setDescription(welcomeMessage)
     .setThumbnail(member.user.avatarURL());
 

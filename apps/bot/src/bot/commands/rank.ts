@@ -170,7 +170,7 @@ async function generateChannelCard(
 
   const embed = new EmbedBuilder()
     .setTitle(header)
-    .setColor('#4fd6c8')
+    .setColor(0x01c3d9)
     .addFields(
       {
         name: state.t('rank.text'),
@@ -302,7 +302,7 @@ async function generateRankCard(
     .setAuthor({
       name: state.t('rank.statsOnServer', { time: fmtTime(state.t, state.time), name: guild.name }),
     })
-    .setColor('#4fd6c8')
+    .setColor(0x01c3d9)
     .setThumbnail(state.targetUser.avatarURL());
 
   const bonusUntil = new Date(Number.parseInt(myGuild.bonusUntilDate) * 1000);

@@ -172,7 +172,7 @@ const setModal = modal<{ message: ServerMessage }>({
 
     await interaction.followUp({
       content: `Set ${idToName(data.message, t)}`,
-      embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
+      embeds: [new EmbedBuilder().setDescription(value).setColor(0x01c3d9)],
       ephemeral: true,
     });
   },
