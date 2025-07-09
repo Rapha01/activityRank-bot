@@ -1,13 +1,5 @@
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import {
-  ChannelType,
-  type Guild,
-  type GuildMember,
-  type Channel,
-  type Collection,
-  type Role,
-  type GuildBasedChannel,
-} from 'discord.js';
+import type { Guild, GuildMember, Channel, Collection, Role, GuildBasedChannel } from 'discord.js';
 
 export const getChannelName = (
   channels: Collection<string, GuildBasedChannel>,
@@ -45,24 +37,6 @@ export const getRoleMention = (roles: Collection<string, Role>, roleId: string) 
 
   if (role) return role.toString();
   return `Deleted [${roleId}]`;
-};
-
-export const getChannelTypeIcon = (channels: Collection<string, Channel>, channelId: string) => {
-  const channel = channels.get(channelId);
-
-  if (!channel) return ':grey_question:';
-
-  switch (channel.type) {
-    case ChannelType.GuildVoice:
-      return ':microphone2:';
-    case ChannelType.GuildText:
-    case ChannelType.GuildAnnouncement:
-      return ':writing_hand:';
-    case ChannelType.GuildForum:
-      return '<:Forum:1026009067350659145>';
-    default:
-      return ':grey_question:';
-  }
 };
 
 export const getGuildMemberInfos = async (guild: Guild, userIds: string[]) => {
@@ -144,7 +118,6 @@ export default {
   getChannelType,
   getRoleName,
   getRoleMention,
-  getChannelTypeIcon,
   getGuildMemberInfos,
   getGuildMemberInfo,
   getGuildMemberAlias,

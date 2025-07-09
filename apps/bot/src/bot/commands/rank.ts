@@ -262,7 +262,7 @@ async function getTopChannels(
 
   const channelMention = (index: number) =>
     nameUtil.getChannelMention(guild.channels.cache, guildMemberTopChannels[index].channelId);
-  const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
+  const label = type === 'voiceMinute' ? emoji('voice') : emoji('message');
   const channelValue = (index: number) =>
     type === 'voiceMinute'
       ? Math.round((guildMemberTopChannels[index].entries / 60) * 10) / 10
@@ -270,7 +270,7 @@ async function getTopChannels(
 
   const s = [];
   for (let i = 0; i < guildMemberTopChannels.length; i++)
-    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`);
+    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${label} ${channelValue(i)}`);
 
   return s.join('\n');
 }
@@ -400,9 +400,9 @@ function getStatisticStrings(
   if (myGuild.db.textXp) {
     scoreStrings.push(
       positions.textMessage !== null
-        ? `:writing_hand: ${stats.textMessage[time]} (#${positions.textMessage})`
+        ? `${emoji('message')} ${stats.textMessage[time]} (#${positions.textMessage})`
         : // don't show the rank if it's 0
-          `:writing_hand: ${stats.textMessage[time]}`,
+          `${emoji('message')} ${stats.textMessage[time]}`,
     );
   }
   if (myGuild.db.voiceXp) {

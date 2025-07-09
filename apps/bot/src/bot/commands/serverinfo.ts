@@ -197,9 +197,9 @@ const general: Window = {
     const generalValue = [
       `Tracking since: <t:${cachedGuild.db.addDate}:D>`,
       `Tracking stats: ${
-        (cachedGuild.db.textXp ? ':writing_hand: ' : '') +
-        (cachedGuild.db.voiceXp ? ':microphone2: ' : '') +
-        (cachedGuild.db.inviteXp ? ':envelope: ' : '') +
+        (cachedGuild.db.textXp ? `${emoji('message')} ` : '') +
+        (cachedGuild.db.voiceXp ? `${emoji('voice')} ` : '') +
+        (cachedGuild.db.inviteXp ? `${emoji('invite')} ` : '') +
         (cachedGuild.db.voteXp ? `${cachedGuild.db.voteEmote} ` : '') +
         (cachedGuild.db.bonusXp ? `${cachedGuild.db.bonusEmote} ` : '')
       }`,

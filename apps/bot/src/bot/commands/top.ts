@@ -238,7 +238,7 @@ async function getTopChannels(
 
   const channelMention = (index: number) =>
     getChannelMention(guild.channels.cache, channelRanks[index].channelId);
-  const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
+  const label = type === 'voiceMinute' ? emoji('voice') : emoji('message');
   const channelValue = (index: number) =>
     type === 'voiceMinute'
       ? Math.round((channelRanks[index].total / 60) * 10) / 10
@@ -246,7 +246,7 @@ async function getTopChannels(
 
   const s = [];
   for (let i = 0; i < channelRanks.length; i++)
-    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`);
+    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${label} ${channelValue(i)}`);
 
   return s.join('\n');
 }
@@ -307,8 +307,8 @@ async function generateChannelMembers(
 
     const value =
       type === 'voiceMinute'
-        ? `:microphone2: ${Math.round((rank.total / 60) * 10) / 10}`
-        : `:writing_hand: ${rank.total}`;
+        ? `${emoji('voice')} ${Math.round((rank.total / 60) * 10) / 10}h`
+        : `${emoji('message')} ${rank.total}`;
 
     embed.fields = [
       ...(embed.fields ?? []),
@@ -372,10 +372,11 @@ async function generateGuildMembers(
 
     const getScoreString = (type: StatType) => {
       if (type === 'textMessage' && cachedGuild.db.textXp)
-        return `:writing_hand: ${memberRank.textMessage}`;
+        return `${emoji('message')} ${memberRank.textMessage}`;
       if (type === 'voiceMinute' && cachedGuild.db.voiceXp)
-        return `:microphone2: ${Math.round((memberRank.voiceMinute / 60) * 10) / 10}`;
-      if (type === 'invite' && cachedGuild.db.inviteXp) return `:envelope: ${memberRank.invite}`;
+        return `${emoji('voice')} ${Math.round((memberRank.voiceMinute / 60) * 10) / 10}`;
+      if (type === 'invite' && cachedGuild.db.inviteXp)
+        return `${emoji('invite')} ${memberRank.invite}`;
       if (type === 'vote' && cachedGuild.db.voteXp)
         return `${cachedGuild.db.voteEmote} ${memberRank.vote}`;
       if (type === 'bonus' && cachedGuild.db.bonusXp)
