@@ -408,15 +408,15 @@ function getStatisticStrings(
   if (myGuild.db.voiceXp) {
     scoreStrings.push(
       positions.voiceMinute !== null
-        ? `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`
-        : `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10}`,
+        ? `${emoji('voice')} ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`
+        : `${emoji('voice')} ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10}`,
     );
   }
   if (myGuild.db.inviteXp) {
     scoreStrings.push(
       positions.invite !== null
-        ? `:envelope: ${stats.invite[time]} (#${positions.invite})`
-        : `:envelope: ${stats.invite[time]}`,
+        ? `${emoji('invite')} ${stats.invite[time]} (#${positions.invite})`
+        : `${emoji('invite')} ${stats.invite[time]}`,
     );
   }
   if (myGuild.db.voteXp) {

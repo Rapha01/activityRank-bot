@@ -188,11 +188,10 @@ const general: Window = {
       );
       notifyLevelupType = `#${channelName}`;
     } else {
-      notifyLevelupType = 'None';
+      notifyLevelupType = emoji('no');
     }
 
-    // TODO(style): replace with custom emojis
-    const yesno = (cond: boolean | number): string => (cond ? 'Yes' : 'No');
+    const yesno = (cond: boolean | number): string => (cond ? emoji('yes') : emoji('no'));
 
     const generalValue = [
       `Tracking since: <t:${cachedGuild.db.addDate}:D>`,
