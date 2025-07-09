@@ -1,4 +1,5 @@
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { emoji } from '#const/config.js';
 import type { Guild, GuildMember, Channel, Collection, Role, GuildBasedChannel } from 'discord.js';
 
 export const getChannelName = (
@@ -8,28 +9,14 @@ export const getChannelName = (
   const channel = channels.get(channelId);
 
   if (channel) return cutName(channel.name);
-  return `Deleted [${channelId}]`;
+  return `${emoji('deletedchannel')} [${channelId}]`;
 };
 
 export const getChannelMention = (channels: Collection<string, Channel>, channelId: string) => {
   const channel = channels.get(channelId);
 
   if (channel) return channel.toString();
-  return `Deleted [${channelId}]`;
-};
-
-export const getChannelType = (channels: Collection<string, Channel>, channelId: string) => {
-  const channel = channels.get(channelId);
-
-  if (channel) return channel.type;
-  return null;
-};
-
-export const getRoleName = (roles: Collection<string, Role>, roleId: string) => {
-  const role = roles.get(roleId);
-
-  if (role) return cutName(role.name);
-  return `Deleted [${roleId}]\n`;
+  return `${emoji('deletedchannel')} [${channelId}]`;
 };
 
 export const getRoleMention = (roles: Collection<string, Role>, roleId: string) => {
@@ -82,7 +69,7 @@ export const getGuildMemberInfos = async (guild: Guild, userIds: string[]) => {
   for (const userId of userIds) {
     if (!infos[userId]) {
       infos[userId] = {
-        name: `User left [${userId}]`,
+        name: `${emoji('deleteduser')} [${userId}]`,
         avatarUrl: '',
         joinedAt: 'n/a',
       };
@@ -115,8 +102,6 @@ export const cutName = (name: string) => (name.length > 32 ? `${name.slice(0, 30
 export default {
   getChannelName,
   getChannelMention,
-  getChannelType,
-  getRoleName,
   getRoleMention,
   getGuildMemberInfos,
   getGuildMemberInfo,
