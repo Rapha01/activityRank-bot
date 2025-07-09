@@ -5,4 +5,19 @@ path = "emoji/level-128.png"
 path = "emoji/logo-128.png"
 
 [deleteduser]
-path = "emoji/deleted-user-128.png"
+path = "emoji/deleted-user.png"
+
+[message]
+path = "emoji/message.png"
+
+[voice]
+path = "emoji/voice.png"
+
+[invite]
+path = "emoji/invite.png"
+
+[upvote]
+path = "emoji/upvote.png"
+
+[bonus]
+path = "emoji/bonus.png"

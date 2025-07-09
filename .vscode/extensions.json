@@ -3,7 +3,6 @@
     "biomejs.biome",
     "EditorConfig.EditorConfig",
     "bierner.github-markdown-preview",
-    "davidanson.vscode-markdownlint",
     "redhat.vscode-yaml",
     "ms-azuretools.vscode-docker"
   ],
