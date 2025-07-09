@@ -7,9 +7,12 @@
    viewBox="0 0 24 24"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2.1 (9c6d41e4, 2022-07-14)"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
    xml:space="preserve"
    sodipodi:docname="message.svg"
+   inkscape:export-filename="message.png"
+   inkscape:export-xdpi="512"
+   inkscape:export-ydpi="512"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +29,7 @@
      showgrid="true"
      inkscape:zoom="12.791093"
      inkscape:cx="10.006963"
-     inkscape:cy="12.469614"
+     inkscape:cy="12.508704"
      inkscape:window-width="1440"
      inkscape:window-height="757"
      inkscape:window-x="0"
@@ -35,7 +38,12 @@
      inkscape:current-layer="g15550"><inkscape:grid
        type="xygrid"
        id="grid4955"
-       empspacing="4" /></sodipodi:namedview><defs
+       empspacing="4"
+       originx="0"
+       originy="0"
+       spacingy="1"
+       spacingx="1"
+       units="px" /></sodipodi:namedview><defs
      id="defs2" /><g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
@@ -44,7 +52,7 @@
        id="g15550"
        transform="translate(24.166305,6.5754814)"><path
          fill="currentColor"
-         d="m -16.337752,-1.6181762 a 8.7258168,8.7258168 0 0 0 -3.490327,9.9266179 c 0.160107,0.5283522 0.144096,1.0887259 -0.160107,1.5370249 l -1.328886,2.1134094 a 1.6010673,1.6010673 0 0 0 1.344897,2.465643 h 8.80587 a 8.9659769,8.9659769 0 0 0 9.0940623,-8.805871 8.9659769,8.9659769 0 0 0 -9.0940623,-8.8058702 c -1.921281,0 -3.714476,0.5763843 -5.171447,1.569046 z"
+         d="m -16.611387,-1.3961067 a 8.2239841,8.2239841 0 0 0 -3.289594,9.3557256 c 0.150899,0.497966 0.135809,1.0261119 -0.150899,1.4486282 l -1.252459,1.9918649 a 1.5089879,1.5089879 0 0 0 1.26755,2.323841 h 8.299432 a 8.4503323,8.4503323 0 0 0 8.571052,-8.2994344 8.4503323,8.4503323 0 0 0 -8.571052,-8.2994335 c -1.810786,0 -3.500852,0.5432357 -4.87403,1.4788082 z"
          class=""
          id="path15538"
-         style="stroke-width:1;fill:#000000;fill-opacity:1;stroke:none;stroke-opacity:0.19762845;stroke-dasharray:none" /></g></g></svg>
+         style="fill:none;fill-opacity:1;stroke:#01c3d9;stroke-width:2;stroke-dasharray:none;stroke-opacity:1" /></g></g></svg>

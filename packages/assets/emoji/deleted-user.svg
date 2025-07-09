@@ -12,7 +12,7 @@
    version="1.1"
    id="svg9830"
    sodipodi:docname="deleted-user.svg"
-   inkscape:version="1.2.1 (9c6d41e4, 2022-07-14)"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
    inkscape:export-filename="deleted-user.png"
    inkscape:export-xdpi="512"
    inkscape:export-ydpi="512"
@@ -56,8 +56,8 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="9.8333333"
-     inkscape:cx="10.728814"
-     inkscape:cy="12.254237"
+     inkscape:cx="10.779661"
+     inkscape:cy="12.20339"
      inkscape:window-width="1440"
      inkscape:window-height="757"
      inkscape:window-x="0"
@@ -67,13 +67,13 @@
   <path
      d="M2 21a8 8 0 0 1 11.873-7"
      id="path9822"
-     style="stroke:#0284c7;stroke-opacity:1" />
+     style="stroke:#01c3d9;stroke-opacity:1" />
   <circle
      cx="10"
      cy="8"
      r="5"
      id="circle9824"
-     style="stroke:#0284c7;stroke-opacity:1" />
+     style="stroke:#01c3d9;stroke-opacity:1" />
   <path
      id="path9828"
      d="m 22,17 -5,5 m 0,-5 5,5"
