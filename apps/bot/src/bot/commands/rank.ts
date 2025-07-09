@@ -170,7 +170,7 @@ async function generateChannelCard(
 
   const embed = new EmbedBuilder()
     .setTitle(header)
-    .setColor('#4fd6c8')
+    .setColor(0x01c3d9)
     .addFields(
       {
         name: state.t('rank.text'),
@@ -262,7 +262,7 @@ async function getTopChannels(
 
   const channelMention = (index: number) =>
     nameUtil.getChannelMention(guild.channels.cache, guildMemberTopChannels[index].channelId);
-  const emoji = type === 'voiceMinute' ? ':microphone2:' : ':writing_hand:';
+  const label = type === 'voiceMinute' ? emoji('voice') : emoji('message');
   const channelValue = (index: number) =>
     type === 'voiceMinute'
       ? Math.round((guildMemberTopChannels[index].entries / 60) * 10) / 10
@@ -270,7 +270,7 @@ async function getTopChannels(
 
   const s = [];
   for (let i = 0; i < guildMemberTopChannels.length; i++)
-    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${emoji} ${channelValue(i)}`);
+    s.push(`#${page.from + i} | ${channelMention(i)} ⇒ ${label} ${channelValue(i)}`);
 
   return s.join('\n');
 }
@@ -302,7 +302,7 @@ async function generateRankCard(
     .setAuthor({
       name: state.t('rank.statsOnServer', { time: fmtTime(state.t, state.time), name: guild.name }),
     })
-    .setColor('#4fd6c8')
+    .setColor(0x01c3d9)
     .setThumbnail(state.targetUser.avatarURL());
 
   const bonusUntil = new Date(Number.parseInt(myGuild.bonusUntilDate) * 1000);
@@ -400,23 +400,23 @@ function getStatisticStrings(
   if (myGuild.db.textXp) {
     scoreStrings.push(
       positions.textMessage !== null
-        ? `:writing_hand: ${stats.textMessage[time]} (#${positions.textMessage})`
+        ? `${emoji('message')} ${stats.textMessage[time]} (#${positions.textMessage})`
         : // don't show the rank if it's 0
-          `:writing_hand: ${stats.textMessage[time]}`,
+          `${emoji('message')} ${stats.textMessage[time]}`,
     );
   }
   if (myGuild.db.voiceXp) {
     scoreStrings.push(
       positions.voiceMinute !== null
-        ? `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`
-        : `:microphone2: ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10}`,
+        ? `${emoji('voice')} ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10} (#${positions.voiceMinute})`
+        : `${emoji('voice')} ${Math.round((stats.voiceMinute[time] / 60) * 10) / 10}`,
     );
   }
   if (myGuild.db.inviteXp) {
     scoreStrings.push(
       positions.invite !== null
-        ? `:envelope: ${stats.invite[time]} (#${positions.invite})`
-        : `:envelope: ${stats.invite[time]}`,
+        ? `${emoji('invite')} ${stats.invite[time]} (#${positions.invite})`
+        : `${emoji('invite')} ${stats.invite[time]}`,
     );
   }
   if (myGuild.db.voteXp) {

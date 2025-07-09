@@ -89,7 +89,7 @@ export default command({
 
     const embed = {
       author: { name: 'Server Messages' },
-      color: 0x00ae86,
+      color: 0x01c3d9,
       description: t('config-messages.description'),
       fields: [
         {
@@ -172,7 +172,7 @@ const setModal = modal<{ message: ServerMessage }>({
 
     await interaction.followUp({
       content: `Set ${idToName(data.message, t)}`,
-      embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
+      embeds: [new EmbedBuilder().setDescription(value).setColor(0x01c3d9)],
       ephemeral: true,
     });
   },

@@ -110,7 +110,7 @@ async function renderPage(
         renderPageItem({ ...globalOpts, id: 'resetDeletedMembers' }),
         renderPageItem({ ...globalOpts, id: 'stickyLevelRoles' }),
       ],
-      { accentColor: 0x00ae86 },
+      { accentColor: 0x01c3d9 },
     );
   } else if (id === 'voice') {
     main = container(
@@ -120,7 +120,7 @@ async function renderPage(
         renderPageItem({ ...globalOpts, id: 'allowDeafenedXp', buttonTranslation: 'allowed' }),
         renderPageItem({ ...globalOpts, id: 'allowSoloXp', buttonTranslation: 'allowed' }),
       ],
-      { accentColor: 0x00ae86 },
+      { accentColor: 0x01c3d9 },
     );
   } else if (id === 'notify') {
     main = container(
@@ -172,7 +172,7 @@ async function renderPage(
         ]),
         renderPageItem({ ...globalOpts, id: 'notifyLevelupWithRole' }),
       ],
-      { accentColor: 0x00ae86 },
+      { accentColor: 0x01c3d9 },
     );
   } else if (id === 'types') {
     main = container(
@@ -183,7 +183,7 @@ async function renderPage(
         renderPageItem({ ...globalOpts, id: 'inviteXp' }),
         renderPageItem({ ...globalOpts, id: 'voteXp' }),
       ],
-      { accentColor: 0x00ae86 },
+      { accentColor: 0x01c3d9 },
     );
   } else {
     assertUnreachable(id);

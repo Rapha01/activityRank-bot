@@ -43,7 +43,7 @@ export default command({
       embeds: [
         {
           author: { name: t('config-server.cooldownValues') },
-          color: 0x00ae86,
+          color: 0x01c3d9,
           description: t('config-server.modifiedCD', { messageTime, voteTime }),
         },
       ],

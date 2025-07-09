@@ -188,18 +188,17 @@ const general: Window = {
       );
       notifyLevelupType = `#${channelName}`;
     } else {
-      notifyLevelupType = 'None';
+      notifyLevelupType = emoji('no');
     }
 
-    // TODO(style): replace with custom emojis
-    const yesno = (cond: boolean | number): string => (cond ? 'Yes' : 'No');
+    const yesno = (cond: boolean | number): string => (cond ? emoji('yes') : emoji('no'));
 
     const generalValue = [
       `Tracking since: <t:${cachedGuild.db.addDate}:D>`,
       `Tracking stats: ${
-        (cachedGuild.db.textXp ? ':writing_hand: ' : '') +
-        (cachedGuild.db.voiceXp ? ':microphone2: ' : '') +
-        (cachedGuild.db.inviteXp ? ':envelope: ' : '') +
+        (cachedGuild.db.textXp ? `${emoji('message')} ` : '') +
+        (cachedGuild.db.voiceXp ? `${emoji('voice')} ` : '') +
+        (cachedGuild.db.inviteXp ? `${emoji('invite')} ` : '') +
         (cachedGuild.db.voteXp ? `${cachedGuild.db.voteEmote} ` : '') +
         (cachedGuild.db.bonusXp ? `${cachedGuild.db.bonusEmote} ` : '')
       }`,
@@ -249,7 +248,7 @@ const general: Window = {
         name: `Info for ${interaction.guild.name}`,
         icon_url: clientURL(interaction.client),
       },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       thumbnail: guildIcon ? { url: guildIcon } : undefined,
       fields: [
         { name: '**General**', value: generalValue },
@@ -295,7 +294,7 @@ const levels: Window = {
         name: `Levels from ${page.from + 1} to ${page.to + 1}`,
         icon_url: clientURL(interaction.client),
       },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       description: `Levelfactor: ${cachedGuild.db.levelFactor}\n-# The levelfactor is the amount of extra XP each level needs.\n*XP needed to reach the next level (xp needed to reach this level from Level 1)*`,
       fields: levels.map((level) => ({
         name: `${emoji('level')}${level.number}`,
@@ -329,7 +328,7 @@ const roles: Window = {
 
     return {
       author: { name: 'Activity Roles', icon_url: clientURL(interaction.client) },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       description: relevantLevels.length > 0 ? undefined : '-# No roles have been configured yet.',
       fields: relevantLevels
         .map((level) => ({
@@ -386,7 +385,7 @@ const noxpchannels: Window = {
         name: 'No-XP Channels',
         icon_url: clientURL(interaction.client),
       },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       description: description.join('\n'),
     };
   },
@@ -420,7 +419,7 @@ const noxproles: Window = {
         name: 'No-XP Roles',
         icon_url: clientURL(interaction.client),
       },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       description: description.join('\n'),
     };
   },
@@ -483,7 +482,7 @@ const xpsettings: Window = {
 
     return {
       author: { name: 'XP Settings', icon_url: clientURL(interaction.client) },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       description: `**Default XP**\nLevelfactor: ${cachedGuild.db.levelFactor} XP\n${xpPerString}\n\n${roleEntries}`,
     };
   },
@@ -515,7 +514,7 @@ const messages: Window = {
 
     return {
       author: { name: 'Autosend Messages', icon_url: clientURL(interaction.client) },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       fields: entries.slice(page.from - 1, page.to),
     };
   },

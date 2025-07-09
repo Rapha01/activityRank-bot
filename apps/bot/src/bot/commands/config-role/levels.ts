@@ -87,7 +87,7 @@ export default command({
       embeds: [
         {
           author: { name: t('config-role.roleAdded') },
-          color: 0x00ae86,
+          color: 0x01c3d9,
           description: description.join('\n'),
         },
       ],

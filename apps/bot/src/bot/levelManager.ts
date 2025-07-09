@@ -152,7 +152,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
     .setTitle(
       `${nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1)} ${emoji('level')}${level}`,
     )
-    .setColor('#4fd6c8')
+    .setColor(0x01c3d9)
     .setDescription(gratulationMessage)
     .setThumbnail(member.user.avatarURL());
 

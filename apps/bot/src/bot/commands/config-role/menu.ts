@@ -118,7 +118,7 @@ export default command({
     const embed: APIEmbed = {
       author: { name: t('config-role.roleSettings') },
       description: nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id),
-      color: 0x00ae86,
+      color: 0x01c3d9,
       fields: [
         {
           name: t('config-role.noXP'),
@@ -231,7 +231,7 @@ const messageModal = modal<{ type: AssignType; role: RoleModel }>({
         type === 'assignMessage' ? 'config-role.addedAssign' : 'config-role.addedDeassign',
         { roleId: role.object.id },
       ),
-      embeds: [new EmbedBuilder().setDescription(value).setColor('#4fd6c8')],
+      embeds: [new EmbedBuilder().setDescription(value).setColor(0x01c3d9)],
       ephemeral: true,
     });
   },

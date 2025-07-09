@@ -29,7 +29,7 @@ export default command({
     const lastActivities = await getLastActivities(interaction.guild, member.id);
 
     const inviterInfo = await getGuildMemberInfo(interaction.guild, myTargetMember.inviter);
-    if (inviterInfo.name === 'User left [0]')
+    if (myTargetMember.inviter === '0')
       inviterInfo.name = 'No inviter set. Use `/inviter` to set one!';
 
     const getActivityString = (
@@ -73,7 +73,7 @@ export default command({
 
     const embed: APIEmbed = {
       author: { name: `Info for ${targetMemberInfo.name} in ${interaction.guild.name}` },
-      color: 0x4fd6c8,
+      color: 0x01c3d9,
       thumbnail: targetMemberInfo.avatarUrl ? { url: targetMemberInfo.avatarUrl } : undefined,
       fields: [
         {

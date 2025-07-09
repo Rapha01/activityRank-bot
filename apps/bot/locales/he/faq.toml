@@ -1,0 +1,231 @@
+[[faq]]
+name = "How do I get a role, channel or user's ID?"
+value = """
+1. Go to your Discord User Settings. Under "App Settings", select the "Advanced" tab.
+2. Enable Developer Mode.
+3. Go to the role, channel or user you wish to find the ID of.
+4. Right click on it and select "Copy ID"."""
+
+[[faq]]
+name = "My Bot doesn't respond to commands, doesn't show any commands or gives me an error."
+value = """
+* Check the right side of discord to see if the bot is online (if not it may be a restart).
+* Try running `/ping`.
+* Make sure the bot has all needed role permissions on the server.
+* Make sure the bot has all needed role permissions within the channel's settings.
+* Check if you have disabled slash commands in certain channels, via **Server Settings ❯ Integrations ❯ ActivityRank**.
+* There is a limit of 50 bots in a server. Any more bots will not show their slash commands.
+
+If the bot says "an error occured", please open a help ticket in the support server.
+
+If the bot says "application timed out", please try again later. 
+It might be a shard down or a restart. If it still doesn't work, open a help ticket.
+"""
+
+[[faq]]
+name = "How do I change the xp settings?"
+value = """
+> `/config-xp xp-per`
+> `/config-xp bonus-xp-per`
+> `/config-server cooldown`
+
+https://i.imgur.com/Cq1701X.gif"""
+
+[[faq]]
+name = "What is the level factor?"
+value = """
+The level factor dictates how quickly levels become more difficult.
+Each level requires `levelfactor` more XP to be reached than the last.
+
+Run `/serverinfo type:levels`.
+The first number is the amount of XP needed to gain the next level (the bracketed number is the total XP needed).
+
+Calculator (BETA!):
+https://www.calconic.com/calculator-widgets/ar-calculator-3-0/6701722ecb6756002ab32b5d?layouts=true
+"""
+
+[[faq]]
+name = "All about Levelroles"
+value = """
+* To add a role use `/config-role levels` and fill out the required fields.
+* To change the level use the command for assigning/deassigning levels again but use the level you wish.
+* To remove it, set the level to `0`.
+* To view your levelroles, type `/serverinfo` and select the *Roles* tab.
+
+If roles don't get assigned upon levelup:
+> Make sure the ActivityRank role is above all levelroles on the role ladder/hirachy.
+
+When do people get the roles assigned?
+> They need to levelup again. This can happen by receiving enough XP or an admin giving bonus XP.
+
+VIDEO: https://youtu.be/CUEkM2S7SeY"""
+
+[[faq]]
+name = "Is it possible to use Admin commands without Admin permissions?"
+value = """
+Yes. Users will need MANAGE SERVER permissions in order to use admin commands.
+These permissions can be modified in **Server Settings ❯ Integrations ❯ ActivityRank**
+"""
+
+[[faq]]
+name = "Are there only 13 levels and top 12 users?"
+value = """
+There are an unlimited number of levels. 13 is the default number shown.
+Use `/serverinfo`, pick **Levels** or **Roles** and use the arrows to navigate.
+
+If you want to increase or decrease the amount shown, use the command `/config-server entries-per-page` and enter a number between 4 and 20.
+This affects the number of entries shown in `/serverinfo` and `/top`.
+"""
+
+[[faq]]
+name = "Is there a rank card?"
+value = "A rank card is a planned feature for the future."
+
+[[faq]]
+name = "The bot doesn't give XP."
+value = """
+* Ensure the bot has the permissions to read in the channels.
+-# The best way to test this is to give the bot the **Administrator** permission. If this fixes the issue, it's a permission misconfiguration on your server.
+
+* Check if you have a noxp role: `/serverinfo` ❯ **NoXP Roles**.
+* Check if the channel is a noxp channel: `/serverinfo` ❯ **NoXP Channels**.
+* If the channel is a voice channel: the Bot updates voicetime every 0.1 hours (6 min).
+* Text XP is updated every 1 minute.
+* Make sure you didn't deactivate the specific XP type; check `/serverinfo`."""
+
+[[faq]]
+name = "All about 🏆 bonus XP"
+value = """
+To give/take bonus XP, use `/bonus role` or `/bonus member`.
+In `change` you enter the value you want to give or take.
+Enter a positive amount to give bonus XP.
+Enter a negative amount (eg. -500) to take away bonus XP.
+
+You can't give Levels, only XP. A maximum of 1,000,000 XP can be adjusted.
+
+## Bonustime
+Bonustime is a feature where, for a limited time, all participants in the server gain bonus XP for their interactions.
+
+Configure your XP per values (they get added upon the default XP per settings, NOT multiplied!) with /`config-bonus xp-per`.
+Start your bonustime with `/config-xp bonustime`."""
+
+[[faq]]
+name = "How do I set up levels for voice/text/invites/likes only?"
+value = """
+You can deactivate text message XP, voice XP, invite XP or upvote XP with `/config-server set`.
+If an icon is green, it is enabled. 
+
+## Voice Levelling Only
+Some people want to set up the bot for only voice XP.
+
+1. disable all other modules: `/config-server set`.
+
+2. If you need specific voicetimes check our calculator *(beta)*:
+https://www.calconic.com/calculator-widgets/ar-calculator-3-0/6701722ecb6756002ab32b5d?layouts=true
+
+You may need to change your **levelfactor** or **xp per voiceminute**.
+`/config-xp levelfactor`
+`/config-xp xp-per`
+
+3. Set up your levelroles; see FAQ 5.
+https://i.imgur.com/u9fMhx5.gif"""
+
+[[faq]]
+name = "I'm not getting any level up messages?"
+value = """
+1. Either use `/config-server set` and select **Notify via DM** or **Notify Last Active Channel**, or use `/config-channel` and set it as the **Levelup Channel**.
+
+2. Set the level up message by running `/config-messages`, choose **Levelup Message**, and then enter your message.
+
+Make sure the bot has the permissions to send embeds and messages, as well as attach files in your chosen channel."""
+
+[[faq]]
+name = "What are votes?"
+value = """
+Votes are a way for users to give another user XP. 
+A user can upvote another by using the command `/member upvote`, right-clicking and selecting **Apps ❯ Upvote**, or reacting with a specific emoji if reaction voting is enabled on the server.
+
+To activate reaction voting on your server, use `/config-server set` and choose **Reaction Vote**.
+You can change the vote cooldown with `/config-server cooldown`
+You can change your vote-emote and name with `/config-server vote`.
+
+You can earn more upvote power by subscribing to [Patreon](https://www.patreon.com/rapha01/membership) tiers."""
+
+[[faq]]
+name = "Can I stop muted/deafened/solo users from gaining XP in voice channels?"
+value = """
+Yes. Run `/config-server set` and modify **Allow Muted XP**, **Allow Deafened XP**, and **Allow Solo XP**.
+
+Bots don't count as users when counting the users in a voice channel."""
+
+[[faq]]
+name = "When do the monthly, weekly and daily stats reset?"
+value = """
+Daily: <t:1727395200:t>
+Weekly: <t:1727397000:t>
+Monthly: <t:1727398800:t>
+Yearly:  <t:1727400600:t> 
+
+**It only resets the stats accumulated in that period. It does not reset the lifetime stats!**
+"""
+
+[[faq]]
+name = "Why doesn't my voicetime get updated anymore?"
+value = """
+Most likely you just need to disconnect and connect back to any voice channel, wait a few minutes and then check your stats again.
+
+If you're using another bot that creates temporary voice channels, this can affect ActivityRank's tracking.
+
+The first update to voice XP happens after 12 minutes (0.2 hours) and then every 6 minutes (0.1 hours)."""
+
+[[faq]]
+name = "How does invite XP work?"
+value = """
+You can set one person as your Inviter, with the `/inviter` command.
+Both of you get 1 Invite (✉️) onto your stats and a set amount of XP. 
+To check who you set as Inviter, simply run `/memberinfo`.
+
+**This is a one-time decision. Once this is set, only a reset of the entire server's Inviters can undo it.**
+"""
+
+[[faq]]
+name = "Will there be a dashboard?"
+value = "A dashboard is planned (and being worked on!) but we can't give an estimated time."
+
+[[faq]]
+name = "About Patreon Tiers."
+value = """
+Tier 1:
+* Reduce the cooldown of `/stats` and `/top` from 5 Minutes to 60 seconds for yourself.
+* No ads for you on all servers you are in.
+* Your upvote power increases to 2x.
+* Premium Support.
+
+Tier 2:
+* Reduce the cooldown of `/stats` and `/top` from 5 Minutes to 5 seconds for yourself.
+* No ads for you on all servers you are in.
+* Your upvote power increases to 3x.
+* Premium Support.
+* Bug Reports and Feature Requests have a higher priority.
+
+Tier 3:
+* Reduce the cooldown of `/stats` and `/top` from 5 Minutes to 5 seconds for yourself.
+* Reduce the cooldown of `/stats` and `/top` from 5 Minutes to 30 seconds for all members on all of your servers. **You must be the owner of the server.**
+* No ads for you on all servers you are in.
+* Your upvote power increases to 4x.
+* Premium Support.
+* Bug Reports and Feature Requests have a higher priority.
+"""
+
+[[faq]]
+name = " What are you guys working on?"
+value = "You can check out our [Trello](https://trello.com/b/MuFiCuJg/activityrank-planning) to see all suggested features, reported bugs and what we are working on currently."
+
+[[faq]]
+name = "How does XP per role work?"
+value = """
+You can set 5 specific XP gain roles. *Tier 2+ Patreons can set 15 roles.*
+
+If your default XP per message is 3 XP but another role has its XP per message set to 5, all users with that role will gain 5 XP per message. Users with More XP gain roles will receive the highest XP for those roles
+
+**The XP roles do not accumulate! The __highest__ XP per statistic will be selected.**"""

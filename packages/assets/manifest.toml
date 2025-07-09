@@ -1,5 +1,32 @@
+[activityrank]
+path = "emoji/logo-128.png"
+
 [level]
 path = "emoji/level-128.png"
 
-[activityrank]
-path = "emoji/logo-128.png"
+[yes]
+path = "emoji/yes.png"
+
+[no]
+path = "emoji/no.png"
+
+[deleteduser]
+path = "emoji/deleted-user.png"
+
+[deletedchannel]
+path = "emoji/deleted-channel.png"
+
+[message]
+path = "emoji/message.png"
+
+[voice]
+path = "emoji/voice.png"
+
+[invite]
+path = "emoji/invite.png"
+
+[upvote]
+path = "emoji/upvote.png"
+
+[bonus]
+path = "emoji/bonus.png"

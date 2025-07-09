@@ -31,7 +31,7 @@ export default command({
       embeds: [
         {
           author: { name: t('config-xp.valueTitle') },
-          color: 0x00ae86,
+          color: 0x01c3d9,
           description: t('config-xp.newSettings', cachedGuild.db),
         },
       ],
