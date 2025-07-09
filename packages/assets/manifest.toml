@@ -7,6 +7,9 @@ path = "emoji/logo-128.png"
 [deleteduser]
 path = "emoji/deleted-user.png"
 
+[deletedchannel]
+path = "emoji/deleted-channel.png"
+
 [message]
 path = "emoji/message.png"
 
