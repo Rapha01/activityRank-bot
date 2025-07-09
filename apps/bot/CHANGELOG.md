@@ -1,5 +1,20 @@
 # Changelog
 
+## [7.9.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.8.0...bot-v7.9.0) (2025-07-09)
+
+
+### Features
+
+* **icons:** add deleted-channel emoji ([2e828d2](https://github.com/Rapha01/activityRank-bot/commit/2e828d2d9435224087dd3398efb687277f700564))
+* **icons:** yes and no emoji ([7e39f96](https://github.com/Rapha01/activityRank-bot/commit/7e39f9666fb30aafaa69515c114baca4da5265b0))
+* standardise embed colors across the bot ([4b5ddf5](https://github.com/Rapha01/activityRank-bot/commit/4b5ddf51878d32f40be3446a6343a6a9a0bd2663))
+
+
+### Bug Fixes
+
+* **i18n:** move `pt` to `pt-BR` ([d7594fd](https://github.com/Rapha01/activityRank-bot/commit/d7594fd7cb74340e3f3bbc8af7c8c8bdec58ab9c))
+* **style:** standardise embed colors ([305a76e](https://github.com/Rapha01/activityRank-bot/commit/305a76e1be5d22b16295dfefe79889dacce79634))
+
 ## [7.8.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.7.1...bot-v7.8.0) (2025-06-18)
 
 
