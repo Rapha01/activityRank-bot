@@ -1,60 +1,28 @@
 import {
-  EmbedBuilder,
   ButtonStyle,
   TextInputStyle,
   PermissionFlagsBits,
   type Interaction,
   type ModalComponentData,
-  type SelectMenuComponentOptionData,
+  type BaseMessageOptions,
+  type ContainerComponentData,
+  MessageFlags,
+  type ComponentInContainerData,
 } from 'discord.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
+import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
 import { ComponentType } from 'discord.js';
 import { command } from '#bot/commands.js';
 import { component, modal } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
-import { actionrow } from '#bot/util/component.js';
+import { actionrow, container } from '#bot/util/component.js';
 import type { TFunction } from 'i18next';
-
-const generateRows = async (
-  t: TFunction<'command-content'>,
-  interaction: Interaction<'cached'>,
-) => {
-  const predicate = requireUser(interaction.user);
-
-  return [
-    actionrow([
-      {
-        type: ComponentType.StringSelect,
-        placeholder: 'The message to set',
-        customId: messageSelect.instanceId({ predicate }),
-        options: selectOptions(t),
-      },
-    ]),
-    actionrow([
-      {
-        type: ComponentType.Button,
-        label: 'Clear a message',
-        style: ButtonStyle.Danger,
-        customId: clearButton.instanceId({ predicate }),
-      },
-    ]),
-  ];
-};
+import invariant from 'tiny-invariant';
 
 type ServerMessage =
   | 'serverJoinMessage'
   | 'levelupMessage'
   | 'roleAssignMessage'
   | 'roleDeassignMessage';
-
-const idToName = (id: ServerMessage, t: TFunction<'command-content'>): string => {
-  return {
-    serverJoinMessage: t('config-messages.joinMessage'),
-    levelupMessage: t('config-messages.levelupMessage'),
-    roleAssignMessage: t('config-messages.assignMessage'),
-    roleDeassignMessage: t('config-messages.deassignMessage'),
-  }[id];
-};
 
 const generateModal = (
   t: TFunction<'command-content'>,
@@ -66,7 +34,7 @@ const generateModal = (
     actionrow([
       {
         customId: 'msg-component-1',
-        label: `The ${idToName(message, t)}`,
+        label: t(`config-messages.${message}New`),
         type: ComponentType.TextInput,
         style: TextInputStyle.Paragraph,
         maxLength: message === 'levelupMessage' ? 1000 : 500,
@@ -87,78 +55,84 @@ export default command({
       return;
     }
 
-    const embed = {
-      author: { name: 'Server Messages' },
-      color: 0x01c3d9,
-      description: t('config-messages.description'),
-      fields: [
-        {
-          name: t('config-messages.joinMessage'),
-          value: t('config-messages.joinMessageDescription'),
-        },
-        {
-          name: t('config-messages.levelupMessage'),
-          value: t('config-messages.levelupMessageDescription'),
-        },
-        {
-          name: t('config-messages.assignMessage'),
-          value: t('config-messages.assignMessageDescription'),
-        },
-        {
-          name: t('config-messages.deassignMessage'),
-          value: t('config-messages.deassignMessageDescription'),
-        },
-      ],
-    };
+    const guildModel = await getGuildModel(interaction.guild);
 
     await interaction.reply({
-      embeds: [embed],
-      components: await generateRows(t, interaction),
-      ephemeral: true,
+      components: await renderPage(t, guildModel, interaction),
+      flags: [MessageFlags.IsComponentsV2],
     });
   },
 });
 
-const clearButton = component({
+async function renderPage(
+  t: TFunction<'command-content'>,
+  cachedGuild: GuildModel,
+  interaction: Interaction,
+): Promise<BaseMessageOptions['components']> {
+  invariant(interaction.guild);
+
+  const section = (message: ServerMessage): ComponentInContainerData[] => [
+    {
+      type: ComponentType.TextDisplay,
+      content: `### ${t(`config-messages.${message}`)}\n${t(`config-messages.${message}Description`)}`,
+    },
+    actionrow([
+      {
+        type: ComponentType.Button,
+        customId: messageButton.instanceId({ data: { message }, predicate }),
+        style: ButtonStyle.Secondary,
+        label: t('config-messages.button.edit'),
+      },
+      {
+        type: ComponentType.Button,
+        customId: clearMessageButton.instanceId({ data: { message }, predicate }),
+        style: ButtonStyle.Secondary,
+        disabled: cachedGuild.db[message] === '',
+        label: t('config-role.button.clear'),
+      },
+    ]),
+  ];
+
+  const predicate = requireUser(interaction.user);
+  const main: ContainerComponentData = container(
+    [
+      {
+        type: ComponentType.TextDisplay,
+        content: `## ${t('config-messages.header')}`,
+      },
+      {
+        type: ComponentType.TextDisplay,
+        content: t('config-messages.description'),
+      },
+      { type: ComponentType.Separator, spacing: 2 },
+      ...section('serverJoinMessage'),
+      ...section('levelupMessage'),
+      ...section('roleAssignMessage'),
+      ...section('roleDeassignMessage'),
+    ],
+    { accentColor: 0x01c3d9 },
+  );
+
+  return [main];
+}
+
+const clearMessageButton = component<{ message: ServerMessage }>({
   type: ComponentType.Button,
-  async callback({ interaction, t }) {
-    await interaction.reply({
-      content: t('config-messages.askClear'),
-      components: [
-        actionrow([
-          {
-            customId: clearMessageSelect.instanceId({ predicate: requireUser(interaction.user) }),
-            type: ComponentType.StringSelect,
-            placeholder: t('config-messages.toClear'),
-            options: selectOptions(t),
-          },
-        ]),
-      ],
-      ephemeral: true,
-    });
-  },
-});
-
-const clearMessageSelect = component({
-  type: ComponentType.StringSelect,
-  async callback({ interaction, t }) {
-    const clearItem = interaction.values[0] as ServerMessage;
-
+  async callback({ interaction, data, t }) {
     const model = await getGuildModel(interaction.guild);
-    model.upsert({ [clearItem]: '' });
+    model.upsert({ [data.message]: '' });
 
     await interaction.reply({
-      content: t('config-messages.cleared', { value: idToName(clearItem, t) }),
+      content: t('config-messages.cleared', { value: t(`config-messages.${data.message}`) }),
       ephemeral: true,
     });
   },
 });
 
-const messageSelect = component({
-  type: ComponentType.StringSelect,
-  async callback({ interaction, t }) {
-    const editItem = interaction.values[0] as ServerMessage;
-    await interaction.showModal(generateModal(t, editItem));
+const messageButton = component<{ message: ServerMessage }>({
+  type: ComponentType.Button,
+  async callback({ interaction, data, t }) {
+    await interaction.showModal(generateModal(t, data.message));
   },
 });
 
@@ -171,20 +145,35 @@ const setModal = modal<{ message: ServerMessage }>({
     model.upsert({ [data.message]: value });
 
     await interaction.followUp({
-      content: `Set ${idToName(data.message, t)}`,
-      embeds: [new EmbedBuilder().setDescription(value).setColor(0x01c3d9)],
-      ephemeral: true,
+      components: [
+        container(
+          [
+            {
+              type: ComponentType.TextDisplay,
+              content: `## ${t(`config-messages.${data.message}Set`)}`,
+            },
+            {
+              type: ComponentType.Section,
+              components: [
+                { type: ComponentType.TextDisplay, content: t('config-messages.editAgain') },
+              ],
+              accessory: {
+                type: ComponentType.Button,
+                customId: messageButton.instanceId({
+                  data,
+                  predicate: requireUser(interaction.user),
+                }),
+                style: ButtonStyle.Secondary,
+                label: t('config-messages.button.edit'),
+              },
+            },
+            { type: ComponentType.Separator, spacing: 2 },
+            { type: ComponentType.TextDisplay, content: value },
+          ],
+          { accentColor: 0x01c3d9 },
+        ),
+      ],
+      flags: [MessageFlags.IsComponentsV2],
     });
   },
 });
-
-const selectOptions = (
-  t: TFunction<'command-content'>,
-): readonly SelectMenuComponentOptionData[] => {
-  return [
-    { label: t('config-messages.joinMessage'), value: 'serverJoinMessage' },
-    { label: t('config-messages.levelupMessage'), value: 'levelupMessage' },
-    { label: t('config-messages.assignMessage'), value: 'roleAssignMessage' },
-    { label: t('config-messages.deassignMessage'), value: 'roleDeassignMessage' },
-  ] satisfies { label: string; value: ServerMessage }[];
-};

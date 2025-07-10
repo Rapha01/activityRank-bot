@@ -1,114 +1,26 @@
 import type { ShardDB } from '@activityrank/database';
+import invariant from 'tiny-invariant';
 import {
-  ActionRowBuilder,
-  EmbedBuilder,
-  ButtonBuilder,
   ButtonStyle,
-  ChannelType,
   PermissionFlagsBits,
   ComponentType,
-  type Interaction,
+  MessageFlags,
+  ChannelType,
 } from 'discord.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
-import nameUtil from '../util/nameUtil.js';
 import { ParserResponseStatus, parseChannel } from '../util/parser.js';
 import { command } from '#bot/commands.js';
 import { component } from '#bot/util/registry/component.js';
-import { requireUser, requireUserId } from '#bot/util/predicates.js';
-import { closeButton } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { container } from '#bot/util/component.js';
 import type { TFunction } from 'i18next';
-
-type Setting = 'noXp' | 'autopost_serverJoin' | 'autopost_levelup';
-
-const settingButton = component<{
-  channelId: string;
-  type: ChannelType | null;
-  setting: Setting;
-}>({
-  type: ComponentType.Button,
-  async callback({ interaction, data, t }) {
-    const { channelId, type, setting } = data;
-
-    let myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
-
-    const cachedGuild = await getGuildModel(interaction.guild);
-
-    if (setting === 'noXp') {
-      if (myChannel.noXp)
-        await guildChannelModel.storage.set(interaction.guild, channelId, 'noXp', 0);
-      else await guildChannelModel.storage.set(interaction.guild, channelId, 'noXp', 1);
-
-      myChannel = await guildChannelModel.storage.get(interaction.guild, channelId);
-    } else {
-      if (cachedGuild.db[setting] === channelId) await cachedGuild.upsert({ [setting]: '0' });
-      else await cachedGuild.upsert({ [setting]: channelId });
-    }
-
-    await interaction.update({
-      components: [
-        new ActionRowBuilder<ButtonBuilder>().addComponents(
-          generateRow(t, interaction, channelId, type, cachedGuild, myChannel),
-        ),
-        _close(interaction.user.id),
-      ],
-    });
-  },
-});
-
-const generateRow = (
-  t: TFunction<'command-content'>,
-  interaction: Interaction<'cached'>,
-  channelId: string,
-  type: ChannelType | null,
-  myGuild: GuildModel,
-  myChannel: ShardDB.GuildChannel,
-) => {
-  const r = [
-    new ButtonBuilder().setLabel(t('config-channel.noXP')),
-    new ButtonBuilder().setLabel(t('config-channel.joinChannel')),
-    new ButtonBuilder().setLabel(t('config-channel.levelupChannel')),
-  ];
-
-  function disableIfNotText(builder: ButtonBuilder) {
-    if (type !== ChannelType.GuildText) {
-      builder.setDisabled(true);
-      builder.setStyle(ButtonStyle.Secondary);
-    }
-  }
-
-  function getStyleFromEquivalence(check?: string) {
-    return check === channelId ? ButtonStyle.Success : ButtonStyle.Danger;
-  }
-
-  const getButton = (setting: Setting) =>
-    settingButton.instanceId({
-      data: { channelId, type, setting },
-      predicate: requireUser(interaction.user),
-    });
-
-  r[0].setCustomId(getButton('noXp'));
-  r[0].setStyle(myChannel.noXp ? ButtonStyle.Success : ButtonStyle.Danger);
-
-  r[1].setCustomId(getButton('autopost_serverJoin'));
-  r[1].setStyle(getStyleFromEquivalence(myGuild.db.autopost_serverJoin));
-
-  r[2].setCustomId(getButton('autopost_levelup'));
-  r[2].setStyle(getStyleFromEquivalence(myGuild.db.autopost_levelup));
-
-  disableIfNotText(r[1]);
-  disableIfNotText(r[2]);
-
-  return r;
-};
-
-const _close = (ownerId: string) =>
-  new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setLabel('Close')
-      .setStyle(ButtonStyle.Danger)
-      .setCustomId(closeButton.instanceId({ predicate: requireUserId(ownerId) })),
-  );
+import type {
+  BaseMessageOptions,
+  ComponentInContainerData,
+  ContainerComponentData,
+  Interaction,
+} from 'discord.js';
+import { getChannelMention } from '#bot/util/nameUtil.js';
 
 export default command({
   name: 'config-channel',
@@ -139,51 +51,73 @@ export default command({
       return;
     }
 
+    // ! FIXME may be `channelId = 0` because that's the value of `defaultAll`
     const myChannel = await guildChannelModel.storage.get(interaction.guild, resolvedChannel.id);
 
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: t('config-channel.channelSettings') })
-      .setDescription(
-        nameUtil.getChannelMention(interaction.guild.channels.cache, resolvedChannel.id),
-      )
-      .setColor(0x01c3d9)
-      .addFields({ name: t('config-channel.noXP'), value: t('config-channel.noXPDescription') });
-
-    if (
-      !resolvedChannel.object ||
-      [ChannelType.GuildText, ChannelType.GuildForum, ChannelType.GuildAnnouncement].includes(
-        resolvedChannel.object.type,
-      )
-    ) {
-      embed.addFields(
-        {
-          name: t('config-channel.joinChannel'),
-          value: t('config-channel.joinChannelDescription'),
-        },
-        {
-          name: t('config-channel.levelupChannel'),
-          value: t('config-channel.levelupChannelDescription'),
-        },
-      );
-    }
-
-    const cachedGuild = await getGuildModel(interaction.guild);
-
     await interaction.reply({
-      embeds: [embed],
-      components: [
-        new ActionRowBuilder<ButtonBuilder>().addComponents(
-          generateRow(
-            t,
-            interaction,
-            resolvedChannel.id,
-            resolvedChannel.object ? resolvedChannel.object.type : null,
-            cachedGuild,
-            myChannel,
-          ),
-        ),
-        _close(interaction.user.id),
-      ],
+      components: await renderPage(t, resolvedChannel.id, myChannel, interaction),
+      flags: [MessageFlags.IsComponentsV2],
+    });
+  },
+});
+
+async function renderPage(
+  t: TFunction<'command-content'>,
+  channelId: string,
+  myChannel: ShardDB.GuildChannel,
+  interaction: Interaction,
+): Promise<BaseMessageOptions['components']> {
+  invariant(interaction.guild);
+
+  const top_components: ComponentInContainerData[] = [
+    {
+      type: ComponentType.TextDisplay,
+      content: `## ${t('config-channel.channelSettings')} • ${getChannelMention(interaction.guild.channels.cache, channelId)}`,
+    },
+    { type: ComponentType.Separator, spacing: 2 },
+  ];
+
+  const predicate = requireUser(interaction.user);
+  const enabled = myChannel.noXp === 0;
+  const main: ContainerComponentData = container(
+    [
+      ...top_components,
+      {
+        type: ComponentType.Section,
+        components: [
+          {
+            type: ComponentType.TextDisplay,
+            content: `### ${t('config-channel.allowXp')}\n${t('config-channel.allowXpDescription')}`,
+          },
+        ],
+        accessory: {
+          type: ComponentType.Button,
+          customId: toggleButton.instanceId({ data: { channelId }, predicate }),
+          style: enabled ? ButtonStyle.Success : ButtonStyle.Danger,
+          label: enabled ? t('config-channel.button.award') : t('config-channel.button.not-award'),
+        },
+      },
+    ],
+    { accentColor: 0x01c3d9 },
+  );
+
+  return [main];
+}
+
+const toggleButton = component<{ channelId: string }>({
+  type: ComponentType.Button,
+  autoDestroy: true,
+  async callback({ interaction, data, t }) {
+    let myChannel = await guildChannelModel.storage.get(interaction.guild, data.channelId);
+
+    if (myChannel.noXp === 1)
+      await guildChannelModel.storage.set(interaction.guild, data.channelId, 'noXp', 0);
+    else await guildChannelModel.storage.set(interaction.guild, data.channelId, 'noXp', 1);
+
+    myChannel = await guildChannelModel.storage.get(interaction.guild, data.channelId);
+
+    await interaction.update({
+      components: await renderPage(t, data.channelId, myChannel, interaction),
     });
   },
 });

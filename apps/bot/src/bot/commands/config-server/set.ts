@@ -170,6 +170,38 @@ async function renderPage(
             channelTypes: [ChannelType.GuildText],
           },
         ]),
+        {
+          type: ComponentType.Section,
+          components: [
+            {
+              type: ComponentType.TextDisplay,
+              content: `### ${t('config-server.notifyJoinSetChannel.label')}\n${t('config-server.notifyJoinSetChannel.description')}`,
+            },
+          ],
+          accessory: {
+            type: ComponentType.Button,
+            customId: clearJoinChannel.instanceId({ data: { page }, predicate }),
+            style: ButtonStyle.Danger,
+            label: t('config-server.button.clear'),
+            disabled: cachedGuild.db.autopost_serverJoin === '0',
+          },
+        },
+        actionrow([
+          {
+            type: ComponentType.ChannelSelect,
+            customId: setJoinChannel.instanceId({ data: { page }, predicate }),
+            defaultValues:
+              cachedGuild.db.autopost_serverJoin === '0'
+                ? []
+                : [
+                    {
+                      id: cachedGuild.db.autopost_serverJoin,
+                      type: SelectMenuDefaultValueType.Channel,
+                    },
+                  ],
+            channelTypes: [ChannelType.GuildText],
+          },
+        ]),
         renderPageItem({ ...globalOpts, id: 'notifyLevelupWithRole' }),
       ],
       { accentColor: 0x01c3d9 },
@@ -334,6 +366,34 @@ const setLevelupChannel = component<{ page: PageId }>({
     const cachedGuild = await getGuildModel(interaction.guild);
 
     await cachedGuild.upsert({ autopost_levelup: interaction.values[0] });
+
+    await interaction.update({
+      components: await renderPage(t, data.page, cachedGuild, interaction.user),
+    });
+  },
+});
+
+const clearJoinChannel = component<{ page: PageId }>({
+  type: ComponentType.Button,
+  autoDestroy: true,
+  async callback({ interaction, data, t }) {
+    const cachedGuild = await getGuildModel(interaction.guild);
+
+    await cachedGuild.upsert({ autopost_serverJoin: '0' });
+
+    await interaction.update({
+      components: await renderPage(t, data.page, cachedGuild, interaction.user),
+    });
+  },
+});
+
+const setJoinChannel = component<{ page: PageId }>({
+  type: ComponentType.ChannelSelect,
+  autoDestroy: true,
+  async callback({ interaction, data, t }) {
+    const cachedGuild = await getGuildModel(interaction.guild);
+
+    await cachedGuild.upsert({ autopost_serverJoin: interaction.values[0] });
 
     await interaction.update({
       components: await renderPage(t, data.page, cachedGuild, interaction.user),

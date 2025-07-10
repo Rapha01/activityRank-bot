@@ -8,70 +8,22 @@ import {
   PermissionFlagsBits,
   ComponentType,
   type Interaction,
-  type APIEmbed,
+  type ContainerComponentData,
+  type BaseMessageOptions,
+  MessageFlags,
 } from 'discord.js';
 import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
-import nameUtil from '../../util/nameUtil.js';
+import { getRoleMention } from '../../util/nameUtil.js';
 import { command } from '#bot/commands.js';
-import { actionrow, closeButton } from '#bot/util/component.js';
+import { actionrow, container } from '#bot/util/component.js';
 import { component, modal } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import type { TFunction } from 'i18next';
+import invariant from 'tiny-invariant';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 
-const generateMainRow = (
-  t: TFunction<'command-content'>,
-  interaction: Interaction<'cached'>,
-  role: RoleModel,
-) => {
-  const predicate = requireUser(interaction.user);
-  return actionrow([
-    {
-      label: t('config-role.noXP'),
-      customId: noXpButton.instanceId({ data: { role }, predicate }),
-      style: role.db.noXp ? ButtonStyle.Success : ButtonStyle.Danger,
-      type: ComponentType.Button,
-    },
-    {
-      label: t('config-role.assignMessage'),
-      customId: modalButton.instanceId({ data: { role, type: 'assignMessage' }, predicate }),
-      style: ButtonStyle.Secondary,
-      type: ComponentType.Button,
-    },
-    {
-      label: t('config-role.deassignMessage'),
-      customId: modalButton.instanceId({ data: { role, type: 'deassignMessage' }, predicate }),
-      style: ButtonStyle.Secondary,
-      type: ComponentType.Button,
-    },
-  ]);
-};
-
-const generateCloseRow = (
-  t: TFunction<'command-content'>,
-  interaction: Interaction<'cached'>,
-  role: RoleModel,
-) =>
-  actionrow([
-    {
-      label: t('config-role.clearMessage'),
-      style: ButtonStyle.Danger,
-      customId: clearButton.instanceId({
-        data: { role },
-        predicate: requireUser(interaction.user),
-      }),
-      type: ComponentType.Button,
-    },
-    {
-      label: t('config-role.close'),
-      style: ButtonStyle.Danger,
-      customId: closeButton.instanceId({ predicate: requireUser(interaction.user) }),
-      type: ComponentType.Button,
-    },
-  ]);
-
-const _modal = (t: TFunction<'command-content'>, role: RoleModel, type: AssignType) =>
+const getModal = (t: TFunction<'command-content'>, role: RoleModel, type: AssignType) =>
   new ModalBuilder()
     .setCustomId(messageModal.instanceId({ data: { type, role } }))
     .setTitle(
@@ -115,65 +67,95 @@ export default command({
 
     const cachedRole = await getRoleModel(resolvedRole);
 
-    const embed: APIEmbed = {
-      author: { name: t('config-role.roleSettings') },
-      description: nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id),
-      color: 0x01c3d9,
-      fields: [
-        {
-          name: t('config-role.noXP'),
-          value: t('config-role.noXPDescription'),
-        },
-        {
-          name: t('config-role.assignMessage'),
-          value: t('config-role.assignMessageDescription'),
-        },
-        {
-          name: t('config-role.deassignMessage'),
-          value: t('config-role.deassignMessageDescription'),
-        },
-      ],
-    };
-
     await interaction.reply({
-      embeds: [embed],
-      components: [
-        generateMainRow(t, interaction, cachedRole),
-        generateCloseRow(t, interaction, cachedRole),
-      ],
+      components: await renderPage(t, resolvedRole.id, cachedRole, interaction),
+      flags: [MessageFlags.IsComponentsV2],
     });
   },
 });
 
-const clearButton = component<{ role: RoleModel }>({
-  type: ComponentType.Button,
-  async callback({ interaction, data, t }) {
-    await interaction.reply({
-      content: t('config-role.toClear'),
-      components: [
-        actionrow([
+async function renderPage(
+  t: TFunction<'command-content'>,
+  roleId: string,
+  role: RoleModel,
+  interaction: Interaction,
+): Promise<BaseMessageOptions['components']> {
+  invariant(interaction.guild);
+
+  const predicate = requireUser(interaction.user);
+  const enabled = role.db.noXp === 1;
+  const main: ContainerComponentData = container(
+    [
+      {
+        type: ComponentType.TextDisplay,
+        content: `## ${t('config-role.roleSettings')} • ${getRoleMention(interaction.guild.roles.cache, roleId)}`,
+      },
+      { type: ComponentType.Separator, spacing: 2 },
+      {
+        type: ComponentType.Section,
+        components: [
           {
-            label: t('config-role.assignMessage'),
-            style: ButtonStyle.Secondary,
-            customId: unsetMessageButton.instanceId({
-              data: { role: data.role, type: 'assignMessage' },
-            }),
-            type: ComponentType.Button,
+            type: ComponentType.TextDisplay,
+            content: `### ${t('config-role.noXp')}\n${t('config-role.noXpDescription')}`,
           },
-          {
-            label: t('config-role.deassignMessage'),
-            style: ButtonStyle.Secondary,
-            customId: unsetMessageButton.instanceId({
-              data: { role: data.role, type: 'deassignMessage' },
-            }),
-            type: ComponentType.Button,
-          },
-        ]),
-      ],
-      ephemeral: true,
-    });
-  },
-});
+        ],
+        accessory: {
+          type: ComponentType.Button,
+          customId: noXpButton.instanceId({ data: { role }, predicate }),
+          style: enabled ? ButtonStyle.Success : ButtonStyle.Danger,
+          label: enabled ? t('config-role.button.enabled') : t('config-role.button.not-enabled'),
+        },
+      },
+      {
+        type: ComponentType.TextDisplay,
+        content: `### ${t('config-role.assignMessage')}\n${t('config-role.assignMessageDescription')}`,
+      },
+      actionrow([
+        {
+          type: ComponentType.Button,
+          customId: modalButton.instanceId({ data: { role, type: 'assignMessage' }, predicate }),
+          style: ButtonStyle.Secondary,
+          label: t('config-role.button.edit'),
+        },
+        {
+          type: ComponentType.Button,
+          customId: unsetMessageButton.instanceId({
+            data: { role, type: 'assignMessage' },
+            predicate,
+          }),
+          style: ButtonStyle.Secondary,
+          disabled: role.db.assignMessage === '',
+          label: t('config-role.button.clear'),
+        },
+      ]),
+      {
+        type: ComponentType.TextDisplay,
+        content: `### ${t('config-role.deassignMessage')}\n${t('config-role.deassignMessageDescription')}`,
+      },
+      actionrow([
+        {
+          type: ComponentType.Button,
+          customId: modalButton.instanceId({ data: { role, type: 'deassignMessage' }, predicate }),
+          style: ButtonStyle.Secondary,
+          label: t('config-role.button.edit'),
+        },
+        {
+          type: ComponentType.Button,
+          customId: unsetMessageButton.instanceId({
+            data: { role, type: 'deassignMessage' },
+            predicate,
+          }),
+          style: ButtonStyle.Secondary,
+          disabled: role.db.deassignMessage === '',
+          label: t('config-role.button.clear'),
+        },
+      ]),
+    ],
+    { accentColor: 0x01c3d9 },
+  );
+
+  return [main];
+}
 
 const unsetMessageButton = component<{ role: RoleModel; type: AssignType }>({
   type: ComponentType.Button,
@@ -201,11 +183,9 @@ const noXpButton = component<{ role: RoleModel }>({
     } else {
       await data.role.upsert({ noXp: 1 });
     }
+
     await interaction.update({
-      components: [
-        generateMainRow(t, interaction, data.role),
-        generateCloseRow(t, interaction, data.role),
-      ],
+      components: await renderPage(t, data.role.object.id, data.role, interaction),
     });
 
     drop();
@@ -215,7 +195,7 @@ const noXpButton = component<{ role: RoleModel }>({
 const modalButton = component<{ role: RoleModel; type: AssignType }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
-    await interaction.showModal(_modal(t, data.role, data.type));
+    await interaction.showModal(getModal(t, data.role, data.type));
   },
 });
 

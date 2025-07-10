@@ -45,12 +45,12 @@
   "config-channel": {
     "oops": "Oops!",
     "deprecated": "## No-Command and Command-Only Channels are __deprecated__.\n\nManage Application Command permissions in **Server Settings ❯ Integrations ❯ ActivityRank** instead!\n\n*You can still **disable** No-Command and Command-Only channels.*'",
-    "noXP": "noXP",
-    "noXPDescription": "If this is enabled, no xp will be given in this channel.",
-    "joinChannel": "Server Join Channel",
-    "joinChannelDescription": "If this is enabled, server join messages will be sent to this channel.",
-    "levelupChannel": "Levelup Channel",
-    "levelupChannelDescription": "If this is enabled, levelup messages will be sent to this channel.",
+    "allowXp": "Grant XP",
+    "allowXpDescription": "Allow XP to be given to members in this channel, or any sub-channels.\nSub-channels can be disabled individually.",
+    "button": {
+      "award": "Give XP",
+      "not-award": "No XP"
+    },
     "conflict": "You have specified both a channel and an ID, but they do not match.\nDid you mean: \"/config-channel channel:{{value}}\"?",
     "notSpecified": "You need to specify either a channel or a channel's ID!",
     "channelSettings": "Channel Settings"
@@ -63,19 +63,33 @@
     "personalSettings": "Personal Settings"
   },
   "config-messages": {
+    "header": "Configure Messages",
     "select": "Message Selection",
     "description": "**Adjust the server-wide messages that the bot sends when events are triggered.**\n## Available variables:\n* `<name>`: The username of the relevant user.\n* `<servername>`: The name of the server.\n* `<level>`: The new level of the relevant user.\n* `<mention>`: The @mention of the relevant user.\n* `<rolename>`: The name of the user's new role (on level up/level down).\n* `<rolemention>`: The @mention of the user's new role (on level up/level down).",
-    "joinMessage": "Server Join Message",
-    "joinMessageDescription": "The message to send when a member joins the server",
+    "editAgain": "Did you get something wrong?\nAvailible variables: `<name>`, `<servername>`, `<level>`, `<mention>`, `<rolename>`, `<rolemention>`",
+    "serverJoinMessage": "Server Join Message",
+    "serverJoinMessageDescription": "The message to send when a member joins the server",
+    "serverJoinMessageNew": "The new Join Message",
+    "serverJoinMessageSet": "Set Join Message",
     "levelupMessage": "Levelup Message",
     "levelupMessageDescription": "The message to send when a member gains a level",
-    "assignMessage": "Role Assign Message",
-    "assignMessageDescription": "The message to send when a member gains a role, unless overridden by a role-specific message",
-    "deassignMessage": "Role Deassign Message",
-    "deassignMessageDescription": "The message to send when a member loses a role, unless overridden by a role-specific message",
-    "askClear": "Which message do you want to clear?",
-    "toClear": "The message to clear",
-    "cleared": "Cleared {{value}}"
+    "levelupMessageNew": "The new Levelup Message",
+    "levelupMessageSet": "Set Levelup Message",
+    "roleAssignMessage": "Role Assign Message",
+    "roleAssignMessageDescription": "The message to send when a member gains a role, unless overridden by a role-specific message",
+    "roleAssignMessageNew": "The new Role Assign Message",
+    "roleAssignMessageSet": "Set Role Assign Message",
+    "roleDeassignMessage": "Role Deassign Message",
+    "roleDeassignMessageDescription": "The message to send when a member loses a role, unless overridden by a role-specific message",
+    "roleDeassignMessageNew": "The new Role Deassign Message",
+    "roleDeassignMessageSet": "Set Role Deassign Message",
+    "cleared": "Cleared {{value}}",
+    "button": {
+      "enabled": "Enabled",
+      "not-enabled": "Disabled",
+      "edit": "Edit",
+      "clear": "Clear"
+    }
   },
   "config-role": {
     "everyone": "You cannot make @everyone a level role.",
@@ -85,22 +99,28 @@
     "roleAdded": "Assign/Deassignments for this role",
     "assignlevel": "Assignment Level",
     "deassignlevel": "Deassignment Level",
-    "noXP": "No XP",
-    "noXPDescription": "If this is enabled, no xp will be given to members that have this role.",
+    "noXp": "No XP",
+    "noXpDescription": "Prevent XP from being given to any members that have this role.",
     "assignMessage": "Assignment Message",
-    "assignMessageDescription": "This is the message sent when this role is given to a member. Defaults to the global assignMessage.",
+    "assignMessageDescription": "Edit the message sent when this role is given to a member. This defaults to the server-wide Assignment Message.",
     "deassignMessage": "Deassignment Message",
-    "deassignMessageDescription": "This is the message sent when this role is removed from a member. Defaults to the global deassignMessage.",
+    "deassignMessageDescription": "Edit the message sent when this role is removed from a member. This defaults to the server-wide Deassignment Message.",
     "clearMessage": "Clear a message",
     "toClear": "Which message do you want to clear?'",
     "close": "Close",
     "assignToSend": "The message to send upon assignment",
     "deassignToSend": "The message to send upon deassignment",
     "roleSettings": "Role Settings",
-    "removedAssign": "Removed assignmessage of role <@&{{roleId}}>.",
-    "removedDeassign": "Removed deassignmessage of role <@&{{roleId}}>.",
-    "addedAssign": "Added assignmessage for role <@&{{roleId}}>.",
-    "addedDeassign": "Added deassignmessage for <@&{{roleId}}>."
+    "removedAssign": "Removed Assignment Message of role <@&{{roleId}}>.",
+    "removedDeassign": "Removed Deassignment Message of role <@&{{roleId}}>.",
+    "addedAssign": "Added Assignment Message for role <@&{{roleId}}>.",
+    "addedDeassign": "Added Deassignment Message for <@&{{roleId}}>.",
+    "button": {
+      "enabled": "Enabled",
+      "not-enabled": "Disabled",
+      "edit": "Edit",
+      "clear": "Clear"
+    }
   },
   "config-server": {
     "bonusTitle": "Bonus Tag/Emote",
@@ -169,6 +189,10 @@
     "notifyLevelupSetChannel": {
       "label": "Notify in Channel",
       "description": "Send levelup notifications to a specific channel."
+    },
+    "notifyJoinSetChannel": {
+      "label": "Server Join Channel",
+      "description": "Send server join messages to a specific channel."
     },
     "notifyLevelupWithRole": {
       "label": "Include Levelup Message",

@@ -22,6 +22,7 @@ import { nanoid } from 'nanoid';
 import { registry } from './registry.js';
 import i18n from 'i18next';
 import type { TFunction } from 'i18next';
+import invariant from 'tiny-invariant';
 
 interface PredicateConfig<I extends ComponentInteraction> {
   validate: (interaction: I) => Predicate;
@@ -174,7 +175,7 @@ class MessageComponentInstance<
     });
 
     if (this.parent.autoDestroy) {
-      if (ids === null) throw new Error();
+      invariant(ids, '`ids` were set earlier in the function');
 
       for (const id of ids) {
         this.dropComponentWithCustomId(id);
