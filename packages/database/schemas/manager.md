@@ -65,6 +65,26 @@ and production databases (`intern` and `extern` respectively).
 
 **Primary Key**: `guildId`
 
+### `session`
+
+Used to store OAuth2 sessions on the dashboard.
+Expired sessions should be cleared periodically.
+
+Sessions in this database have the same expiry as 
+their linked Discord OAuth2 `access_token`s.
+
+> `user_id` references `web_user(id)`
+
+|             Key | Type         | Nullable | Default |
+| --------------: | ------------ | :------: | ------- |
+|        **`id`** | varchar(255) |    ×     |         |
+|       `user_id` | bigint(20)   |    ×     |         |
+|  `access_token` | varchar(255) |    ×     |         |
+| `refresh_token` | varchar(255) |    ×     |         |
+|    `expires_at` | datetime     |    ×     |         |
+
+**Primary Key**: `id`
+
 ### `userRoute`
 
 |          Key | Type     | Nullable | Default |
@@ -73,6 +93,18 @@ and production databases (`intern` and `extern` respectively).
 |  `dbShardId` | smallint |    ×     | 0       |
 
 **Primary Key**: `userId`
+
+### `web_user`
+
+Represents dashboard users. Keeps a cache of their username and avatar hash.
+
+|           Key | Type        | Nullable | Default |
+| ------------: | ----------- | :------: | ------- |
+|      **`id`** | bigint(20)  |    ×     |         |
+|    `username` | varchar(32) |    ×     |         |
+| `avatar_hash` | varchar(32) |    ☑︎     | NULL    |
+
+**Primary Key**: `id`
 
 ## Unused Tables
 

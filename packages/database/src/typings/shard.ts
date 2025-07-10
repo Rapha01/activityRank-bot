@@ -14,9 +14,6 @@ export interface BonusSchema {
 
 export interface GuildSchema {
   guildId: string;
-  prefix: Generated<string>;
-  tokens: Generated<number>;
-  tokensBurned: Generated<number>;
   voteTag: Generated<string>;
   voteEmote: Generated<string>;
   bonusTag: Generated<string>;
@@ -50,24 +47,14 @@ export interface GuildSchema {
   allowMutedXp: Generated<number>;
   allowDeafenedXp: Generated<number>;
   allowSoloXp: Generated<number>;
+  /** @deprecated */
   allowInvisibleXp: Generated<number>;
-  allowDownvotes: Generated<number>;
+  /** @deprecated */
   commandOnlyChannel: Generated<string>;
   autopost_levelup: Generated<string>;
   autopost_serverJoin: Generated<string>;
-  autopost_servereave: Generated<string>;
-  autopost_voiceChannelJoin: Generated<string>;
-  autopost_voiceChanneleave: Generated<string>;
-  autoname_totalUserCount: Generated<string>;
-  autoname_onlineUserCount: Generated<string>;
-  autoname_activeUsersast24h: Generated<string>;
-  autoname_serverJoinsast24h: Generated<string>;
-  autoname_servereavesast24h: Generated<string>;
   levelupMessage: Generated<string>;
   serverJoinMessage: Generated<string>;
-  servereaveMessage: Generated<string>;
-  voiceChannelJoinMessage: Generated<string>;
-  voiceChanneleaveMessage: Generated<string>;
   roleAssignMessage: Generated<string>;
   roleDeassignMessage: Generated<string>;
   lastCommandDate: Generated<string>; // bigint
@@ -94,6 +81,7 @@ export interface GuildMemberSchema {
   guildId: string;
   userId: string;
   notifyLevelupDm: Generated<number>;
+  /** @deprecated */
   tokensBurned: Generated<number>;
   reactionVote: Generated<number>;
   inviter: Generated<string>;
@@ -145,8 +133,11 @@ export interface TextMessageSchema {
 
 export interface UserSchema {
   userId: string;
+  /** @deprecated */
   tokens: Generated<number>;
+  /** @deprecated */
   tokensBought: Generated<number>;
+  /** @deprecated */
   tokensGifted: Generated<number>;
   voteMultiplier: Generated<number>;
   voteMultiplierUntil: Generated<number>;

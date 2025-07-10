@@ -1,3 +1,4 @@
+CREATE DATABASE `manager`;
 USE `manager`;
 
 CREATE TABLE `botShardStat` (
@@ -57,14 +58,6 @@ CREATE TABLE `productKey` (
   PRIMARY KEY (`key`)
 );
 
-CREATE TABLE `session` (
-  `id` varchar(255) NOT NULL PRIMARY KEY,
-  `user_id` bigint(20) NOT NULL REFERENCES web_user(id),
-  `access_token` varchar(255) NOT NULL,
-  `refresh_token` varchar(255) NOT NULL,
-  `expires_at` datetime NOT NULL
-);
-
 CREATE TABLE `setting` (
   `id` varchar(64) NOT NULL,
   `value` varchar(4096) NOT NULL DEFAULT '',
@@ -75,10 +68,4 @@ CREATE TABLE `userRoute` (
   `userId` bigint NOT NULL DEFAULT '0',
   `dbShardId` smallint NOT NULL DEFAULT '0',
   PRIMARY KEY (`userId`)
-);
-
-CREATE TABLE `web_user` (
-  `id` bigint(20) NOT NULL PRIMARY KEY,
-  `username` varchar(32) NOT NULL UNIQUE,
-  `avatar_hash` varchar(32) DEFAULT NULL
 );
