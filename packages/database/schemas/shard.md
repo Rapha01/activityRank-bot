@@ -121,9 +121,15 @@ This document describes deprecations, requirements, and other notes for tables i
 |   **`guildId`** | bigint(20) |    ×     |         |
 | **`channelId`** | bigint(20) |    ×     |         |
 |          `noXp` | tinyint(4) |    ×     | false   |
-|     `noCommand` | tinyint(4) |    ×     | false   |
 
 **Primary Key**: `guildId`, `channelId`
+
+#### Deprecated / Unused Columns
+
+|         Key | Type       | Nullable | Default |
+| ----------: | ---------- | :------: | ------- |
+| `noCommand` | tinyint(4) |    ×     | false   |
+
 
 ### `guildMember`
 

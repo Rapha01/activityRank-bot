@@ -74,6 +74,7 @@ export interface GuildChannelSchema {
   guildId: string;
   channelId: string;
   noXp: Generated<number>;
+  /** @deprecated */
   noCommand: Generated<number>;
 }
 
