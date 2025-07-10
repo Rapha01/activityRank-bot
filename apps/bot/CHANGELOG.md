@@ -1,5 +1,15 @@
 # Changelog
 
+## [7.10.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.9.0...bot-v7.10.0) (2025-07-10)
+
+
+### Features
+
+* improve /config-messages ui ([f1a837a](https://github.com/Rapha01/activityRank-bot/commit/f1a837a570de089ca9f4cb6201236d1d86bddb6b))
+* improve /config-role menu ui ([37a9742](https://github.com/Rapha01/activityRank-bot/commit/37a9742dcfce70c10fe4e4a026c53b32878a8434))
+* improve usability of /config-channel ([c74253a](https://github.com/Rapha01/activityRank-bot/commit/c74253a5a865bd4e79410fbfd0724f9d202af034))
+* set join notify channel in /config-server ([49a13d5](https://github.com/Rapha01/activityRank-bot/commit/49a13d5a14c38308d6b48639afbf336b8a4af14d))
+
 ## [7.9.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.8.0...bot-v7.9.0) (2025-07-09)
 
 
