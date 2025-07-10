@@ -30,6 +30,8 @@ import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUserId } from '#bot/util/predicates.js';
 import type { TFunction } from 'i18next';
 import { emoji } from '#const/config.js';
+import { assertUnreachable } from '#bot/util/typescript.js';
+import invariant from 'tiny-invariant';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';
@@ -148,7 +150,7 @@ async function generateCard(
   if (cache.window === 'topChannels') {
     return await generateChannelCard(cache, guild, myGuild, disabled);
   }
-  throw new Error();
+  assertUnreachable(cache.window);
 }
 
 const fmtTime = (t: TFunction<'command-content'>, k: StatTimeInterval): string => t(`rank.${k}`);
@@ -283,8 +285,6 @@ async function generateRankCard(
 ): Promise<InteractionEditReplyOptions> {
   const scores = await fetchGuildMemberScores(guild, state.targetUser.id);
   const statistics = await fetchGuildMemberStatistics(guild, state.targetUser.id);
-
-  if (!scores) throw new Error();
 
   const guildCache = await getGuildModel(guild);
 

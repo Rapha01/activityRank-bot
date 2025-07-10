@@ -7,6 +7,7 @@ import { getWaitTime } from './cooldownUtil.js';
 import statFlushCache from '#bot/statFlushCache.js';
 import { PATREON_URL } from './constants.js';
 import { assertUnreachable } from './typescript.js';
+import invariant from 'tiny-invariant';
 
 /**
  * A cache of members in the format `guildId.userId` to the Date they can next upvote again.
@@ -56,8 +57,7 @@ export async function attemptUpvote(
   voter: GuildMember,
   target: GuildMember,
 ): Promise<UpvoteAttemptResult> {
-  if (voter.guild.id !== target.guild.id)
-    throw new Error('Attempted to upvote members in different guilds');
+  invariant(voter.guild.id === target.guild.id, 'sanity check; members must be in the same guild');
 
   const cachedGuild = await getGuildModel(voter.guild);
 

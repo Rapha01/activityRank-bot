@@ -20,6 +20,7 @@ import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { renderProgressBar } from '#bot/models/resetModel.js';
 import { Time } from '@sapphire/duration';
+import invariant from 'tiny-invariant';
 
 export const activeUpdates: Map<
   string,
@@ -172,9 +173,10 @@ const run = component<{ members: Collection<string, GuildMember>; createHook: bo
     let updateHookMessage: string | null = null;
     if (data.createHook) {
       const channel = interaction.channel;
-      if (!channel?.isTextBased() || !isNotThreadChannel(channel)) {
-        throw new Error('should have been checked in the command above');
-      }
+      invariant(
+        channel?.isTextBased() && isNotThreadChannel(channel),
+        'should have been checked in the command above',
+      );
       updateHook = await channel.createWebhook({
         name: 'Role Updates',
         avatar: interaction.client.user.avatarURL({ size: 2048 }),
@@ -242,10 +244,7 @@ const run = component<{ members: Collection<string, GuildMember>; createHook: bo
         }
 
         const discordMember = data.members.get(memberId);
-        if (!discordMember) {
-          // `memberIds` is based on `data.members`
-          throw new Error();
-        }
+        invariant(discordMember, '`memberIds` is based on `data.members`');
 
         if (discordMember.user.bot) {
           await sleep(1000); // sleep for 1 second
@@ -266,9 +265,7 @@ const run = component<{ members: Collection<string, GuildMember>; createHook: bo
       }
 
       if (updateHook) {
-        if (!updateHookMessage) {
-          throw new Error();
-        }
+        invariant(updateHookMessage, 'updateHookMessage has been set earlier in the function');
         await updateHook.editMessage(updateHookMessage, {
           components: buildComponents(((i + 1) * 100) / memberCount, false),
         });
@@ -288,9 +285,7 @@ const run = component<{ members: Collection<string, GuildMember>; createHook: bo
     }
 
     if (updateHook) {
-      if (!updateHookMessage) {
-        throw new Error();
-      }
+      invariant(updateHookMessage, 'updateHookMessage has been set earlier in the function');
       await updateHook.editMessage(updateHookMessage, { components: buildComponents(1, true) });
     } else if (canUpdate) {
       await interaction.update({ components: buildComponents(1, true) }).catch(() => {

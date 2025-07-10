@@ -26,6 +26,7 @@ import { requireUser } from '#bot/util/predicates.js';
 import { actionrow, closeButton } from '#bot/util/component.js';
 import Cron from 'croner';
 import { emoji } from '#const/config.js';
+import invariant from 'tiny-invariant';
 
 export default command({
   name: 'serverinfo',
@@ -168,8 +169,12 @@ interface Window {
   enablePagination: boolean;
 }
 
-// biome-ignore lint/style/noNonNullAssertion: client.user will always exist when the bot is logged in properly
-const clientURL = (client: Client): string => client.user!.avatarURL()!;
+const clientURL = (client: Client): string => {
+  const user = client.user;
+  invariant(user, 'client.user will always exist when the bot is logged in properly');
+  const avatar = user.avatarURL();
+  return avatar as string;
+};
 
 const general: Window = {
   additionalComponents: () => [],

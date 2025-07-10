@@ -11,7 +11,7 @@ export default command({
     await interaction.deferReply();
 
     if (!interaction.client.shard) {
-      throw new Error();
+      throw new Error('This function is built assuming the bot is sharded.');
     }
     const fetchResults = await interaction.client.shard.broadcastEval(
       (client, ctx) => {
