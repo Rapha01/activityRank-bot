@@ -170,6 +170,10 @@
       "label": "Notify in Channel",
       "description": "Send levelup notifications to a specific channel."
     },
+    "notifyJoinSetChannel": {
+      "label": "Server Join Channel",
+      "description": "Send server join messages to a specific channel."
+    },
     "notifyLevelupWithRole": {
       "label": "Include Levelup Message",
       "description": "When a role has a custom roleAssign message, also send the default levelup message.\nOtherwise, it will only send the roleAssign message."
