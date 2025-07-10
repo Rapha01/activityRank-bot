@@ -45,12 +45,12 @@
   "config-channel": {
     "oops": "Oops!",
     "deprecated": "## No-Command and Command-Only Channels are __deprecated__.\n\nManage Application Command permissions in **Server Settings ❯ Integrations ❯ ActivityRank** instead!\n\n*You can still **disable** No-Command and Command-Only channels.*'",
-    "noXP": "noXP",
-    "noXPDescription": "If this is enabled, no xp will be given in this channel.",
-    "joinChannel": "Server Join Channel",
-    "joinChannelDescription": "If this is enabled, server join messages will be sent to this channel.",
-    "levelupChannel": "Levelup Channel",
-    "levelupChannelDescription": "If this is enabled, levelup messages will be sent to this channel.",
+    "allowXp": "Grant XP",
+    "allowXpDescription": "Allow XP to be given to members in this channel, or any sub-channels.\nSub-channels can be disabled individually.",
+    "button": {
+      "award": "Give XP",
+      "not-award": "No XP"
+    },
     "conflict": "You have specified both a channel and an ID, but they do not match.\nDid you mean: \"/config-channel channel:{{value}}\"?",
     "notSpecified": "You need to specify either a channel or a channel's ID!",
     "channelSettings": "Channel Settings"
