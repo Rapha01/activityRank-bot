@@ -1,29 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `dbShard` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `dbShard`;
--- MySQL dump 10.13  Distrib 8.0.36, for macos14 (x86_64)
---
--- Host: 88.198.92.234    Database: dbShard
--- ------------------------------------------------------
--- Server version	5.7.30
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `bonus`
---
-
-DROP TABLE IF EXISTS `bonus`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bonus` (
   `guildId` bigint(20) NOT NULL,
   `userId` bigint(20) NOT NULL,
@@ -34,18 +10,9 @@ CREATE TABLE `bonus` (
   `day` int(11) NOT NULL DEFAULT '0',
   `changeDate` bigint(20) NOT NULL DEFAULT '0',
   `addDate` bigint(20) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guildId`,`userId`),
-  KEY `guildId` (`guildId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+  PRIMARY KEY (`guildId`,`userId`)
+);
 
---
--- Table structure for table `guild`
---
-
-DROP TABLE IF EXISTS `guild`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `guild` (
   `guildId` bigint(20) NOT NULL,
   `prefix` varchar(32) NOT NULL DEFAULT 'ar!',
@@ -116,32 +83,16 @@ CREATE TABLE `guild` (
   `stickyLevelRoles` tinyint(1) NOT NULL DEFAULT '1',
   `apiToken` char(64) DEFAULT NULL,
   PRIMARY KEY (`guildId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `guildChannel`
---
-
-DROP TABLE IF EXISTS `guildChannel`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `guildChannel` (
   `guildId` bigint(20) NOT NULL,
   `channelId` bigint(20) NOT NULL,
   `noXp` tinyint(4) NOT NULL DEFAULT '0',
   `noCommand` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`channelId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `guildMember`
---
-
-DROP TABLE IF EXISTS `guildMember`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `guildMember` (
   `guildId` bigint(20) NOT NULL,
   `userId` bigint(20) NOT NULL,
@@ -155,16 +106,8 @@ CREATE TABLE `guildMember` (
   `week` int(11) NOT NULL DEFAULT '0',
   `day` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `guildRole`
---
-
-DROP TABLE IF EXISTS `guildRole`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `guildRole` (
   `guildId` bigint(20) NOT NULL,
   `roleId` bigint(20) NOT NULL,
@@ -178,16 +121,8 @@ CREATE TABLE `guildRole` (
   `xpPerInvite` smallint(6) NOT NULL DEFAULT '0',
   `noXp` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`roleId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `invite`
---
-
-DROP TABLE IF EXISTS `invite`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `invite` (
   `guildId` bigint(20) NOT NULL,
   `userId` bigint(20) NOT NULL,
@@ -199,33 +134,8 @@ CREATE TABLE `invite` (
   `changeDate` bigint(20) NOT NULL DEFAULT '0',
   `addDate` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `session`
---
-
-DROP TABLE IF EXISTS `session`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `session` (
-  `id` varchar(255) NOT NULL,
-  `expires_at` datetime NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `textMessage`
---
-
-DROP TABLE IF EXISTS `textMessage`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `textMessage` (
   `guildId` bigint(20) NOT NULL,
   `userId` bigint(20) NOT NULL,
@@ -238,16 +148,8 @@ CREATE TABLE `textMessage` (
   `changeDate` bigint(20) NOT NULL DEFAULT '0',
   `addDate` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`userId`,`channelId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `user`
---
-
-DROP TABLE IF EXISTS `user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
   `userId` bigint(20) NOT NULL,
   `tokens` int(11) NOT NULL DEFAULT '10',
@@ -262,16 +164,8 @@ CREATE TABLE `user` (
   `patreonTierUntilDate` bigint(20) NOT NULL DEFAULT '0',
   `lastTopggUpvoteDate` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `voiceMinute`
---
-
-DROP TABLE IF EXISTS `voiceMinute`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `voiceMinute` (
   `guildId` bigint(20) NOT NULL,
   `userId` bigint(20) NOT NULL,
@@ -284,16 +178,8 @@ CREATE TABLE `voiceMinute` (
   `changeDate` bigint(20) NOT NULL DEFAULT '0',
   `addDate` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`userId`,`channelId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
+);
 
---
--- Table structure for table `vote`
---
-
-DROP TABLE IF EXISTS `vote`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `vote` (
   `guildId` bigint(20) NOT NULL,
   `userId` bigint(20) NOT NULL,
@@ -305,31 +191,4 @@ CREATE TABLE `vote` (
   `changeDate` bigint(20) NOT NULL DEFAULT '0',
   `addDate` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildId`,`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `web_user`
---
-
-DROP TABLE IF EXISTS `web_user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `web_user` (
-  `id` bigint(20) NOT NULL,
-  `username` varchar(20) NOT NULL,
-  `avatar_hash` varchar(32) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-01-09 23:29:25
+);
