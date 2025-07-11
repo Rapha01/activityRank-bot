@@ -1,5 +1,10 @@
 import fct from '../../util/fct.js';
-import { time, type BaseMessageOptions, type ChatInputCommandInteraction } from 'discord.js';
+import {
+  type Entitlement,
+  time,
+  type BaseMessageOptions,
+  type ChatInputCommandInteraction,
+} from 'discord.js';
 import { Time } from '@sapphire/duration';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { isPrivileged } from '#const/config.js';
@@ -45,9 +50,20 @@ export function getWaitTime(lastDate: Date | number | undefined | null, cooldown
 export async function handleStatCommandsCooldown(
   interaction: ChatInputCommandInteraction<'cached'>,
 ): Promise<{ denied: boolean; allowed: boolean }> {
-  const res = (allowed: boolean) => ({ allowed, denied: !allowed });
+  const ALLOW = { allowed: true, denied: false };
+  const DENY = { allowed: false, denied: true };
 
-  if (isPrivileged(interaction.user.id)) return res(true);
+  if (isPrivileged(interaction.user.id)) return ALLOW;
+
+  const isValidEntitlement = (e: Entitlement) =>
+    e.isGuildSubscription() &&
+    e.isActive() &&
+    e.guildId === interaction.guildId &&
+    e.skuId === '1393334749568696361'; // Premium
+
+  if (interaction.entitlements.some(isValidEntitlement)) {
+    return ALLOW;
+  }
 
   const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
 
@@ -62,7 +78,7 @@ export async function handleStatCommandsCooldown(
   // no need to wait any longer: set now as last command usage and allow
   if (toWait.remaining <= 0) {
     cachedMember.cache.lastStatCommandDate = new Date();
-    return res(true);
+    return ALLOW;
   }
 
   const reply: PartiallyRequired<BaseMessageOptions, 'content'> = {
@@ -79,7 +95,7 @@ export async function handleStatCommandsCooldown(
   } else {
     await interaction.reply({ ...reply, ephemeral: true });
   }
-  return res(false);
+  return DENY;
 }
 
 export async function handleResetCommandsCooldown(
