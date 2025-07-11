@@ -61,15 +61,22 @@ export async function handleStatCommandsCooldown(
     e.guildId === interaction.guildId &&
     e.skuId === '1393334749568696361'; // Premium
 
-  if (interaction.entitlements.some(isValidEntitlement)) {
-    return ALLOW;
-  }
-
-  const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
-
   let cd = Time.Minute * 2;
-  if (userTier === 1) cd = Time.Second * 20;
-  if (userTier >= 2 || ownerTier >= 2) cd = Time.Second * 3;
+  let skipAds = false;
+  if (interaction.entitlements.some(isValidEntitlement)) {
+    cd = Time.Second * 5;
+    skipAds = true;
+  } else {
+    const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+    if (userTier === 1) {
+      cd = Time.Second * 20;
+      skipAds = true;
+    }
+    if (userTier >= 2 || ownerTier >= 2) {
+      cd = Time.Second * 5;
+      skipAds = true;
+    }
+  }
 
   const cachedMember = await getMemberModel(interaction.member);
 
@@ -85,7 +92,7 @@ export async function handleStatCommandsCooldown(
     content: activeStatCommandCooldown(cd, toWait.next),
   };
 
-  if (userTier < 2) {
+  if (!skipAds) {
     reply.content += premiumLowersCooldownMessage;
     reply.components = PATREON_COMPONENTS;
   }
