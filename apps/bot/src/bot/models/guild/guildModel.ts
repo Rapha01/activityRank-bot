@@ -45,6 +45,7 @@ const cachedFields = [
   'autopost_levelup',
   'levelupMessage',
   'serverJoinMessage',
+  'leaderboardWebhook',
   'addDate',
   'isBanned',
   'resetDeletedMembers',

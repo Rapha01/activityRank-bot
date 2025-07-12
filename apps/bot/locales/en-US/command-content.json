@@ -318,5 +318,18 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "success": "Your inviter has been set successfully. You will both get 1 invite added to your stats."
+  },
+  "leaderboard": {
+    "leaderboard": "Leaderboard",
+    "noThread": "Leaderboards cannot be posted in thread channels.",
+    "header": "Update Leaderboard",
+    "editConfirmation": "Are you sure you want to create a new leaderboard? Your old one will no longer work.",
+    "confirmCreate": "Leaderboard created.",
+    "confirmUpdate": "Leaderboard updated.",
+    "goTo": "Go to Leaderboard",
+    "create": "Create Leaderboard"
+  },
+  "generic": {
+    "errorHeader": "Oops!"
   }
 }

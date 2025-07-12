@@ -1,5 +1,6 @@
 import {
   type ActionRowData,
+  type ButtonComponentData,
   type ButtonInteraction,
   type ComponentInContainerData,
   ComponentType,
@@ -7,6 +8,9 @@ import {
   type MessageActionRowComponentBuilder,
   type MessageActionRowComponentData,
   type ModalActionRowComponentData,
+  type SectionComponentData,
+  type TextDisplayComponentData,
+  type ThumbnailComponentData,
 } from 'discord.js';
 import { component, type ComponentCallback } from './registry/component.js';
 
@@ -51,6 +55,20 @@ export function container(
   opts?: Omit<ContainerComponentData, 'type' | 'components'>,
 ): ContainerComponentData {
   return { type: ComponentType.Container, components, ...opts };
+}
+export function section(
+  _components: TextDisplayComponentData | TextDisplayComponentData[],
+  accessory: ButtonComponentData | ThumbnailComponentData,
+): SectionComponentData {
+  let components: TextDisplayComponentData[];
+
+  if (Array.isArray(_components)) {
+    components = _components;
+  } else {
+    components = [_components];
+  }
+
+  return { type: ComponentType.Section, components, accessory };
 }
 
 /**
