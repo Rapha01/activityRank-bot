@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.11.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.10.0...bot-v7.11.0) (2025-07-18)
+
+
+### Features
+
+* exempt premium guilds from ads ([3e3c254](https://github.com/Rapha01/activityRank-bot/commit/3e3c25403737ddc0cdaa34b5c22a16bc2769b43d))
+
+
+### Bug Fixes
+
+* error in docs of helper type ([08083ab](https://github.com/Rapha01/activityRank-bot/commit/08083ab3502003982448466c7e500d5cba2e1bc2))
+
 ## [7.10.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.9.0...bot-v7.10.0) (2025-07-10)
 
 
