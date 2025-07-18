@@ -46,7 +46,7 @@ export function assertUnreachableUnsafe(details = ''): never {
 export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 /**
- * Allows a single key K of T to become Optional
+ * Given a type T, makes key K no longer optional.
  */
 export type PartiallyRequired<T, K extends keyof T> = { [k in K]-?: T[k] } & {
   [k in keyof T]: T[k];

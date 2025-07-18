@@ -1,5 +1,10 @@
 import fct from '../../util/fct.js';
-import { time, type BaseMessageOptions, type ChatInputCommandInteraction } from 'discord.js';
+import {
+  type Entitlement,
+  time,
+  type BaseMessageOptions,
+  type ChatInputCommandInteraction,
+} from 'discord.js';
 import { Time } from '@sapphire/duration';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { isPrivileged } from '#const/config.js';
@@ -45,15 +50,33 @@ export function getWaitTime(lastDate: Date | number | undefined | null, cooldown
 export async function handleStatCommandsCooldown(
   interaction: ChatInputCommandInteraction<'cached'>,
 ): Promise<{ denied: boolean; allowed: boolean }> {
-  const res = (allowed: boolean) => ({ allowed, denied: !allowed });
+  const ALLOW = { allowed: true, denied: false };
+  const DENY = { allowed: false, denied: true };
 
-  if (isPrivileged(interaction.user.id)) return res(true);
+  if (isPrivileged(interaction.user.id)) return ALLOW;
 
-  const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+  const isValidEntitlement = (e: Entitlement) =>
+    e.isGuildSubscription() &&
+    e.isActive() &&
+    e.guildId === interaction.guildId &&
+    e.skuId === '1393334749568696361'; // Premium
 
   let cd = Time.Minute * 2;
-  if (userTier === 1) cd = Time.Second * 20;
-  if (userTier >= 2 || ownerTier >= 2) cd = Time.Second * 3;
+  let skipAds = false;
+  if (interaction.entitlements.some(isValidEntitlement)) {
+    cd = Time.Second * 5;
+    skipAds = true;
+  } else {
+    const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+    if (userTier === 1) {
+      cd = Time.Second * 20;
+      skipAds = true;
+    }
+    if (userTier >= 2 || ownerTier >= 2) {
+      cd = Time.Second * 5;
+      skipAds = true;
+    }
+  }
 
   const cachedMember = await getMemberModel(interaction.member);
 
@@ -62,14 +85,14 @@ export async function handleStatCommandsCooldown(
   // no need to wait any longer: set now as last command usage and allow
   if (toWait.remaining <= 0) {
     cachedMember.cache.lastStatCommandDate = new Date();
-    return res(true);
+    return ALLOW;
   }
 
   const reply: PartiallyRequired<BaseMessageOptions, 'content'> = {
     content: activeStatCommandCooldown(cd, toWait.next),
   };
 
-  if (userTier < 2) {
+  if (!skipAds) {
     reply.content += premiumLowersCooldownMessage;
     reply.components = PATREON_COMPONENTS;
   }
@@ -79,7 +102,7 @@ export async function handleStatCommandsCooldown(
   } else {
     await interaction.reply({ ...reply, ephemeral: true });
   }
-  return res(false);
+  return DENY;
 }
 
 export async function handleResetCommandsCooldown(
