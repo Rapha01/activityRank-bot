@@ -211,6 +211,10 @@ export class Registry {
   ): Promise<void> {
     const split = Component.splitCustomId(interaction.customId);
     if (split.status === 'INVALID_VERSION') {
+      if (split.version === '2.0') {
+        // Components of Version 2 should be handled in the component code itself.
+        return;
+      }
       if (interaction.isRepliable()) {
         await interaction.reply({
           content:
