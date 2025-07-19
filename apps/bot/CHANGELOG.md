@@ -1,5 +1,14 @@
 # Changelog
 
+## [7.12.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.11.0...bot-v7.12.0) (2025-07-19)
+
+
+### Features
+
+* add alternate component registry system ([c10dd1a](https://github.com/Rapha01/activityRank-bot/commit/c10dd1a63fc5b187fdff0b51aa5f29d909527870))
+* update /rank to use components v2 ([ebbc149](https://github.com/Rapha01/activityRank-bot/commit/ebbc14980c165494b04577256b2aa3a94d658cd1))
+* use emoji in /memberinfo ([e7ecfd5](https://github.com/Rapha01/activityRank-bot/commit/e7ecfd54178271e2247e2890bf7bbb359eeddcc3))
+
 ## [7.11.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.10.0...bot-v7.11.0) (2025-07-18)
 
 
