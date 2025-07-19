@@ -14,7 +14,8 @@
     "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
     "dev": "node --enable-source-maps ./dist/app.js",
     "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\"",
-    "crowdin": "crowdin"
+    "tl:push": "crowdin upload sources",
+    "tl:pull": "crowdin pull --export-only-approved"
   },
   "imports": {
     "#*": {

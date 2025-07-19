@@ -14,17 +14,32 @@
     }
   },
   "rank": {
-    "channelTop": "Channel toplist for {{name}} | {{time}}",
     "noEntries": "No entries found for this page.",
-    "statsOnServer": "{{time}} stats on server {{name}}",
+    "statHeaders": {
+      "day": "Today's stats in {{serverName}}",
+      "week": "This week's stats in {{serverName}}",
+      "month": "This month's stats in {{serverName}}",
+      "year": "This year's stats in {{serverName}}",
+      "alltime": "All stats in {{serverName}}"
+    },
+    "topChannelHeaders": {
+      "day": "{{name}}'s top channels today",
+      "week": "{{name}}'s top channels this week",
+      "month": "{{name}}'s top channels this month",
+      "year": "{{name}}'s top channels this year",
+      "alltime": "{{name}}'s top channels"
+    },
+    "avatarAltText": "The avatar of {{member}}",
     "bonusEnds": "Bonus XP ends {{date}}",
     "day": "Today",
     "week": "This week",
     "month": "This month",
     "year": "This year",
     "alltime": "Alltime",
-    "text": "text",
-    "voice": "voice",
+    "text": "Text Channels",
+    "textEmpty": "No text channels",
+    "voice": "Voice Channels",
+    "voiceEmpty": "No voice channels",
     "totalXP": "Total XP: {{xp}} (#{{rank}})",
     "zeroXp": "Total XP: 0",
     "nextLevel": "Next Level: {{percent}}%",
