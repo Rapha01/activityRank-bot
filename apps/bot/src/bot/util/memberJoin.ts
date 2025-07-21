@@ -1,9 +1,14 @@
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import levelManager from '../levelManager.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import fct from '../../util/fct.js';
 import { type DiscordAPIError, RESTJSONErrorCodes, type GuildMember } from 'discord.js';
 import { EmbedBuilder } from 'discord.js';
+import {
+  checkLevelup,
+  getNewMemberRoles,
+  getRoleAssignmentMessages,
+  runRoleUpdate,
+} from '#bot/levelManager.js';
 
 export async function handleMemberJoin(member: GuildMember) {
   // member.client.logger.debug(`Handling member ${member.id} join`);
@@ -12,19 +17,22 @@ export async function handleMemberJoin(member: GuildMember) {
   const cachedGuild = await getGuildModel(member.guild);
   const cachedMember = await getMemberModel(member);
 
-  let roleAssignmentString: string[] = [];
+  let roleAssignmentMessages: string[] = [];
   if (cachedGuild.db.stickyLevelRoles) {
     // Roleassignments
-    const level = fct.getLevel(
-      fct.getLevelProgression(cachedMember.cache.totalXp ?? 0, cachedGuild.db.levelFactor),
-    );
-    roleAssignmentString = await levelManager.checkRoleAssignment(member, level);
-    if (level > 1) await levelManager.checkLevelUp(member, 0, cachedMember.cache.totalXp ?? 0);
+    const totalXp = cachedMember.cache.totalXp ?? 0;
+    const { isLevelup, newLevel } = await checkLevelup(member.guild, 0, totalXp);
+
+    const newRoles = await getNewMemberRoles(member, newLevel);
+    roleAssignmentMessages = await getRoleAssignmentMessages(member, newRoles);
+    if (newLevel > 1 && isLevelup) {
+      await runRoleUpdate(member, newLevel, newRoles);
+    }
   }
 
   // AutoPost serverjoin
   if (cachedGuild.db.autopost_serverJoin !== '0')
-    await autoPostServerJoin(member, roleAssignmentString);
+    await autoPostServerJoin(member, roleAssignmentMessages);
 }
 
 async function autoPostServerJoin(member: GuildMember, roleAssignmentString: string[]) {
