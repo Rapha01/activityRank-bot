@@ -24,27 +24,6 @@ type ServerMessage =
   | 'roleAssignMessage'
   | 'roleDeassignMessage';
 
-const generateModal = (
-  t: TFunction<'command-content'>,
-  message: ServerMessage,
-  editOriginal: boolean,
-): ModalComponentData => ({
-  customId: setModal.instanceId({ data: { message, editOriginal } }),
-  title: t('config-messages.select'),
-  components: [
-    actionrow([
-      {
-        customId: 'msg-component-1',
-        label: t(`config-messages.${message}New`),
-        type: ComponentType.TextInput,
-        style: TextInputStyle.Paragraph,
-        maxLength: message === 'levelupMessage' ? 1000 : 500,
-        required: true,
-      },
-    ]),
-  ],
-});
-
 export default command({
   name: 'config-messages',
   async execute({ interaction, t }) {
@@ -91,6 +70,13 @@ async function renderPage(
         disabled: cachedGuild.db[message] === '',
         label: t('config-messages.button.clear'),
       },
+      {
+        type: ComponentType.Button,
+        customId: testMessageButton.instanceId({ data: { message }, predicate }),
+        style: ButtonStyle.Secondary,
+        disabled: cachedGuild.db[message] === '',
+        label: t('config-messages.button.test'),
+      },
     ]),
   ];
 
@@ -117,6 +103,33 @@ async function renderPage(
   return [main];
 }
 
+interface ModalOptions {
+  t: TFunction<'command-content'>;
+  value: string;
+  message: ServerMessage;
+  editOriginal: boolean;
+}
+
+function generateModal({ t, value, message, editOriginal }: ModalOptions): ModalComponentData {
+  return {
+    customId: setModal.instanceId({ data: { message, editOriginal } }),
+    title: t('config-messages.select'),
+    components: [
+      actionrow([
+        {
+          customId: 'msg-component-1',
+          label: t(`config-messages.${message}New`),
+          type: ComponentType.TextInput,
+          style: TextInputStyle.Paragraph,
+          required: true,
+          maxLength: message === 'levelupMessage' ? 1000 : 500,
+          value,
+        },
+      ]),
+    ],
+  };
+}
+
 const clearMessageButton = component<{ message: ServerMessage }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
@@ -129,10 +142,57 @@ const clearMessageButton = component<{ message: ServerMessage }>({
   },
 });
 
+const testMessageButton = component<{ message: ServerMessage }>({
+  type: ComponentType.Button,
+  async callback({ interaction, data, t }) {
+    const model = await getGuildModel(interaction.guild);
+    const value = model.db[data.message];
+
+    await interaction.reply({
+      components: [
+        container(
+          [
+            {
+              type: ComponentType.TextDisplay,
+              content: `## ${t(`config-messages.${data.message}`)}`,
+            },
+            {
+              type: ComponentType.Section,
+              components: [
+                // TODO: list only relevant variables for the message that was edited
+                {
+                  type: ComponentType.TextDisplay,
+                  content: `-# ${t('config-messages.editAgain')}`,
+                },
+              ],
+              accessory: {
+                type: ComponentType.Button,
+                customId: messageButton.instanceId({
+                  data: { message: data.message, editOriginal: false },
+                  predicate: requireUser(interaction.user),
+                }),
+                style: ButtonStyle.Secondary,
+                label: t('config-messages.button.edit'),
+              },
+            },
+            { type: ComponentType.Separator, spacing: 2 },
+            { type: ComponentType.TextDisplay, content: value },
+          ],
+          { accentColor: 0x01c3d9 },
+        ),
+      ],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+    });
+  },
+});
+
 const messageButton = component<{ message: ServerMessage; editOriginal: boolean }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
-    await interaction.showModal(generateModal(t, data.message, data.editOriginal));
+    const model = await getGuildModel(interaction.guild);
+    const value = model.db[data.message];
+
+    await interaction.showModal(generateModal({ ...data, t, value }));
   },
 });
 
