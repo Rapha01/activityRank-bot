@@ -21,6 +21,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "style": {
+        "noParameterAssign": "info"
+      },
       "suspicious": {
         // TODO: turn this lint back on
         "noExplicitAny": "off"
