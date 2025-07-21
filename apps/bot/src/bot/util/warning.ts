@@ -58,6 +58,13 @@ export async function warnGuild(guild: Guild, content: string) {
         {
           type: ComponentType.Container,
           accentColor: 0xd97706,
+          components: [
+            { type: ComponentType.TextDisplay, content: `Warning from **${guild.name}**` },
+          ],
+        },
+        {
+          type: ComponentType.Container,
+          accentColor: 0xd97706,
           components: [{ type: ComponentType.TextDisplay, content }],
         },
       ],
