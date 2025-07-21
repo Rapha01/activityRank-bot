@@ -27,8 +27,9 @@ type ServerMessage =
 const generateModal = (
   t: TFunction<'command-content'>,
   message: ServerMessage,
+  editOriginal: boolean,
 ): ModalComponentData => ({
-  customId: setModal.instanceId({ data: { message } }),
+  customId: setModal.instanceId({ data: { message, editOriginal } }),
   title: t('config-messages.select'),
   components: [
     actionrow([
@@ -79,8 +80,8 @@ async function renderPage(
     actionrow([
       {
         type: ComponentType.Button,
-        customId: messageButton.instanceId({ data: { message }, predicate }),
-        style: ButtonStyle.Secondary,
+        customId: messageButton.instanceId({ data: { message, editOriginal: true }, predicate }),
+        style: ButtonStyle.Primary,
         label: t('config-messages.button.edit'),
       },
       {
@@ -88,7 +89,7 @@ async function renderPage(
         customId: clearMessageButton.instanceId({ data: { message }, predicate }),
         style: ButtonStyle.Secondary,
         disabled: cachedGuild.db[message] === '',
-        label: t('config-role.button.clear'),
+        label: t('config-messages.button.clear'),
       },
     ]),
   ];
@@ -119,32 +120,31 @@ async function renderPage(
 const clearMessageButton = component<{ message: ServerMessage }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
-    const model = await getGuildModel(interaction.guild);
-    model.upsert({ [data.message]: '' });
+    await interaction.deferUpdate();
 
-    await interaction.reply({
-      content: t('config-messages.cleared', { value: t(`config-messages.${data.message}`) }),
-      ephemeral: true,
-    });
+    const model = await getGuildModel(interaction.guild);
+    await model.upsert({ [data.message]: '' });
+
+    await interaction.editReply({ components: await renderPage(t, model, interaction) });
   },
 });
 
-const messageButton = component<{ message: ServerMessage }>({
+const messageButton = component<{ message: ServerMessage; editOriginal: boolean }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
-    await interaction.showModal(generateModal(t, data.message));
+    await interaction.showModal(generateModal(t, data.message, data.editOriginal));
   },
 });
 
-const setModal = modal<{ message: ServerMessage }>({
+const setModal = modal<{ message: ServerMessage; editOriginal: boolean }>({
   async callback({ interaction, data, t }) {
     const value = interaction.fields.getTextInputValue('msg-component-1');
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferUpdate();
 
     const model = await getGuildModel(interaction.guild);
-    model.upsert({ [data.message]: value });
+    await model.upsert({ [data.message]: value });
 
-    await interaction.followUp({
+    const response = {
       components: [
         container(
           [
@@ -155,12 +155,16 @@ const setModal = modal<{ message: ServerMessage }>({
             {
               type: ComponentType.Section,
               components: [
-                { type: ComponentType.TextDisplay, content: t('config-messages.editAgain') },
+                // TODO: list only relevant variables for the message that was edited
+                {
+                  type: ComponentType.TextDisplay,
+                  content: `-# ${t('config-messages.editAgain')}`,
+                },
               ],
               accessory: {
                 type: ComponentType.Button,
                 customId: messageButton.instanceId({
-                  data,
+                  data: { message: data.message, editOriginal: false },
                   predicate: requireUser(interaction.user),
                 }),
                 style: ButtonStyle.Secondary,
@@ -173,7 +177,19 @@ const setModal = modal<{ message: ServerMessage }>({
           { accentColor: 0x01c3d9 },
         ),
       ],
-      flags: [MessageFlags.IsComponentsV2],
-    });
+    } as const;
+
+    if (data.editOriginal) {
+      // update initial message
+      await interaction.editReply({ components: await renderPage(t, model, interaction) });
+      // send a follow-up response
+      await interaction.followUp({
+        ...response,
+        flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+      });
+    } else {
+      // just edit current follow up response
+      await interaction.editReply(response);
+    }
   },
 });
