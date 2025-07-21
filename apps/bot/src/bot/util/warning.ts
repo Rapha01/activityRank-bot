@@ -40,10 +40,10 @@ export async function warnGuild(guild: Guild, content: string) {
   const levelupChannel = await guild.channels.fetch(guildModel.db.autopost_levelup);
   const joinChannel = await guild.channels.fetch(guildModel.db.autopost_serverJoin);
 
-  await tryToSend(levelupChannel);
-  await tryToSend(joinChannel);
   await tryToSend(guild.safetyAlertsChannel);
   await tryToSend(guild.publicUpdatesChannel);
+  await tryToSend(levelupChannel);
+  await tryToSend(joinChannel);
   await tryToSend(guild.systemChannel);
 
   if (success) {
