@@ -118,8 +118,10 @@
     "noXp": "No XP",
     "noXpDescription": "Prevent XP from being given to any members that have this role.",
     "assignMessage": "Assignment Message",
+    "assignMessageSet": "Set Assignment Message",
     "assignMessageDescription": "Edit the message sent when this role is given to a member. This defaults to the server-wide Assignment Message.",
     "deassignMessage": "Deassignment Message",
+    "deassignMessageSet": "Set Deassignment Message",
     "deassignMessageDescription": "Edit the message sent when this role is removed from a member. This defaults to the server-wide Deassignment Message.",
     "clearMessage": "Clear a message",
     "toClear": "Which message do you want to clear?'",
@@ -127,15 +129,15 @@
     "assignToSend": "The message to send upon assignment",
     "deassignToSend": "The message to send upon deassignment",
     "roleSettings": "Role Settings",
-    "removedAssign": "Removed Assignment Message of role <@&{{roleId}}>.",
-    "removedDeassign": "Removed Deassignment Message of role <@&{{roleId}}>.",
     "addedAssign": "Added Assignment Message for role <@&{{roleId}}>.",
     "addedDeassign": "Added Deassignment Message for <@&{{roleId}}>.",
+    "editAgain": "Did you get something wrong?\nAvailible variables: `<name>`, `<servername>`, `<level>`, `<mention>`, `<rolename>`, `<rolemention>`",
     "button": {
       "enabled": "Enabled",
       "not-enabled": "Disabled",
       "edit": "Edit",
-      "clear": "Clear"
+      "clear": "Clear",
+      "test": "Preview"
     }
   },
   "config-server": {
