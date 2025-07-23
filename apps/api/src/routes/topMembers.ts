@@ -1,7 +1,8 @@
-import { zInt, zSnowflake } from '#util/zod.js';
-import { z } from 'zod';
+import { getRateLimiter } from '#util/ratelimit.js';
+import { Error400, Error401, Error403, zInt, zSnowflake } from '#util/zod.js';
+import { createRoute, z } from '@hono/zod-openapi';
 
-const toplistSchema = z.object({
+const querySchema = z.object({
   'top-rank': z.coerce.number().int().min(1).default(1).openapi({
     description:
       'The lowest-numbered (and therefore most XP-having) rank to query. Returns `size` entries below this rank.',
@@ -23,7 +24,7 @@ const toplistSchema = z.object({
     }),
 });
 
-const toplistResponseSchema = z
+const responseSchema = z
   .array(
     z.object({
       userId: zSnowflake,
@@ -58,4 +59,31 @@ const toplistResponseSchema = z
       'An array of user-statistic objects, ordered by their rank.\nThe first entry in the array corrresponds with the `top-rank` query parameter.',
   });
 
-export const topMembers = { query: toplistSchema, response: toplistResponseSchema };
+export const topMembersRoute = createRoute({
+  method: 'get',
+  path: '/guilds/:guildId/members/top',
+  tags: ['v0'],
+  summary: '/guilds/:guildId/members/top',
+  description: "Returns entries describing members' XP and statistic counts.",
+  security: [{ publicBearerAuth: [] }],
+  request: {
+    params: z
+      .object({ guildId: zSnowflake })
+      .openapi({ example: { guildId: '12345678901234567' } }),
+    query: querySchema,
+  },
+  responses: {
+    200: {
+      description: 'Successful toplist response',
+      content: {
+        'application/json': {
+          schema: responseSchema,
+        },
+      },
+    },
+    400: Error400,
+    401: Error401,
+    403: Error403,
+  },
+  middleware: [getRateLimiter({})] as const,
+});

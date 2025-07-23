@@ -53,3 +53,4 @@ app.route('/api/v0/', apiRouter);
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
 serve({ fetch: app.fetch, port });
 console.info(`API Server listening on port ${port}`);
+console.info(`[http://localhost:${port}/api/docs]`);
