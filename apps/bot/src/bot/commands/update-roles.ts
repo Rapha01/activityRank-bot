@@ -4,7 +4,7 @@ import { DurationFormat } from '@formatjs/intl-durationformat';
 import { shards } from '#models/shardDb/shardDb.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { getLevelProgression, sleep } from '#util/fct.js';
-import { checkRoleAssignment } from '#bot/levelManager.js';
+import { runRoleUpdate } from '#bot/levelManager.js';
 import {
   type AnyThreadChannel,
   ButtonStyle,
@@ -254,8 +254,7 @@ const run = component<{ members: Collection<string, GuildMember>; createHook: bo
         const xp = res.find((i) => i.userId === memberId)?.alltime ?? 0;
         const level = Math.floor(getLevelProgression(xp, cachedGuild.db.levelFactor));
 
-        // TODO: the whole checkRoleAssignment module needs a refactor
-        await checkRoleAssignment(discordMember, level);
+        await runRoleUpdate(discordMember, level);
         await sleep(1000); // sleep for 1 second
       }
 

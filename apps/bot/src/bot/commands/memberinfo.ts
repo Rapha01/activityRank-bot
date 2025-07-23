@@ -9,6 +9,7 @@ import fct from '../../util/fct.js';
 import { shards } from '#models/shardDb/shardDb.js';
 import { command } from '#bot/commands.js';
 import { resolveMember } from '#bot/util/parser.js';
+import { emoji } from '#const/config.js';
 
 export default command({
   name: 'memberinfo',
@@ -39,8 +40,8 @@ export default command({
       lastTime: number | null,
     ): string | null => {
       if (!enabled) return null;
-      const timeString = lastTime ? `${time(lastTime)}, ${time(lastTime, 'R')}` : 'n/a';
-      return enabled ? `Last ${name}: ${timeString}` : null;
+      const timeString = lastTime ? `${time(lastTime)}, ${time(lastTime, 'R')}` : emoji('no');
+      return `Last ${name}: ${timeString}`;
     };
 
     const lastActivityStr = [
@@ -69,7 +70,9 @@ export default command({
             myTargetUser.patreonTier,
           )})
           Valid until: ${time(patreonTierUntilDate, 'D')}, ${time(patreonTierUntilDate, 'R')}`
-        : 'No active Tier';
+        : `${emoji('no')} No active Tier`;
+
+    const yesno = (cond: boolean | number): string => (cond ? emoji('yes') : emoji('no'));
 
     const embed: APIEmbed = {
       author: { name: `Info for ${targetMemberInfo.name} in ${interaction.guild.name}` },
@@ -86,8 +89,8 @@ export default command({
         {
           name: 'Settings',
           value: outdent`
-            Notify levelup via Direct Message: ${cachedGuild.db.notifyLevelupDm ? 'Yes' : 'No'}
-            Reaction Vote: ${cachedGuild.db.reactionVote ? 'Yes' : 'No'}`,
+            Notify levelup via Direct Message: ${yesno(cachedGuild.db.notifyLevelupDm)}
+            Reaction Vote: ${yesno(cachedGuild.db.reactionVote)}`,
         },
         { name: 'Recent Activity', value: lastActivityStr },
       ],

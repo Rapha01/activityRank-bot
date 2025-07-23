@@ -14,17 +14,32 @@
     }
   },
   "rank": {
-    "channelTop": "Channel toplist for {{name}} | {{time}}",
     "noEntries": "No entries found for this page.",
-    "statsOnServer": "{{time}} stats on server {{name}}",
+    "statHeaders": {
+      "day": "Today's stats in {{serverName}}",
+      "week": "This week's stats in {{serverName}}",
+      "month": "This month's stats in {{serverName}}",
+      "year": "This year's stats in {{serverName}}",
+      "alltime": "All stats in {{serverName}}"
+    },
+    "topChannelHeaders": {
+      "day": "{{name}}'s top channels today",
+      "week": "{{name}}'s top channels this week",
+      "month": "{{name}}'s top channels this month",
+      "year": "{{name}}'s top channels this year",
+      "alltime": "{{name}}'s top channels"
+    },
+    "avatarAltText": "The avatar of {{member}}",
     "bonusEnds": "Bonus XP ends {{date}}",
     "day": "Today",
     "week": "This week",
     "month": "This month",
     "year": "This year",
     "alltime": "Alltime",
-    "text": "text",
-    "voice": "voice",
+    "text": "Text Channels",
+    "textEmpty": "No text channels",
+    "voice": "Voice Channels",
+    "voiceEmpty": "No voice channels",
     "totalXP": "Total XP: {{xp}} (#{{rank}})",
     "zeroXp": "Total XP: 0",
     "nextLevel": "Next Level: {{percent}}%",
@@ -68,19 +83,19 @@
     "description": "**Adjust the server-wide messages that the bot sends when events are triggered.**\n## Available variables:\n* `<name>`: The username of the relevant user.\n* `<servername>`: The name of the server.\n* `<level>`: The new level of the relevant user.\n* `<mention>`: The @mention of the relevant user.\n* `<rolename>`: The name of the user's new role (on level up/level down).\n* `<rolemention>`: The @mention of the user's new role (on level up/level down).",
     "editAgain": "Did you get something wrong?\nAvailible variables: `<name>`, `<servername>`, `<level>`, `<mention>`, `<rolename>`, `<rolemention>`",
     "serverJoinMessage": "Server Join Message",
-    "serverJoinMessageDescription": "The message to send when a member joins the server",
+    "serverJoinMessageDescription": "The message to send when a member joins the server.",
     "serverJoinMessageNew": "The new Join Message",
     "serverJoinMessageSet": "Set Join Message",
     "levelupMessage": "Levelup Message",
-    "levelupMessageDescription": "The message to send when a member gains a level",
+    "levelupMessageDescription": "The message to send when a member gains a level.",
     "levelupMessageNew": "The new Levelup Message",
     "levelupMessageSet": "Set Levelup Message",
     "roleAssignMessage": "Role Assign Message",
-    "roleAssignMessageDescription": "The message to send when a member gains a role, unless overridden by a role-specific message",
+    "roleAssignMessageDescription": "The message to send when a member gains a role, unless overridden by a role-specific message.",
     "roleAssignMessageNew": "The new Role Assign Message",
     "roleAssignMessageSet": "Set Role Assign Message",
     "roleDeassignMessage": "Role Deassign Message",
-    "roleDeassignMessageDescription": "The message to send when a member loses a role, unless overridden by a role-specific message",
+    "roleDeassignMessageDescription": "The message to send when a member loses a role, unless overridden by a role-specific message.",
     "roleDeassignMessageNew": "The new Role Deassign Message",
     "roleDeassignMessageSet": "Set Role Deassign Message",
     "cleared": "Cleared {{value}}",
@@ -88,7 +103,8 @@
       "enabled": "Enabled",
       "not-enabled": "Disabled",
       "edit": "Edit",
-      "clear": "Clear"
+      "clear": "Clear",
+      "test": "Preview"
     }
   },
   "config-role": {
@@ -102,8 +118,10 @@
     "noXp": "No XP",
     "noXpDescription": "Prevent XP from being given to any members that have this role.",
     "assignMessage": "Assignment Message",
+    "assignMessageSet": "Set Assignment Message",
     "assignMessageDescription": "Edit the message sent when this role is given to a member. This defaults to the server-wide Assignment Message.",
     "deassignMessage": "Deassignment Message",
+    "deassignMessageSet": "Set Deassignment Message",
     "deassignMessageDescription": "Edit the message sent when this role is removed from a member. This defaults to the server-wide Deassignment Message.",
     "clearMessage": "Clear a message",
     "toClear": "Which message do you want to clear?'",
@@ -111,15 +129,15 @@
     "assignToSend": "The message to send upon assignment",
     "deassignToSend": "The message to send upon deassignment",
     "roleSettings": "Role Settings",
-    "removedAssign": "Removed Assignment Message of role <@&{{roleId}}>.",
-    "removedDeassign": "Removed Deassignment Message of role <@&{{roleId}}>.",
     "addedAssign": "Added Assignment Message for role <@&{{roleId}}>.",
     "addedDeassign": "Added Deassignment Message for <@&{{roleId}}>.",
+    "editAgain": "Did you get something wrong?\nAvailible variables: `<name>`, `<servername>`, `<level>`, `<mention>`, `<rolename>`, `<rolemention>`",
     "button": {
       "enabled": "Enabled",
       "not-enabled": "Disabled",
       "edit": "Edit",
-      "clear": "Clear"
+      "clear": "Clear",
+      "test": "Preview"
     }
   },
   "config-server": {

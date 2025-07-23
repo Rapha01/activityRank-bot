@@ -24,26 +24,6 @@ type ServerMessage =
   | 'roleAssignMessage'
   | 'roleDeassignMessage';
 
-const generateModal = (
-  t: TFunction<'command-content'>,
-  message: ServerMessage,
-): ModalComponentData => ({
-  customId: setModal.instanceId({ data: { message } }),
-  title: t('config-messages.select'),
-  components: [
-    actionrow([
-      {
-        customId: 'msg-component-1',
-        label: t(`config-messages.${message}New`),
-        type: ComponentType.TextInput,
-        style: TextInputStyle.Paragraph,
-        maxLength: message === 'levelupMessage' ? 1000 : 500,
-        required: true,
-      },
-    ]),
-  ],
-});
-
 export default command({
   name: 'config-messages',
   async execute({ interaction, t }) {
@@ -79,8 +59,8 @@ async function renderPage(
     actionrow([
       {
         type: ComponentType.Button,
-        customId: messageButton.instanceId({ data: { message }, predicate }),
-        style: ButtonStyle.Secondary,
+        customId: messageButton.instanceId({ data: { message, editOriginal: true }, predicate }),
+        style: ButtonStyle.Primary,
         label: t('config-messages.button.edit'),
       },
       {
@@ -88,7 +68,14 @@ async function renderPage(
         customId: clearMessageButton.instanceId({ data: { message }, predicate }),
         style: ButtonStyle.Secondary,
         disabled: cachedGuild.db[message] === '',
-        label: t('config-role.button.clear'),
+        label: t('config-messages.button.clear'),
+      },
+      {
+        type: ComponentType.Button,
+        customId: testMessageButton.instanceId({ data: { message }, predicate }),
+        style: ButtonStyle.Secondary,
+        disabled: cachedGuild.db[message] === '',
+        label: t('config-messages.button.test'),
       },
     ]),
   ];
@@ -116,51 +103,72 @@ async function renderPage(
   return [main];
 }
 
+interface ModalOptions {
+  t: TFunction<'command-content'>;
+  value: string;
+  message: ServerMessage;
+  editOriginal: boolean;
+}
+
+function generateModal({ t, value, message, editOriginal }: ModalOptions): ModalComponentData {
+  return {
+    customId: setModal.instanceId({ data: { message, editOriginal } }),
+    title: t('config-messages.select'),
+    components: [
+      actionrow([
+        {
+          customId: 'msg-component-1',
+          label: t(`config-messages.${message}New`),
+          type: ComponentType.TextInput,
+          style: TextInputStyle.Paragraph,
+          required: true,
+          maxLength: message === 'levelupMessage' ? 1000 : 500,
+          value,
+        },
+      ]),
+    ],
+  };
+}
+
 const clearMessageButton = component<{ message: ServerMessage }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
-    const model = await getGuildModel(interaction.guild);
-    model.upsert({ [data.message]: '' });
+    await interaction.deferUpdate();
 
-    await interaction.reply({
-      content: t('config-messages.cleared', { value: t(`config-messages.${data.message}`) }),
-      ephemeral: true,
-    });
+    const model = await getGuildModel(interaction.guild);
+    await model.upsert({ [data.message]: '' });
+
+    await interaction.editReply({ components: await renderPage(t, model, interaction) });
   },
 });
 
-const messageButton = component<{ message: ServerMessage }>({
+const testMessageButton = component<{ message: ServerMessage }>({
   type: ComponentType.Button,
   async callback({ interaction, data, t }) {
-    await interaction.showModal(generateModal(t, data.message));
-  },
-});
-
-const setModal = modal<{ message: ServerMessage }>({
-  async callback({ interaction, data, t }) {
-    const value = interaction.fields.getTextInputValue('msg-component-1');
-    await interaction.deferReply({ ephemeral: true });
-
     const model = await getGuildModel(interaction.guild);
-    model.upsert({ [data.message]: value });
+    const value = model.db[data.message];
 
-    await interaction.followUp({
+    await interaction.reply({
       components: [
         container(
           [
             {
               type: ComponentType.TextDisplay,
-              content: `## ${t(`config-messages.${data.message}Set`)}`,
+              content: `## ${t(`config-messages.${data.message}`)}`,
             },
             {
               type: ComponentType.Section,
               components: [
-                { type: ComponentType.TextDisplay, content: t('config-messages.editAgain') },
+                // TODO: list only relevant variables for the message that was edited
+                {
+                  type: ComponentType.TextDisplay,
+                  content: `-# ${t('config-messages.editAgain')}`,
+                },
               ],
               accessory: {
                 type: ComponentType.Button,
                 customId: messageButton.instanceId({
-                  data,
+                  data: { message: data.message, editOriginal: false },
                   predicate: requireUser(interaction.user),
                 }),
                 style: ButtonStyle.Secondary,
@@ -173,7 +181,75 @@ const setModal = modal<{ message: ServerMessage }>({
           { accentColor: 0x01c3d9 },
         ),
       ],
-      flags: [MessageFlags.IsComponentsV2],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     });
+  },
+});
+
+const messageButton = component<{ message: ServerMessage; editOriginal: boolean }>({
+  type: ComponentType.Button,
+  async callback({ interaction, data, t }) {
+    const model = await getGuildModel(interaction.guild);
+    const value = model.db[data.message];
+
+    await interaction.showModal(generateModal({ ...data, t, value }));
+  },
+});
+
+const setModal = modal<{ message: ServerMessage; editOriginal: boolean }>({
+  async callback({ interaction, data, t }) {
+    const value = interaction.fields.getTextInputValue('msg-component-1');
+    await interaction.deferUpdate();
+
+    const model = await getGuildModel(interaction.guild);
+    await model.upsert({ [data.message]: value });
+
+    const response = {
+      components: [
+        container(
+          [
+            {
+              type: ComponentType.TextDisplay,
+              content: `## ${t(`config-messages.${data.message}Set`)}`,
+            },
+            {
+              type: ComponentType.Section,
+              components: [
+                // TODO: list only relevant variables for the message that was edited
+                {
+                  type: ComponentType.TextDisplay,
+                  content: `-# ${t('config-messages.editAgain')}`,
+                },
+              ],
+              accessory: {
+                type: ComponentType.Button,
+                customId: messageButton.instanceId({
+                  data: { message: data.message, editOriginal: false },
+                  predicate: requireUser(interaction.user),
+                }),
+                style: ButtonStyle.Secondary,
+                label: t('config-messages.button.edit'),
+              },
+            },
+            { type: ComponentType.Separator, spacing: 2 },
+            { type: ComponentType.TextDisplay, content: value },
+          ],
+          { accentColor: 0x01c3d9 },
+        ),
+      ],
+    } as const;
+
+    if (data.editOriginal) {
+      // update initial message
+      await interaction.editReply({ components: await renderPage(t, model, interaction) });
+      // send a follow-up response
+      await interaction.followUp({
+        ...response,
+        flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+      });
+    } else {
+      // just edit current follow up response
+      await interaction.editReply(response);
+    }
   },
 });

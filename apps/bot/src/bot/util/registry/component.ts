@@ -113,7 +113,7 @@ export abstract class Component<I extends ComponentInteraction, D> {
   ):
     | { status: 'SUCCESS'; component: string; instance: string }
     | { status: 'SPECIAL_KEY'; key: ComponentKey }
-    | { status: 'INVALID_VERSION'; errorText: string } {
+    | { status: 'INVALID_VERSION'; errorText: string; version: string } {
     if (id === ComponentKey.Throw) return { status: 'SPECIAL_KEY', key: ComponentKey.Throw };
     if (id === ComponentKey.Warn) return { status: 'SPECIAL_KEY', key: ComponentKey.Warn };
     if (id === ComponentKey.Ignore) return { status: 'SPECIAL_KEY', key: ComponentKey.Ignore };
@@ -124,6 +124,7 @@ export abstract class Component<I extends ComponentInteraction, D> {
       return {
         status: 'INVALID_VERSION',
         errorText: `Component with version "${version}" used; expected "${Component.COMPONENT_VERSION}"`,
+        version,
       };
     }
 

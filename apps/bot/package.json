@@ -1,7 +1,7 @@
 {
   "name": "@activityrank/bot",
   "private": true,
-  "version": "7.10.0",
+  "version": "7.12.0",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
@@ -14,7 +14,8 @@
     "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
     "dev": "node --enable-source-maps ./dist/app.js",
     "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\"",
-    "crowdin": "crowdin"
+    "tl:push": "crowdin upload sources",
+    "tl:pull": "crowdin pull --export-only-approved"
   },
   "imports": {
     "#*": {

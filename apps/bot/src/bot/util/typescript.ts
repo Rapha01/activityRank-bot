@@ -51,3 +51,28 @@ export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 export type PartiallyRequired<T, K extends keyof T> = { [k in K]-?: T[k] } & {
   [k in keyof T]: T[k];
 };
+
+// TODO: consider allowing `Iterable`s instead of only `Set`s as inputs
+
+export function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a].filter((e) => b.has(e)));
+}
+
+export function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a].filter((e) => !b.has(e)));
+}
+
+export function union<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a, ...b]);
+}
+
+// see https://tc39.es/ecma262/#sec-set.prototype.symmetricdifference
+export function symmetricDifference<T>(a: Set<T>, b: Set<T>): Set<T> {
+  const res = new Set(a);
+  for (const next of b) {
+    const alreadyIn = res.has(next);
+    if (a.has(next) && alreadyIn) res.delete(next);
+    else if (!alreadyIn) res.add(next);
+  }
+  return res;
+}

@@ -82,3 +82,24 @@ export const closeButton = component({
     drop();
   },
 });
+
+/**
+ * Create a custom ID string that will not be picked up by the
+ * component management system (in `bot/util/registry`)
+ */
+export const makeCustomId2 = (customId: string): string => `2.0#${customId}`;
+
+const CUSTOM_ID_2 = /^2.0#(?<id>.*)/;
+
+/**
+ * Parse a custom ID string that was constructed by the {@link makeCustomId2} function.
+ * Returns only the `customId` string provided to that function.
+ */
+export const parseCustomId2 = (givenId: string): string => {
+  const parse = CUSTOM_ID_2.exec(givenId);
+  const id = parse?.groups?.id;
+  return id ?? '';
+};
+
+export const makeCID2 = makeCustomId2;
+export const parseCID2 = parseCustomId2;
