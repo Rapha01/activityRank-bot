@@ -1,5 +1,4 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { PublicAPIAuth, type PublicAPIAuthVariables } from '#middleware/auth.js';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
@@ -12,12 +11,13 @@ import { JSONHTTPException } from '#util/errors.js';
 import { helloRoute } from '#routes/hello.js';
 import { topMembersRoute } from '#routes/topMembers.js';
 import { memberRankRoute } from '#routes/memberRank.js';
+import { botStatsRoute } from '#routes/botstats.js';
 
-export const apiRouter = new OpenAPIHono<{ Variables: PublicAPIAuthVariables }>();
-apiRouter.use(PublicAPIAuth);
+export const apiRouter = new OpenAPIHono();
 
 apiRouter.openapi(helloRoute, ({ text, get }) => {
-  return text(`Hi!\n\nYour authentication for guild "${get('authorisedGuildId')}" is valid.`, 200);
+  const guildId = get('authorisedGuildId');
+  return text(`Hi!\n\nYour authentication for guild "${guildId}" is valid.`, 200);
 });
 
 apiRouter.openapi(topMembersRoute, async (c) => {
@@ -55,4 +55,8 @@ apiRouter.openapi(memberRankRoute, async (c) => {
     },
     200,
   );
+});
+
+apiRouter.openapi(botStatsRoute, async (c) => {
+  return c.json('hi here are some stats :)', 200);
 });

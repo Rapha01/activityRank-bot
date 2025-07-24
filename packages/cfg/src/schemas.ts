@@ -97,6 +97,8 @@ export const apiConfig = z
 /** The keys to be provided to the API module of ActivityRank */
 export const apiKeys = z
   .object({
+    /**The password required by the Manager API*/
+    managerApiAuth: z.string().describe('The password required by the Manager API'),
     /**The host of the Manager DB*/
     managerHost: z.string().describe('The host of the Manager DB'),
     /**Properties concerning manager DB connections*/

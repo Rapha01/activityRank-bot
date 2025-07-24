@@ -1,6 +1,6 @@
-import { getRateLimiter } from '#util/ratelimit.js';
-import { Error400, Error401, Error403, zInt, zSnowflake } from '#util/zod.js';
-import { createRoute, z } from '@hono/zod-openapi';
+import { createPublicAuthRoute } from '#util/routes.js';
+import { zInt, zSnowflake } from '#util/zod.js';
+import { z } from '@hono/zod-openapi';
 
 const params = z
   .object({ guildId: zSnowflake, userId: zSnowflake })
@@ -52,16 +52,12 @@ const responseSchema = z
     description: 'A user-statistic object.',
   });
 
-export const memberRankRoute = createRoute({
+export const memberRankRoute = createPublicAuthRoute({
   method: 'get',
   path: '/guilds/:guildId/member/:userId/rank',
-  tags: ['v0'],
   summary: '/guilds/:guildId/member/:userId/rank',
   description: "Returns a description of a member's XP and statistic counts.",
-  security: [{ publicBearerAuth: [] }],
-  request: {
-    params,
-  },
+  request: { params },
   responses: {
     200: {
       description: 'Successful rank response',
@@ -71,9 +67,5 @@ export const memberRankRoute = createRoute({
         },
       },
     },
-    400: Error400,
-    401: Error401,
-    403: Error403,
   },
-  middleware: [getRateLimiter()] as const,
 });

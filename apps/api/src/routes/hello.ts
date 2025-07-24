@@ -1,6 +1,6 @@
+import { createPublicAuthRoute } from '#util/routes.js';
 import type { Responses } from '#util/types.js';
-import { createRoute } from '@hono/zod-openapi';
-import { z } from 'zod';
+import { z } from '@hono/zod-openapi';
 
 const responses: Responses = {
   200: {
@@ -15,12 +15,13 @@ const responses: Responses = {
   },
 };
 
-export const helloRoute = createRoute({
-  method: 'get',
-  path: '/hello',
-  tags: ['v0'],
-  summary: '/hello',
-  description: 'Just says hi! Useful to check authentication.',
-  security: [{ publicBearerAuth: [] }],
-  responses,
-});
+export const helloRoute = createPublicAuthRoute(
+  {
+    method: 'get',
+    path: '/hello',
+    summary: '/hello',
+    description: 'Just says hi! Useful to check authentication.',
+    responses,
+  },
+  { rateLimitOptions: { enabled: false } },
+);

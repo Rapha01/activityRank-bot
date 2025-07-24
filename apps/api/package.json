@@ -25,13 +25,13 @@
     "@activityrank/cfg": "workspace:*",
     "@activityrank/database": "workspace:*",
     "@hono/node-server": "^1.12.2",
-    "@hono/zod-openapi": "^0.18.3",
-    "@hono/zod-validator": "^0.2.2",
+    "@hono/zod-openapi": "^1.0.2",
+    "@hono/zod-validator": "^0.7.1",
     "@scalar/hono-api-reference": "^0.5.165",
     "hono": "^4.5.10",
     "hono-rate-limiter": "^0.4.2",
     "kysely": "^0.27.6",
-    "zod": "^3.24.3"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",

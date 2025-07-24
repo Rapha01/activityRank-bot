@@ -1,5 +1,5 @@
-import { createPublicAuthRoute } from '#util/routes.js';
-import { Error400, Error401, Error403, zInt, zSnowflake } from '#util/zod.js';
+import { createInternalRoute } from '#util/routes.js';
+import { Error400, Error401, Error403, zSnowflake } from '#util/zod.js';
 import { z } from '@hono/zod-openapi';
 
 const querySchema = z.object({
@@ -24,45 +24,17 @@ const querySchema = z.object({
     }),
 });
 
-const responseSchema = z
-  .array(
-    z.object({
-      userId: zSnowflake,
-      alltime: zInt.openapi({
-        description: 'The XP score of the user for alltime (regardless of the `time` parameter)',
-      }),
-      totalScore: zInt.openapi({
-        description: 'The XP score of the user over the given `time` parameter',
-      }),
-      textMessage: zInt.openapi({ description: 'The number of text messages the user has sent' }),
-      voiceMinute: zInt.openapi({
-        description: 'The number of minutes the user has been in voice chats',
-      }),
-      vote: zInt.openapi({ description: 'The number of votes the user has recieved' }),
-      invite: zInt.openapi({
-        description: 'The number of other users the user has invited to the server',
-      }),
-      bonus: zInt.openapi({
-        description: 'The amount of bonus XP the user has been given by admins or bonustime',
-      }),
-      levelProgression: z.number().min(1).openapi({
-        description: 'The (fractional) current level of the user',
-      }),
-      level: zInt.openapi({
-        description: 'The (floored) current level of the user',
-      }),
-    }),
-  )
-  .openapi({
-    maxLength: 50,
-    description:
-      'An array of user-statistic objects, ordered by their rank.\nThe first entry in the array corrresponds with the `top-rank` query parameter.',
-  });
+const responseSchema = z.string().openapi({
+  maxLength: 50,
+  description:
+    'An array of user-statistic objects, ordered by their rank.\nThe first entry in the array corrresponds with the `top-rank` query parameter.',
+});
 
-export const topMembersRoute = createPublicAuthRoute({
+export const botStatsRoute = createInternalRoute({
   method: 'get',
-  path: '/guilds/:guildId/members/top',
-  summary: '/guilds/:guildId/members/top',
+  path: '/bot-stats',
+  hide: process.env.NODE_ENV === 'production',
+  summary: '/bot-stats',
   description: "Returns entries describing members' XP and statistic counts.",
   request: {
     params: z
