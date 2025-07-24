@@ -6,7 +6,6 @@ export const zSnowflake = z
   .openapi({
     description:
       'A Discord ["Snowflake"](https://discord.com/developers/docs/reference#snowflakes), represented as a string.',
-    // ref: 'Snowflake',
     example: '905898879785005106',
   })
   .openapi('Snowflake');

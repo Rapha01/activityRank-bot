@@ -8,6 +8,9 @@
  * A key can be checked by 
  *  a) hashing the token segment (SHA256)
  *  b) comparing the hash to the database
+ * 
+ * Internal tokens are much simpler - format is just `Bearer <config.keys.managerApiAuth>`
+ * Internal tokens are used by the bot module to request data from the manager.
  */
 
 import { subtle } from 'node:crypto';
@@ -15,11 +18,12 @@ import { createMiddleware } from 'hono/factory';
 import { getGuildHost } from '#models/guildRouteModel.js';
 import { shards } from '#models/shard.js';
 import { JSONHTTPException } from '#util/errors.js';
+import { keys } from '#const/config.js';
 
 const PREFIX = 'Bearer';
 const HEADER = 'Authorization';
-const headerRe = new RegExp(`^${PREFIX} ([A-Za-z0-9-]+) *$`);
-const tokenRe = /^ar-(?<guildId>\d{17,20})-(?<token>[a-z0-9-]{24})$/;
+const HEADER_RE = new RegExp(`^${PREFIX} ([A-Za-z0-9-]+) *$`);
+const PUBLIC_TOKEN_RE = /^ar-(?<guildId>\d{17,20})-(?<token>[a-z0-9-]{24})$/;
 
 export type PublicAPIAuthVariables = {
   authorisedGuildId: string;
@@ -33,13 +37,13 @@ export const PublicAPIAuth = createMiddleware<{ Variables: PublicAPIAuthVariable
       // No Authorization header
       throw new JSONHTTPException(401, 'No Authorization header provided');
     }
-    const headerMatch = headerRe.exec(headerToken);
+    const headerMatch = HEADER_RE.exec(headerToken);
     if (!headerMatch) {
       // Incorrectly formatted Authorization header
       throw new JSONHTTPException(400, 'Invalid Authorization Header');
     }
 
-    const tokenMatch = tokenRe.exec(headerMatch[1]);
+    const tokenMatch = PUBLIC_TOKEN_RE.exec(headerMatch[1]);
     if (!tokenMatch?.groups?.guildId || !tokenMatch?.groups?.token) {
       // Incorrectly formatted authorization token
       throw new JSONHTTPException(400, 'Invalid Authorization Token');
@@ -73,6 +77,30 @@ export const PublicAPIAuth = createMiddleware<{ Variables: PublicAPIAuthVariable
     await next();
   },
 );
+
+export const InternalAPIAuth = createMiddleware(async (c, next) => {
+  const headerToken = c.req.header(HEADER);
+  if (!headerToken) {
+    // No Authorization header
+    throw new JSONHTTPException(401, 'No Authorization header provided');
+  }
+  const headerMatch = HEADER_RE.exec(headerToken);
+  if (!headerMatch) {
+    // Incorrectly formatted Authorization header
+    throw new JSONHTTPException(400, 'Invalid Authorization Header');
+  }
+
+  const token = headerMatch[1];
+
+  const equal = await timingSafeEqual(token, keys.managerApiAuth);
+
+  if (!equal) {
+    // Invalid Token
+    throw new JSONHTTPException(401, 'Invalid Token');
+  }
+
+  await next();
+});
 
 // https://github.com/honojs/hono/blob/2ead4d8faa58d187bf7ec74bac2160bab882eab0/src/utils/buffer.ts#L29
 async function timingSafeEqual(a: string, b: string) {

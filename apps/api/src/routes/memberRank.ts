@@ -1,7 +1,12 @@
+import { createPublicAuthRoute } from '#util/routes.js';
 import { zInt, zSnowflake } from '#util/zod.js';
-import { z } from 'zod';
+import { z } from '@hono/zod-openapi';
 
-const statsObject = (type: string, verb: string) =>
+const params = z
+  .object({ guildId: zSnowflake, userId: zSnowflake })
+  .openapi({ example: { guildId: '12345678901234567', userId: '774660568728469585' } });
+
+const makeStatsObject = (type: string, verb: string) =>
   z.object({
     alltime: zInt.openapi({
       description: `The amount of ${type} the user has ${verb} since statistics were first tracked.`,
@@ -18,7 +23,7 @@ const statsObject = (type: string, verb: string) =>
     day: zInt.openapi({ description: `The amount of ${type} the user has ${verb} today` }),
   });
 
-const rankResponseSchema = z
+const responseSchema = z
   .object({
     userId: zSnowflake,
     alltime: zInt.openapi({ description: 'The XP of the user, since first tracked (or reset)' }),
@@ -37,14 +42,30 @@ const rankResponseSchema = z
       .min(1)
       .openapi({ description: 'The (fractional) current level of the user' }),
     level: zInt.openapi({ description: 'The (floored) current level of the user' }),
-    textMessage: statsObject('text messages', 'sent'),
-    voiceMinute: statsObject('minutes in voice chat', 'spent'),
-    invite: statsObject('inviters', 'been set as'),
-    vote: statsObject('votes', 'sent'),
-    bonus: statsObject('bonus XP', 'earned'),
+    textMessage: makeStatsObject('text messages', 'sent'),
+    voiceMinute: makeStatsObject('minutes in voice chat', 'spent'),
+    invite: makeStatsObject('inviters', 'been set as'),
+    vote: makeStatsObject('votes', 'sent'),
+    bonus: makeStatsObject('bonus XP', 'earned'),
   })
   .openapi({
     description: 'A user-statistic object.',
   });
 
-export const rank = { response: rankResponseSchema };
+export const memberRankRoute = createPublicAuthRoute({
+  method: 'get',
+  path: '/guilds/:guildId/member/:userId/rank',
+  summary: '/guilds/:guildId/member/:userId/rank',
+  description: "Returns a description of a member's XP and statistic counts.",
+  request: { params },
+  responses: {
+    200: {
+      description: 'Successful rank response',
+      content: {
+        'application/json': {
+          schema: responseSchema,
+        },
+      },
+    },
+  },
+});

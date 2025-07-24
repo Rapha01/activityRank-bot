@@ -1,9 +1,4 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
-import type { Context, Env } from 'hono';
-import { rateLimiter } from 'hono-rate-limiter';
-
-import { PublicAPIAuth, type PublicAPIAuthVariables } from '#middleware/auth.js';
-import { Error400, Error401, Error403, zSnowflake } from '#util/zod.js';
+import { OpenAPIHono } from '@hono/zod-openapi';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
@@ -11,74 +6,27 @@ import {
   getLevelfactor,
   getLevelProgression,
 } from '#services/ranks.js';
-import { topMembers } from '#schemas/topMembers.js';
+import { getShardStats } from '#models/botShardStatModel.js';
 import { JSONHTTPException } from '#util/errors.js';
-import { rank } from '#schemas/rank.js';
 
-export const apiRouter = new OpenAPIHono<{ Variables: PublicAPIAuthVariables }>();
-apiRouter.use(PublicAPIAuth);
+import commands from './const/commands.js';
+import patchnotes from './const/patchnotes.js';
+import faqs from './const/faq.js';
 
-const helloRoute = createRoute({
-  method: 'get',
-  path: '/hello',
-  description: 'Just says hi! Useful to check authentication.',
-  security: [{ publicBearerAuth: [] }],
-  responses: {
-    200: {
-      description: 'Successful response',
-      content: {
-        'text/plain': {
-          schema: z.string().openapi({
-            example: 'Hi!\n\nYour authentication for guild "123456789012345678" is valid.',
-          }),
-        },
-      },
-    },
-    400: Error400,
-    401: Error401,
-  },
-});
+import { helloRoute } from '#routes/hello.js';
+import { topMembersRoute } from '#routes/topMembers.js';
+import { memberRankRoute } from '#routes/memberRank.js';
+import { shardStatsRoute } from '#routes/shard-stats.js';
+import { textsRoute } from '#routes/texts.js';
+
+export const apiRouter = new OpenAPIHono();
 
 apiRouter.openapi(helloRoute, ({ text, get }) => {
-  return text(`Hi!\n\nYour authentication for guild "${get('authorisedGuildId')}" is valid.`, 200);
+  const guildId = get('authorisedGuildId');
+  return text(`Hi!\n\nYour authentication for guild "${guildId}" is valid.`, 200);
 });
 
-const keyGenerator = (c: Context<Env, '/'>) => {
-  const header = c.req.header('Authorization');
-  if (!header) {
-    throw new Error('Unauthorised ratelimit fn');
-  }
-  return header;
-};
-
-const topRoute = createRoute({
-  method: 'get',
-  path: '/guilds/:guildId/members/top',
-  description: "Returns entries describing members' XP and statistic counts.",
-  security: [{ publicBearerAuth: [] }],
-  request: {
-    params: z
-      .object({ guildId: zSnowflake })
-      .openapi({ example: { guildId: '12345678901234567' } }),
-    query: topMembers.query,
-  },
-  responses: {
-    200: {
-      description: 'Successful toplist response',
-      content: {
-        'application/json': {
-          schema: topMembers.response,
-        },
-      },
-    },
-    400: Error400,
-    401: Error401,
-    403: Error403,
-  },
-  middleware: [rateLimiter({ windowMs: 10_000, limit: 10, keyGenerator })] as const,
-});
-
-apiRouter.openapi(topRoute, async (c) => {
+apiRouter.openapi(topMembersRoute, async (c) => {
   const { guildId } = c.req.valid('param');
   const { 'top-rank': topRank, size, time, 'stat-type': statType } = c.req.valid('query');
 
@@ -89,33 +37,7 @@ apiRouter.openapi(topRoute, async (c) => {
   return c.json(await getGuildMemberRanks(guildId, time, statType, topRank, topRank + size), 200);
 });
 
-const rankRoute = createRoute({
-  method: 'get',
-  path: '/guilds/:guildId/member/:userId/rank',
-  description: "Returns a description of a member's XP and statistic counts.",
-  security: [{ publicBearerAuth: [] }],
-  request: {
-    params: z
-      .object({ guildId: zSnowflake, userId: zSnowflake })
-      .openapi({ example: { guildId: '12345678901234567', userId: '774660568728469585' } }),
-  },
-  responses: {
-    200: {
-      description: 'Successful rank response',
-      content: {
-        'application/json': {
-          schema: rank.response,
-        },
-      },
-    },
-    400: Error400,
-    401: Error401,
-    403: Error403,
-  },
-  middleware: [rateLimiter({ windowMs: 10_000, limit: 10, keyGenerator })] as const,
-});
-
-apiRouter.openapi(rankRoute, async (c) => {
+apiRouter.openapi(memberRankRoute, async (c) => {
   const { guildId, userId } = c.req.valid('param');
 
   if (guildId !== c.get('authorisedGuildId')) {
@@ -139,22 +61,22 @@ apiRouter.openapi(rankRoute, async (c) => {
     },
     200,
   );
-
-  // return c.json(await getGuildMemberRanks(guildId, time, statType, topRank, topRank + size), 200);
 });
 
-/*
-apiRouter.get(
-  '/guilds/:guildId/member/:userId/rank',
-  zValidator('param', z.object({ guildId: zSnowflake, userId: zSnowflake })),
-  (c) => {
-    const { guildId, userId } = c.req.valid('param');
+apiRouter.openapi(shardStatsRoute, async (c) => {
+  const stats = await getShardStats();
+  return c.json(
+    {
+      stats: stats.map((shard) => ({
+        ...shard,
+        readyDate: new Date(shard.readyDate),
+        changedHealthDate: new Date(shard.changedHealthDate),
+      })),
+    },
+    200,
+  );
+});
 
-    if (guildId !== c.get('authorisedGuildId')) {
-      throw new HTTPException(403, { message: 'Inconsistent Guild IDs' });
-    }
-
-    return c.body('Not Yet Implemented...');
-  },
-);
- */
+apiRouter.openapi(textsRoute, async (c) => {
+  return c.json({ commands, patchnotes, faqs }, 200);
+});
