@@ -3,8 +3,7 @@
   "packages": {
     "apps/api": {},
     "apps/bot": {},
-    "apps/cli": {},
-    "apps/manager": {}
+    "apps/cli": {}
   },
   "separate-pull-requests": true,
   "pull-request-title-pattern": "chore: release${component} ${version}",

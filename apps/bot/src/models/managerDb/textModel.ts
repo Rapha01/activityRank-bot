@@ -9,6 +9,6 @@ export async function getTexts() {
 }
 
 export async function updateTexts() {
-  cachedTexts = await managerFetch<TextsData>('api/texts', { method: 'GET' });
+  cachedTexts = await managerFetch<TextsData>('api/v0/texts', {});
   return cachedTexts;
 }

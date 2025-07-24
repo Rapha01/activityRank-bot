@@ -8,17 +8,17 @@ export const manager = createManagerInstance({
   password: keys.managerDb.dbPassword,
 });
 
-type APIPaths = 'texts' | 'stats';
-type AutocompletePaths = `api/${APIPaths}`;
+type APIPaths = 'texts' | 'shards/stats';
+type AutocompletePaths = `api/v0/${APIPaths}`;
 
 // this type signature allows any string, but also provides autocomplete
 export async function managerFetch<T>(route: AutocompletePaths, init: RequestInit): Promise<T>;
 export async function managerFetch<T>(route: string, init: RequestInit): Promise<T>;
 export async function managerFetch<T>(route: string, init: RequestInit): Promise<T> {
   try {
-    const url = new URL(`http://${keys.managerHost}/${route}`);
-    // number converts to string cleanly; null does not add a port
-    url.port = keys.managerPort as unknown as string;
+    const url = new URL(`http://${keys.managerApiHost}/${route}`);
+    // number converts to string cleanly; null/unknown does not set the port
+    url.port = keys.managerApiPort as unknown as string;
 
     const headers = new Headers(init.headers);
     headers.set('Content-Type', 'application/json');

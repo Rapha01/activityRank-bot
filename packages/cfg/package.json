@@ -16,7 +16,7 @@
     "the ActivityRank Contributors ❤️"
   ],
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^4.0.8"
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",

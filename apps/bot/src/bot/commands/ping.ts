@@ -29,7 +29,7 @@ export default command({
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel(t('ping.invite'))
-        .setURL(config.invite.standard)
+        .setURL(config.invites.standard)
         .setStyle(ButtonStyle.Link),
     );
 

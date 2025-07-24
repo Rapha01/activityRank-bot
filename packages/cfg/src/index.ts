@@ -1,7 +1,7 @@
 import Path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import * as schemas from './schemas.js';
 
 type LoadOptions<T extends z.ZodTypeAny> =

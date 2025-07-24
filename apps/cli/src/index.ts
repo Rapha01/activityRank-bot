@@ -8,6 +8,7 @@ import { GenerateCommand } from './commands/generate.ts';
 import { ValidateCommand } from './commands/validate.ts';
 import { EmojiDeployCommand } from './commands/emoji.ts';
 import { ExportCommand } from './commands/export.ts';
+import { UpdateConfigCommand } from './commands/update-configs.ts';
 
 const [_node, _app, ...args] = process.argv;
 
@@ -25,5 +26,6 @@ cli.register(EmojiDeployCommand);
 cli.register(GenerateCommand);
 cli.register(ValidateCommand);
 cli.register(ExportCommand);
+cli.register(UpdateConfigCommand);
 cli.register(Builtins.HelpCommand);
 cli.runExit(args);

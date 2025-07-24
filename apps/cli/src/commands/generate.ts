@@ -3,7 +3,7 @@ import { createWriteStream } from 'node:fs';
 import type { Writable } from 'node:stream';
 import { promisify } from 'node:util';
 import { $ } from 'execa';
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';

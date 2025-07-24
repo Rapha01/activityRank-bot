@@ -1,6 +1,6 @@
 import { join as joinPath } from 'node:path';
 import TOML from 'smol-toml';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option } from 'clipanion';
@@ -224,4 +224,4 @@ export class EmojiDeployCommand extends ConfigurableCommand2 {
   }
 }
 
-const manifestSchema = z.record(z.object({ path: z.string() }));
+const manifestSchema = z.record(z.string(), z.object({ path: z.string() }));

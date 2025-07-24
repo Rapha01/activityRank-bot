@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import * as t from 'typanion';
 import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';

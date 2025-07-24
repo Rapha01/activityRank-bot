@@ -13,8 +13,7 @@
   "workspaces": [
     "apps/api",
     "apps/bot",
-    "apps/cli",
-    "apps/manager"
+    "apps/cli"
   ],
   "contributors": [
     "@rapha01 (https://github.com/rapha01)",
@@ -23,9 +22,9 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "release-please": "^17.0.0",
+    "release-please": "^17.1.1",
     "syncpack": "^13.0.4",
-    "turbo": "^2.5.2"
+    "turbo": "^2.5.5"
   },
   "packageManager": "pnpm@10.12.1"
 }
