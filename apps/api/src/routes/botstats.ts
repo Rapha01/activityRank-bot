@@ -33,7 +33,6 @@ const responseSchema = z.string().openapi({
 export const botStatsRoute = createInternalRoute({
   method: 'get',
   path: '/bot-stats',
-  hide: process.env.NODE_ENV === 'production',
   summary: '/bot-stats',
   description: "Returns entries describing members' XP and statistic counts.",
   request: {

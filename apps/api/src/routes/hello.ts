@@ -23,5 +23,5 @@ export const helloRoute = createPublicAuthRoute(
     description: 'Just says hi! Useful to check authentication.',
     responses,
   },
-  { rateLimitOptions: { enabled: false } },
+  { ratelimit: { enabled: false } },
 );
