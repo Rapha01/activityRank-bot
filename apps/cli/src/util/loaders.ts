@@ -1,11 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import { UsageError } from 'clipanion';
 import type { configLoader, schemas } from '@activityrank/cfg';
 import { walkUp } from '../util/walkUp.ts';
 import pc from 'picocolors';
-import { REST } from '@discordjs/rest';
 import type { API } from '@discordjs/core';
 
 /**

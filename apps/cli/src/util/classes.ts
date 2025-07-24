@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';
@@ -25,8 +25,10 @@ import {
 import { findWorkspaceRoot, type BaseConfig } from './loaders.ts';
 
 export abstract class ConfigurableCommand2 extends Command {
+  hideConfigPath = false;
   // The path to a config directory.
   configPath = Option.String('--config', {
+    hidden: this.hideConfigPath,
     required: false,
     description: 'The path to a config directory.',
   });
@@ -92,7 +94,7 @@ export abstract class ConfigurableCommand2 extends Command {
       )
       .filter((d) => d !== null);
 
-    const jsonSchema = z.record(z.string());
+    const jsonSchema = z.record(z.string(), z.string());
 
     const parsedLocalizations = await Promise.all(
       localizationFiles.map(async ({ lang, filePath }) => {
@@ -362,7 +364,7 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
       )
       .filter((d) => d !== null);
 
-    const jsonSchema = z.record(z.string());
+    const jsonSchema = z.record(z.string(), z.string());
 
     const parsedLocalizations = await Promise.all(
       localizationFiles.map(async ({ lang, filePath }) => {

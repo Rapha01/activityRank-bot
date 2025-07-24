@@ -1,16 +1,10 @@
-import { z } from 'zod';
 import t from 'typanion';
-import type {
-  RESTPutAPIApplicationCommandsJSONBody,
-  RESTPutAPIApplicationGuildCommandsJSONBody,
-} from 'discord-api-types/v10';
+import type { RESTPutAPIApplicationGuildCommandsJSONBody } from 'discord-api-types/v10';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { Command, Option } from 'clipanion';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import { Deploy } from '../util/commandSchema.ts';
-
-const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
 
 export class DeployCommand extends ConfigurableCommand2 {
   static override paths = [['deploy']];
