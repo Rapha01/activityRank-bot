@@ -91,14 +91,23 @@ export const managerKeys = z
 
 /**The basic config to be provided to the API module of ActivityRank*/
 export const apiConfig = z
-  .object({})
+  .object({
+    /**Whether to disable Patreon checks when run in production mode.*/
+    disablePatreon: z.boolean().optional(),
+  })
   .describe('The basic config to be provided to the API module of ActivityRank');
 
 /** The keys to be provided to the API module of ActivityRank */
 export const apiKeys = z
   .object({
+    /**The Discord ID of the bot*/
+    botId: z.string().describe('The Discord ID of the bot'),
+    /**The Patreon API token*/
+    patreonAccessToken: z.string().describe('The Patreon API token'),
     /**The password required by the Manager API*/
     managerApiAuth: z.string().describe('The password required by the Manager API'),
+    /**The Discord Bot List API key*/
+    dblApiKey: z.string().describe('The Discord Bot List API key'),
     /**The host of the Manager DB*/
     managerHost: z.string().describe('The host of the Manager DB'),
     /**Properties concerning manager DB connections*/
