@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Rapha01/activityRank-bot/compare/cli-v1.1.0...cli-v1.2.0) (2025-07-24)
+
+
+### Features
+
+* update cfg to autogenerate JSON schemas ([67f59fd](https://github.com/Rapha01/activityRank-bot/commit/67f59fd380189dae66de4047f0fedee25d517368))
+
 ## [1.1.0](https://github.com/Rapha01/activityRank-bot/compare/cli-v1.0.1...cli-v1.1.0) (2025-06-18)
 
 
