@@ -22,7 +22,7 @@ export default command({
 
     await interaction.deferReply({ ephemeral });
 
-    const { stats }: { stats: APIShard[] } = await managerFetch('api/stats/', { method: 'GET' });
+    const { stats }: { stats: APIShard[] } = await managerFetch('api/v0/shards/stats', {});
 
     let data = stats.map(({ ip, ...keepAttrs }) => keepAttrs);
 
