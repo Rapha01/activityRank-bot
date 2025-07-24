@@ -24,25 +24,6 @@ services:
     ports:
       - '3306:3306'
     command: --default-authentication-plugin=mysql_native_password
-  
-  manager:
-    container_name: Manager
-    restart: always
-    init: true
-    build:
-      context: .
-      dockerfile: apps/manager/Dockerfile
-    image: 'activityrank/manager:dev'
-    depends_on:
-      - db
-    links:
-      - db
-    ports:
-      - '3005:3000'
-    secrets:
-      - keys
-    configs:
-      - config
 
   bot:
     build:
@@ -56,7 +37,7 @@ services:
       - keys
 
   api:
-    container_name: Public-API
+    container_name: API
     restart: always
     init: true
     build:
@@ -65,10 +46,8 @@ services:
     image: 'activityrank/api:dev'
     depends_on:
       - db
-      - manager
     links:
       - db
-      - manager
     ports:
       - '8080:3000'
     secrets:
