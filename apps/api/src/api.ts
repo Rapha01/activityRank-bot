@@ -6,12 +6,18 @@ import {
   getLevelfactor,
   getLevelProgression,
 } from '#services/ranks.js';
+import { getShardStats } from '#models/botShardStatModel.js';
 import { JSONHTTPException } from '#util/errors.js';
+
+import commands from './const/commands.js';
+import patchnotes from './const/patchnotes.js';
+import faqs from './const/faq.js';
 
 import { helloRoute } from '#routes/hello.js';
 import { topMembersRoute } from '#routes/topMembers.js';
 import { memberRankRoute } from '#routes/memberRank.js';
-import { botStatsRoute } from '#routes/botstats.js';
+import { shardStatsRoute } from '#routes/shard-stats.js';
+import { textsRoute } from '#routes/texts.js';
 
 export const apiRouter = new OpenAPIHono();
 
@@ -57,6 +63,20 @@ apiRouter.openapi(memberRankRoute, async (c) => {
   );
 });
 
-apiRouter.openapi(botStatsRoute, async (c) => {
-  return c.json('hi here are some stats :)', 200);
+apiRouter.openapi(shardStatsRoute, async (c) => {
+  const stats = await getShardStats();
+  return c.json(
+    {
+      stats: stats.map((shard) => ({
+        ...shard,
+        readyDate: new Date(shard.readyDate),
+        changedHealthDate: new Date(shard.changedHealthDate),
+      })),
+    },
+    200,
+  );
+});
+
+apiRouter.openapi(textsRoute, async (c) => {
+  return c.json({ commands, patchnotes, faqs }, 200);
 });

@@ -28,9 +28,12 @@
     "@hono/zod-openapi": "^1.0.2",
     "@hono/zod-validator": "^0.7.1",
     "@scalar/hono-api-reference": "^0.5.165",
+    "croner": "^9.1.0",
+    "exponential-backoff": "^3.1.2",
     "hono": "^4.5.10",
     "hono-rate-limiter": "^0.4.2",
     "kysely": "^0.27.6",
+    "mysql2": "^3.14.2",
     "zod": "^4.0.0"
   },
   "devDependencies": {
@@ -44,6 +47,8 @@
   },
   "nodemonConfig": {
     "ext": "js,ts",
-    "watch": ["src/**/*.ts"]
+    "watch": [
+      "src/**/*.ts"
+    ]
   }
 }
