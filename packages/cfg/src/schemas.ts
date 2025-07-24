@@ -81,6 +81,7 @@ export const botConfig = config.pick({
   developmentServers: true,
   invites: true,
   supportServer: true,
+  disablePatreon: true,
 });
 
 export const botKeys = keys.pick({
