@@ -4,6 +4,7 @@ import { z } from '@hono/zod-openapi';
 
 const responseSchema = z.object({
   commands: z.record(
+    z.string(),
     z.object({
       title: z.string(),
       desc: z.string(),
