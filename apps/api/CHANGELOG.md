@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/Rapha01/activityRank-bot/compare/api-v0.3.4...api-v0.3.5) (2025-07-25)
+
+
+### Bug Fixes
+
+* API reports the correct version ([8f1e4a3](https://github.com/Rapha01/activityRank-bot/commit/8f1e4a3f6710c3cc5cc5e49effa9a07f3cb74f0c))
+
 ## [0.3.4](https://github.com/Rapha01/activityRank-bot/compare/api/v0.3.3...api-v0.3.4) (2025-07-24)
 
 
