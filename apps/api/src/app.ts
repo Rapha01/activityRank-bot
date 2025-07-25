@@ -72,12 +72,12 @@ const stats = factory.createHandlers(async (c) => c.json({ stats: await getShard
 const texts = factory.createHandlers((c) => c.json({ commands, patchnotes, faqs }));
 
 /** @deprecated routes for compatibility; should be removed asap because of not being versioned. */
-apiRouter.get('/api/stats', InternalAPIAuth, ...stats);
-apiRouter.get('/api/texts', InternalAPIAuth, ...texts);
+app.get('/api/stats', InternalAPIAuth, ...stats);
+app.get('/api/texts', InternalAPIAuth, ...texts);
 
 /** @deprecated routes for compatibility; should be removed asap because of inconsistent versioning. */
-apiRouter.get('/api/v1/stats', InternalAPIAuth, ...stats);
-apiRouter.get('/api/v1/texts', InternalAPIAuth, ...texts);
+app.get('/api/v1/stats', InternalAPIAuth, ...stats);
+app.get('/api/v1/texts', InternalAPIAuth, ...texts);
 
 //  ----        =======+=======        ----  //
 
