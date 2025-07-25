@@ -32,11 +32,13 @@ app.get('/api/healthcheck', (c) => {
   return c.body(null);
 });
 
+const version = (await import('../package.json', { with: { type: 'json' } })).default.version;
+
 app.doc('/api/openapi.json', {
-  openapi: '3.0.0',
+  openapi: '3.1.0',
   info: {
     title: 'ActivityRank API',
-    version: '0.1.0',
+    version,
     description:
       'A public API for the ActivityRank Bot: https://activityrank.me \n\n\
 **WARNING** All API endpoints are in `v0`. Until `v1` is released, \
