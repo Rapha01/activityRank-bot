@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.6](https://github.com/Rapha01/activityRank-bot/compare/api-v0.3.5...api-v0.3.6) (2025-07-25)
+
+
+### Bug Fixes
+
+* incorrect routes ([50000b0](https://github.com/Rapha01/activityRank-bot/commit/50000b0c57a4a088dcdf90037754a9afd9c6846f))
+
 ## [0.3.5](https://github.com/Rapha01/activityRank-bot/compare/api-v0.3.4...api-v0.3.5) (2025-07-25)
 
 
