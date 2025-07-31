@@ -12,12 +12,16 @@ import { JSONHTTPException } from '#util/errors.js';
 import commands from './const/commands.js';
 import patchnotes from './const/patchnotes.js';
 import faqs from './const/faq.js';
+import { runPatreonTask } from '#services/tasks/patreon.js';
+import { runTopggTask } from '#services/tasks/topgg.js';
 
 import { helloRoute } from '#routes/hello.js';
 import { topMembersRoute } from '#routes/topMembers.js';
 import { memberRankRoute } from '#routes/memberRank.js';
 import { shardStatsRoute } from '#routes/shard-stats.js';
 import { textsRoute } from '#routes/texts.js';
+import { runPatreonRoute } from '#routes/patreon.js';
+import { runTopggRoute } from '#routes/topgg.js';
 
 export const apiRouter = new OpenAPIHono();
 
@@ -75,6 +79,16 @@ apiRouter.openapi(shardStatsRoute, async (c) => {
     },
     200,
   );
+});
+
+apiRouter.openapi(runPatreonRoute, async (c) => {
+  await runPatreonTask();
+  return c.body(null, 202);
+});
+
+apiRouter.openapi(runTopggRoute, async (c) => {
+  await runTopggTask();
+  return c.body(null, 202);
 });
 
 apiRouter.openapi(textsRoute, async (c) => {

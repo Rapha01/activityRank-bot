@@ -16,6 +16,16 @@ baseURL.searchParams.set('fields[user]', 'social_connections');
 const headers = new Headers();
 headers.set('Authorization', `Bearer ${keys.patreonAccessToken}`);
 
+class FetchError extends Error {
+  code: number;
+
+  constructor(message: string, code: number, cause: unknown) {
+    super(message, { cause });
+    this.name = 'FetchError';
+    this.code = code;
+  }
+}
+
 export async function runPatreonTask() {
   console.log('[task | patreon] Updating information');
 
@@ -23,7 +33,22 @@ export async function runPatreonTask() {
   const apiMembers: ParsedMember[] = [];
 
   while (true) {
-    const res = await backOff(async () => await fetch(nextUrl, { headers }));
+    const res = await backOff(
+      async () => {
+        const fetched = await fetch(nextUrl, { headers });
+        const json = await fetched.json();
+        if (!fetched.ok) {
+          throw new FetchError(
+            `Failed to fetch Patreon URL (${fetched.status} ${fetched.statusText}) "${nextUrl}"`,
+            fetched.status,
+            fetched,
+          );
+        }
+        return json;
+      },
+      // Only retry on FetchError and a non-4xx error code
+      { retry: (e) => e instanceof FetchError && (e.code < 400 || e.code >= 500) },
+    );
     const response = PatreonResponse.parse(res);
 
     apiMembers.push(...getParsedMembers(response));
@@ -168,8 +193,8 @@ export const PatreonResponseIncluded = z.object({
         discord: z
           .object({
             user_id: z.string(),
-            scopes: z.array(z.string()).nullable(),
-            url: z.string().nullable(),
+            scopes: z.array(z.string()).optional(),
+            url: z.string().optional(),
           })
           .nullable(),
       })
@@ -183,7 +208,7 @@ export const PatreonResponse = z.object({
   links: z.object({ next: z.url() }).optional(),
   meta: z.object({
     pagination: z.object({
-      cursors: z.object({ next: z.string() }),
+      cursors: z.object({ next: z.string().nullable() }),
       total: z.int(),
     }),
   }),

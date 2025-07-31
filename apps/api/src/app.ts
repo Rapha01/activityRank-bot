@@ -91,7 +91,14 @@ new Cron('30 0 * * SUN', () => runResetByTime('week'));
 new Cron('0 1 1 * *', () => runResetByTime('month'));
 new Cron('30 1 1 1 *', () => runResetByTime('year'));
 
-if (isProduction && config.disablePatreon !== true) {
+let runPatreon: boolean;
+if (config.disablePatreon === null || config.disablePatreon === undefined) {
+  runPatreon = isProduction;
+} else {
+  runPatreon = !config.disablePatreon;
+}
+
+if (runPatreon) {
   new Cron('*/15 * * * *', runPatreonTask);
   new Cron('*/20 * * * *', runTopggTask);
 } else {
