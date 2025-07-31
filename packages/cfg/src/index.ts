@@ -7,18 +7,22 @@ import parseJson, { JSONError } from 'parse-json';
 import * as schemas from './schemas.js';
 
 type LoadOptions<T extends z.ZodTypeAny> = {
-  name: string;
   schema: T;
   secret: boolean;
 };
 
-async function configLoader() {
+async function configLoader(pathOverride?: string) {
   const isProduction = process.env.NODE_ENV === 'production';
+
+  const override = pathOverride ?? process.env.CONFIG_PATH ?? null;
 
   let configPath: string;
   let secretPath: string;
 
-  if (isProduction) {
+  if (override) {
+    configPath = override;
+    secretPath = override;
+  } else if (isProduction) {
     // Configs are mounted into the root dir.
     // Secrets are mounted into `/run/secrets`.
     configPath = path.resolve('/');
@@ -34,12 +38,12 @@ async function configLoader() {
     secretPath = path.join(workspaceDir, 'config');
   }
 
-  function getLoadPaths(opts: { name: string; secret?: boolean }): string[] {
-    const resPath = opts.secret ? secretPath : configPath;
+  function getLoadPaths(name: string, secret: boolean): string[] {
+    const resPath = secret ? secretPath : configPath;
     return [
-      path.join(resPath, opts.name),
-      path.join(resPath, `${opts.name}.json`),
-      path.join(resPath, `${opts.name}.toml`),
+      path.join(resPath, name),
+      path.join(resPath, `${name}.json`),
+      path.join(resPath, `${name}.toml`),
     ];
   }
 
@@ -79,15 +83,18 @@ async function configLoader() {
     return parsed.data;
   }
 
-  async function load<T extends z.ZodTypeAny>(opts: LoadOptions<T>): Promise<z.infer<T>> {
+  async function load<T extends z.ZodTypeAny>(
+    name: string,
+    opts: LoadOptions<T>,
+  ): Promise<z.infer<T>> {
     // check if the provided path has an extension
-    const match = /(.*)\..*$/.exec(opts.name);
+    const match = /(.*)\..*$/.exec(name);
     if (match) {
       console.warn(
-        `Loading file with name "${opts.name}". Files have their .json extensions appended to them by default. Did you mean to use "${match[1]}" instead?`,
+        `Loading file with name "${name}". Files have their .json extensions appended to them by default. Did you mean to use "${match[1]}" instead?`,
       );
     }
-    const loadPaths = getLoadPaths(opts);
+    const loadPaths = getLoadPaths(name, opts.secret);
 
     let content: string | null = null;
     for (const loadPath of loadPaths) {
@@ -103,14 +110,28 @@ async function configLoader() {
     }
     if (content === null) {
       throw new Error(
-        `Failed to find file with name "${opts.name}". Expected to find file at "${loadPaths[0]}" (or with other file extensions).`,
+        `Failed to find file with name "${name}". Expected to find file at "${loadPaths[0]}" (or with other file extensions).`,
       );
     }
 
-    return await loadString(content, opts.schema, opts.name);
+    return await loadString(content, opts.schema, name);
   }
 
-  return { getLoadPaths, load, loadString };
+  async function loadSecret<T extends z.ZodTypeAny>(
+    name: string,
+    opts: Omit<LoadOptions<T>, 'secret'>,
+  ): Promise<z.infer<T>> {
+    return await load(name, { ...opts, secret: true });
+  }
+
+  async function loadConfig<T extends z.ZodTypeAny>(
+    name: string,
+    opts: Omit<LoadOptions<T>, 'secret'>,
+  ): Promise<z.infer<T>> {
+    return await load(name, { ...opts, secret: false });
+  }
+
+  return { getLoadPaths, load, loadSecret, loadConfig, loadString };
 }
 
 export { configLoader, schemas };

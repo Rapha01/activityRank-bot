@@ -16,23 +16,23 @@ describe('fn', () => {
 
     const loader = await configLoader();
 
-    expect(loader.getLoadPaths({ name: 'config', secret: false })).toEqual([
+    expect(loader.getLoadPaths('config', false)).toEqual([
       path.join(process.cwd(), '../../config/config'),
       path.join(process.cwd(), '../../config/config.json'),
       path.join(process.cwd(), '../../config/config.toml'),
     ]);
 
     await expect(
-      loader.load({ name: 'config', schema: schemas.bot.config, secret: false }),
+      loader.load('config', { schema: schemas.bot.config, secret: false }),
     ).resolves.toBeDefined();
 
     await expect(
-      loader.load({ name: 'config', schema: schemas.bot.keys, secret: false }),
+      loader.load('config', { schema: schemas.bot.keys, secret: false }),
     ).rejects.toThrowError();
 
     // even though `secret` is incorrect here, it shouldn't matter in dev mode.
     await expect(
-      loader.load({ name: 'config', schema: schemas.bot.config, secret: true }),
+      loader.load('config', { schema: schemas.bot.config, secret: true }),
     ).resolves.toBeDefined();
   });
 
@@ -41,12 +41,12 @@ describe('fn', () => {
 
     const loader = await configLoader();
 
-    expect(loader.getLoadPaths({ name: 'config', secret: false })).toEqual([
+    expect(loader.getLoadPaths('config', false)).toEqual([
       path.resolve('/config'),
       path.resolve('/config.json'),
       path.resolve('/config.toml'),
     ]);
-    expect(loader.getLoadPaths({ name: 'config', secret: true })).toEqual([
+    expect(loader.getLoadPaths('config', true)).toEqual([
       path.resolve('/run/secrets/config'),
       path.resolve('/run/secrets/config.json'),
       path.resolve('/run/secrets/config.toml'),
