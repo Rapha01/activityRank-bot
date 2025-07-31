@@ -81,9 +81,11 @@ export class Command {
 
   // Get a Record<string, option_type> of the options provided to the command.
   getOptions(interaction: CommandInteraction): Record<string, unknown> {
+    if (interaction.isContextMenuCommand()) return {};
     const returnedOptions: Record<string, unknown> = {};
+
     let data = interaction.options.data;
-    if (interaction.isChatInputCommand() || interaction.isAutocomplete()) {
+    if (interaction.isChatInputCommand()) {
       const group = interaction.options.getSubcommandGroup(false);
       const sub = interaction.options.getSubcommand(false);
 
