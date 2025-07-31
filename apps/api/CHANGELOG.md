@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.7](https://github.com/Rapha01/activityRank-bot/compare/api-v0.3.6...api-v0.3.7) (2025-07-31)
+
+
+### Bug Fixes
+
+* incorrect Patreon API schemas ([3ece66f](https://github.com/Rapha01/activityRank-bot/commit/3ece66f2120d9cce9d4f8d24d909f553d480dbaa))
+
 ## [0.3.6](https://github.com/Rapha01/activityRank-bot/compare/api-v0.3.5...api-v0.3.6) (2025-07-25)
 
 
