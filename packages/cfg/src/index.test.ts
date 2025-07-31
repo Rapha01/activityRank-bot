@@ -1,59 +1,67 @@
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { configLoader } from './index.js';
-import * as schemas from './schemas.js';
+import { z } from 'zod/v4';
+import { configLoader, schemas } from './index.js';
 
 /* 
   - When in PRODUCTION mode, files are loaded from Docker secrets & configs
-  - When in DEVELOPMENT mode, files are loaded from a *single* arbitrary path
+  - When in DEVELOPMENT mode, files are loaded relative to the `pnpm-workspace.yaml` file.
+      All pnpm workspaces require a `pnpm-workspace.yaml` file (https://pnpm.io/workspaces), 
+      so this is a reliable way of accessing the root.
 */
 
 describe('fn', () => {
-  it('should function properly, given a path in dev mode', async () => {
+  it('should function properly in dev mode', async () => {
     process.env.NODE_ENV = 'development';
 
-    const loaders = [
-      configLoader(`${process.cwd()}/../../config/`),
-      configLoader('../../config/'),
-      configLoader(`${process.cwd()}/../../config`),
-      configLoader('../../config'),
-    ];
+    const loader = await configLoader();
 
-    expect(() => configLoader(), 'configLoader requires a path in dev mode').toThrow(TypeError);
+    expect(loader.getLoadPaths({ name: 'config', secret: false })).toEqual([
+      path.join(process.cwd(), '../../config/config'),
+      path.join(process.cwd(), '../../config/config.json'),
+      path.join(process.cwd(), '../../config/config.toml'),
+    ]);
 
-    for (const loader of loaders) {
-      expect(loader.getLoadPath({ name: 'config', secret: false })).toEqual(
-        new URL(`file:${process.cwd()}/../../config/config.json`),
-      );
+    await expect(
+      loader.load({ name: 'config', schema: schemas.bot.config, secret: false }),
+    ).resolves.toBeDefined();
 
-      await expect(
-        loader.load({ name: 'config', schema: schemas.bot.config, secret: false }),
-      ).resolves.toBeDefined();
+    await expect(
+      loader.load({ name: 'config', schema: schemas.bot.keys, secret: false }),
+    ).rejects.toThrowError();
 
-      await expect(
-        loader.load({ name: 'config', schema: schemas.bot.keys, secret: false }),
-      ).rejects.toThrowError();
-
-      // even though `secret` is incorrect here, it shouldn't matter in dev mode.
-      await expect(
-        loader.load({ name: 'config', schema: schemas.bot.config, secret: true }),
-      ).resolves.toBeDefined();
-    }
+    // even though `secret` is incorrect here, it shouldn't matter in dev mode.
+    await expect(
+      loader.load({ name: 'config', schema: schemas.bot.config, secret: true }),
+    ).resolves.toBeDefined();
   });
 
   it('should load from standard docker paths in production mode', async () => {
     process.env.NODE_ENV = 'production';
-    expect(
-      () => configLoader(`${process.cwd()}/../../config`),
-      'configLoader always uses Docker paths in production mode',
-    ).toThrow(TypeError);
 
-    const loader = configLoader();
+    const loader = await configLoader();
 
-    expect(loader.getLoadPath({ name: 'config.json', secret: false })).toEqual(
-      new URL('file:/config.json'),
-    );
-    expect(loader.getLoadPath({ name: 'config.json', secret: true })).toEqual(
-      new URL('file:/run/secrets/config.json'),
-    );
+    expect(loader.getLoadPaths({ name: 'config', secret: false })).toEqual([
+      path.resolve('/config'),
+      path.resolve('/config.json'),
+      path.resolve('/config.toml'),
+    ]);
+    expect(loader.getLoadPaths({ name: 'config', secret: true })).toEqual([
+      path.resolve('/run/secrets/config'),
+      path.resolve('/run/secrets/config.json'),
+      path.resolve('/run/secrets/config.toml'),
+    ]);
+  });
+
+  it('should load both JSON and TOML files', async () => {
+    const loader = await configLoader();
+
+    await expect(
+      loader.loadString('{"test": "value"}', z.object({ test: z.literal('value') }), 'example'),
+    ).resolves.toStrictEqual({ test: 'value' });
+
+    await expect(
+      loader.loadString('test = "value"', z.object({ test: z.literal('value') }), 'example'),
+    ).resolves.toStrictEqual({ test: 'value' });
   });
 });

@@ -10,7 +10,7 @@
     ],
     "supportHook": "https://example.net"
   },
-  "invite": {
+  "invites": {
     "standard": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands%20applications.commands.permissions.update",
     "admin": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=8&scope=bot%20applications.commands%20applications.commands.permissions.update"
   },

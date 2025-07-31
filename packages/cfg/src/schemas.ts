@@ -119,49 +119,12 @@ export const emojis = z
   .record(z.string(), snowflake)
   .describe('A record of bot emoji names to IDs');
 
-/**
- * @deprecated
- *
- * The basic config to be provided to the Manager module of ActivityRank*/
-export const managerConfig = z
-  .object({ disablePatreon: z.boolean().optional() })
-  .describe('The basic config to be provided to the Manager module of ActivityRank');
-
-/**
- * @deprecated
- *
- * The keys to be provided to the Manager module of ActivityRank */
-export const managerKeys = z
-  .object({
-    /**The Discord ID of the bot*/
-    botId: z.string().describe('The Discord ID of the bot'),
-    /**The Discord Bot List API key*/
-    dblApiKey: z.string().describe('The Discord Bot List API key'),
-    /**The Patreon API token*/
-    patreonAccessToken: z.string().describe('The Patreon API token'),
-    /**The password required by the Manager API*/
-    managerApiAuth: z.string().describe('The password required by the Manager API'),
-    /**The host of the Manager DB*/
-    managerHost: z.string().describe('The host of the Manager DB'),
-    /**Properties concerning manager DB connections*/
-    managerDb: dbConnection.describe('Properties concerning manager DB connections'),
-    /**Properties concerning shard DB connections*/
-    shardDb: dbConnection.describe('Properties concerning shard DB connections'),
-  })
-  .describe('The keys to be provided to the Manager module of ActivityRank');
-
 // preset schemas
 export const bot = {
   config: botConfig,
   keys: botKeys,
   privileges,
   emojis,
-};
-
-/** @deprecated (use api instead) */
-export const manager = {
-  config: managerConfig,
-  keys: managerKeys,
 };
 
 export const api = {
