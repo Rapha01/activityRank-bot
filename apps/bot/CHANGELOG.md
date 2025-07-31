@@ -1,5 +1,21 @@
 # Changelog
 
+## [7.13.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.12.0...bot-v7.13.0) (2025-07-31)
+
+
+### Features
+
+* clean up /config-messages flow ([b84cf01](https://github.com/Rapha01/activityRank-bot/commit/b84cf01f9a09f303d35681c1f4f6bbe97b5d7330))
+* make /config-role menu consistent with /config-messages ([0f68044](https://github.com/Rapha01/activityRank-bot/commit/0f680449765fdb3def68b8dc6efbf27390aeb7cf))
+* show sample /config-messages messages ([d037dca](https://github.com/Rapha01/activityRank-bot/commit/d037dcaed94ecfd419364ac9b4b488f589fd43b8))
+* use new API paths in bot module ([c931a76](https://github.com/Rapha01/activityRank-bot/commit/c931a767447aee38763bcaad7023c7c64860a77b))
+
+
+### Bug Fixes
+
+* incorrect permissions check ([f7bd03e](https://github.com/Rapha01/activityRank-bot/commit/f7bd03ef8efa3818e7862e9a5b95243515b0ba56))
+* Upvote context menu command ([f6d29eb](https://github.com/Rapha01/activityRank-bot/commit/f6d29eb98984450d2a16a2caa2a31e1c2eaff022))
+
 ## [7.12.0](https://github.com/Rapha01/activityRank-bot/compare/bot-v7.11.0...bot-v7.12.0) (2025-07-19)
 
 
