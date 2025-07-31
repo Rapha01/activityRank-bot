@@ -77,7 +77,7 @@ async function configLoader(pathOverride?: string) {
 
     if (!parsed.success) {
       throw new Error(
-        `Failed to parse config "${name}" to the provided schema.\n\n---\n\n${z.formatError(parsed.error)}`,
+        `Failed to parse config "${name}" to the provided schema.\n\n---\n\n${z.prettifyError(parsed.error)}`,
       );
     }
     return parsed.data;
