@@ -6,6 +6,7 @@ import {
 } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
 import { command } from '#bot/commands.js';
+import invariant from 'tiny-invariant';
 
 export default command({
   name: 'config-role levels',
@@ -29,12 +30,9 @@ export default command({
       return;
     }
 
-    if (
-      !interaction.guild.members.me ||
-      !interaction.guild.members.me
-        .permissionsIn(interaction.channel)
-        .has(PermissionFlagsBits.ManageRoles)
-    ) {
+    invariant(interaction.guild.members.me);
+
+    if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)) {
       await interaction.reply({ content: t('config-role.manageRoles'), ephemeral: true });
       return;
     }
