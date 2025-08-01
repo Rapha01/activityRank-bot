@@ -11,6 +11,10 @@
     {
       "fileMatch": ["config/config.json", "config/config.example.json"],
       "url": "./config/config.schema.json"
+    },
+    {
+      "fileMatch": ["config/emoji.json", "config/emoji.example.json"],
+      "url": "./config/emoji.schema.json"
     }
   ],
   "[javascript]": {

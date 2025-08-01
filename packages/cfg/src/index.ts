@@ -47,14 +47,18 @@ async function configLoader(pathOverride?: string) {
     ];
   }
 
-  async function loadString<T extends z.ZodTypeAny>(
+  async function safeLoadString<T extends z.ZodTypeAny>(
     content: string,
     schema: T,
-    name: string,
-  ): Promise<z.infer<T>> {
+  ): Promise<
+    | { ok: true; data: z.infer<T> }
+    | { ok: false; type: 'parserError'; causes: (JSONError | TomlError)[] }
+    | { ok: false; type: 'zodError'; cause: z.ZodError }
+  > {
     const failedParse = Symbol();
 
     let value: unknown = failedParse;
+    const errors = [];
     const parsers: ((input: string) => unknown)[] = [parseJson, parseToml];
     for (const parser of parsers) {
       try {
@@ -63,6 +67,7 @@ async function configLoader(pathOverride?: string) {
       } catch (error) {
         // if the parsing fails, just continue
         if (error instanceof JSONError || error instanceof TomlError) {
+          errors.push(error);
           continue;
         }
         throw error;
@@ -70,17 +75,41 @@ async function configLoader(pathOverride?: string) {
     }
 
     if (value === failedParse) {
-      throw new Error(`Failed to parse config "${name}" as JSON or TOML.`);
+      return { ok: false, type: 'parserError', causes: errors };
     }
 
     const parsed = await schema.safeParseAsync(value);
 
     if (!parsed.success) {
+      return { ok: false, type: 'zodError', cause: parsed.error };
+    }
+
+    return { ok: true, data: parsed.data };
+  }
+
+  async function loadString<T extends z.ZodTypeAny>(
+    content: string,
+    schema: T,
+    name: string,
+  ): Promise<z.infer<T>> {
+    const loaded = await safeLoadString(content, schema);
+    if (loaded.ok) {
+      return loaded.data;
+    }
+
+    if (loaded.type === 'parserError') {
+      for (const cause of loaded.causes) {
+        console.error(cause);
+      }
+      throw new Error(`Failed to parse config "${name}" as JSON or TOML.`);
+    }
+    if (loaded.type === 'zodError') {
       throw new Error(
-        `Failed to parse config "${name}" to the provided schema.\n\n---\n\n${z.prettifyError(parsed.error)}`,
+        `Failed to parse config "${name}" to the provided schema.\n\n---\n\n${z.prettifyError(loaded.cause)}`,
       );
     }
-    return parsed.data;
+
+    throw new Error('should never happen: previous clauses should be exhaustive');
   }
 
   async function load<T extends z.ZodTypeAny>(
@@ -131,7 +160,7 @@ async function configLoader(pathOverride?: string) {
     return await load(name, { ...opts, secret: false });
   }
 
-  return { getLoadPaths, load, loadSecret, loadConfig, loadString };
+  return { getLoadPaths, load, loadSecret, loadConfig, loadString, safeLoadString };
 }
 
 export { configLoader, schemas };
