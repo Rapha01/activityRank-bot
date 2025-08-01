@@ -58,7 +58,7 @@ export interface BaseConfig {
   config: z.infer<typeof schemas.bot.config>;
   keys: z.infer<typeof schemas.bot.keys>;
   api: API;
-  loader: ReturnType<typeof configLoader>;
+  loader: Awaited<ReturnType<typeof configLoader>>;
 }
 
 // /**

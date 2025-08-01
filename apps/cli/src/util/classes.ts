@@ -64,12 +64,8 @@ export abstract class ConfigurableCommand2 extends Command {
   async loadBaseConfig(configDirPath?: string | undefined): Promise<BaseConfig> {
     const loader = await this.getConfigLoader(configDirPath);
 
-    const config = await loader.load({
-      name: 'config',
-      schema: schemas.bot.config,
-      secret: false,
-    });
-    const keys = await loader.load({ name: 'keys', schema: schemas.bot.keys, secret: true });
+    const config = await loader.loadConfig('config', { schema: schemas.bot.config });
+    const keys = await loader.loadSecret('keys', { schema: schemas.bot.keys });
 
     const rest = new REST();
     rest.setToken(keys.botAuth);
@@ -157,11 +153,7 @@ export abstract class ConfigurableCommand2 extends Command {
     };
 
     const loader = await this.getConfigLoader();
-    const commandData = await loader.load({
-      name: 'commands',
-      schema: commandsSchema,
-      devOnly: true,
-    });
+    const commandData = await loader.loadConfig('commands', { schema: commandsSchema });
 
     for (const command of commandData) {
       const description =
@@ -309,24 +301,16 @@ export class ConfigurableCommand extends Command {
     return root ? path.join(root, 'config') : null;
   }
 
-  async loadConfig(loader: ReturnType<typeof configLoader>) {
-    this.config = await loader.load({
-      name: 'config',
-      schema: schemas.bot.config,
-      secret: false,
-    });
-
-    this.keys = await loader.load({ name: 'keys', schema: schemas.bot.keys, secret: true });
+  async loadConfig(loader: Awaited<ReturnType<typeof configLoader>>) {
+    this.config = await loader.loadConfig('config', { schema: schemas.bot.config });
+    this.keys = await loader.loadSecret('keys', { schema: schemas.bot.keys });
   }
 
   async execute() {
     const spin = p.spinner();
     spin.start('Loading config...');
 
-    const loader = configLoader(
-      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
-    );
-
+    const loader = await configLoader(this.configPath);
     await this.loadConfig(loader);
 
     spin.stop('Loaded config');
@@ -505,14 +489,10 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
     return commands;
   }
 
-  override async loadConfig(loader: ReturnType<typeof configLoader>) {
+  override async loadConfig(loader: Awaited<ReturnType<typeof configLoader>>) {
     await super.loadConfig(loader);
-    this.jsonCommands = await loader.load({
-      name: 'commands',
-      schema: commandsSchema,
-      devOnly: true,
-    });
 
+    this.jsonCommands = await loader.loadConfig('commands', { schema: commandsSchema });
     this.commands = await this.getDeployableCommands();
   }
 }

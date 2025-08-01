@@ -150,9 +150,7 @@ export class CommandsCommand extends DiscordCommandManagementCommand {
   override async execute() {
     // super.execute() is intentionally not called here to avoid printing before the `this.raw` path returns.
     // this.loadConfig() should function the same.
-    const loader = configLoader(
-      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
-    );
+    const loader = await configLoader(this.configPath);
     await this.loadConfig(loader);
     const api = this.getApi();
 

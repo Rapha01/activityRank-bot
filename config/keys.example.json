@@ -1,17 +1,20 @@
 {
   "botAuth": "",
   "botId": "888488557352747020",
+  "dblApiKey": "",
+  "patreonAccessToken": "",
   "managerApiAuth": "",
+  "managerApiHost": "",
   "managerHost": "",
-  "managerPort": null,
+  "managerApiPort": 3000,
   "managerDb": {
-    "dbName": "",
+    "dbUser": "",
     "dbPassword": "",
-    "dbUser": ""
+    "dbName": ""
   },
   "shardDb": {
-    "dbName": "",
+    "dbUser": "",
     "dbPassword": "",
-    "dbUser": ""
+    "dbName": ""
   }
 }

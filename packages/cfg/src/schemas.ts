@@ -6,7 +6,7 @@ const snowflake = z
   .meta({
     id: 'Snowflake',
     description:
-      'A Discord ["Snowflake"](https://discord.com/developers/docs/reference#snowflakes), represented as a string.',
+      'A Discord "Snowflake" (<https://discord.com/developers/docs/reference#snowflakes>), represented as a string.',
     examples: ['774660568728469585', '1398036663078486047', '905898879785005106'],
   });
 
@@ -24,17 +24,28 @@ const dbConnection = z.object({
 });
 
 export const config = z.object({
-  supportServer: z.object({
-    id: snowflake,
-    invite: z.url().meta({
-      description: 'The Discord invite URL to add members to the support server',
-      example: 'https://discordapp.com/invite/DE3eQ8H',
+  supportServer: z
+    .object({
+      id: snowflake.meta({ description: 'The Discord ID of the support server' }),
+      invite: z.url().meta({
+        description: 'The Discord invite URL to add members to the support server',
+        example: 'https://discordapp.com/invite/DE3eQ8H',
+      }),
+      patreonRoles: z.array(z.object({ id: snowflake, tier: z.int().min(0) })).meta({
+        description:
+          'A list of roles to give Patreon subscribers in the support server, and the corresponding tiers',
+        example: '[{ id: "774660568728469585", tier: 1 }, { id: "905898879785005106", tier: 2 }]',
+      }),
+      // TODO: use this for Discord native supporters
+      supporterRole: z.object({ id: snowflake.optional() }).optional().meta({
+        description:
+          'The role to give members that have purchased a subscription in the support server.',
+        example: '{ id: "774660568728469585" }',
+      }),
+    })
+    .meta({
+      description: 'Details about the Support Server - like invite links and Premium roles',
     }),
-    patreonRoles: z.array(z.object({ id: snowflake, tier: z.int().min(0) })),
-    // TODO: use this for Discord native supporters
-    supporterRole: z.object({ id: snowflake.optional() }).optional(),
-    supportHook: z.url().optional(),
-  }),
   invites: z
     .strictObject({
       standard: z.url().meta({
@@ -46,8 +57,14 @@ export const config = z.object({
           "The Discord OAuth URL to add the bot to a user's server with a larger set of permissions.",
       }),
     })
-    .meta({ description: "The Discord OAuth URLs to add the bot to a user's server." }),
-  disablePatreon: z.boolean().optional().default(false),
+    .meta({
+      title: 'Links to invite the bot',
+      description: "The Discord OAuth URLs to add the bot to a user's server.",
+    }),
+  disablePatreon: z.boolean().optional().default(false).meta({
+    description:
+      'Whether to disable Patreon-related features like role updates and Patreon API queries.',
+  }),
   developmentServers: z.array(snowflake).meta({
     description: 'The IDs of servers in which to register development commands',
     uniqueItems: true,
@@ -111,44 +128,18 @@ export const apiKeys = keys.pick({
 
 /**The users that are able to use privileged commands*/
 export const privileges = z
-  .record(snowflake, z.enum(['DEVELOPER', 'MODERATOR', 'HELPSTAFF']))
+  .record(
+    snowflake,
+    z
+      .enum(['DEVELOPER', 'MODERATOR', 'HELPSTAFF'])
+      .meta({ description: 'The level of privilege the user should have' }),
+  )
   .describe('The users that are able to use privileged commands');
 
 /**A record of bot emoji names to IDs*/
 export const emojis = z
   .record(z.string(), snowflake)
-  .describe('A record of bot emoji names to IDs');
-
-/**
- * @deprecated
- *
- * The basic config to be provided to the Manager module of ActivityRank*/
-export const managerConfig = z
-  .object({ disablePatreon: z.boolean().optional() })
-  .describe('The basic config to be provided to the Manager module of ActivityRank');
-
-/**
- * @deprecated
- *
- * The keys to be provided to the Manager module of ActivityRank */
-export const managerKeys = z
-  .object({
-    /**The Discord ID of the bot*/
-    botId: z.string().describe('The Discord ID of the bot'),
-    /**The Discord Bot List API key*/
-    dblApiKey: z.string().describe('The Discord Bot List API key'),
-    /**The Patreon API token*/
-    patreonAccessToken: z.string().describe('The Patreon API token'),
-    /**The password required by the Manager API*/
-    managerApiAuth: z.string().describe('The password required by the Manager API'),
-    /**The host of the Manager DB*/
-    managerHost: z.string().describe('The host of the Manager DB'),
-    /**Properties concerning manager DB connections*/
-    managerDb: dbConnection.describe('Properties concerning manager DB connections'),
-    /**Properties concerning shard DB connections*/
-    shardDb: dbConnection.describe('Properties concerning shard DB connections'),
-  })
-  .describe('The keys to be provided to the Manager module of ActivityRank');
+  .describe('A record of bot emoji names to emoji IDs');
 
 // preset schemas
 export const bot = {
@@ -156,12 +147,6 @@ export const bot = {
   keys: botKeys,
   privileges,
   emojis,
-};
-
-/** @deprecated (use api instead) */
-export const manager = {
-  config: managerConfig,
-  keys: managerKeys,
 };
 
 export const api = {

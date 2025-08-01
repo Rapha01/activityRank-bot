@@ -5,27 +5,12 @@ import { configLoader, schemas } from '@activityrank/cfg';
 import type { EmojiNames } from './emoji.generated.js';
 
 export const isProduction = process.env.NODE_ENV === 'production';
-const loader = () =>
-  isProduction
-    ? configLoader()
-    : configLoader(process.env.CONFIG_PATH ?? `${import.meta.dirname}/../../../../config`);
+const loader = await configLoader();
 
-export const config = await loader().load({
-  name: 'config',
-  schema: schemas.bot.config,
-  secret: false,
-});
-export const keys = await loader().load({ name: 'keys', schema: schemas.bot.keys, secret: true });
-export const privileges = await loader().load({
-  name: 'privileges',
-  schema: schemas.bot.privileges,
-  secret: false,
-});
-export const emojiIds = await loader().load({
-  name: 'emoji',
-  schema: schemas.bot.emojis,
-  secret: false,
-});
+export const config = await loader.loadConfig('config', { schema: schemas.bot.config });
+export const keys = await loader.loadSecret('keys', { schema: schemas.bot.keys });
+export const privileges = await loader.loadConfig('privileges', { schema: schemas.bot.privileges });
+export const emojiIds = await loader.loadConfig('emoji', { schema: schemas.bot.emojis });
 
 export function emoji(name: EmojiNames) {
   const id = emojiIds[name];
