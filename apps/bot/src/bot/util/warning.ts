@@ -31,7 +31,7 @@ export async function warnGuild(guild: Guild, content: string) {
         flags: MessageFlags.IsComponentsV2,
       });
       success = true;
-    } catch (e) {
+    } catch (_e) {
       // TODO: consider logging here?
     }
   }
@@ -71,7 +71,7 @@ export async function warnGuild(guild: Guild, content: string) {
       flags: MessageFlags.IsComponentsV2,
     });
     success = true;
-  } catch (e) {
+  } catch (_e) {
     // TODO: consider logging here?
   }
 }

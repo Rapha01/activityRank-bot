@@ -5,13 +5,7 @@ import type {
   ContainerComponentData,
   Interaction,
 } from 'discord.js';
-import {
-  ButtonStyle,
-  ChannelType,
-  ComponentType,
-  MessageFlags,
-  PermissionFlagsBits,
-} from 'discord.js';
+import { ButtonStyle, ComponentType, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import type { TFunction } from 'i18next';
 import invariant from 'tiny-invariant';
 import { command } from '#bot/commands.js';

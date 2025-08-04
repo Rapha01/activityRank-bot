@@ -42,7 +42,7 @@ export function createManagerInstance(options: PoolOptions) {
    * If it fails, an error will be thrown.
    */
   async function testConnection(timeout = 2_000) {
-    const conn = await createConnection({ ...options, connectTimeout: 2_000 });
+    const conn = await createConnection({ ...options, connectTimeout: timeout });
     await conn.end();
   }
 

@@ -31,18 +31,6 @@ const intents = [
   // FLAGS.DIRECT_MESSAGE_TYPING,
 ];
 
-const sweepers = {
-  ...Options.DefaultSweeperSettings,
-  messages: {
-    interval: 300, // 5m
-    lifetime: 600, // 10m
-  },
-  invites: {
-    interval: 300, // 5m
-    lifetime: 600, // 10m
-  },
-};
-
 /**
  * Decide whether or not a member should be kept cached.
  * @param member the member to check if it will be kept cached

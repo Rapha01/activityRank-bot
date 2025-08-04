@@ -1,5 +1,5 @@
 import { DurationFormatter } from '@sapphire/duration';
-import { ApplicationCommandOptionType, AttachmentBuilder, EmbedBuilder, Status } from 'discord.js';
+import { AttachmentBuilder, EmbedBuilder, Status } from 'discord.js';
 import { command } from '#bot/commands.js';
 import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
 import { managerFetch } from '../../models/managerDb/managerDb.js';

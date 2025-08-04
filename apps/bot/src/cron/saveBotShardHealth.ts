@@ -24,7 +24,7 @@ function _save(client: Client) {
 export default async (shardManager: ShardingManager) => {
   //logger.debug('Saving shard health');
   const round = Math.round;
-  const nowDate = round(new Date().getTime() / 1000);
+  const nowDate = round(Date.now() / 1000);
   const shards = await shardManager.broadcastEval(_save);
 
   const ip = await publicIpv4();

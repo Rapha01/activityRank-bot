@@ -10,7 +10,6 @@ import {
   getRoleAssignmentMessages,
   runRoleUpdate,
 } from '#bot/levelManager.js';
-import fct from '../../util/fct.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 

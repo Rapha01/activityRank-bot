@@ -2,19 +2,16 @@ import type { ShardDB } from '@activityrank/database';
 import {
   type ActionRowData,
   type APIContainerComponent,
-  type APIMessageTopLevelComponent,
   ButtonStyle,
   type ChatInputCommandInteraction,
   ComponentType,
   type DiscordAPIError,
-  EmbedBuilder,
   type Guild,
   type InteractionEditReplyOptions,
   type MessageActionRowComponentData,
   type MessageComponentInteraction,
   MessageFlags,
   RESTJSONErrorCodes,
-  type TopLevelComponentData,
   time,
   type User,
 } from 'discord.js';
@@ -392,7 +389,7 @@ async function generateChannelCard(
 }
 
 async function getTopChannelStrings(
-  t: TFunction<'command-content'>,
+  _t: TFunction<'command-content'>,
   page: { from: number; to: number },
   guild: Guild,
   memberId: string,

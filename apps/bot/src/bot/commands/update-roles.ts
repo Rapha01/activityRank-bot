@@ -30,13 +30,13 @@ export const cancelQueue = new Set();
 
 export default command({
   name: 'update-roles',
-  async execute({ interaction, t }) {
+  async execute({ interaction }) {
     await interaction.deferReply();
 
     const lastUpdate = activeUpdates.get(interaction.guild.id);
     if (
       lastUpdate &&
-      (!lastUpdate.endedAt || new Date().getTime() - lastUpdate.endedAt.getTime() < Time.Hour * 4)
+      (!lastUpdate.endedAt || Date.now() - lastUpdate.endedAt.getTime() < Time.Hour * 4)
     ) {
       await interaction.followUp({
         components: [
@@ -143,7 +143,7 @@ function isNotThreadChannel(
 
 const run = component<{ members: Collection<string, GuildMember>; createHook: boolean }>({
   type: ComponentType.Button,
-  async callback({ interaction, data, t }) {
+  async callback({ interaction, data }) {
     await interaction.update({
       components: [
         container([

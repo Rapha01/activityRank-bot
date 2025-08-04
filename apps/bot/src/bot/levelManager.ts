@@ -61,11 +61,11 @@ export async function runRoleUpdate(
   newLevel: number,
   newRoles?: string[],
 ): Promise<void> {
-  newRoles ??= await getNewMemberRoles(member, newLevel);
-  const canAssign = await checkRolesAreAssignable(member, newLevel, newRoles);
+  const roles = newRoles ?? (await getNewMemberRoles(member, newLevel));
+  const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
   if (canAssign.ok) {
     try {
-      await member.roles.set(newRoles);
+      await member.roles.set(roles);
     } catch (err) {
       member.client.logger.warn(
         { err, memberId: member.id, guildId: member.guild.id, newLevel },

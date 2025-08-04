@@ -66,10 +66,10 @@ export class ClearCommand extends ConfigurableCommand2 {
       const guildsData = await Promise.all(
         [...localServers].map(
           async (id) =>
-            await api.guilds
-              .get(id)
-              .then((guild) => ({ success: true as const, id, guild }))
-              .catch((e) => ({ success: false as const, id })),
+            await api.guilds.get(id).then(
+              (guild) => ({ success: true as const, id, guild }),
+              () => ({ success: false as const, id }),
+            ),
         ),
       );
 

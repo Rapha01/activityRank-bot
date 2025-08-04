@@ -1,4 +1,4 @@
-import { type APIEmbed, ApplicationCommandOptionType, type Guild, time } from 'discord.js';
+import { type APIEmbed, type Guild, time } from 'discord.js';
 import outdent from 'outdent';
 import { command } from '#bot/commands.js';
 import { resolveMember } from '#bot/util/parser.js';

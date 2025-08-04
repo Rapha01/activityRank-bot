@@ -1,4 +1,4 @@
-import { type APIEmbed, PermissionFlagsBits } from 'discord.js';
+import { PermissionFlagsBits } from 'discord.js';
 import invariant from 'tiny-invariant';
 import { command } from '#bot/commands.js';
 import {
