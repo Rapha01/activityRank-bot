@@ -34,7 +34,7 @@ jobs:
       - name: Create and publish versions
         uses: changesets/action@v1
         with:
-          publish: "echo \"publishing\""
+          publish: "pnpm changeset publish"
           commit: "chore: update versions"
           title: "chore: update versions"
         env:
