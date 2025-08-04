@@ -1,17 +1,17 @@
+import type {
+  Client,
+  Collection,
+  Guild,
+  GuildBasedChannel,
+  GuildMember,
+  VoiceBasedChannel,
+} from 'discord.js';
 import fct from '../../util/fct.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import skip from '../skip.js';
 import statFlushCache from '../statFlushCache.js';
 import noXpUtil from '../util/noXpUtil.js';
-import type {
-  Guild,
-  Client,
-  VoiceBasedChannel,
-  Collection,
-  GuildMember,
-  GuildBasedChannel,
-} from 'discord.js';
 
 let minutesToAdd = 0;
 let leftover = 0;

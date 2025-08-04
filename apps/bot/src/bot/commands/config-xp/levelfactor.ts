@@ -1,7 +1,6 @@
-import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
-import { getGuildModel } from '../../models/guild/guildModel.js';
 import { command } from '#bot/commands.js';
 import { resetGuildCache } from '#bot/models/resetModel.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 
 export default command({
   name: 'config-xp levelfactor',

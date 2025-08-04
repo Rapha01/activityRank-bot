@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SerializableMap, type Serializable } from './serializableMap';
+import { type Serializable, SerializableMap } from './serializableMap';
 
 // Mock Serializable class
 class Key implements Serializable {

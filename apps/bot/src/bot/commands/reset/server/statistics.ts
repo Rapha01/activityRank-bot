@@ -6,10 +6,10 @@ import {
   PermissionFlagsBits,
 } from 'discord.js';
 import { command } from '#bot/commands.js';
-import { actionrow, useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildStatistics } from '#bot/models/resetModel.js';
+import { actionrow, useConfirm } from '#bot/util/component.js';
 import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
+import { requireUser } from '#bot/util/predicates.js';
 import { component } from '#bot/util/registry/component.js';
 
 type Table = 'textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus';

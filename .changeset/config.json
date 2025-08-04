@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "rapha01/activityRank-bot" }
+  ],
+  "commit": false,
+  "access": "restricted",
+  "baseBranch": "master",
+  "privatePackages": { "version": true, "tag": true }
+}

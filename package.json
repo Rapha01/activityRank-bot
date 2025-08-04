@@ -4,16 +4,12 @@
   "type": "module",
   "scripts": {
     "activityrank": "./apps/cli/src/index.ts",
-    "set-version": "./packages/scripts/setversion.mjs",
-    "lint": "biome lint",
-    "lint:write": "biome lint --write",
-    "format": "biome format",
-    "format:write": "biome format --write"
+    "check": "biome check",
+    "check:write": "biome check --write"
   },
   "workspaces": [
-    "apps/api",
-    "apps/bot",
-    "apps/cli"
+    "apps/*",
+    "packages/*"
   ],
   "contributors": [
     "@rapha01 (https://github.com/rapha01)",
@@ -21,10 +17,11 @@
     "the ActivityRank Contributors ❤️"
   ],
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "release-please": "^17.1.1",
+    "@biomejs/biome": "2.1.3",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.5",
     "syncpack": "^13.0.4",
     "turbo": "^2.5.5"
   },
-  "packageManager": "pnpm@10.12.1"
+  "packageManager": "pnpm@10.14.0"
 }

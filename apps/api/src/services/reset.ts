@@ -152,7 +152,7 @@ async function resetFullTable(
       } else {
         nextId = null;
       }
-    } catch (error) {
+    } catch {
       // If finding nextId fails, we don't know where we should continue resetting from -
       // if we pick [nextId + 1] we could be iterating for a long time before we get out of the
       // deadlocked space, and if we pick a higher offset we risk skipping guilds.

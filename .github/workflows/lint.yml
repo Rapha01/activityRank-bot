@@ -45,7 +45,7 @@ jobs:
         run: pnpm install
 
       - name: Check lints and formatting
-        run: pnpm lint && pnpm format
+        run: pnpm check
 
       - name: Check types with tsc
         run: pnpm exec turbo run --affected typecheck

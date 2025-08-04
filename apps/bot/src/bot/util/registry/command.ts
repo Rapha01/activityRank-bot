@@ -7,10 +7,10 @@ import type {
   ContextMenuCommandInteraction,
   User,
 } from 'discord.js';
-import { type InvalidPredicateCallback, Predicate } from './predicate.js';
-import { ensureI18nLoaded } from '../i18n.js';
 import type { TFunction } from 'i18next';
 import i18next from 'i18next';
+import { ensureI18nLoaded } from '../i18n.js';
+import { type InvalidPredicateCallback, Predicate } from './predicate.js';
 
 await ensureI18nLoaded();
 

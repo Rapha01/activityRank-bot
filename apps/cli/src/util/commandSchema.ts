@@ -1,4 +1,3 @@
-import { z } from 'zod/v4';
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
@@ -6,6 +5,7 @@ import {
   ChannelType,
   InteractionContextType,
 } from 'discord-api-types/v10';
+import { z } from 'zod/v4';
 
 function canParseBigInt(val: string): boolean {
   try {

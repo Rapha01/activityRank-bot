@@ -1,6 +1,6 @@
+import { z } from '@hono/zod-openapi';
 import { createInternalRoute } from '#util/routes.js';
 import { Error400, Error401, Error403 } from '#util/zod.js';
-import { z } from '@hono/zod-openapi';
 
 const responseSchema = z.object({
   stats: z.array(

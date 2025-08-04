@@ -1,28 +1,28 @@
 import {
-  type ComponentType,
+  ActionRow,
+  BaseSelectMenuComponent,
+  ButtonComponent,
   type ButtonInteraction,
   type ChannelSelectMenuInteraction,
+  type ComponentType,
+  ContainerComponent,
   type MentionableSelectMenuInteraction,
-  type RoleSelectMenuInteraction,
-  type StringSelectMenuInteraction,
-  type UserSelectMenuInteraction,
+  type MessageActionRowComponent,
   type MessageComponentInteraction,
   type ModalSubmitInteraction,
-  ButtonComponent,
-  BaseSelectMenuComponent,
-  ActionRow,
-  ContainerComponent,
-  type TopLevelComponent,
-  type MessageActionRowComponent,
+  type RoleSelectMenuInteraction,
   SectionComponent,
+  type StringSelectMenuInteraction,
   type ThumbnailComponent,
+  type TopLevelComponent,
+  type UserSelectMenuInteraction,
 } from 'discord.js';
-import { Predicate, type InvalidPredicateCallback, type PredicateCheck } from './predicate.js';
-import { nanoid } from 'nanoid';
-import { registry } from './registry.js';
-import i18n from 'i18next';
 import type { TFunction } from 'i18next';
+import i18n from 'i18next';
+import { nanoid } from 'nanoid';
 import invariant from 'tiny-invariant';
+import { type InvalidPredicateCallback, Predicate, type PredicateCheck } from './predicate.js';
+import { registry } from './registry.js';
 
 interface PredicateConfig<I extends ComponentInteraction> {
   validate: (interaction: I) => Predicate;

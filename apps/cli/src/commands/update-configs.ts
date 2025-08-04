@@ -1,9 +1,10 @@
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { schemas } from '@activityrank/cfg';
+import { configLoader, schemas } from '@activityrank/cfg';
 import * as p from '@clack/prompts';
 import { Command } from 'clipanion';
 import pc from 'picocolors';
+import invariant from 'tiny-invariant';
 import { z } from 'zod/v4';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import { findWorkspaceConfig } from '../util/loaders.ts';
@@ -21,28 +22,106 @@ export class UpdateConfigCommand extends ConfigurableCommand2 {
   });
 
   override async execute() {
+    p.intro();
     const configRoot = await findWorkspaceConfig();
 
-    const spin = p.spinner();
-    spin.start('Updating schema files...');
+    const keys = [
+      { file: 'config', schema: schemas.config },
+      { file: 'keys', schema: schemas.keys },
+      { file: 'privileges', schema: schemas.privileges },
+      { file: 'emoji', schema: schemas.emojis },
+    ];
 
-    await writeFile(
-      path.join(configRoot, 'config.schema.json'),
-      JSON.stringify(z.toJSONSchema(schemas.config)),
-    );
-    await writeFile(
-      path.join(configRoot, 'keys.schema.json'),
-      JSON.stringify(z.toJSONSchema(schemas.keys)),
-    );
-    await writeFile(
-      path.join(configRoot, 'privileges.schema.json'),
-      JSON.stringify(z.toJSONSchema(schemas.privileges)),
-    );
-    await writeFile(
-      path.join(configRoot, 'emoji.schema.json'),
-      JSON.stringify(z.toJSONSchema(schemas.emojis)),
-    );
+    for (const key of keys) {
+      // target `draft-7` because the most-used VSCode extension doesn't support `2020-12`
+      await writeFile(
+        path.join(configRoot, `${key.file}.schema.json`),
+        JSON.stringify(z.toJSONSchema(key.schema, { target: 'draft-7' })),
+      );
+    }
 
-    spin.stop(pc.green('✔︎ schema files updated'));
+    async function loadFile(
+      path: string,
+    ): Promise<{ exists: true; contents: string } | { exists: false }> {
+      try {
+        const contents = await readFile(path, 'utf-8');
+        return { exists: true, contents };
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code === 'ENOENT') {
+          return { exists: false };
+        }
+        throw e;
+      }
+    }
+
+    const loader = await configLoader();
+
+    const errors = [];
+    for (const key of keys) {
+      const exampleName = `${key.file}.example.json`;
+      const valueName = `${key.file}.json`;
+
+      const example = await loadFile(path.join(configRoot, exampleName));
+      const value = await loadFile(path.join(configRoot, valueName));
+
+      const files = [
+        [exampleName, example],
+        [valueName, value],
+      ] as const;
+
+      for (const [filename, file] of files) {
+        if (!file.exists) {
+          // some config files don't need .example schemas, so skip
+          continue;
+        }
+
+        const loaded = await loader.safeLoadString(file.contents, key.schema);
+        if (!loaded.ok) {
+          if (loaded.type === 'parserError') {
+            errors.push({ type: 'parserError', causes: loaded.causes, filename } as const);
+          } else if (loaded.type === 'zodError') {
+            errors.push({ type: 'zodError', cause: loaded.cause, filename } as const);
+          } else {
+            assertUnreachable(loaded);
+          }
+        }
+      }
+    }
+
+    // TODO: run Biome to format
+
+    p.log.message('schema files updated', { symbol: pc.green('✔︎') });
+
+    if (errors.length > 0) {
+      for (const error of errors) {
+        if (error.type === 'parserError') {
+          invariant(error.causes);
+          p.note(
+            error.causes.map((cause) => cause.toString()).join('\n\n---\n\n'),
+            pc.red(`Failed to parse ${error.filename} to JSON or TOML`),
+          );
+        } else if (error.type === 'zodError') {
+          invariant(error.cause);
+          p.note(
+            z.prettifyError(error.cause),
+            pc.red(`Failed to parse ${error.filename} to the schema`),
+          );
+        } else {
+          assertUnreachable(error);
+        }
+      }
+
+      p.cancel('Check your config files.');
+    } else {
+      p.outro('Config files match their schemas.');
+    }
+
+    // TODO: support TOML
   }
+}
+
+function assertUnreachable(_: never): never {
+  throw new TypeError(
+    'Reached an assertUnreachable() statement. This should never happen at runtime because TypeScript should check it.',
+  );
 }

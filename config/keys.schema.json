@@ -1,8 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://activityrank.me/_meta/bot/json-schema/keys.schema.json",
-  "title": "ActivityRank Bot Keys",
-  "description": "The keys to be provided to the Bot module of ActivityRank",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "botAuth": {
@@ -11,54 +8,46 @@
     },
     "botId": {
       "description": "The Discord ID of the bot",
+      "examples": [
+        "774660568728469585",
+        "1398036663078486047",
+        "905898879785005106"
+      ],
+      "allOf": [{ "$ref": "#/definitions/Snowflake" }]
+    },
+    "dblApiKey": {
+      "description": "The Discord Bot List API key",
+      "type": "string"
+    },
+    "patreonAccessToken": {
+      "description": "The Patreon API token",
       "type": "string"
     },
     "managerApiAuth": {
-      "description": "The password required by the Manager API",
+      "description": "The token required by the Manager API",
       "type": "string"
+    },
+    "managerApiHost": {
+      "description": "The host of the internal API",
+      "type": "string"
+    },
+    "managerApiPort": {
+      "description": "The port of the internal API",
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 65535
     },
     "managerHost": {
-      "description": "The host of the Manager API",
+      "description": "The host of the Manager Database",
       "type": "string"
-    },
-    "managerPort": {
-      "description": "The port of the Manager API",
-      "oneOf": [
-        {
-          "type": "number",
-          "minimumExclusive": 0,
-          "maximum": 65535
-        },
-        {
-          "type": "null"
-        }
-      ]
     },
     "managerDb": {
       "description": "Properties concerning manager DB connections",
-      "$ref": "#/$defs/dbConnection"
-    },
-    "shardDb": {
-      "description": "Properties concerning shard DB connections",
-      "$ref": "#/$defs/dbConnection"
-    }
-  },
-  "required": [
-    "botAuth",
-    "botId",
-    "managerApiAuth",
-    "managerHost",
-    "managerPort",
-    "managerDb",
-    "shardDb"
-  ],
-  "additionalProperties": false,
-  "$defs": {
-    "dbConnection": {
       "type": "object",
       "properties": {
         "dbUser": {
           "description": "The username to use while connecting to the database",
+          "example": "activityrank",
           "type": "string"
         },
         "dbPassword": {
@@ -67,11 +56,59 @@
         },
         "dbName": {
           "description": "The name of the database to connect to",
+          "example": "dbShard",
           "type": "string"
         }
       },
       "required": ["dbUser", "dbPassword", "dbName"],
       "additionalProperties": false
+    },
+    "shardDb": {
+      "description": "Properties concerning shard DB connections",
+      "type": "object",
+      "properties": {
+        "dbUser": {
+          "description": "The username to use while connecting to the database",
+          "example": "activityrank",
+          "type": "string"
+        },
+        "dbPassword": {
+          "description": "The password to use while connecting to the database",
+          "type": "string"
+        },
+        "dbName": {
+          "description": "The name of the database to connect to",
+          "example": "dbShard",
+          "type": "string"
+        }
+      },
+      "required": ["dbUser", "dbPassword", "dbName"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "botAuth",
+    "botId",
+    "dblApiKey",
+    "patreonAccessToken",
+    "managerApiAuth",
+    "managerApiHost",
+    "managerHost",
+    "managerDb",
+    "shardDb"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "Snowflake": {
+      "id": "Snowflake",
+      "description": "A Discord \"Snowflake\" (<https://discord.com/developers/docs/reference#snowflakes>), represented as a string.",
+      "examples": [
+        "774660568728469585",
+        "1398036663078486047",
+        "905898879785005106"
+      ],
+      "type": "string",
+      "pattern": "^\\d{17,20}$"
     }
   }
 }

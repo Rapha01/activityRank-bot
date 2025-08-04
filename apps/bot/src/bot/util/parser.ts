@@ -1,12 +1,12 @@
 import {
-  RESTJSONErrorCodes,
   type ChatInputCommandInteraction,
-  type GuildBasedChannel,
-  type Role,
-  type GuildMember,
   DiscordAPIError,
-  type Interaction,
   Guild,
+  type GuildBasedChannel,
+  type GuildMember,
+  type Interaction,
+  RESTJSONErrorCodes,
+  type Role,
   type User,
 } from 'discord.js';
 import { assertUnreachableUnsafe } from './typescript.js';

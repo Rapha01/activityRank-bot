@@ -10,16 +10,19 @@
     "@clack/prompts": "^0.9.1",
     "@discordjs/core": "^2.2.0",
     "@discordjs/rest": "^2.5.1",
+    "@pnpm/find-workspace-dir": "^1000.1.1",
     "clipanion": "4.0.0-rc.4",
     "execa": "^9.6.0",
     "mysql2": "^3.14.2",
     "picocolors": "^1.1.1",
     "smol-toml": "^1.4.1",
+    "tiny-invariant": "^1.3.3",
     "typanion": "^3.14.0",
     "zod": "^4.0.9"
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
+    "@types/node": "^24.1.0",
     "discord-api-types": "^0.37.120"
   }
 }

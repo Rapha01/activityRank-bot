@@ -1,5 +1,5 @@
-import { createPool, createConnection, type PoolOptions } from 'mysql2/promise';
 import { Kysely, MysqlDialect } from 'kysely';
+import { createConnection, createPool, type PoolOptions } from 'mysql2/promise';
 import type { ManagerDB } from './typings/manager.js';
 
 export function createManagerInstance(options: PoolOptions) {
@@ -42,7 +42,7 @@ export function createManagerInstance(options: PoolOptions) {
    * If it fails, an error will be thrown.
    */
   async function testConnection(timeout = 2_000) {
-    const conn = await createConnection({ ...options, connectTimeout: 2_000 });
+    const conn = await createConnection({ ...options, connectTimeout: timeout });
     await conn.end();
   }
 

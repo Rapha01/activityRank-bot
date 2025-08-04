@@ -1,21 +1,19 @@
-import { OpenAPIHono } from '@hono/zod-openapi';
-import { logger } from 'hono/logger';
-import { createFactory } from 'hono/factory';
 import { serve } from '@hono/node-server';
+import { OpenAPIHono } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
+import { Cron } from 'croner';
+import { createFactory } from 'hono/factory';
+import { logger } from 'hono/logger';
+import { apiRouter } from '#api.js';
+import { config, isProduction } from '#const/config.js';
 import { InternalAPIAuth } from '#middleware/auth.js';
 import { getShardStats } from '#models/botShardStatModel.js';
-
-import commands from './const/commands.js';
-import patchnotes from './const/patchnotes.js';
-import faqs from './const/faq.js';
-
-import { apiRouter } from '#api.js';
-import { Cron } from 'croner';
-import { config, isProduction } from '#const/config.js';
+import { runResetByTime } from '#services/reset.js';
 import { runPatreonTask } from '#services/tasks/patreon.js';
 import { runTopggTask } from '#services/tasks/topgg.js';
-import { runResetByTime } from '#services/reset.js';
+import commands from './const/commands.js';
+import faqs from './const/faq.js';
+import patchnotes from './const/patchnotes.js';
 
 const app = new OpenAPIHono();
 app.use(logger());

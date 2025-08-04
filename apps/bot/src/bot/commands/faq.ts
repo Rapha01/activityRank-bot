@@ -1,5 +1,5 @@
-import { command } from '#bot/commands.js';
 import { EmbedBuilder } from 'discord.js';
+import { command } from '#bot/commands.js';
 import { getTexts } from '#models/managerDb/textModel.js';
 import type { TextsFaqs } from '#models/types/external.js';
 

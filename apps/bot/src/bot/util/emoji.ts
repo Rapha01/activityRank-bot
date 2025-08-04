@@ -1,6 +1,6 @@
 import { formatEmoji } from 'discord.js';
 import { find as findEmoji } from 'node-emoji';
-import orderedEmoji from 'unicode-emoji-json/data-ordered-emoji.json' assert { type: 'json' };
+import orderedEmoji from 'unicode-emoji-json/data-ordered-emoji.json' with { type: 'json' };
 
 const validEmoji = new Set(orderedEmoji);
 

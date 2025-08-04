@@ -1,6 +1,6 @@
 import { createShardInstanceManager } from '@activityrank/database';
-import { manager } from './manager.js';
 import { keys } from '../const/config.js';
+import { manager } from './manager.js';
 
 export const shards = createShardInstanceManager(
   {

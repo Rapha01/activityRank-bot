@@ -1,7 +1,7 @@
 import { command } from '#bot/commands.js';
+import { getUserModel } from '#bot/models/userModel.js';
 import { MODERATOR_ONLY } from '#bot/util/predicates.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from '#bot/models/userModel.js';
 
 const user = command({
   name: 'blacklist user',

@@ -1,7 +1,7 @@
-import { event } from '#bot/util/registry/event.js';
 import { Events } from 'discord.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
+import { event } from '#bot/util/registry/event.js';
 
 export default event(Events.GuildMemberRemove, async (member) => {
   const cachedGuild = await getGuildModel(member.guild);

@@ -1,21 +1,21 @@
-import { event } from '#bot/util/registry/event.js';
-import { Events } from 'discord.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from '../models/userModel.js';
-import askForPremium from '../util/askForPremium.js';
 import {
-  type Interaction,
-  type AutocompleteInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
+  type AutocompleteInteraction,
   ButtonBuilder,
   ButtonStyle,
   type DiscordAPIError,
+  EmbedBuilder,
+  Events,
+  type Interaction,
   RESTJSONErrorCodes,
 } from 'discord.js';
 import outdent from 'outdent';
-import { config } from '#const/config.js';
+import { event } from '#bot/util/registry/event.js';
 import { registry } from '#bot/util/registry/registry.js';
+import { config } from '#const/config.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
+import { getUserModel } from '../models/userModel.js';
+import askForPremium from '../util/askForPremium.js';
 
 export default event(Events.InteractionCreate, async (interaction) => {
   try {

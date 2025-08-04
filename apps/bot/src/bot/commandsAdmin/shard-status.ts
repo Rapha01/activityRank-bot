@@ -1,7 +1,7 @@
+import { DurationFormatter } from '@sapphire/duration';
+import { AttachmentBuilder, EmbedBuilder, Status } from 'discord.js';
 import { command } from '#bot/commands.js';
 import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
-import { AttachmentBuilder, EmbedBuilder, Status, ApplicationCommandOptionType } from 'discord.js';
-import { DurationFormatter } from '@sapphire/duration';
 import { managerFetch } from '../../models/managerDb/managerDb.js';
 
 interface APIShard {

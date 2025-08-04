@@ -1,8 +1,8 @@
-import t from 'typanion';
-import type { RESTPutAPIApplicationGuildCommandsJSONBody } from 'discord-api-types/v10';
 import * as p from '@clack/prompts';
-import pc from 'picocolors';
 import { Command, Option } from 'clipanion';
+import type { RESTPutAPIApplicationGuildCommandsJSONBody } from 'discord-api-types/v10';
+import pc from 'picocolors';
+import t from 'typanion';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import { Deploy } from '../util/commandSchema.ts';
 
@@ -93,10 +93,10 @@ export class DeployCommand extends ConfigurableCommand2 {
       const guildsData = await Promise.all(
         [...localServers].map(
           async (id) =>
-            await api.guilds
-              .get(id)
-              .then((guild) => ({ success: true as const, id, guild }))
-              .catch((e) => ({ success: false as const, id })),
+            await api.guilds.get(id).then(
+              (guild) => ({ success: true as const, id, guild }),
+              () => ({ success: false as const, id }),
+            ),
         ),
       );
 

@@ -1,6 +1,6 @@
-import { event } from '#bot/util/registry/event.js';
 import { Events } from 'discord.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { event } from '#bot/util/registry/event.js';
 
 export default event(Events.GuildCreate, async (guild) => {
   guild.client.logger.info(`Joined guild ${guild.toString()}`);

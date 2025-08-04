@@ -1,6 +1,3 @@
-import fct from '../util/fct.js';
-import nameUtil from './util/nameUtil.js';
-import { getRoleModel } from './models/guild/guildRoleModel.js';
 import {
   ComponentType,
   type DiscordAPIError,
@@ -8,14 +5,17 @@ import {
   type GuildMember,
   type MessageCreateOptions,
   MessageFlags,
+  PermissionFlagsBits,
   RESTJSONErrorCodes,
   type Role,
 } from 'discord.js';
-import { PermissionFlagsBits } from 'discord.js';
-import { getGuildModel } from './models/guild/guildModel.js';
-import { getMemberModel } from './models/guild/guildMemberModel.js';
-import { emoji } from '#const/config.js';
 import invariant from 'tiny-invariant';
+import { emoji } from '#const/config.js';
+import fct from '../util/fct.js';
+import { getMemberModel } from './models/guild/guildMemberModel.js';
+import { getGuildModel } from './models/guild/guildModel.js';
+import { getRoleModel } from './models/guild/guildRoleModel.js';
+import nameUtil from './util/nameUtil.js';
 import { difference, symmetricDifference } from './util/typescript.js';
 import { warnGuild } from './util/warning.js';
 
@@ -38,12 +38,12 @@ export async function sendLevelupMessage(
   newLevel: number,
   newRoles?: string[],
 ): Promise<void> {
-  newRoles ??= await getNewMemberRoles(member, newLevel);
+  const roles = newRoles ?? (await getNewMemberRoles(member, newLevel));
   // TODO?: should we require roles to be assignable in
   //     ?  `sendLevelupMessage` or just in `runRoleUpdate`?
-  const canAssign = await checkRolesAreAssignable(member, newLevel, newRoles);
+  const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
   if (canAssign.ok) {
-    const messages = await getRoleAssignmentMessages(member, newRoles);
+    const messages = await getRoleAssignmentMessages(member, roles);
     await sendGratulationMessage(member, messages, newLevel);
   } else {
     // TODO: error handling
@@ -61,11 +61,11 @@ export async function runRoleUpdate(
   newLevel: number,
   newRoles?: string[],
 ): Promise<void> {
-  newRoles ??= await getNewMemberRoles(member, newLevel);
-  const canAssign = await checkRolesAreAssignable(member, newLevel, newRoles);
+  const roles = newRoles ?? (await getNewMemberRoles(member, newLevel));
+  const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
   if (canAssign.ok) {
     try {
-      await member.roles.set(newRoles);
+      await member.roles.set(roles);
     } catch (err) {
       member.client.logger.warn(
         { err, memberId: member.id, guildId: member.guild.id, newLevel },
@@ -300,7 +300,6 @@ async function checkRolesAreAssignable(
           roleId: role.id,
           description: 'This role has dangerous permissions that the bot refuses to assign.',
         });
-        // biome-ignore lint/correctness/noUnnecessaryContinue: keeping continue statement is clearer
         continue;
       }
     } else if (

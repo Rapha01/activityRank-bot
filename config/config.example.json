@@ -1,5 +1,4 @@
 {
-  "embedColor": "#01c3d9",
   "supportServer": {
     "id": "534598374985302027",
     "invite": "https://discordapp.com/invite/DE3eQ8H",
@@ -7,10 +6,9 @@
       { "tier": 1, "id": "734769115495137300" },
       { "tier": 2, "id": "1059900445759385650" },
       { "tier": 3, "id": "1059900590852944035" }
-    ],
-    "supportHook": ""
+    ]
   },
-  "invite": {
+  "invites": {
     "standard": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands%20applications.commands.permissions.update",
     "admin": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=8&scope=bot%20applications.commands%20applications.commands.permissions.update"
   },

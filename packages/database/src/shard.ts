@@ -1,7 +1,7 @@
-import { createPool, createConnection, type PoolOptions } from 'mysql2/promise';
 import { Kysely, MysqlDialect } from 'kysely';
-import type { ShardDB } from './typings/shard.js';
+import { createConnection, createPool, type PoolOptions } from 'mysql2/promise';
 import type { ManagerInstance } from './manager.js';
+import type { ShardDB } from './typings/shard.js';
 
 export function createShardInstanceManager(
   options: Omit<PoolOptions, 'host'>,
@@ -85,7 +85,7 @@ export function createShardInstance(options: PoolOptions) {
    * If it fails, an error will be thrown.
    */
   async function testConnection(timeout = 2_000) {
-    const conn = await createConnection({ ...options, connectTimeout: 2_000 });
+    const conn = await createConnection({ ...options, connectTimeout: timeout });
     await conn.end();
   }
 

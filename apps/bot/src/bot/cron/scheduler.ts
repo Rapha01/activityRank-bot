@@ -1,13 +1,12 @@
 import { Cron } from 'croner';
-import voiceXpRound from './voiceXpRound.js';
-import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
 import type { Client } from 'discord.js';
 import { config } from '#const/config.js';
+import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
+import voiceXpRound from './voiceXpRound.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
 const LOG_SHARD_DIAGNOSTICS_CRON = isProd ? '0 */10 * * * *' : '*/20 * * * * *';
-const logHighestGuildsInterval = isProd ? '0 */20 * * * *' : '*/20 * * * * *';
 const ASSIGN_PATREON_ROLES_CRON = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
 
 export const start = (client: Client) => {

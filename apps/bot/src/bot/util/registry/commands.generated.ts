@@ -1,20 +1,21 @@
 /* 🛠️ This file was generated with `activityrank generate` on Wed Jun 18 2025. */
 
-import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';
 import type {
   Attachment,
   AutocompleteInteraction,
+  ChannelType,
   ChatInputCommandInteraction,
   Client,
-  ChannelType,
   GuildChannel,
-  ThreadChannel,
   MessageContextMenuCommandInteraction,
   Role,
+  ThreadChannel,
   User,
   UserContextMenuCommandInteraction,
 } from 'discord.js';
 import type { TFunction } from 'i18next';
+import { Command, type CommandPredicateConfig, type OptionKey } from './command.js';
+
 type CommandReturn = Promise<void> | void;
 
 export function command(options: {

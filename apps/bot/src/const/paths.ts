@@ -1,5 +1,5 @@
-import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const rootDir = fileURLToPath(new URL('../..', import.meta.url));
 const distDir = join(rootDir, 'dist');

@@ -1,18 +1,18 @@
-import { command } from '#bot/commands.js';
 import {
   ButtonStyle,
   type ChatInputCommandInteraction,
   ComponentType,
   type GuildMember,
 } from 'discord.js';
+import type { TFunction } from 'i18next';
+import { command } from '#bot/commands.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { useConfirm } from '#bot/util/component.js';
+import { resolveMember } from '#bot/util/parser.js';
+import { requireUser } from '#bot/util/predicates.js';
+import fct from '../../util/fct.js';
 import { getMemberModel } from '../models/guild/guildMemberModel.js';
 import statFlushCache from '../statFlushCache.js';
-import fct from '../../util/fct.js';
-import { useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { resolveMember } from '#bot/util/parser.js';
-import type { TFunction } from 'i18next';
 
 export default command({
   name: 'inviter',

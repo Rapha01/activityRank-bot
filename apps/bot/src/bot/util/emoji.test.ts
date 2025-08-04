@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getEmoji, getNativeEmoji, emojiToString, parseEmojiString } from './emoji';
+import { emojiToString, getEmoji, getNativeEmoji, parseEmojiString } from './emoji';
 
 describe('getNativeEmoji', () => {
   it('should properly parse Unicode emojis without variant marks', () => {

@@ -1,13 +1,13 @@
-import { Cron } from 'croner';
-import saveBotShardHealth from './saveBotShardHealth.js';
-import fct from '../util/fct.js';
-import statFlush from '../models/shardDb/statFlush.js';
-import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
-import checkForDeadShards from './checkForDeadShards.js';
-import type { ShardingManager } from 'discord.js';
-import { updateTexts } from '#models/managerDb/textModel.js';
-import { isProduction } from '#const/config.js';
 import { Time } from '@sapphire/duration';
+import { Cron } from 'croner';
+import type { ShardingManager } from 'discord.js';
+import { isProduction } from '#const/config.js';
+import { updateTexts } from '#models/managerDb/textModel.js';
+import statFlush from '../models/shardDb/statFlush.js';
+import fct from '../util/fct.js';
+import checkForDeadShards from './checkForDeadShards.js';
+import checkQueuedShardRestarts from './checkQueuedShardRestarts.js';
+import saveBotShardHealth from './saveBotShardHealth.js';
 
 const UPDATE_TEXTS_INTERVAL = isProduction ? Time.Minute * 5 : Time.Second * 10;
 const SAVE_BOT_SHARD_HEALTH_INTERVAL = isProduction ? Time.Minute * 3 : Time.Second * 8;
@@ -17,7 +17,7 @@ const CHECK_QUEUED_SHARD_RESTARTS_INTERVAL = Time.Minute * 2;
 
 export async function start(manager: ShardingManager) {
   //startStatFlush(manager);
-  startUpdateTexts(manager);
+  startUpdateTexts();
   startSaveBotShardHealth(manager);
   startCheckForDeadShards(manager);
 
@@ -32,7 +32,7 @@ export async function start(manager: ShardingManager) {
   });
 }
 
-const startUpdateTexts = async (manager: ShardingManager) => {
+async function startUpdateTexts() {
   while (true) {
     try {
       await updateTexts();
@@ -40,31 +40,31 @@ const startUpdateTexts = async (manager: ShardingManager) => {
       console.log(e);
     }
 
-    await fct.sleep(UPDATE_TEXTS_INTERVAL).catch((e) => console.log(e));
+    await fct.sleep(UPDATE_TEXTS_INTERVAL);
   }
-};
+}
 
-const startSaveBotShardHealth = async (manager: ShardingManager) => {
+async function startSaveBotShardHealth(manager: ShardingManager) {
   while (true) {
     await saveBotShardHealth(manager).catch((e) => console.log(e));
-    await fct.sleep(SAVE_BOT_SHARD_HEALTH_INTERVAL).catch((e) => console.log(e));
+    await fct.sleep(SAVE_BOT_SHARD_HEALTH_INTERVAL);
   }
-};
+}
 
 const startCheckQueuedShardRestarts = async (manager: ShardingManager) => {
   while (true) {
-    await fct.sleep(CHECK_QUEUED_SHARD_RESTARTS_INTERVAL).catch((e) => console.log(e));
-
+    await fct.sleep(CHECK_QUEUED_SHARD_RESTARTS_INTERVAL);
     await checkQueuedShardRestarts(manager).catch((e) => console.log(e));
   }
 };
 
 const startCheckForDeadShards = async (manager: ShardingManager) => {
   while (true) {
-    await fct.sleep(CHECK_DEAD_SHARDS_INTERVAL).catch((e) => console.log(e));
+    await fct.sleep(CHECK_DEAD_SHARDS_INTERVAL);
 
-    if (isProduction || process.env.USE_DEAD_SHARDS === 'true')
+    if (isProduction || process.env.USE_DEAD_SHARDS === 'true') {
       await checkForDeadShards(manager).catch((e) => console.log(e));
+    }
   }
 };
 

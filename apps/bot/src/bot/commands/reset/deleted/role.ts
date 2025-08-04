@@ -4,7 +4,7 @@ import { shards } from '#models/shardDb/shardDb.js';
 
 export default command({
   name: 'reset deleted role',
-  async execute({ interaction, options, t }) {
+  async execute({ interaction, options }) {
     const roleId = options.id;
     if (!/^\d*$/.test(roleId)) {
       await interaction.reply({ content: 'Discord IDs are always numbers.', ephemeral: true });

@@ -1,22 +1,22 @@
 import {
-  ButtonStyle,
-  TextInputStyle,
-  PermissionFlagsBits,
-  type Interaction,
-  type ModalComponentData,
   type BaseMessageOptions,
-  type ContainerComponentData,
-  MessageFlags,
+  ButtonStyle,
   type ComponentInContainerData,
+  ComponentType,
+  type ContainerComponentData,
+  type Interaction,
+  MessageFlags,
+  type ModalComponentData,
+  PermissionFlagsBits,
+  TextInputStyle,
 } from 'discord.js';
-import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
-import { ComponentType } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { component, modal } from '#bot/util/registry/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { actionrow, container } from '#bot/util/component.js';
 import type { TFunction } from 'i18next';
 import invariant from 'tiny-invariant';
+import { command } from '#bot/commands.js';
+import { actionrow, container } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { component, modal } from '#bot/util/registry/component.js';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
 
 type ServerMessage =
   | 'serverJoinMessage'

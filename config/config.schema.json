@@ -1,55 +1,106 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
-  "$id": "https://activityrank.me/_meta/bot/json-schema/config.schema.json",
-  "title": "ActivityRank Bot Config",
-  "description": "The basic config to be provided to the Bot module of ActivityRank",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "embedColor": {
-      "oneOf": [
-        { "type": "string", "pattern": "^#?([a-f0-9]{6}|[a-f0-9]{3})$" },
-        { "type": "number", "minimum": 0, "maximum": 16777215 }
-      ]
-    },
     "supportServer": {
+      "description": "Details about the Support Server - like invite links and Premium roles",
+      "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "invite": { "type": "string" },
-        "supportHook": { "type": "string" },
+        "id": {
+          "description": "The Discord ID of the support server",
+          "examples": [
+            "774660568728469585",
+            "1398036663078486047",
+            "905898879785005106"
+          ],
+          "allOf": [{ "$ref": "#/definitions/Snowflake" }]
+        },
+        "invite": {
+          "description": "The Discord invite URL to add members to the support server",
+          "example": "https://discordapp.com/invite/DE3eQ8H",
+          "type": "string",
+          "format": "uri"
+        },
         "patreonRoles": {
+          "description": "A list of roles to give Patreon subscribers in the support server, and the corresponding tiers",
+          "example": "[{ id: \"774660568728469585\", tier: 1 }, { id: \"905898879785005106\", tier: 2 }]",
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "id": { "type": "string" },
-              "tier": { "type": "integer" }
-            }
+              "id": { "$ref": "#/definitions/Snowflake" },
+              "tier": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": ["id", "tier"],
+            "additionalProperties": false
           }
+        },
+        "supporterRole": {
+          "description": "The role to give members that have purchased a subscription in the support server.",
+          "example": "{ id: \"774660568728469585\" }",
+          "type": "object",
+          "properties": {
+            "id": { "allOf": [{ "$ref": "#/definitions/Snowflake" }] }
+          },
+          "additionalProperties": false
         }
       },
-      "required": ["id", "invite"],
+      "required": ["id", "invite", "patreonRoles"],
       "additionalProperties": false
     },
-    "invite": {
+    "invites": {
+      "title": "Links to invite the bot",
+      "description": "The Discord OAuth URLs to add the bot to a user's server.",
       "type": "object",
       "properties": {
-        "standard": { "type": "string" },
-        "admin": { "type": "string" }
+        "standard": {
+          "description": "The Discord OAuth URL to add the bot to a user's server with a minimal set of permissions.",
+          "type": "string",
+          "format": "uri"
+        },
+        "admin": {
+          "description": "The Discord OAuth URL to add the bot to a user's server with a larger set of permissions.",
+          "type": "string",
+          "format": "uri"
+        }
       },
+      "required": ["standard", "admin"],
       "additionalProperties": false
     },
     "disablePatreon": {
+      "description": "Whether to disable Patreon-related features like role updates and Patreon API queries.",
+      "default": false,
       "type": "boolean"
     },
     "developmentServers": {
-      "type": "array",
       "description": "The IDs of servers in which to register development commands",
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
+      "uniqueItems": true,
+      "type": "array",
+      "items": { "$ref": "#/definitions/Snowflake" }
     }
   },
+  "required": [
+    "supportServer",
+    "invites",
+    "disablePatreon",
+    "developmentServers"
+  ],
   "additionalProperties": false,
-  "required": ["developmentServers"]
+  "definitions": {
+    "Snowflake": {
+      "id": "Snowflake",
+      "description": "A Discord \"Snowflake\" (<https://discord.com/developers/docs/reference#snowflakes>), represented as a string.",
+      "examples": [
+        "774660568728469585",
+        "1398036663078486047",
+        "905898879785005106"
+      ],
+      "type": "string",
+      "pattern": "^\\d{17,20}$"
+    }
+  }
 }

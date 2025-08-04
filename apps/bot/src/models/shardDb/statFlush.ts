@@ -1,14 +1,14 @@
-import { shards } from './shardDb.js';
-import logger from '../../util/logger.js';
+import { inspect } from 'node:util';
 import type { ShardingManager } from 'discord.js';
 import type {
   StatFlushCache,
   StatFlushCacheChannelEntry,
   StatFlushCacheGuildEntry,
 } from '#bot/statFlushCache.js';
-import type { StatType } from '#models/types/enums.js';
-import { inspect } from 'node:util';
 import type { XpFlushCache } from '#bot/xpFlushCache.js';
+import type { StatType } from '#models/types/enums.js';
+import logger from '../../util/logger.js';
+import { shards } from './shardDb.js';
 
 export default async function (manager: ShardingManager) {
   const shardCaches = (await manager.fetchClientValues('statFlushCache')) as Record<
@@ -131,7 +131,7 @@ const getSql = <T extends StatType>(
     : Record<string, StatFlushCacheGuildEntry>,
 ) => {
   const sqls = [];
-  const now = Math.floor(new Date().getTime() / 1000);
+  const now = Math.floor(Date.now() / 1000);
 
   if (type === 'textMessage' || type === 'voiceMinute') {
     for (const entry in entries)
@@ -183,7 +183,6 @@ const getSql = <T extends StatType>(
 
 const getXpSql = (entries: XpFlushCache) => {
   const sqls = [];
-  const now = Math.floor(new Date().getTime() / 1000);
 
   const least = (s: string | number) => `LEAST(${MAX_STAT_COLUMN_VALUE},${s})`;
 

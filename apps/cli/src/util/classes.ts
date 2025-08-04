@@ -1,28 +1,28 @@
-import path from 'node:path';
 import fs from 'node:fs/promises';
-import { z } from 'zod/v4';
-import * as p from '@clack/prompts';
-import pc from 'picocolors';
-import { Command, Option, UsageError } from 'clipanion';
+import path from 'node:path';
 import { configLoader, schemas } from '@activityrank/cfg';
-import { REST } from '@discordjs/rest';
+import * as p from '@clack/prompts';
 import {
   API,
-  ApplicationCommandType,
   type APIApplicationCommandOption,
+  ApplicationCommandType,
   type RESTPutAPIApplicationGuildCommandsJSONBody,
 } from '@discordjs/core';
-import { walkUp } from '../util/walkUp.ts';
+import { REST } from '@discordjs/rest';
+import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
+import { Command, Option, UsageError } from 'clipanion';
+import pc from 'picocolors';
+import { z } from 'zod/v4';
 import {
   type chatInputCommandSchema,
   commandsSchema,
   type contextCommandSchema,
   Deploy,
+  type DeploymentMode,
   type subcommandGroupOptionSchema,
   type subcommandOptionSchema,
-  type DeploymentMode,
 } from './commandSchema.ts';
-import { findWorkspaceRoot, type BaseConfig } from './loaders.ts';
+import { type BaseConfig, findWorkspaceRoot } from './loaders.ts';
 
 export abstract class ConfigurableCommand2 extends Command {
   hideConfigPath = false;
@@ -64,12 +64,8 @@ export abstract class ConfigurableCommand2 extends Command {
   async loadBaseConfig(configDirPath?: string | undefined): Promise<BaseConfig> {
     const loader = await this.getConfigLoader(configDirPath);
 
-    const config = await loader.load({
-      name: 'config',
-      schema: schemas.bot.config,
-      secret: false,
-    });
-    const keys = await loader.load({ name: 'keys', schema: schemas.bot.keys, secret: true });
+    const config = await loader.loadConfig('config', { schema: schemas.bot.config });
+    const keys = await loader.loadSecret('keys', { schema: schemas.bot.keys });
 
     const rest = new REST();
     rest.setToken(keys.botAuth);
@@ -157,11 +153,7 @@ export abstract class ConfigurableCommand2 extends Command {
     };
 
     const loader = await this.getConfigLoader();
-    const commandData = await loader.load({
-      name: 'commands',
-      schema: commandsSchema,
-      devOnly: true,
-    });
+    const commandData = await loader.loadConfig('commands', { schema: commandsSchema });
 
     for (const command of commandData) {
       const description =
@@ -280,28 +272,8 @@ export class ConfigurableCommand extends Command {
   >;
   keys: z.infer<typeof schemas.bot.keys> = null as unknown as z.infer<typeof schemas.bot.keys>;
 
-  /**
-   * Walks up the directory tree, starting from the cwd, until it finds
-   * one that has a `package.json` file with a `"name"` of "@activityrank/monorepo".
-   */
   async findWorkspaceRoot() {
-    for (const dir of walkUp(process.cwd())) {
-      const checkFile = path.join(dir, 'package.json');
-
-      let json: object;
-      try {
-        const content = await fs.readFile(checkFile);
-        json = JSON.parse(content.toString());
-      } catch (e) {
-        continue;
-      }
-
-      if ('name' in json && json.name === '@activityrank/monorepo') {
-        return dir;
-      }
-    }
-
-    return null;
+    return (await findWorkspaceDir(process.cwd())) ?? null;
   }
 
   async findWorkspaceConfig() {
@@ -309,24 +281,16 @@ export class ConfigurableCommand extends Command {
     return root ? path.join(root, 'config') : null;
   }
 
-  async loadConfig(loader: ReturnType<typeof configLoader>) {
-    this.config = await loader.load({
-      name: 'config',
-      schema: schemas.bot.config,
-      secret: false,
-    });
-
-    this.keys = await loader.load({ name: 'keys', schema: schemas.bot.keys, secret: true });
+  async loadConfig(loader: Awaited<ReturnType<typeof configLoader>>) {
+    this.config = await loader.loadConfig('config', { schema: schemas.bot.config });
+    this.keys = await loader.loadSecret('keys', { schema: schemas.bot.keys });
   }
 
   async execute() {
     const spin = p.spinner();
     spin.start('Loading config...');
 
-    const loader = configLoader(
-      this.configPath ?? process.env.CONFIG_PATH ?? (await this.findWorkspaceConfig()),
-    );
-
+    const loader = await configLoader(this.configPath);
     await this.loadConfig(loader);
 
     spin.stop('Loaded config');
@@ -505,14 +469,10 @@ export class DiscordCommandManagementCommand extends ConfigurableCommand {
     return commands;
   }
 
-  override async loadConfig(loader: ReturnType<typeof configLoader>) {
+  override async loadConfig(loader: Awaited<ReturnType<typeof configLoader>>) {
     await super.loadConfig(loader);
-    this.jsonCommands = await loader.load({
-      name: 'commands',
-      schema: commandsSchema,
-      devOnly: true,
-    });
 
+    this.jsonCommands = await loader.loadConfig('commands', { schema: commandsSchema });
     this.commands = await this.getDeployableCommands();
   }
 }

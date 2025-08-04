@@ -1,13 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "The users that are able to use privileged commands",
+  "description": "A record of bot emoji names to emoji IDs",
   "type": "object",
-  "propertyNames": { "$ref": "#/definitions/Snowflake" },
-  "additionalProperties": {
-    "description": "The level of privilege the user should have",
-    "type": "string",
-    "enum": ["DEVELOPER", "MODERATOR", "HELPSTAFF"]
-  },
+  "propertyNames": { "type": "string" },
+  "additionalProperties": { "$ref": "#/definitions/Snowflake" },
   "definitions": {
     "Snowflake": {
       "id": "Snowflake",

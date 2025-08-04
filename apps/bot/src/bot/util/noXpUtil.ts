@@ -1,6 +1,6 @@
 import type { GuildMember, VoiceBasedChannel } from 'discord.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 
 export const noVoiceXp = async (member: GuildMember, channel: VoiceBasedChannel) => {
   if (member.user.bot) return true;

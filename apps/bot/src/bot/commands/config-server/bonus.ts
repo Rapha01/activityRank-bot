@@ -1,7 +1,7 @@
 import { PermissionFlagsBits } from 'discord.js';
-import { getGuildModel } from '../../models/guild/guildModel.js';
-import { parseEmojiString } from '#bot/util/emoji.js';
 import { command } from '#bot/commands.js';
+import { parseEmojiString } from '#bot/util/emoji.js';
+import { getGuildModel } from '../../models/guild/guildModel.js';
 
 export default command({
   name: 'config-server bonus',

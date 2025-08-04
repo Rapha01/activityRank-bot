@@ -3,11 +3,11 @@
   https://github.com/sapphiredev/examples/blob/main/examples/with-typescript-complete/src/commands/General/eval.ts
  */
 
-import { command } from '#bot/commands.js';
-import { DEVELOPER_ONLY } from '#bot/util/predicates.js';
 import { inspect } from 'node:util';
 import { codeBlock } from 'discord.js';
 import { outdent } from 'outdent';
+import { command } from '#bot/commands.js';
+import { DEVELOPER_ONLY } from '#bot/util/predicates.js';
 
 export default command({
   predicate: DEVELOPER_ONLY,

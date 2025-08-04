@@ -1,6 +1,6 @@
-import { shards } from './shard.js';
-import { manager } from './manager.js';
 import type { ShardDB } from '@activityrank/database';
+import { manager } from './manager.js';
+import { shards } from './shard.js';
 
 let defaultAll: ShardDB.User | null = null;
 

@@ -1,16 +1,16 @@
-import fct from '../../util/fct.js';
+import { Time } from '@sapphire/duration';
 import {
-  type Entitlement,
-  time,
   type BaseMessageOptions,
   type ChatInputCommandInteraction,
+  type Entitlement,
+  time,
 } from 'discord.js';
-import { Time } from '@sapphire/duration';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { isPrivileged } from '#const/config.js';
 import { getMemberModel } from '#bot/models/guild/guildMemberModel.js';
-import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { RESET_GUILD_IDS } from '#bot/models/resetModel.js';
+import { isPrivileged } from '#const/config.js';
+import fct from '../../util/fct.js';
+import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 import type { PartiallyRequired } from './typescript.js';
 
 const premiumLowersCooldownMessage = `You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it [on our Patreon](<${PATREON_URL}>).`;

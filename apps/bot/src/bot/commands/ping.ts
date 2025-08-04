@@ -1,5 +1,5 @@
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { command } from '#bot/commands.js';
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { config, isProduction } from '#const/config.js';
 
 export default command({
