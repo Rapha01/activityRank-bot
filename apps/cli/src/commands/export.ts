@@ -62,14 +62,11 @@ export class ExportCommand extends ConfigurableCommand2 {
     }
 
     let outputStream: Writable;
-    let outputDisplay: string;
 
     if (!this.output || this.output.trim() === '-') {
       outputStream = process.stdout;
-      outputDisplay = 'stdout';
     } else {
       outputStream = createWriteStream(this.output);
-      outputDisplay = this.output;
     }
 
     const entries = await this.loadDatabaseEntries(this.guildId, keys);

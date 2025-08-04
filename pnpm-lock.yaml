@@ -217,6 +217,9 @@ importers:
       '@discordjs/rest':
         specifier: ^2.5.1
         version: 2.5.1
+      '@pnpm/find-workspace-dir':
+        specifier: ^1000.1.1
+        version: 1000.1.1
       clipanion:
         specifier: 4.0.0-rc.4
         version: 4.0.0-rc.4(typanion@3.14.0)
@@ -245,6 +248,9 @@ importers:
       '@activityrank/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.1.0
       discord-api-types:
         specifier: ^0.37.120
         version: 0.37.120
@@ -3567,7 +3573,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 24.1.0
+      '@types/node': 22.16.5
       '@types/responselike': 1.0.3
 
   '@types/estree@1.0.8': {}
@@ -3594,11 +3600,11 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 24.1.0
+      '@types/node': 22.16.5
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 24.1.0
+      '@types/node': 22.16.5
 
   '@unhead/schema@1.11.20':
     dependencies:

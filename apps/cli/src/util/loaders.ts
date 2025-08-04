@@ -1,37 +1,20 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { configLoader, schemas } from '@activityrank/cfg';
 import type { API } from '@discordjs/core';
+import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 import { UsageError } from 'clipanion';
 import pc from 'picocolors';
 import type { z } from 'zod/v4';
-import { walkUp } from '../util/walkUp.ts';
 
-/**
- * Walks up the directory tree, starting from the cwd, until it finds
- * one that has a `package.json` file with a `"name"` of "@activityrank/monorepo".
- */
 export async function findWorkspaceRoot(errorMessage?: string) {
-  for (const dir of walkUp(process.cwd())) {
-    const checkFile = path.join(dir, 'package.json');
-
-    let json: object;
-    try {
-      const content = await fs.readFile(checkFile);
-      json = JSON.parse(content.toString());
-    } catch (e) {
-      continue;
-    }
-
-    if ('name' in json && json.name === '@activityrank/monorepo') {
-      return dir;
-    }
+  const workspaceDir = await findWorkspaceDir(process.cwd());
+  if (!workspaceDir) {
+    throw new UsageError(
+      errorMessage ??
+        `Could not find the root of the ${pc.cyan('activityrank')} monorepo. Provide a config path via the ${pc.cyan('--config')} flag or the ${pc.cyan('CONFIG_PATH')} environment variable.`,
+    );
   }
-
-  throw new UsageError(
-    errorMessage ??
-      `Could not find the root of the ${pc.cyan('activityrank')} monorepo. Provide a config path via the ${pc.cyan('--config')} flag or the ${pc.cyan('CONFIG_PATH')} environment variable.`,
-  );
+  return workspaceDir;
 }
 
 export async function findWorkspaceConfig() {

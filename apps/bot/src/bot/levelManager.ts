@@ -38,12 +38,12 @@ export async function sendLevelupMessage(
   newLevel: number,
   newRoles?: string[],
 ): Promise<void> {
-  newRoles ??= await getNewMemberRoles(member, newLevel);
+  const roles = newRoles ?? (await getNewMemberRoles(member, newLevel));
   // TODO?: should we require roles to be assignable in
   //     ?  `sendLevelupMessage` or just in `runRoleUpdate`?
-  const canAssign = await checkRolesAreAssignable(member, newLevel, newRoles);
+  const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
   if (canAssign.ok) {
-    const messages = await getRoleAssignmentMessages(member, newRoles);
+    const messages = await getRoleAssignmentMessages(member, roles);
     await sendGratulationMessage(member, messages, newLevel);
   } else {
     // TODO: error handling

@@ -9,10 +9,10 @@ import {
   type RESTPutAPIApplicationGuildCommandsJSONBody,
 } from '@discordjs/core';
 import { REST } from '@discordjs/rest';
+import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 import { Command, Option, UsageError } from 'clipanion';
 import pc from 'picocolors';
 import { z } from 'zod/v4';
-import { walkUp } from '../util/walkUp.ts';
 import {
   type chatInputCommandSchema,
   commandsSchema,
@@ -272,28 +272,8 @@ export class ConfigurableCommand extends Command {
   >;
   keys: z.infer<typeof schemas.bot.keys> = null as unknown as z.infer<typeof schemas.bot.keys>;
 
-  /**
-   * Walks up the directory tree, starting from the cwd, until it finds
-   * one that has a `package.json` file with a `"name"` of "@activityrank/monorepo".
-   */
   async findWorkspaceRoot() {
-    for (const dir of walkUp(process.cwd())) {
-      const checkFile = path.join(dir, 'package.json');
-
-      let json: object;
-      try {
-        const content = await fs.readFile(checkFile);
-        json = JSON.parse(content.toString());
-      } catch (e) {
-        continue;
-      }
-
-      if ('name' in json && json.name === '@activityrank/monorepo') {
-        return dir;
-      }
-    }
-
-    return null;
+    return (await findWorkspaceDir(process.cwd())) ?? null;
   }
 
   async findWorkspaceConfig() {
