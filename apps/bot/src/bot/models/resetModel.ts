@@ -11,6 +11,7 @@ import { sql } from 'kysely';
 import { sleep } from '#util/fct.js';
 import { logger } from '#bot/util/logger.js';
 import { nanoid } from 'nanoid';
+import { outdent } from 'outdent';
 
 export const RESET_JOBS: Set<ResetJob> = new Set();
 export const RESET_GUILD_IDS: Set<string> = new Set();
@@ -285,12 +286,11 @@ export function renderProgressBar(maybeFraction: number): string {
   // the filled bar is green if it's done, otherwise yellow
   const firstColor = percent > 99 ? '32' : '33';
 
-  return (
-    // biome-ignore lint/style/useTemplate: convenience
-    '```ansi\n' +
-    `${ESC}[1;${firstColor}m${'='.repeat(filled)}${ESC}[30m${'-'.repeat(empty)}${ESC}[0m | ${ESC}[1;36m${percent}%` +
-    '\n```'
-  );
+  return outdent`
+    \`\`\`ansi
+    ${ESC}[1;${firstColor}m${'='.repeat(filled)}${ESC}[30m${'-'.repeat(empty)}${ESC}[0m | ${ESC}[1;36m${percent}%
+    \`\`\`
+  `;
 }
 
 export class ResetGuildSettings extends ResetJob {

@@ -300,7 +300,6 @@ async function checkRolesAreAssignable(
           roleId: role.id,
           description: 'This role has dangerous permissions that the bot refuses to assign.',
         });
-        // biome-ignore lint/correctness/noUnnecessaryContinue: keeping continue statement is clearer
         continue;
       }
     } else if (

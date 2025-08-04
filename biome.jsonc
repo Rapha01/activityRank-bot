@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,16 +7,14 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["package.json", "CHANGELOG.md"]
+    "includes": ["**", "!**/package.json", "!**/CHANGELOG.md"]
   },
   "formatter": {
     "enabled": true,
     "useEditorconfig": true,
     "indentStyle": "space"
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -31,6 +29,10 @@
       "performance": {
         // not important enough to be concerned about
         "noAccumulatingSpread": "off"
+      },
+      "complexity": {
+        // usually improves clarity
+        "noUselessContinue": "off"
       }
     }
   },
@@ -42,7 +44,7 @@
   },
   "overrides": [
     {
-      "include": ["*.test.ts", "*.spec.ts"],
+      "includes": ["**/*.test.ts", "**/*.spec.ts"],
       "linter": {
         "rules": {
           "style": {
