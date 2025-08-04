@@ -1,15 +1,15 @@
-import { z } from 'zod/v4';
-import * as t from 'typanion';
-import pc from 'picocolors';
+import { configLoader } from '@activityrank/cfg';
 import { Command, Option, UsageError } from 'clipanion';
-import { DiscordCommandManagementCommand } from '../util/classes.ts';
 import {
-  ApplicationCommandOptionType,
-  ChannelType,
   type APIApplicationCommand,
   type APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+  ChannelType,
 } from 'discord-api-types/v10';
-import { configLoader } from '@activityrank/cfg';
+import pc from 'picocolors';
+import * as t from 'typanion';
+import { z } from 'zod/v4';
+import { DiscordCommandManagementCommand } from '../util/classes.ts';
 
 const snowflakeSchema = z.string().regex(/^\d{17,20}$/);
 
@@ -75,7 +75,7 @@ export class CommandsCommand extends DiscordCommandManagementCommand {
       return `${indent}[SUBCOMMAND GROUP ${option.name}]`;
     }
 
-    let numberRange: string | undefined = undefined;
+    let numberRange: string | undefined;
     if (
       option.type === ApplicationCommandOptionType.Integer ||
       option.type === ApplicationCommandOptionType.Number

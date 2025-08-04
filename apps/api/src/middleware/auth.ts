@@ -15,10 +15,10 @@
 
 import { subtle } from 'node:crypto';
 import { createMiddleware } from 'hono/factory';
+import { keys } from '#const/config.js';
 import { getGuildHost } from '#models/guildRouteModel.js';
 import { shards } from '#models/shard.js';
 import { JSONHTTPException } from '#util/errors.js';
-import { keys } from '#const/config.js';
 
 const PREFIX = 'Bearer';
 const HEADER = 'Authorization';

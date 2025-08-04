@@ -1,6 +1,6 @@
+import type { ShardingManager } from 'discord.js';
 import { manager } from '../models/managerDb/managerDb.js';
 import logger from '../util/logger.js';
-import type { ShardingManager } from 'discord.js';
 
 export default async (shardManager: ShardingManager) => {
   const res = await manager.db

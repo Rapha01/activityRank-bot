@@ -1,13 +1,13 @@
-import { hasPrivilege, privileges, type PrivilegeLevel } from '#const/config.js';
-import type { CommandPredicateConfig } from './registry/command.js';
-import { Predicate } from './registry/predicate.js';
 import type {
   ChatInputCommandInteraction,
   ContextMenuCommandInteraction,
   GuildMember,
   User,
 } from 'discord.js';
+import { hasPrivilege, type PrivilegeLevel, privileges } from '#const/config.js';
+import type { CommandPredicateConfig } from './registry/command.js';
 import type { ComponentPredicateConfig } from './registry/component.js';
+import { Predicate } from './registry/predicate.js';
 
 function userHasPrivilege(user: User, privilege: PrivilegeLevel): Predicate {
   const userPrivileges = privileges[user.id];

@@ -1,13 +1,19 @@
-import { Client, Options, GatewayIntentBits, Partials, type GuildMember } from 'discord.js';
-import fct from '../util/fct.js';
-import loggerManager from './util/logger.js';
-import globalLogger from '../util/logger.js';
-import { ActivityType } from 'discord.js';
-import { updateTexts } from '#models/managerDb/textModel.js';
-import { memberCache } from './models/guild/guildMemberModel.js';
 import { Time } from '@sapphire/duration';
-import { registry } from './util/registry/registry.js';
+import {
+  ActivityType,
+  Client,
+  GatewayIntentBits,
+  type GuildMember,
+  Options,
+  Partials,
+} from 'discord.js';
+import { updateTexts } from '#models/managerDb/textModel.js';
+import fct from '../util/fct.js';
+import globalLogger from '../util/logger.js';
+import { memberCache } from './models/guild/guildMemberModel.js';
 import { ensureI18nLoaded } from './util/i18n.js';
+import loggerManager from './util/logger.js';
+import { registry } from './util/registry/registry.js';
 
 const intents = [
   GatewayIntentBits.Guilds,

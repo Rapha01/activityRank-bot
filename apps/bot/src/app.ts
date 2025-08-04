@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
+import { ShardingManager } from 'discord.js';
+import { keys } from '#const/config.js';
 import scheduler from './cron/scheduler.js';
 import fct from './util/fct.js';
-import { ShardingManager } from 'discord.js';
 import logger from './util/logger.js';
-import { keys } from '#const/config.js';
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production')
   process.env.NODE_ENV = 'development';

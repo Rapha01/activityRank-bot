@@ -1,14 +1,14 @@
-import { shards } from './shardDb.js';
-import logger from '../../util/logger.js';
+import { inspect } from 'node:util';
 import type { ShardingManager } from 'discord.js';
 import type {
   StatFlushCache,
   StatFlushCacheChannelEntry,
   StatFlushCacheGuildEntry,
 } from '#bot/statFlushCache.js';
-import type { StatType } from '#models/types/enums.js';
-import { inspect } from 'node:util';
 import type { XpFlushCache } from '#bot/xpFlushCache.js';
+import type { StatType } from '#models/types/enums.js';
+import logger from '../../util/logger.js';
+import { shards } from './shardDb.js';
 
 export default async function (manager: ShardingManager) {
   const shardCaches = (await manager.fetchClientValues('statFlushCache')) as Record<

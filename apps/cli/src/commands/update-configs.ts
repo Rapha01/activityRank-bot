@@ -1,13 +1,13 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { schemas, configLoader } from '@activityrank/cfg';
+import { configLoader, schemas } from '@activityrank/cfg';
 import * as p from '@clack/prompts';
 import { Command } from 'clipanion';
 import pc from 'picocolors';
+import invariant from 'tiny-invariant';
 import { z } from 'zod/v4';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import { findWorkspaceConfig } from '../util/loaders.ts';
-import invariant from 'tiny-invariant';
 
 export class UpdateConfigCommand extends ConfigurableCommand2 {
   override hideConfigPath = true;

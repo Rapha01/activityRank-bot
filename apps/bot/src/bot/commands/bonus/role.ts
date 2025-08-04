@@ -1,20 +1,20 @@
-import statFlushCache from '../../statFlushCache.js';
-import outdent from 'outdent';
+import { Time } from '@sapphire/duration';
+import { DiscordSnowflake } from '@sapphire/snowflake';
 import {
+  type ChatInputCommandInteraction,
+  type Client,
   Events,
   GatewayOpcodes,
-  type ChatInputCommandInteraction,
-  type Role,
-  type Client,
-  type InteractionEditReplyOptions,
-  type GuildMember,
   type Guild,
+  type GuildMember,
+  type InteractionEditReplyOptions,
   type ReadonlyCollection,
+  type Role,
 } from 'discord.js';
-import { DiscordSnowflake } from '@sapphire/snowflake';
-import { command } from '#bot/commands.js';
-import { Time } from '@sapphire/duration';
 import type { TFunction } from 'i18next';
+import outdent from 'outdent';
+import { command } from '#bot/commands.js';
+import statFlushCache from '../../statFlushCache.js';
 
 export const currentJobs = new Set();
 

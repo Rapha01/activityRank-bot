@@ -1,12 +1,12 @@
-import { PermissionFlagsBits, type APIEmbed } from 'discord.js';
+import { type APIEmbed, PermissionFlagsBits } from 'discord.js';
+import invariant from 'tiny-invariant';
+import { command } from '#bot/commands.js';
 import {
-  fetchRoleAssignmentsByLevel,
   fetchRoleAssignmentByRole,
+  fetchRoleAssignmentsByLevel,
   getRoleModel,
 } from '#bot/models/guild/guildRoleModel.js';
 import nameUtil from '../../util/nameUtil.js';
-import { command } from '#bot/commands.js';
-import invariant from 'tiny-invariant';
 
 export default command({
   name: 'config-role levels',

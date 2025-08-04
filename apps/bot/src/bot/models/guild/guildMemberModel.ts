@@ -1,9 +1,9 @@
 import type { ShardDB } from '@activityrank/database';
-import { shards } from '../../../models/shardDb/shardDb.js';
 import type { Guild, GuildMember } from 'discord.js';
-import { getGuildModel } from './guildModel.js';
-import { fetchMemberTotalXp } from '../rankModel.js';
+import { shards } from '../../../models/shardDb/shardDb.js';
 import { CachedModel } from '../generic/model.js';
+import { fetchMemberTotalXp } from '../rankModel.js';
+import { getGuildModel } from './guildModel.js';
 
 const cachedFields = [
   'notifyLevelupDm',

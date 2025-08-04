@@ -1,8 +1,7 @@
 import { readFile } from 'node:fs/promises';
-import { packageFile } from './paths.js';
-
 import { configLoader, schemas } from '@activityrank/cfg';
 import type { EmojiNames } from './emoji.generated.js';
+import { packageFile } from './paths.js';
 
 export const isProduction = process.env.NODE_ENV === 'production';
 const loader = await configLoader();

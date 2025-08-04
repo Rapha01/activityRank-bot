@@ -1,40 +1,40 @@
-import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
+import { Time } from '@sapphire/duration';
+import {
+  type ActionRowData,
+  type APIEmbed,
+  ButtonStyle,
+  ChannelType,
+  type ChatInputCommandInteraction,
+  ComponentType,
+  type DiscordAPIError,
+  type Guild,
+  type GuildChannel,
+  type InteractionEditReplyOptions,
+  type MessageActionRowComponentData,
+  type MessageComponentInteraction,
+  RESTJSONErrorCodes,
+  time,
+} from 'discord.js';
+import { command } from '#bot/commands.js';
 import {
   getChannelMemberRanks,
   getChannelRanks,
   getGuildMemberRanks,
 } from '#bot/models/rankModel.js';
-import fct, { type Pagination } from '../../util/fct.js';
-import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import { getChannelMention, getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
-import {
-  ButtonStyle,
-  ChannelType,
-  RESTJSONErrorCodes,
-  ComponentType,
-  type DiscordAPIError,
-  type MessageComponentInteraction,
-  type ChatInputCommandInteraction,
-  type Guild,
-  type InteractionEditReplyOptions,
-  type GuildChannel,
-  type ActionRowData,
-  type MessageActionRowComponentData,
-  time,
-  type APIEmbed,
-} from 'discord.js';
-import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
-import { command } from '#bot/commands.js';
-import { Time } from '@sapphire/duration';
-import { assertUnreachable } from '#bot/util/typescript.js';
 import { actionrow } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 import {
-  component,
   ComponentKey,
   type ComponentPredicateConfig,
+  component,
 } from '#bot/util/registry/component.js';
-import { requireUser } from '#bot/util/predicates.js';
+import { assertUnreachable } from '#bot/util/typescript.js';
 import { emoji } from '#const/config.js';
+import { type StatTimeInterval, type StatType, statTimeIntervals } from '#models/types/enums.js';
+import fct, { type Pagination } from '../../util/fct.js';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import { getChannelMention, getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
 
 const _prettifyTime = {
   day: 'Today',

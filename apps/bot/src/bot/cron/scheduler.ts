@@ -1,8 +1,8 @@
 import { Cron } from 'croner';
-import voiceXpRound from './voiceXpRound.js';
-import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
 import type { Client } from 'discord.js';
 import { config } from '#const/config.js';
+import autoAssignPatreonRoles from './autoAssignPatreonRoles.js';
+import voiceXpRound from './voiceXpRound.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 

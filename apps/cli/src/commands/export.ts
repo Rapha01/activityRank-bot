@@ -1,14 +1,14 @@
-import t from 'typanion';
-import pc from 'picocolors';
-import * as p from '@clack/prompts';
-import TOML from 'smol-toml';
-import { createConnection, type RowDataPacket } from 'mysql2/promise';
-import { Command, Option, UsageError } from 'clipanion';
-import type { Writable } from 'node:stream';
 import { createWriteStream } from 'node:fs';
+import type { Writable } from 'node:stream';
+import * as p from '@clack/prompts';
+import type { API } from '@discordjs/core';
+import { Command, Option, UsageError } from 'clipanion';
+import { createConnection, type RowDataPacket } from 'mysql2/promise';
+import pc from 'picocolors';
+import TOML from 'smol-toml';
+import t from 'typanion';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import type { BaseConfig } from '../util/loaders.ts';
-import type { API } from '@discordjs/core';
 
 const FORMATS = ['table', 'csv', 'json', 'toml'] as const;
 type OutputFormat = (typeof FORMATS)[number];

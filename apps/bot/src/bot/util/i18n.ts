@@ -1,6 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import i18next, { type CustomTypeOptions } from 'i18next';
 import Backend, { type FsBackendOptions } from 'i18next-fs-backend';
-import { fileURLToPath } from 'node:url';
 
 export const createConjunctionListFormatter = (locale: string) =>
   new Intl.ListFormat([locale, 'en-US'], { style: 'long', type: 'conjunction' });

@@ -1,15 +1,15 @@
-import { ApplicationCommandOptionType, time, type APIEmbed, type Guild } from 'discord.js';
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from '../models/userModel.js';
-import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
-import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import { type APIEmbed, ApplicationCommandOptionType, type Guild, time } from 'discord.js';
 import outdent from 'outdent';
-import fct from '../../util/fct.js';
-import { shards } from '#models/shardDb/shardDb.js';
 import { command } from '#bot/commands.js';
 import { resolveMember } from '#bot/util/parser.js';
 import { emoji } from '#const/config.js';
+import { shards } from '#models/shardDb/shardDb.js';
+import fct from '../../util/fct.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
+import { getUserModel } from '../models/userModel.js';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
 
 export default command({
   name: 'memberinfo',

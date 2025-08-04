@@ -1,6 +1,6 @@
+import { z } from '@hono/zod-openapi';
 import { createPublicAuthRoute } from '#util/routes.js';
 import { zInt, zSnowflake } from '#util/zod.js';
-import { z } from '@hono/zod-openapi';
 
 const params = z
   .object({ guildId: zSnowflake, userId: zSnowflake })

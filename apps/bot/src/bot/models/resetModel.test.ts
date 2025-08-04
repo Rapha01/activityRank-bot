@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderProgressBar, ResetGuildSettings, ResetStatus } from './resetModel';
 import type { ChatInputCommandInteraction, Guild } from 'discord.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ResetGuildSettings, ResetStatus, renderProgressBar } from './resetModel';
 
 describe('ResetJob', () => {
   it('should initialize ResetGuildSettings correctly', () => {

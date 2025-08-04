@@ -1,9 +1,9 @@
-import path from 'node:path';
 import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
-import { z } from 'zod/v4';
-import { parse as parseToml, TomlError } from 'smol-toml';
 import parseJson, { JSONError } from 'parse-json';
+import { parse as parseToml, TomlError } from 'smol-toml';
+import { z } from 'zod/v4';
 import * as schemas from './schemas.js';
 
 type LoadOptions<T extends z.ZodTypeAny> = {

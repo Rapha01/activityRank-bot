@@ -1,12 +1,12 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { command } from '#bot/commands.js';
-import { useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
 import {
   fetchDeletedChannelIds,
-  resetGuildChannelsSettings,
   ResetGuildChannelsStatistics,
+  resetGuildChannelsSettings,
 } from '#bot/models/resetModel.js';
+import { useConfirm } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
 
 export default command({
   name: 'reset deleted channels',

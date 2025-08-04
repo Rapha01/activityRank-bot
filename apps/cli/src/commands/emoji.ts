@@ -1,12 +1,12 @@
+import { createWriteStream } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join as joinPath } from 'node:path';
+import type { Writable } from 'node:stream';
+import * as p from '@clack/prompts';
+import { Command, Option } from 'clipanion';
+import pc from 'picocolors';
 import TOML from 'smol-toml';
 import { z } from 'zod/v4';
-import * as p from '@clack/prompts';
-import pc from 'picocolors';
-import { Command, Option } from 'clipanion';
-import { readFile, writeFile } from 'node:fs/promises';
-import type { Writable } from 'node:stream';
-import { createWriteStream } from 'node:fs';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import { findWorkspaceRoot } from '../util/loaders.ts';
 

@@ -1,8 +1,8 @@
-import { publicIpv4 } from 'public-ip';
-import { manager } from '../models/managerDb/managerDb.js';
 import type { Client, ShardingManager } from 'discord.js';
+import { type Expression, sql } from 'kysely';
+import { publicIpv4 } from 'public-ip';
 import { isProduction } from '#const/config.js';
-import { sql, type Expression } from 'kysely';
+import { manager } from '../models/managerDb/managerDb.js';
 
 function _save(client: Client) {
   if (!client.shard || client.shard.ids.length < 1) {

@@ -1,22 +1,22 @@
 import {
-  ButtonStyle,
-  PermissionFlagsBits,
-  ComponentType,
-  MessageFlags,
-  SelectMenuDefaultValueType,
-  ChannelType,
   type BaseMessageOptions,
+  ButtonStyle,
+  ChannelType,
   type ComponentInContainerData,
+  ComponentType,
   type ContainerComponentData,
+  MessageFlags,
+  PermissionFlagsBits,
+  SelectMenuDefaultValueType,
   type User,
 } from 'discord.js';
-import { getGuildModel, type GuildModel } from '../../models/guild/guildModel.js';
+import type { TFunction } from 'i18next';
 import { command } from '#bot/commands.js';
 import { actionrow, container } from '#bot/util/component.js';
 import { requireUser } from '#bot/util/predicates.js';
-import { component, type ComponentPredicateConfig } from '#bot/util/registry/component.js';
-import type { TFunction } from 'i18next';
+import { type ComponentPredicateConfig, component } from '#bot/util/registry/component.js';
 import { assertUnreachable } from '#bot/util/typescript.js';
+import { type GuildModel, getGuildModel } from '../../models/guild/guildModel.js';
 
 type BooleanGuildKey =
   | 'showNicknames'

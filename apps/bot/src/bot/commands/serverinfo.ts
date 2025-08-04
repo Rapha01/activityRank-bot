@@ -1,32 +1,32 @@
+import Cron from 'croner';
 import {
-  ButtonStyle,
-  ComponentType,
   type ActionRowData,
-  type MessageActionRowComponentData,
-  type ChatInputCommandInteraction,
-  type ButtonInteraction,
-  type StringSelectMenuInteraction,
   type APIEmbed,
+  type ButtonInteraction,
+  ButtonStyle,
+  type ChatInputCommandInteraction,
   type Client,
+  ComponentType,
+  type MessageActionRowComponentData,
+  type StringSelectMenuInteraction,
   time,
 } from 'discord.js';
-import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
+import invariant from 'tiny-invariant';
+import { command } from '#bot/commands.js';
+import { actionrow, closeButton } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { ComponentKey, component } from '#bot/util/registry/component.js';
+import { emoji } from '#const/config.js';
+import { shards } from '#models/shardDb/shardDb.js';
+import fct, { type Pagination } from '../../util/fct.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
 import {
   fetchNoXpRoleIds,
   fetchRoleAssignments,
   getRoleModel,
 } from '../models/guild/guildRoleModel.js';
-import { shards } from '#models/shardDb/shardDb.js';
-import fct, { type Pagination } from '../../util/fct.js';
 import nameUtil, { getRoleMention } from '../util/nameUtil.js';
-import { command } from '#bot/commands.js';
-import { component, ComponentKey } from '#bot/util/registry/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { actionrow, closeButton } from '#bot/util/component.js';
-import Cron from 'croner';
-import { emoji } from '#const/config.js';
-import invariant from 'tiny-invariant';
 
 export default command({
   name: 'serverinfo',

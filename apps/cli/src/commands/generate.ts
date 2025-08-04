@@ -1,11 +1,8 @@
-import { join as joinPath } from 'node:path';
 import { createWriteStream } from 'node:fs';
+import { join as joinPath } from 'node:path';
 import type { Writable } from 'node:stream';
 import { promisify } from 'node:util';
-import { $ } from 'execa';
-import type { z } from 'zod/v4';
 import * as p from '@clack/prompts';
-import pc from 'picocolors';
 import { Command, Option, UsageError } from 'clipanion';
 import {
   ApplicationCommandOptionType,
@@ -14,13 +11,16 @@ import {
   ChannelType,
   InteractionContextType,
 } from 'discord-api-types/v10';
+import { $ } from 'execa';
+import pc from 'picocolors';
+import type { z } from 'zod/v4';
+import { ConfigurableCommand2 } from '../util/classes.ts';
 import {
   type anyOptionSchema,
-  commandsSchema,
   type chatInputCommandSchema,
+  commandsSchema,
   type subcommandOptionSchema,
 } from '../util/commandSchema.ts';
-import { ConfigurableCommand2 } from '../util/classes.ts';
 import { findWorkspaceRoot } from '../util/loaders.ts';
 
 class ObjectTypeBuilder {

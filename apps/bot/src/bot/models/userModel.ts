@@ -1,7 +1,7 @@
 import type { ShardDB } from '@activityrank/database';
-import { shards } from '#models/shardDb/shardDb.js';
-import { manager } from '#models/managerDb/managerDb.js';
 import type { User } from 'discord.js';
+import { manager } from '#models/managerDb/managerDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
 import { CachedModel } from './generic/model.js';
 
 let defaultCache: Pick<ShardDB.User, (typeof cachedFields)[number]> | null = null;

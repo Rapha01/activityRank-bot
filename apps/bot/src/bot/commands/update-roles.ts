@@ -1,10 +1,5 @@
-import { command } from '#bot/commands.js';
-import { Temporal } from 'temporal-polyfill';
 import { DurationFormat } from '@formatjs/intl-durationformat';
-import { shards } from '#models/shardDb/shardDb.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { getLevelProgression, sleep } from '#util/fct.js';
-import { runRoleUpdate } from '#bot/levelManager.js';
+import { Time } from '@sapphire/duration';
 import {
   type AnyThreadChannel,
   ButtonStyle,
@@ -15,12 +10,17 @@ import {
   MessageFlags,
   type Webhook,
 } from 'discord.js';
-import { container } from '#bot/util/component.js';
-import { component, ComponentKey } from '#bot/util/registry/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { renderProgressBar } from '#bot/models/resetModel.js';
-import { Time } from '@sapphire/duration';
+import { Temporal } from 'temporal-polyfill';
 import invariant from 'tiny-invariant';
+import { command } from '#bot/commands.js';
+import { runRoleUpdate } from '#bot/levelManager.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { renderProgressBar } from '#bot/models/resetModel.js';
+import { container } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { ComponentKey, component } from '#bot/util/registry/component.js';
+import { shards } from '#models/shardDb/shardDb.js';
+import { getLevelProgression, sleep } from '#util/fct.js';
 
 export const activeUpdates: Map<
   string,

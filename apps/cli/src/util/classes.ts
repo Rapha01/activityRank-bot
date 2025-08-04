@@ -1,28 +1,28 @@
-import path from 'node:path';
 import fs from 'node:fs/promises';
-import { z } from 'zod/v4';
-import * as p from '@clack/prompts';
-import pc from 'picocolors';
-import { Command, Option, UsageError } from 'clipanion';
+import path from 'node:path';
 import { configLoader, schemas } from '@activityrank/cfg';
-import { REST } from '@discordjs/rest';
+import * as p from '@clack/prompts';
 import {
   API,
-  ApplicationCommandType,
   type APIApplicationCommandOption,
+  ApplicationCommandType,
   type RESTPutAPIApplicationGuildCommandsJSONBody,
 } from '@discordjs/core';
+import { REST } from '@discordjs/rest';
+import { Command, Option, UsageError } from 'clipanion';
+import pc from 'picocolors';
+import { z } from 'zod/v4';
 import { walkUp } from '../util/walkUp.ts';
 import {
   type chatInputCommandSchema,
   commandsSchema,
   type contextCommandSchema,
   Deploy,
+  type DeploymentMode,
   type subcommandGroupOptionSchema,
   type subcommandOptionSchema,
-  type DeploymentMode,
 } from './commandSchema.ts';
-import { findWorkspaceRoot, type BaseConfig } from './loaders.ts';
+import { type BaseConfig, findWorkspaceRoot } from './loaders.ts';
 
 export abstract class ConfigurableCommand2 extends Command {
   hideConfigPath = false;

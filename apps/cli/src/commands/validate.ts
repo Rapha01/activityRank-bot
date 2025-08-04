@@ -1,6 +1,6 @@
 import * as p from '@clack/prompts';
-import pc from 'picocolors';
 import { Command } from 'clipanion';
+import pc from 'picocolors';
 import { ConfigurableCommand2 } from '../util/classes.ts';
 import { commandsSchema } from '../util/commandSchema.ts';
 

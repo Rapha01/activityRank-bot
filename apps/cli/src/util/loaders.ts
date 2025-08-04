@@ -1,11 +1,11 @@
-import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { z } from 'zod/v4';
-import { UsageError } from 'clipanion';
+import path from 'node:path';
 import type { configLoader, schemas } from '@activityrank/cfg';
-import { walkUp } from '../util/walkUp.ts';
-import pc from 'picocolors';
 import type { API } from '@discordjs/core';
+import { UsageError } from 'clipanion';
+import pc from 'picocolors';
+import type { z } from 'zod/v4';
+import { walkUp } from '../util/walkUp.ts';
 
 /**
  * Walks up the directory tree, starting from the cwd, until it finds

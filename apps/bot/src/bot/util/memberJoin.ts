@@ -1,14 +1,18 @@
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import fct from '../../util/fct.js';
-import { type DiscordAPIError, RESTJSONErrorCodes, type GuildMember } from 'discord.js';
-import { EmbedBuilder } from 'discord.js';
+import {
+  type DiscordAPIError,
+  EmbedBuilder,
+  type GuildMember,
+  RESTJSONErrorCodes,
+} from 'discord.js';
 import {
   checkLevelup,
   getNewMemberRoles,
   getRoleAssignmentMessages,
   runRoleUpdate,
 } from '#bot/levelManager.js';
+import fct from '../../util/fct.js';
+import { getMemberModel } from '../models/guild/guildMemberModel.js';
+import { getGuildModel } from '../models/guild/guildModel.js';
 
 export async function handleMemberJoin(member: GuildMember) {
   // member.client.logger.debug(`Handling member ${member.id} join`);

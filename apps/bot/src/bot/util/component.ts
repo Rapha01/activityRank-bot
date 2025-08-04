@@ -8,7 +8,7 @@ import {
   type MessageActionRowComponentData,
   type ModalActionRowComponentData,
 } from 'discord.js';
-import { component, type ComponentCallback } from './registry/component.js';
+import { type ComponentCallback, component } from './registry/component.js';
 
 type CallbackFn<D> = ComponentCallback<ButtonInteraction<'cached'>, D>;
 

@@ -1,7 +1,7 @@
 // @ts-nocheck test
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseChannel, ParserResponseStatus } from './parser.js';
+import { ParserResponseStatus, parseChannel } from './parser.js';
 
 describe('parseObject', () => {
   const channelObject = Symbol('channel object');

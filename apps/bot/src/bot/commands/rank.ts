@@ -1,25 +1,25 @@
 import type { ShardDB } from '@activityrank/database';
 import {
-  EmbedBuilder,
-  ButtonStyle,
-  RESTJSONErrorCodes,
-  ComponentType,
-  type Guild,
-  type User,
-  type ChatInputCommandInteraction,
-  type DiscordAPIError,
-  type MessageComponentInteraction,
-  type InteractionEditReplyOptions,
   type ActionRowData,
-  type MessageActionRowComponentData,
-  type APIMessageTopLevelComponent,
   type APIContainerComponent,
+  type APIMessageTopLevelComponent,
+  ButtonStyle,
+  type ChatInputCommandInteraction,
+  ComponentType,
+  type DiscordAPIError,
+  EmbedBuilder,
+  type Guild,
+  type InteractionEditReplyOptions,
+  type MessageActionRowComponentData,
+  type MessageComponentInteraction,
   MessageFlags,
-  time,
+  RESTJSONErrorCodes,
   type TopLevelComponentData,
+  time,
+  type User,
 } from 'discord.js';
-import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import { getGuildModel, type GuildModel } from '../models/guild/guildModel.js';
+import type { TFunction } from 'i18next';
+import { command } from '#bot/commands.js';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
@@ -27,15 +27,15 @@ import {
   getGuildMemberStatPosition,
   getGuildMemberTopChannels,
 } from '#bot/models/rankModel.js';
-import fct from '../../util/fct.js';
-import nameUtil from '../util/nameUtil.js';
-import { statTimeIntervals, type StatTimeInterval, type StatType } from '#models/types/enums.js';
-import { command } from '#bot/commands.js';
-import { component, ComponentKey } from '#bot/util/registry/component.js';
 import { requireUserId } from '#bot/util/predicates.js';
-import type { TFunction } from 'i18next';
-import { emoji } from '#const/config.js';
+import { ComponentKey, component } from '#bot/util/registry/component.js';
 import { assertUnreachable } from '#bot/util/typescript.js';
+import { emoji } from '#const/config.js';
+import { type StatTimeInterval, type StatType, statTimeIntervals } from '#models/types/enums.js';
+import fct from '../../util/fct.js';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
+import nameUtil from '../util/nameUtil.js';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';

@@ -1,18 +1,18 @@
 import {
   ActionRowBuilder,
-  StringSelectMenuBuilder,
-  EmbedBuilder,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
 } from 'discord.js';
 import outdent from 'outdent';
-import type { TextsCommands, TextsEntry } from '#models/types/external.js';
-import { getTexts } from '#models/managerDb/textModel.js';
-import { config, version } from '#const/config.js';
 import { command } from '#bot/commands.js';
-import { component } from '#bot/util/registry/component.js';
 import { requireUser } from '#bot/util/predicates.js';
+import { component } from '#bot/util/registry/component.js';
+import { config, version } from '#const/config.js';
+import { getTexts } from '#models/managerDb/textModel.js';
+import type { TextsCommands, TextsEntry } from '#models/types/external.js';
 
 export default command({
   name: 'help',

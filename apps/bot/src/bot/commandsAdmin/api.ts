@@ -1,8 +1,8 @@
-import { command } from '#bot/commands.js';
 import { subtle } from 'node:crypto';
 import { customAlphabet } from 'nanoid';
-import { shards } from '#models/shardDb/shardDb.js';
+import { command } from '#bot/commands.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { shards } from '#models/shardDb/shardDb.js';
 
 export default command({
   name: 'api create-token',

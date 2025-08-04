@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { command } from '#bot/commands.js';
-import { useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
 import { ResetGuildSettings } from '#bot/models/resetModel.js';
+import { useConfirm } from '#bot/util/component.js';
 import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
+import { requireUser } from '#bot/util/predicates.js';
 
 export default command({
   name: 'reset server settings',

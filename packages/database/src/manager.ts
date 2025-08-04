@@ -1,5 +1,5 @@
-import { createPool, createConnection, type PoolOptions } from 'mysql2/promise';
 import { Kysely, MysqlDialect } from 'kysely';
+import { createConnection, createPool, type PoolOptions } from 'mysql2/promise';
 import type { ManagerDB } from './typings/manager.js';
 
 export function createManagerInstance(options: PoolOptions) {

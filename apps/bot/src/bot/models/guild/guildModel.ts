@@ -1,8 +1,8 @@
 import type { ShardDB } from '@activityrank/database';
-import { shards } from '#models/shardDb/shardDb.js';
-import { manager } from '#models/managerDb/managerDb.js';
-import { CachedModel } from '../generic/model.js';
 import type { Guild } from 'discord.js';
+import { manager } from '#models/managerDb/managerDb.js';
+import { shards } from '#models/shardDb/shardDb.js';
+import { CachedModel } from '../generic/model.js';
 
 const cachedFields = [
   //'tokens',

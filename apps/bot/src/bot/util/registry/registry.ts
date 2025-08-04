@@ -1,5 +1,6 @@
-import { EventHandler } from './event.js';
-import { Command } from './command.js';
+import type { EventEmitter } from 'node:events';
+import TTLCache from '@isaacs/ttlcache';
+import { Time } from '@sapphire/duration';
 import type {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
@@ -8,16 +9,15 @@ import type {
   ModalSubmitInteraction,
 } from 'discord.js';
 import fg from 'fast-glob';
-import type { EventEmitter } from 'node:events';
+import { Command } from './command.js';
 import {
+  Component,
   type ComponentInstance,
   type ComponentInteraction,
-  Component,
   ComponentKey,
 } from './component.js';
+import { EventHandler } from './event.js';
 import { Predicate } from './predicate.js';
-import TTLCache from '@isaacs/ttlcache';
-import { Time } from '@sapphire/duration';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 

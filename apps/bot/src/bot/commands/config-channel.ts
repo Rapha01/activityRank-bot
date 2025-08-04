@@ -1,26 +1,26 @@
 import type { ShardDB } from '@activityrank/database';
-import invariant from 'tiny-invariant';
-import {
-  ButtonStyle,
-  PermissionFlagsBits,
-  ComponentType,
-  MessageFlags,
-  ChannelType,
-} from 'discord.js';
-import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { ParserResponseStatus, parseChannel } from '../util/parser.js';
-import { command } from '#bot/commands.js';
-import { component } from '#bot/util/registry/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { container } from '#bot/util/component.js';
-import type { TFunction } from 'i18next';
 import type {
   BaseMessageOptions,
   ComponentInContainerData,
   ContainerComponentData,
   Interaction,
 } from 'discord.js';
+import {
+  ButtonStyle,
+  ChannelType,
+  ComponentType,
+  MessageFlags,
+  PermissionFlagsBits,
+} from 'discord.js';
+import type { TFunction } from 'i18next';
+import invariant from 'tiny-invariant';
+import { command } from '#bot/commands.js';
+import { container } from '#bot/util/component.js';
 import { getChannelMention } from '#bot/util/nameUtil.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { component } from '#bot/util/registry/component.js';
+import guildChannelModel from '../models/guild/guildChannelModel.js';
+import { ParserResponseStatus, parseChannel } from '../util/parser.js';
 
 export default command({
   name: 'config-channel',

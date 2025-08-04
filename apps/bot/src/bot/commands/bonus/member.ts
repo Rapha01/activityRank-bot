@@ -1,6 +1,6 @@
-import statFlushCache from '../../statFlushCache.js';
 import { command } from '#bot/commands.js';
 import { resolveMember } from '#bot/util/parser.js';
+import statFlushCache from '../../statFlushCache.js';
 
 export default command({
   name: 'bonus member',

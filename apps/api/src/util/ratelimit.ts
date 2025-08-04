@@ -1,6 +1,6 @@
 import type { Context, Env, Input, MiddlewareHandler } from 'hono';
 import { createMiddleware } from 'hono/factory';
-import { rateLimiter, type ConfigType, type GeneralConfigType } from 'hono-rate-limiter';
+import { type ConfigType, type GeneralConfigType, rateLimiter } from 'hono-rate-limiter';
 
 const keyGenerator = (c: Context<Env, '/'>) => {
   const header = c.req.header('Authorization');

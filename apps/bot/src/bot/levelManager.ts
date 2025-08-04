@@ -1,6 +1,3 @@
-import fct from '../util/fct.js';
-import nameUtil from './util/nameUtil.js';
-import { getRoleModel } from './models/guild/guildRoleModel.js';
 import {
   ComponentType,
   type DiscordAPIError,
@@ -8,14 +5,17 @@ import {
   type GuildMember,
   type MessageCreateOptions,
   MessageFlags,
+  PermissionFlagsBits,
   RESTJSONErrorCodes,
   type Role,
 } from 'discord.js';
-import { PermissionFlagsBits } from 'discord.js';
-import { getGuildModel } from './models/guild/guildModel.js';
-import { getMemberModel } from './models/guild/guildMemberModel.js';
-import { emoji } from '#const/config.js';
 import invariant from 'tiny-invariant';
+import { emoji } from '#const/config.js';
+import fct from '../util/fct.js';
+import { getMemberModel } from './models/guild/guildMemberModel.js';
+import { getGuildModel } from './models/guild/guildModel.js';
+import { getRoleModel } from './models/guild/guildRoleModel.js';
+import nameUtil from './util/nameUtil.js';
 import { difference, symmetricDifference } from './util/typescript.js';
 import { warnGuild } from './util/warning.js';
 

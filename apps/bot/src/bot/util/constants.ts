@@ -1,8 +1,8 @@
 import {
-  ButtonStyle,
-  ComponentType,
   type APIActionRowComponent,
   type APIComponentInActionRow,
+  ButtonStyle,
+  ComponentType,
 } from 'discord.js';
 
 export const PATREON_URL = 'https://www.patreon.com/rapha01';

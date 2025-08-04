@@ -1,4 +1,12 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
+import { getShardStats } from '#models/botShardStatModel.js';
+import { helloRoute } from '#routes/hello.js';
+import { memberRankRoute } from '#routes/memberRank.js';
+import { runPatreonRoute } from '#routes/patreon.js';
+import { shardStatsRoute } from '#routes/shard-stats.js';
+import { textsRoute } from '#routes/texts.js';
+import { runTopggRoute } from '#routes/topgg.js';
+import { topMembersRoute } from '#routes/topMembers.js';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
@@ -6,22 +14,12 @@ import {
   getLevelfactor,
   getLevelProgression,
 } from '#services/ranks.js';
-import { getShardStats } from '#models/botShardStatModel.js';
-import { JSONHTTPException } from '#util/errors.js';
-
-import commands from './const/commands.js';
-import patchnotes from './const/patchnotes.js';
-import faqs from './const/faq.js';
 import { runPatreonTask } from '#services/tasks/patreon.js';
 import { runTopggTask } from '#services/tasks/topgg.js';
-
-import { helloRoute } from '#routes/hello.js';
-import { topMembersRoute } from '#routes/topMembers.js';
-import { memberRankRoute } from '#routes/memberRank.js';
-import { shardStatsRoute } from '#routes/shard-stats.js';
-import { textsRoute } from '#routes/texts.js';
-import { runPatreonRoute } from '#routes/patreon.js';
-import { runTopggRoute } from '#routes/topgg.js';
+import { JSONHTTPException } from '#util/errors.js';
+import commands from './const/commands.js';
+import faqs from './const/faq.js';
+import patchnotes from './const/patchnotes.js';
 
 export const apiRouter = new OpenAPIHono();
 

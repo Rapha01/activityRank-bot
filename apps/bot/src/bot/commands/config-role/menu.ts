@@ -1,22 +1,22 @@
 import {
-  ButtonStyle,
-  TextInputStyle,
-  PermissionFlagsBits,
-  ComponentType,
-  type Interaction,
-  type ContainerComponentData,
   type BaseMessageOptions,
+  ButtonStyle,
+  ComponentType,
+  type ContainerComponentData,
+  type Interaction,
   MessageFlags,
   type ModalComponentData,
+  PermissionFlagsBits,
+  TextInputStyle,
 } from 'discord.js';
-import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
-import { getRoleMention } from '../../util/nameUtil.js';
-import { command } from '#bot/commands.js';
-import { actionrow, container } from '#bot/util/component.js';
-import { component, modal } from '#bot/util/registry/component.js';
-import { requireUser } from '#bot/util/predicates.js';
 import type { TFunction } from 'i18next';
 import invariant from 'tiny-invariant';
+import { command } from '#bot/commands.js';
+import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
+import { actionrow, container } from '#bot/util/component.js';
+import { requireUser } from '#bot/util/predicates.js';
+import { component, modal } from '#bot/util/registry/component.js';
+import { getRoleMention } from '../../util/nameUtil.js';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 
