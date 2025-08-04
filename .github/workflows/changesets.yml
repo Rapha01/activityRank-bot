@@ -36,6 +36,5 @@ jobs:
         with:
           commit: "chore: update versions"
           title: "chore: update versions"
-          commitMode: github-api
         env:
           GITHUB_TOKEN: ${{ secrets.PIEMOT_PAT }}
