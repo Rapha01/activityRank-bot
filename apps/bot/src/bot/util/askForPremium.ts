@@ -1,6 +1,6 @@
-import { type ChatInputCommandInteraction, EmbedBuilder, type Entitlement } from 'discord.js';
+import { type ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import fct from '../../util/fct.js';
+import fct, { hasValidEntitlement } from '../../util/fct.js';
 import { getUserModel } from '../models/userModel.js';
 import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 import { getWaitTime } from './cooldownUtil.js';
@@ -11,14 +11,8 @@ const askForPremiumCdGuild = isDev ? 3600 * 0.4 : 3600 * 0.4;
 const askForPremiumCdUser = isDev ? 3600 * 6 : 3600 * 6;
 
 export default async function (interaction: ChatInputCommandInteraction<'cached'>) {
-  const isValidEntitlement = (e: Entitlement) =>
-    e.isGuildSubscription() &&
-    e.isActive() &&
-    e.guildId === interaction.guildId &&
-    e.skuId === '1393334749568696361'; // Premium
-
-  // Discord subscribers are exempt from ads
-  if (interaction.entitlements.some(isValidEntitlement)) {
+  // Users in a subscribed server are exempt from ads
+  if (hasValidEntitlement(interaction)) {
     return;
   }
 

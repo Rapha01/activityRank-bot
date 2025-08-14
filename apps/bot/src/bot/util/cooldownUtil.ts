@@ -1,15 +1,10 @@
 import { Time } from '@sapphire/duration';
-import {
-  type BaseMessageOptions,
-  type ChatInputCommandInteraction,
-  type Entitlement,
-  time,
-} from 'discord.js';
+import { type BaseMessageOptions, type ChatInputCommandInteraction, time } from 'discord.js';
 import { getMemberModel } from '#bot/models/guild/guildMemberModel.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { RESET_GUILD_IDS } from '#bot/models/resetModel.js';
 import { isPrivileged } from '#const/config.js';
-import fct from '../../util/fct.js';
+import fct, { hasValidEntitlement } from '../../util/fct.js';
 import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
 import type { PartiallyRequired } from './typescript.js';
 
@@ -55,24 +50,21 @@ export async function handleStatCommandsCooldown(
 
   if (isPrivileged(interaction.user.id)) return ALLOW;
 
-  const isValidEntitlement = (e: Entitlement) =>
-    e.isGuildSubscription() &&
-    e.isActive() &&
-    e.guildId === interaction.guildId &&
-    e.skuId === '1393334749568696361'; // Premium
-
   let cd = Time.Minute * 2;
   let skipAds = false;
-  if (interaction.entitlements.some(isValidEntitlement)) {
+  if (hasValidEntitlement(interaction)) {
+    // guild has a Discord subscription
     cd = Time.Second * 5;
     skipAds = true;
   } else {
     const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
     if (userTier === 1) {
+      // user has a Patreon subscription
       cd = Time.Second * 20;
       skipAds = true;
     }
     if (userTier >= 2 || ownerTier >= 2) {
+      // user or server owner has a Patreon Tier 2 subscription
       cd = Time.Second * 5;
       skipAds = true;
     }

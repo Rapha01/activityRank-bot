@@ -18,7 +18,7 @@ import { requireUser } from '#bot/util/predicates.js';
 import { ComponentKey, component } from '#bot/util/registry/component.js';
 import { emoji } from '#const/config.js';
 import { shards } from '#models/shardDb/shardDb.js';
-import fct, { type Pagination } from '../../util/fct.js';
+import fct, { getPatreonTiers, hasValidEntitlement, type Pagination } from '../../util/fct.js';
 import guildChannelModel from '../models/guild/guildChannelModel.js';
 import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
 import {
@@ -156,12 +156,14 @@ const pageButton = component<{ windowName: WindowName; page: number }>({
   },
 });
 
+type WindowInteraction =
+  | ChatInputCommandInteraction<'cached'>
+  | ButtonInteraction<'cached'>
+  | StringSelectMenuInteraction<'cached'>;
+
 interface Window {
   embed: (opts: {
-    interaction:
-      | ChatInputCommandInteraction<'cached'>
-      | ButtonInteraction<'cached'>
-      | StringSelectMenuInteraction<'cached'>;
+    interaction: WindowInteraction;
     cachedGuild: GuildModel;
     page: Pagination;
   }) => Promise<APIEmbed>;
@@ -198,6 +200,8 @@ const general: Window = {
 
     const yesno = (cond: boolean | number): string => (cond ? emoji('yes') : emoji('no'));
 
+    const premiumStatus = await displayPremiumStatus(interaction);
+
     const generalValue = [
       `Tracking since: <t:${cachedGuild.db.addDate}:D>`,
       `Tracking stats: ${
@@ -211,7 +215,7 @@ const general: Window = {
       `Include levelup message: ${yesno(cachedGuild.db.notifyLevelupWithRole)}`,
       `Take away assigned roles on level down: ${yesno(cachedGuild.db.takeAwayAssignedRolesOnLevelDown)}`,
       `List entries per page: ${cachedGuild.db.entriesPerPage}`,
-      `Status: ${(await fct.getPatreonTiers(interaction)).ownerTier === 2 ? 'Premium' : 'Not Premium'}`,
+      `Premium: ${premiumStatus}`,
     ].join('\n');
 
     const textmessageCooldownString = cachedGuild.db.textMessageCooldownSeconds
@@ -263,6 +267,19 @@ const general: Window = {
     };
   },
 };
+
+async function displayPremiumStatus(interaction: WindowInteraction): Promise<string> {
+  if (hasValidEntitlement(interaction)) {
+    return emoji('store');
+  }
+
+  const patreon = await getPatreonTiers(interaction);
+  if (patreon.ownerTier >= 2) {
+    return emoji('yes');
+  } else {
+    return emoji('no');
+  }
+}
 
 const levels: Window = {
   additionalComponents: () => [],

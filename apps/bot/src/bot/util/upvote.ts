@@ -88,21 +88,6 @@ export async function attemptUpvote(
     return { status: UpvoteAttempt.TimeoutNotElapsed, nextUpvote: cachedNextVote };
   }
 
-  // TODO: [FIXME] - this is a temporary and last-resort debugging warn.
-  if (voter.guild.id === '711942339219685407') {
-    voter.client.logger.warn(
-      {
-        category: 'vote.dbg.laura', // for searching logs
-        targetId: target.id,
-        voterId: voter.id,
-        cachedVoter: cachedMember.cache,
-        cachedNextVote,
-        guildCooldown: cachedGuild.db.voteCooldownSeconds,
-      },
-      'Adding vote in Laura server',
-    );
-  }
-
   // Get voter multiplier
   const userModel = await getUserModel(voter.user);
   const multiplier = getVoteMultiplier(await userModel.fetch());

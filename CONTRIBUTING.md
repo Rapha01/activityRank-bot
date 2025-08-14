@@ -1,5 +1,6 @@
-# Architecture
-<!-- TODO: improve this documentation -->
+# Contributors' Guide
+
+Thank you for your interest in contributing to ActivityRank! Here's some information to get you started.
 
 ## Repostory Layout
 
@@ -7,24 +8,24 @@ ActivityRank is set up as a monorepo, with all executable components in [apps](a
 
 ### Deployment
 
-All components should be deployed in production as instances of their Docker containers. <!-- TODO: better CI setup -->
+All components should be deployed in production as instances of their Docker containers.
 Ideally, these containers will be built in [GitHub CI](.github/workflows/ci.yml),
 but they may also be built on the target VPS.
 
 In development, semi-permanent containers such as the database can be deployed
 via the root docker-compose file ([docker-compose.yml](docker-compose.yml)).
 Other components, like the bot module, should be run via a typical node process
-through their `pnpm dev` scripts.
+through their `pnpm run dev` scripts.
 
-#### Development deployment example
+---
 
 An example of running in development (to work primarily on the bot module)
 is shown here:
 
-1. Run the manager and database in Docker containers.
+1. Run the api and database in Docker containers.
 
     ```sh
-    docker compose up db manager
+    docker compose up db api
     ```
 
 2. Run the development script for the bot.
@@ -33,7 +34,7 @@ is shown here:
     pnpm --filter bot run dev:watch
     ```
 
-#### Deploying in production
+---
 
 In production, containers tend to be spread out across multiple servers.
 
@@ -75,6 +76,20 @@ In production, containers tend to be spread out across multiple servers.
         ghcr.io/rapha01/activityrank/manager 
     ```
 
+### Rotating Secrets
+
+A deployed service's config may need to be updated. Since a config cannot be deleted while a container is still using it,
+we create a new config and assign it to the container with the appropriate name.
+
+```sh
+# Create a new config
+docker config create config-2
+# Use `config-2` with the target of `config`
+docker service update <service> --config-rm config --config-add source=config-2,target=config
+# Now that no service is using `config`, delete it
+docker config rm config
+```
+
 ## Deployment Structure
 
 ### Overview
@@ -90,7 +105,7 @@ haven't yet needed to implement that either. The Manager DB keeps a record of
 `guildId -> database shard ID` and `userId -> database shard ID`, which is
 queried whenever a member or guild is updated.
 
-As messages are sent in guilds, the Bot service recieves MESSAGE_CREATE events
+As messages are sent in guilds, the Bot service recieves `MESSAGE_CREATE` events
 via its Gateway (Discord WS) connection. Each shard of the bot aggregates its XP
 and statistics in a cache -
 [`src/bot/statFlushCache.ts`](apps/bot/src/bot/statFlushCache.ts) and
