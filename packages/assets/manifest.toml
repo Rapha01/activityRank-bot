@@ -30,3 +30,6 @@ path = "emoji/upvote.png"
 
 [bonus]
 path = "emoji/bonus.png"
+
+[store]
+path = "emoji/store.png"
