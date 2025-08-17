@@ -298,6 +298,9 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.15.2
+      markdown-table-prettify:
+        specifier: ^3.6.0
+        version: 3.6.0
       typescript:
         specifier: ^5.7.2
         version: 5.8.3
@@ -1923,6 +1926,11 @@ packages:
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
+  markdown-table-prettify@3.6.0:
+    resolution: {integrity: sha512-xZg+sL5yWyPz75GwNHtCOLe85CPnssoTLqpGc19xSr6CirGu4xRW2f8wj1f7c8Kx1IItXo3hUIqlUX4qAOwAdg==}
+    engines: {vscode: ^1.59.0}
+    hasBin: true
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
@@ -4434,6 +4442,8 @@ snapshots:
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.4
+
+  markdown-table-prettify@3.6.0: {}
 
   merge-stream@2.0.0: {}
 

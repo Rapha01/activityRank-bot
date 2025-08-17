@@ -14,7 +14,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `bonus`
 
 |           Key | Type       | Nullable | Default |
-| ------------: | ---------- | :------: | ------- |
+|--------------:|------------|:--------:|---------|
 | **`guildId`** | bigint(20) |    ×     |         |
 |  **`userId`** | bigint(20) |    ×     |         |
 |     `alltime` | int(11)    |    ×     | 0       |
@@ -30,7 +30,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `guild`
 
 |                                Key | Type          | Nullable | Default    |
-| ---------------------------------: | ------------- | :------: | ---------- |
+|-----------------------------------:|---------------|:--------:|------------|
 |                      **`guildId`** | bigint(20)    |    ×     |            |
 |                          `voteTag` | varchar(56)   |    ×     | "likes"    |
 |                        `voteEmote` | varchar(128)  |    ×     | ":heart:"  |
@@ -81,7 +81,7 @@ This document describes deprecations, requirements, and other notes for tables i
 |                         `isBanned` | tinyint(4)    |    ×     | false      |
 |              `resetDeletedMembers` | tinyint(1)    |    ×     | false      |
 |                 `stickyLevelRoles` | tinyint(1)    |    ×     | true       |
-|                         `apiToken` | char(64)      |    ☑︎     | NULL       |
+|                         `apiToken` | char(64)      |    ☑︎    | NULL       |
 
 **Primary Key**: `guildId`
 
@@ -95,7 +95,7 @@ This document describes deprecations, requirements, and other notes for tables i
 - Others: never implemented
 
 |                            Key | Type          | Nullable | Default |
-| -----------------------------: | ------------- | :------: | ------- |
+|-------------------------------:|---------------|:--------:|---------|
 |                       `prefix` | varchar(32)   |    ×     | "ar!"   |
 |                       `tokens` | int(11)       |    ×     | 0       |
 |                 `tokensBurned` | int(11)       |    ×     | 0       |
@@ -117,7 +117,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `guildChannel`
 
 |             Key | Type       | Nullable | Default |
-| --------------: | ---------- | :------: | ------- |
+|----------------:|------------|:--------:|---------|
 |   **`guildId`** | bigint(20) |    ×     |         |
 | **`channelId`** | bigint(20) |    ×     |         |
 |          `noXp` | tinyint(4) |    ×     | false   |
@@ -127,14 +127,14 @@ This document describes deprecations, requirements, and other notes for tables i
 #### Deprecated / Unused Columns
 
 |         Key | Type       | Nullable | Default |
-| ----------: | ---------- | :------: | ------- |
+|------------:|------------|:--------:|---------|
 | `noCommand` | tinyint(4) |    ×     | false   |
 
 
 ### `guildMember`
 
 |               Key | Type       | Nullable | Default |
-| ----------------: | ---------- | :------: | ------- |
+|------------------:|------------|:--------:|---------|
 |     **`guildId`** | bigint(20) |    ×     |         |
 |      **`userId`** | bigint(20) |    ×     |         |
 | `notifyLevelupDm` | tinyint(4) |    ×     | true    |
@@ -151,13 +151,13 @@ This document describes deprecations, requirements, and other notes for tables i
 #### Deprecated / Unused Columns
 
 |            Key | Type    | Nullable | Default |
-| -------------: | ------- | :------: | ------- |
+|---------------:|---------|:--------:|---------|
 | `tokensBurned` | int(11) |    ×     | 0       |
 
 ### `guildRole`
 
 |                Key | Type          | Nullable | Default |
-| -----------------: | ------------- | :------: | ------- |
+|-------------------:|---------------|:--------:|---------|
 |      **`guildId`** | bigint(20)    |    ×     |         |
 |       **`roleId`** | bigint(20)    |    ×     |         |
 |      `assignLevel` | int(11)       |    ×     | 0       |
@@ -175,7 +175,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `invite`
 
 |           Key | Type       | Nullable | Default |
-| ------------: | ---------- | :------: | ------- |
+|--------------:|------------|:--------:|---------|
 | **`guildId`** | bigint(20) |    ×     |         |
 |  **`userId`** | bigint(20) |    ×     |         |
 |     `alltime` | int(11)    |    ×     | 0       |
@@ -191,7 +191,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `textMessage`
 
 |             Key | Type       | Nullable | Default |
-| --------------: | ---------- | :------: | ------- |
+|----------------:|------------|:--------:|---------|
 |   **`guildId`** | bigint(20) |    ×     |         |
 |    **`userId`** | bigint(20) |    ×     |         |
 | **`channelId`** | bigint(20) |    ×     |         |
@@ -208,7 +208,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `user`
 
 |                     Key | Type       | Nullable | Default |
-| ----------------------: | ---------- | :------: | ------- |
+|------------------------:|------------|:--------:|---------|
 |            **`userId`** | bigint(20) |    ×     |         |
 |        `voteMultiplier` | int(11)    |    ×     | 1       |
 |   `voteMultiplierUntil` | bigint(20) |    ×     | 0       |
@@ -224,7 +224,7 @@ This document describes deprecations, requirements, and other notes for tables i
 #### Deprecated / Unused Columns
 
 |            Key | Type    | Nullable | Default |
-| -------------: | ------- | :------: | ------- |
+|---------------:|---------|:--------:|---------|
 |       `tokens` | int(11) |    ×     | 10      |
 | `tokensBought` | int(11) |    ×     | 0       |
 | `tokensGifted` | int(11) |    ×     | 0       |
@@ -232,7 +232,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `voiceMinute`
 
 |             Key | Type       | Nullable | Default |
-| --------------: | ---------- | :------: | ------- |
+|----------------:|------------|:--------:|---------|
 |   **`guildId`** | bigint(20) |    ×     |         |
 |    **`userId`** | bigint(20) |    ×     |         |
 | **`channelId`** | bigint(20) |    ×     |         |
@@ -249,7 +249,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `vote`
 
 |           Key | Type       | Nullable | Default |
-| ------------: | ---------- | :------: | ------- |
+|--------------:|------------|:--------:|---------|
 | **`guildId`** | bigint(20) |    ×     |         |
 |  **`userId`** | bigint(20) |    ×     |         |
 |     `alltime` | int(11)    |    ×     | 0       |
