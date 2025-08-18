@@ -1,6 +1,7 @@
 import { PermissionFlagsBits } from 'discord.js';
 import invariant from 'tiny-invariant';
 import { command } from '#bot/commands.js';
+import { DANGEROUS_PERMISSIONS, DANGEROUS_PERMISSIONS_NAMES } from '#bot/levelManager.js';
 import {
   fetchRoleAssignmentByRole,
   fetchRoleAssignmentsByLevel,
@@ -66,18 +67,36 @@ export default command({
     }
 
     const roleAssignment = await fetchRoleAssignmentByRole(interaction.guild, resolvedRole.id);
+    const roleMention = nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id);
 
-    const description = [
-      `> ${nameUtil.getRoleMention(interaction.guild.roles.cache, resolvedRole.id)}`,
-    ];
+    const description = [`> ${roleMention}`];
 
-    if (roleAssignment?.assignLevel && roleAssignment.assignLevel !== 0) {
+    // does a role have dangerous permissions?
+    const dangerous = resolvedRole.permissions.any(DANGEROUS_PERMISSIONS);
+    // does the role have an assignLevel?
+    const isAssigned = roleAssignment?.assignLevel && roleAssignment.assignLevel !== 0;
+    // does the role have a deassignLevel?
+    const isDeassigned = roleAssignment?.deassignLevel && roleAssignment.deassignLevel !== 0;
+
+    if (isAssigned) {
       description.push(`* **${t('config-role.assignlevel')}**: \`${roleAssignment.assignLevel}\``);
+      if (dangerous) {
+        description.push('> Warning: This role has Dangerous permissions.');
+      }
     }
 
-    if (roleAssignment?.deassignLevel && roleAssignment.deassignLevel !== 0) {
+    if (isDeassigned) {
       description.push(
         `* **${t('config-role.deassignlevel')}**: \`${roleAssignment.deassignLevel}\``,
+      );
+    }
+
+    if (isAssigned && dangerous) {
+      const fmt = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
+      const list = fmt.format(DANGEROUS_PERMISSIONS_NAMES);
+      description.push('### Dangerous Permissions');
+      description.push(
+        `As a safety measure, ActivityRank avoids assigning "dangerous" roles. Dangerous roles are those that have permissions that may cause harm to a server, such as ${list}. Please remove these permissions from ${roleMention}.`,
       );
     }
 

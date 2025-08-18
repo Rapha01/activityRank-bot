@@ -107,7 +107,7 @@ function getWarningMessage(errors: CheckAssignableRolesErr[], guild: Guild): str
   }
   if (errors.some((err) => err.type === 'localDangerous')) {
     const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
-    const dangerous = formatter.format(dangerousPermissionsList);
+    const dangerous = formatter.format(DANGEROUS_PERMISSIONS_NAMES);
     response.push('### Dangerous Permissions');
     response.push(
       `As a safety measure, ActivityRank avoids assigning "dangerous" roles. Dangerous roles are those that have permissions that may cause harm to a server, such as ${dangerous}.`,
@@ -121,7 +121,7 @@ function getWarningMessage(errors: CheckAssignableRolesErr[], guild: Guild): str
   return response.join('\n');
 }
 
-const dangerousPermissionsList = [
+export const DANGEROUS_PERMISSIONS_NAMES = [
   'Administrator',
   'Ban Members',
   'Kick Members',
@@ -131,7 +131,7 @@ const dangerousPermissionsList = [
   'Manage Webhooks',
 ];
 
-const DANGEROUS_PERMISSIONS =
+export const DANGEROUS_PERMISSIONS =
   PermissionFlagsBits.KickMembers |
   PermissionFlagsBits.BanMembers |
   PermissionFlagsBits.Administrator |
