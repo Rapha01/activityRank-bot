@@ -1,13 +1,11 @@
-/* 🛠️ This file was generated with `activityrank generate` on Wed Jun 18 2025. */
+/* 🛠️ This file was generated with `activityrank generate` on Mon Aug 18 2025. */
 
 import type {
-  Attachment,
   AutocompleteInteraction,
   ChannelType,
   ChatInputCommandInteraction,
   Client,
   GuildChannel,
-  MessageContextMenuCommandInteraction,
   Role,
   ThreadChannel,
   User,
@@ -499,6 +497,15 @@ export function command(options: {
   }) => CommandReturn;
 }): Command;
 export function command(options: {
+  name: 'leaderboard';
+  predicate?: CommandPredicateConfig;
+  execute: (args: {
+    interaction: ChatInputCommandInteraction<'cached'>;
+    client: Client;
+    t: TFunction<'command-content'>;
+  }) => CommandReturn;
+}): Command;
+export function command(options: {
   name: 'blacklist user';
   predicate?: CommandPredicateConfig;
   execute: (args: {
@@ -682,6 +689,7 @@ export const COMMAND_META: {
   top: { optionGetters: {}, type: 'base-command' },
   rank: { optionGetters: { member: ['user'] }, type: 'base-command' },
   'update-roles': { optionGetters: {}, type: 'base-command' },
+  leaderboard: { optionGetters: {}, type: 'base-command' },
   'blacklist user': { optionGetters: { user: ['user'] }, type: 'subcommand' },
   'blacklist guild': { optionGetters: { id: ['value'] }, type: 'subcommand' },
   eval: {

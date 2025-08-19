@@ -75,6 +75,7 @@ CREATE TABLE `guild` (
   `lastTokenBurnDate` bigint(20) NOT NULL DEFAULT '0',
   `resetDay` tinyint(4) NOT NULL DEFAULT '0',
   `resetHour` tinyint(4) NOT NULL DEFAULT '0',
+  `leaderboardWebhook` varchar(200) DEFAULT NULL,
   `joinedAtDate` bigint(20) NOT NULL DEFAULT '0',
   `leftAtDate` bigint(20) NOT NULL DEFAULT '0',
   `addDate` bigint(20) NOT NULL DEFAULT '0',

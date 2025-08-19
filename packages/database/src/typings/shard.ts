@@ -61,6 +61,7 @@ export interface GuildSchema {
   lastTokenBurnDate: Generated<string>; // bigint
   resetDay: Generated<number>;
   resetHour: Generated<number>;
+  leaderboardWebhook: string | null;
   joinedAtDate: Generated<string>; // bigint
   leftAtDate: Generated<string>; // bigint
   addDate: Generated<string>;
