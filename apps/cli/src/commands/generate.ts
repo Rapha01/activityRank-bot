@@ -355,7 +355,7 @@ export class GenerateCommand extends ConfigurableCommand2 {
     p.intro('Generating command typings');
 
     const loader = await this.getConfigLoader();
-    const commands = await loader.load({ name: 'commands', schema: commandsSchema, secret: false });
+    const commands = await loader.loadConfig('commands', { schema: commandsSchema });
 
     const output = [
       `/* 🛠️ This file was generated with \`activityrank generate\` on ${new Date().toDateString()}. */\n\n`,

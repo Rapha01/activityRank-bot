@@ -22,7 +22,7 @@ import {
   type subcommandGroupOptionSchema,
   type subcommandOptionSchema,
 } from './commandSchema.ts';
-import { type BaseConfig, findWorkspaceRoot } from './loaders.ts';
+import { findWorkspaceRoot } from './loaders.ts';
 
 export abstract class ConfigurableCommand2 extends Command {
   hideConfigPath = false;
@@ -257,6 +257,13 @@ export abstract class ConfigurableCommand2 extends Command {
 
     return commands;
   }
+}
+
+interface BaseConfig {
+  config: z.infer<typeof schemas.bot.config>;
+  keys: z.infer<typeof schemas.bot.keys>;
+  api: API;
+  loader: Awaited<ReturnType<typeof configLoader>>;
 }
 
 export class ConfigurableCommand extends Command {
