@@ -8,7 +8,8 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "format": "node ./scripts/format.mjs"
   },
   "contributors": [
     "@rapha01 (https://github.com/rapha01)",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
     "@types/node": "^22.10.2",
+    "markdown-table-prettify": "^3.6.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.1"
   }

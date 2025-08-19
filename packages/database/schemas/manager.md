@@ -14,7 +14,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `botShardStat`
 
 |                    Key | Type        | Nullable | Default |
-| ---------------------: | ----------- | :------: | ------- |
+|-----------------------:|-------------|:--------:|---------|
 |          **`shardId`** | mediumint   |    ×     |         |
 |               `status` | tinyint     |    ×     |         |
 |          `serverCount` | int         |    ×     | 0       |
@@ -39,7 +39,7 @@ This document describes deprecations, requirements, and other notes for tables i
 ### `dbShard`
 
 |      Key | Type        | Nullable | Default |
-| -------: | ----------- | :------: | ------- |
+|---------:|-------------|:--------:|---------|
 | **`id`** | bigint      |    ×     | 0       |
 |   `host` | varchar(45) |    ×     | 0       |
 
@@ -52,14 +52,14 @@ They used to be used to differentiate between development
 and production databases (`intern` and `extern` respectively).
 
 |          Key | Type        | Nullable | Default |
-| -----------: | ----------- | :------: | ------- |
+|-------------:|-------------|:--------:|---------|
 | `hostExtern` | varchar(45) |    ×     | 0       |
 | `hostIntern` | varchar(45) |    ×     | 0       |
 
 ### `guildRoute`
 
 |           Key | Type     | Nullable | Default |
-| ------------: | -------- | :------: | ------- |
+|--------------:|----------|:--------:|---------|
 | **`guildId`** | bigint   |    ×     | 0       |
 |   `dbShardId` | smallint |    ×     | 0       |
 
@@ -76,7 +76,7 @@ their linked Discord OAuth2 `access_token`s.
 > `user_id` references `web_user(id)`
 
 |             Key | Type         | Nullable | Default |
-| --------------: | ------------ | :------: | ------- |
+|----------------:|--------------|:--------:|---------|
 |        **`id`** | varchar(255) |    ×     |         |
 |       `user_id` | bigint(20)   |    ×     |         |
 |  `access_token` | varchar(255) |    ×     |         |
@@ -88,7 +88,7 @@ their linked Discord OAuth2 `access_token`s.
 ### `userRoute`
 
 |          Key | Type     | Nullable | Default |
-| -----------: | -------- | :------: | ------- |
+|-------------:|----------|:--------:|---------|
 | **`userId`** | bigint   |    ×     | 0       |
 |  `dbShardId` | smallint |    ×     | 0       |
 
@@ -99,10 +99,10 @@ their linked Discord OAuth2 `access_token`s.
 Represents dashboard users. Keeps a cache of their username and avatar hash.
 
 |           Key | Type        | Nullable | Default |
-| ------------: | ----------- | :------: | ------- |
+|--------------:|-------------|:--------:|---------|
 |      **`id`** | bigint(20)  |    ×     |         |
 |    `username` | varchar(32) |    ×     |         |
-| `avatar_hash` | varchar(32) |    ☑︎     | NULL    |
+| `avatar_hash` | varchar(32) |    ☑︎    | NULL    |
 
 **Primary Key**: `id`
 
@@ -113,7 +113,7 @@ Represents dashboard users. Keeps a cache of their username and avatar hash.
 Used to be used to collect global stats. Became unmaintained at some point and was never restored.
 
 |                    Key | Type   | Nullable | Default |
-| ---------------------: | ------ | :------: | ------- |
+|-----------------------:|--------|:--------:|---------|
 |           `commands1h` | int    |    ×     | 0       |
 |         `botInvites1h` | int    |    ×     | 0       |
 |           `botKicks1h` | int    |    ×     | 0       |
@@ -129,7 +129,7 @@ Used to be used to collect global stats. Became unmaintained at some point and w
 ### `productKey`
 
 |           Key | Type         | Nullable | Default |
-| ------------: | ------------ | :------: | ------- |
+|--------------:|--------------|:--------:|---------|
 |     **`key`** | varchar(128) |    ×     |         |
 |        `type` | varchar(64)  |    ×     | ""      |
 |      `userId` | bigint       |    ×     | 0       |
@@ -144,7 +144,7 @@ Used to be used to broadcast messages in the footer of `/top` and `/rank` messag
 This functionality has been removed.
 
 |      Key | Type          | Nullable | Default |
-| -------: | ------------- | :------: | ------- |
+|---------:|---------------|:--------:|---------|
 | **`id`** | varchar(64)   |    ×     |         |
 |  `value` | varchar(4096) |    ×     | ""      |
 

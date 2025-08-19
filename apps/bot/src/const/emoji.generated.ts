@@ -1,4 +1,4 @@
-/* 🛠️ This file was generated with `activityrank emoji deploy` on Wed Jul 09 2025. */
+/* 🛠️ This file was generated with `activityrank emoji deploy` on Wed Aug 13 2025. */
 
 export type EmojiNames =
   | 'activityrank'
@@ -11,4 +11,5 @@ export type EmojiNames =
   | 'voice'
   | 'invite'
   | 'upvote'
-  | 'bonus';
+  | 'bonus'
+  | 'store';

@@ -1,5 +1,5 @@
 import type { ShardDB } from '@activityrank/database';
-import type { BaseInteraction, GuildMember } from 'discord.js';
+import type { BaseInteraction, Entitlement, GuildMember } from 'discord.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
 import { getUserModel } from '../bot/models/userModel.js';
 
@@ -60,6 +60,21 @@ function solve(a: number, b: number, c: number) {
   if (result >= 0) return result;
   if (result2 >= 0) return result2;
   return null;
+}
+
+const PREMIUM_SKU_ID = '1393334749568696361';
+
+export function hasValidEntitlement(interaction: BaseInteraction<'cached'>) {
+  function isValidEntitlement(entitlement: Entitlement) {
+    return (
+      entitlement.isGuildSubscription() &&
+      entitlement.isActive() &&
+      entitlement.guildId === interaction.guildId &&
+      entitlement.skuId === PREMIUM_SKU_ID
+    );
+  }
+
+  return interaction.entitlements.some(isValidEntitlement);
 }
 
 export async function getPatreonTiers(interaction: BaseInteraction<'cached'>) {
