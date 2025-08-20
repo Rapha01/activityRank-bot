@@ -1,5 +1,6 @@
-import { DurationFormatter } from '@sapphire/duration';
+import { DurationFormat } from '@formatjs/intl-durationformat';
 import { AttachmentBuilder, EmbedBuilder, Status } from 'discord.js';
+import { Temporal } from 'temporal-polyfill';
 import { command } from '#bot/commands.js';
 import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
 import { managerFetch } from '../../models/managerDb/managerDb.js';
@@ -91,13 +92,16 @@ export default command({
   },
 });
 
-const durationFormatter = new DurationFormatter();
+const durationFormatter = new DurationFormat('en-US', { style: 'long' });
 
 function parseShardInfoContent(shard: Omit<APIShard, 'ip'>) {
+  let uptime = Temporal.Duration.from({ seconds: shard.uptimeSeconds });
+  uptime = uptime.round({ smallestUnit: 'minutes', largestUnit: 'weeks' });
+
   return [
     `  **Status**: \`${shard.status === 0 ? '🟢 Online' : `🔴 ${Status[shard.status]}`}\``,
     `  **Guilds**: \`${shard.serverCount.toLocaleString()}\``,
-    `  **Uptime**: \`${durationFormatter.format(shard.uptimeSeconds * 1000, 3)}\` since <t:${
+    `  **Uptime**: \`${durationFormatter.format(uptime)}\` since <t:${
       shard.readyDate
     }:f>, <t:${shard.readyDate}:R>`,
     `  **Last updated**: <t:${shard.changedHealthDate}:T>, <t:${shard.changedHealthDate}:R>`,
