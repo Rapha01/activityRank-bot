@@ -13,12 +13,12 @@ import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
 
 export default command({
   name: 'memberinfo',
-  async execute({ interaction, options }) {
+  async execute({ interaction, options, t }) {
     const member = (await resolveMember(options.member, interaction)) ?? interaction.member;
 
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    if ((await handleStatCommandsCooldown(interaction)).denied) return;
+    if ((await handleStatCommandsCooldown(t, interaction)).denied) return;
 
     const userModel = await getUserModel(member.user);
     const myTargetUser = await userModel.fetch();

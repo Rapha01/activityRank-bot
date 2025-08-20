@@ -3,9 +3,9 @@ import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { emoji } from '#const/config.js';
 import fct, { hasValidEntitlement } from '../../util/fct.js';
 import { getUserModel } from '../models/userModel.js';
+import { section } from './component.js';
 import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.js';
 import { getWaitTime } from './cooldownUtil.js';
-import { section } from './component.js';
 import { oneline } from './templateStrings.js';
 
 const isDev = process.env.NODE_ENV !== 'production';

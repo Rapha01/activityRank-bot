@@ -68,12 +68,12 @@ interface CacheInstance {
 
 export default command({
   name: 'top',
-  async execute({ interaction }) {
+  async execute({ interaction, t }) {
     await interaction.deferReply();
 
     const cachedGuild = await getGuildModel(interaction.guild);
 
-    if ((await handleStatCommandsCooldown(interaction)).denied) return;
+    if ((await handleStatCommandsCooldown(t, interaction)).denied) return;
 
     const initialState: CacheInstance = {
       window: 'members',

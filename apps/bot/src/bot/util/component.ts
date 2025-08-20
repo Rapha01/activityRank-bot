@@ -72,6 +72,10 @@ export function section(
   return { type: ComponentType.Section, components, accessory };
 }
 
+export function textDisplay(content: string, id?: number): APITextDisplayComponent {
+  return { type: ComponentType.TextDisplay, content, id };
+}
+
 /**
  * Create a button that deletes the current message when pressed.
  */
