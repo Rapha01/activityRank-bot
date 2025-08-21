@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0
+
+### Minor Changes
+
+- [#189](https://github.com/Rapha01/activityRank-bot/pull/189) [`e1d9030`](https://github.com/Rapha01/activityRank-bot/commit/e1d9030648c9cc7c1e97e979bfa489ae163b566a) Thanks [@piemot](https://github.com/piemot)! - Add file-formatting abstraction
+
+### Patch Changes
+
+- [#189](https://github.com/Rapha01/activityRank-bot/pull/189) [`ed32bbb`](https://github.com/Rapha01/activityRank-bot/commit/ed32bbb3fee26200b68b733f95ade293af309e36) Thanks [@piemot](https://github.com/piemot)! - update to use new config loader API
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # Changelog
 
+## 7.13.0
+
+### Minor Changes
+
+- [#189](https://github.com/Rapha01/activityRank-bot/pull/189) [`81ddb7a`](https://github.com/Rapha01/activityRank-bot/commit/81ddb7a7b6b783d41cac832e863dee72d69d64a4) Thanks [@piemot](https://github.com/piemot)! - Ask for premium in cooldownUtil
+
+- [#189](https://github.com/Rapha01/activityRank-bot/pull/189) [`6fdca9f`](https://github.com/Rapha01/activityRank-bot/commit/6fdca9f39476903649af582878a7de0867acf5c8) Thanks [@piemot](https://github.com/piemot)! - Improve ask for premium message (directs to Discord Shop as the way to subscribe to servers)
+
+### Patch Changes
+
+- [#187](https://github.com/Rapha01/activityRank-bot/pull/187) [`cec0594`](https://github.com/Rapha01/activityRank-bot/commit/cec059416258d841acaf9834fa68980d486d17b0) Thanks [@piemot](https://github.com/piemot)! - improve reset logging
+
+- [#187](https://github.com/Rapha01/activityRank-bot/pull/187) [`280fbe3`](https://github.com/Rapha01/activityRank-bot/commit/280fbe3c3c0cfd49a56574caaee81a83f6956a8a) Thanks [@piemot](https://github.com/piemot)! - Include Discord entitlement info in /serverinfo
+
 ## 7.12.1
 
 ### Patch Changes
