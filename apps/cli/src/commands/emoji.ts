@@ -8,6 +8,7 @@ import pc from 'picocolors';
 import TOML from 'smol-toml';
 import { z } from 'zod/v4';
 import { ConfigurableCommand2 } from '../util/classes.ts';
+import { formatFile } from '../util/format.ts';
 import { findWorkspaceRoot } from '../util/loaders.ts';
 
 export class EmojiDeployCommand extends ConfigurableCommand2 {
@@ -161,6 +162,10 @@ export class EmojiDeployCommand extends ConfigurableCommand2 {
       ].join('\n'),
     );
 
+    if (outputDisplay === 'stdout') {
+      await formatFile(outputDisplay);
+    }
+
     if (!this.updateConfig) {
       p.outro(`Emoji typings written to ${pc.gray(outputDisplay)}`);
       return;
@@ -199,6 +204,7 @@ export class EmojiDeployCommand extends ConfigurableCommand2 {
       emojiFilePath,
       JSON.stringify(Object.fromEntries(currentEmojis.items.map((e) => [e.name, e.id])), null, 2),
     );
+    await formatFile(emojiFilePath);
 
     p.outro(`Emoji IDs written to ${pc.gray('config/emoji.json')}`);
   }

@@ -1,5 +1,9 @@
 import {
   type ActionRowData,
+  type APIButtonComponent,
+  type APISectionComponent,
+  type APITextDisplayComponent,
+  type APIThumbnailComponent,
   type ButtonInteraction,
   type ComponentInContainerData,
   ComponentType,
@@ -51,6 +55,25 @@ export function container(
   opts?: Omit<ContainerComponentData, 'type' | 'components'>,
 ): ContainerComponentData {
   return { type: ComponentType.Container, components, ...opts };
+}
+
+export function section(
+  _components: APITextDisplayComponent | APITextDisplayComponent[],
+  accessory: APIButtonComponent | APIThumbnailComponent,
+): APISectionComponent {
+  let components: APITextDisplayComponent[];
+
+  if (Array.isArray(_components)) {
+    components = _components;
+  } else {
+    components = [_components];
+  }
+
+  return { type: ComponentType.Section, components, accessory };
+}
+
+export function textDisplay(content: string, id?: number): APITextDisplayComponent {
+  return { type: ComponentType.TextDisplay, content, id };
 }
 
 /**

@@ -15,7 +15,7 @@ import { registry } from '#bot/util/registry/registry.js';
 import { config } from '#const/config.js';
 import { getGuildModel } from '../models/guild/guildModel.js';
 import { getUserModel } from '../models/userModel.js';
-import askForPremium from '../util/askForPremium.js';
+import { askForPremium } from '../util/askForPremium.js';
 
 export default event(Events.InteractionCreate, async (interaction) => {
   try {

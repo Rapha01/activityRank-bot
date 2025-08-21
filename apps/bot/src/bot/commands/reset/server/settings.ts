@@ -16,7 +16,7 @@ export default command({
       return;
     }
 
-    if ((await handleResetCommandsCooldown(interaction)).denied) return;
+    if ((await handleResetCommandsCooldown(t, interaction)).denied) return;
 
     const predicate = requireUser(interaction.user);
     const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(

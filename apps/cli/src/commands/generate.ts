@@ -11,7 +11,6 @@ import {
   ChannelType,
   InteractionContextType,
 } from 'discord-api-types/v10';
-import { $ } from 'execa';
 import pc from 'picocolors';
 import type { z } from 'zod/v4';
 import { ConfigurableCommand2 } from '../util/classes.ts';
@@ -21,6 +20,7 @@ import {
   commandsSchema,
   type subcommandOptionSchema,
 } from '../util/commandSchema.ts';
+import { formatFile } from '../util/format.ts';
 import { findWorkspaceRoot } from '../util/loaders.ts';
 
 class ObjectTypeBuilder {
@@ -355,7 +355,7 @@ export class GenerateCommand extends ConfigurableCommand2 {
     p.intro('Generating command typings');
 
     const loader = await this.getConfigLoader();
-    const commands = await loader.load({ name: 'commands', schema: commandsSchema, secret: false });
+    const commands = await loader.loadConfig('commands', { schema: commandsSchema });
 
     const output = [
       `/* 🛠️ This file was generated with \`activityrank generate\` on ${new Date().toDateString()}. */\n\n`,
@@ -432,7 +432,7 @@ export class GenerateCommand extends ConfigurableCommand2 {
     await promisify(outputStream.end.bind(outputStream))();
 
     if (outputDisplay !== 'stdout' && this.postGen !== false) {
-      await $`pnpm exec biome format --write ${outputDisplay}`;
+      await formatFile(outputDisplay);
     }
 
     p.outro(`Command typings written to ${pc.gray(outputDisplay)}`);

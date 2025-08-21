@@ -7,7 +7,7 @@ import { requireUser } from '#bot/util/predicates.js';
 
 export default command({
   name: 'reset server members',
-  async execute({ interaction }) {
+  async execute({ interaction, t }) {
     if (
       interaction.channel &&
       !interaction.member.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageGuild)
@@ -19,7 +19,7 @@ export default command({
       return;
     }
 
-    if ((await handleResetCommandsCooldown(interaction)).denied) return;
+    if ((await handleResetCommandsCooldown(t, interaction)).denied) return;
 
     const predicate = requireUser(interaction.user);
 

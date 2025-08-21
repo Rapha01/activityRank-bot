@@ -97,6 +97,7 @@
   "config-xp.xp-per-role.invite": "The amount of XP gained per member invited to the server",
   "bonus.role.role": "Change the bonus XP of all members with a given role.",
   "update-roles": "Resync all activity roles for every user in the server",
+  "leaderboard": "Send a persistent, auto-updating leaderboard.",
   "blacklist.user": "Blacklist a user from the bot.",
   "blacklist.user.user": "The user to blacklist",
   "blacklist.guild": "Blacklist a guild from the bot.",

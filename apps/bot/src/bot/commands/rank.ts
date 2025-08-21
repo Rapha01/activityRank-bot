@@ -52,7 +52,7 @@ export default command({
   async execute({ interaction, client, options, t }) {
     await interaction.deferReply();
 
-    if ((await handleStatCommandsCooldown(interaction)).denied) return;
+    if ((await handleStatCommandsCooldown(t, interaction)).denied) return;
 
     const cachedGuild = await getGuildModel(interaction.guild);
     const myGuild = await cachedGuild.fetch();

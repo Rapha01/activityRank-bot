@@ -1,4 +1,5 @@
 import * as p from '@clack/prompts';
+import type { RESTPutAPIApplicationCommandsJSONBody } from '@discordjs/core';
 import { Command, Option } from 'clipanion';
 import type { RESTPutAPIApplicationGuildCommandsJSONBody } from 'discord-api-types/v10';
 import pc from 'picocolors';
@@ -57,7 +58,7 @@ export class DeployCommand extends ConfigurableCommand2 {
 
     const commands = await this.getDeployableCommands();
 
-    const globalCommands: RESTPutAPIApplicationGuildCommandsJSONBody = commands.filter(
+    const globalCommands: RESTPutAPIApplicationCommandsJSONBody = commands.filter(
       (c) => c.deployment === Deploy.Global,
     );
     const localCommands: RESTPutAPIApplicationGuildCommandsJSONBody =

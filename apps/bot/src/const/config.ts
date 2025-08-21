@@ -18,6 +18,13 @@ export function emoji(name: EmojiNames) {
   }
   return `<:${name}:${id}>`;
 }
+export function emojiId(name: EmojiNames) {
+  const id = emojiIds[name];
+  if (!id) {
+    throw new Error(`Failed to resolve bot emoji "${name}".`);
+  }
+  return id;
+}
 
 const pkgfile = await readFile(packageFile);
 const pkg = JSON.parse(pkgfile.toString());

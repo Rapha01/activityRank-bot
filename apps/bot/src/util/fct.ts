@@ -1,6 +1,7 @@
 import type { ShardDB } from '@activityrank/database';
 import type { BaseInteraction, Entitlement, GuildMember } from 'discord.js';
 import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
+import { PREMIUM_SKU_ID } from '#bot/util/constants.js';
 import { getUserModel } from '../bot/models/userModel.js';
 
 // System
@@ -61,8 +62,6 @@ function solve(a: number, b: number, c: number) {
   if (result2 >= 0) return result2;
   return null;
 }
-
-const PREMIUM_SKU_ID = '1393334749568696361';
 
 export function hasValidEntitlement(interaction: BaseInteraction<'cached'>) {
   function isValidEntitlement(entitlement: Entitlement) {

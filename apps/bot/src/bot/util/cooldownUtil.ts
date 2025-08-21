@@ -1,24 +1,20 @@
+import { DurationFormat } from '@formatjs/intl-durationformat';
 import { Time } from '@sapphire/duration';
-import { type BaseMessageOptions, type ChatInputCommandInteraction, time } from 'discord.js';
+import {
+  type APIMessageTopLevelComponent,
+  type ChatInputCommandInteraction,
+  MessageFlags,
+  time,
+} from 'discord.js';
+import type { TFunction } from 'i18next';
+import { Temporal } from 'temporal-polyfill';
 import { getMemberModel } from '#bot/models/guild/guildMemberModel.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { RESET_GUILD_IDS } from '#bot/models/resetModel.js';
-import { isPrivileged } from '#const/config.js';
+import { emoji, isPrivileged } from '#const/config.js';
 import fct, { hasValidEntitlement } from '../../util/fct.js';
-import { PATREON_COMPONENTS, PATREON_URL } from './constants.js';
-import type { PartiallyRequired } from './typescript.js';
-
-const premiumLowersCooldownMessage = `You can significantly lower this cooldown by supporting the bot and choosing the proper patreon tier for your needs. You can find further info about it [on our Patreon](<${PATREON_URL}>).`;
-
-const activeStatCommandCooldown = (cd: number, next: Date) =>
-  `You can use stat commands only once per ${Math.floor(
-    cd / 1000,
-  )} seconds. You can use it again ${time(next, 'R')}.`;
-
-const activeResetServerCommandCooldown = (cd: number, next: Date) =>
-  `You can start a server reset only once every ${Math.floor(
-    cd / 1000,
-  )} seconds. You can start another reset ${time(next, 'R')}.`;
+import { section, textDisplay } from './component.js';
+import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.js';
 
 /**
  * Calculates the remaining wait time and the next trigger time based on the last recorded date and a cooldown period.
@@ -42,12 +38,14 @@ export function getWaitTime(lastDate: Date | number | undefined | null, cooldown
   return { remaining, next: new Date(now + remaining) };
 }
 
+const ALLOW = { allowed: true, denied: false };
+const DENY = { allowed: false, denied: true };
+
 export async function handleStatCommandsCooldown(
+  t: TFunction<'command-content'>,
   interaction: ChatInputCommandInteraction<'cached'>,
 ): Promise<{ denied: boolean; allowed: boolean }> {
-  const ALLOW = { allowed: true, denied: false };
-  const DENY = { allowed: false, denied: true };
-
+  // ActivityRank staff are exempt from stat command cooldowns
   if (isPrivileged(interaction.user.id)) return ALLOW;
 
   let cd = Time.Minute * 2;
@@ -80,42 +78,73 @@ export async function handleStatCommandsCooldown(
     return ALLOW;
   }
 
-  const reply: PartiallyRequired<BaseMessageOptions, 'content'> = {
-    content: activeStatCommandCooldown(cd, toWait.next),
+  const reply: { flags: number; components: APIMessageTopLevelComponent[] } = {
+    components: [
+      textDisplay(
+        t('cooldown.statcommands', {
+          prefix: emoji('no'),
+          duration: fmtDuration(interaction.locale, cd),
+          countdown: time(toWait.next, 'R'),
+        }),
+      ),
+    ],
+    flags: MessageFlags.IsComponentsV2,
   };
 
   if (!skipAds) {
-    reply.content += premiumLowersCooldownMessage;
-    reply.components = PATREON_COMPONENTS;
+    reply.components.push(
+      section(
+        textDisplay(
+          `To speed up stat commands and support the bot, please consider **[becoming a Patron](<${PATREON_URL}>)**.`,
+        ),
+        PATREON_BUTTON,
+      ),
+      section(
+        textDisplay(
+          `To make these commands faster for everyone in your server, consider **activating ${emoji('store')} Premium** for your server!`,
+        ),
+        PREMIUM_BUTTON,
+      ),
+    );
   }
 
   if (interaction.deferred) {
     await interaction.editReply(reply);
   } else {
-    await interaction.reply({ ...reply, ephemeral: true });
+    await interaction.reply({ ...reply, flags: MessageFlags.Ephemeral | reply.flags });
   }
   return DENY;
 }
 
 export async function handleResetCommandsCooldown(
+  t: TFunction<'command-content'>,
   interaction: ChatInputCommandInteraction<'cached'>,
 ): Promise<{ denied: boolean; allowed: boolean }> {
-  const res = (allowed: boolean) => ({ allowed, denied: !allowed });
-
   if (RESET_GUILD_IDS.has(interaction.guildId)) {
     await interaction.reply({
       content: 'A reset job is currently running. Try again later.',
       ephemeral: true,
     });
-    return res(false);
+    return DENY;
   }
 
-  const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
-
   let cd = Time.Hour / 2;
-  if (userTier === 1) cd = Time.Minute * 10;
-  if (ownerTier === 3) cd = Time.Minute * 5;
-  if (userTier === 2 || userTier === 3) cd = Time.Minute * 2;
+  let skipAds = false;
+
+  if (hasValidEntitlement(interaction)) {
+    // guild has a Discord subscription
+    cd = Time.Minute * 10;
+    skipAds = true;
+  } else {
+    const { userTier, ownerTier } = await fct.getPatreonTiers(interaction);
+    if (ownerTier >= 2) {
+      cd = Time.Minute * 10;
+      skipAds = true;
+    }
+    if (userTier >= 1) {
+      skipAds = true;
+    }
+  }
 
   const cachedGuild = await getGuildModel(interaction.guild);
 
@@ -124,18 +153,43 @@ export async function handleResetCommandsCooldown(
   // no need to wait any longer: set now as last reset and allow
   if (toWait.remaining <= 0) {
     cachedGuild.cache.lastResetServer = new Date();
-    return res(true);
+    return ALLOW;
   }
 
-  const reply: BaseMessageOptions = {
-    content: activeResetServerCommandCooldown(cd, toWait.next),
+  const reply: { flags: number; components: APIMessageTopLevelComponent[] } = {
+    components: [
+      textDisplay(
+        t('cooldown.resetcommands', {
+          prefix: emoji('no'),
+          duration: fmtDuration(interaction.locale, cd),
+          countdown: time(toWait.next, 'R'),
+        }),
+      ),
+    ],
+    flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
   };
 
-  if (userTier < 2) {
-    reply.content += premiumLowersCooldownMessage;
-    reply.components = PATREON_COMPONENTS;
+  if (!skipAds) {
+    reply.components.push(
+      section(
+        textDisplay(
+          `To speed up resets, consider **activating ${emoji('store')} Premium** for your server!`,
+        ),
+        PREMIUM_BUTTON,
+      ),
+    );
   }
 
-  await interaction.reply({ ...reply, ephemeral: true });
-  return res(false);
+  await interaction.reply(reply);
+  return DENY;
+}
+
+function fmtDuration(locale: string, milliseconds: number): string {
+  let dura = Temporal.Duration.from({ milliseconds });
+  // balances `dura` up until "x days"
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration#duration_balancing
+  const smallestUnit = milliseconds > 60_000 * 3 ? 'minutes' : 'seconds';
+  dura = dura.round({ smallestUnit, largestUnit: 'days' });
+
+  return new DurationFormat([locale, 'en-US'], { style: 'long' }).format(dura);
 }

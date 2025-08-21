@@ -75,6 +75,7 @@ This document describes deprecations, requirements, and other notes for tables i
 |                  `lastCommandDate` | bigint(20)    |    ×     | 0          |
 |                         `resetDay` | tinyint(4)    |    ×     | 0          |
 |                        `resetHour` | tinyint(4)    |    ×     | 0          |
+|               `leaderboardWebhook` | varchar(200)  |    ☑︎    | NULL       |
 |                     `joinedAtDate` | bigint(20)    |    ×     | 0          |
 |                       `leftAtDate` | bigint(20)    |    ×     | 0          |
 |                          `addDate` | bigint(20)    |    ×     | 0          |

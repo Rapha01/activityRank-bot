@@ -1,5 +1,6 @@
 import { createWriteStream } from 'node:fs';
 import type { Writable } from 'node:stream';
+import type { schemas } from '@activityrank/cfg';
 import * as p from '@clack/prompts';
 import type { API } from '@discordjs/core';
 import { Command, Option, UsageError } from 'clipanion';
@@ -7,8 +8,8 @@ import { createConnection, type RowDataPacket } from 'mysql2/promise';
 import pc from 'picocolors';
 import TOML from 'smol-toml';
 import t from 'typanion';
+import type z from 'zod';
 import { ConfigurableCommand2 } from '../util/classes.ts';
-import type { BaseConfig } from '../util/loaders.ts';
 
 const FORMATS = ['table', 'csv', 'json', 'toml'] as const;
 type OutputFormat = (typeof FORMATS)[number];
@@ -202,7 +203,7 @@ export class ExportCommand extends ConfigurableCommand2 {
 
   async loadDatabaseEntries(
     guildId: string,
-    keys: BaseConfig['keys'],
+    keys: z.infer<typeof schemas.bot.keys>,
   ): Promise<{ userId: string; xp: number }[]> {
     const manager = await createConnection({
       host: keys.managerHost,

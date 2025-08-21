@@ -19,7 +19,7 @@ export class ValidateCommand extends ConfigurableCommand2 {
     spin.start('Validating config...');
 
     const loader = await this.getConfigLoader();
-    await loader.load({ name: 'commands', schema: commandsSchema, secret: false });
+    await loader.loadConfig('commands', { schema: commandsSchema });
 
     spin.stop(pc.green('✔︎ commands.json validated'));
   }
