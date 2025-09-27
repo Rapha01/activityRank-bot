@@ -17,6 +17,10 @@
       "url": "./config/emoji.schema.json"
     }
   ],
+  "workbench.editor.customLabels.patterns": {
+    "**/src/**/+page.*": "Page – ${dirname} (.${extname})",
+    "**/src/**/+layout.*": "Layout – ${dirname} (.${extname})"
+  },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.formatOnSave": true

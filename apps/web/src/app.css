@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin '@tailwindcss/typography';
+@plugin '@tailwindcss/forms';
+
+@theme {
+	--color-theme-200: #55f6be;
+	--color-theme-400: #42e0f0;
+	--color-theme-700: #3e72cc;
+	--color-theme-800: #38538c;
+
+	--color-text-muted: var(--color-slate-600);
+
+	--font-*: initial;
+	/* based on --font-sans */
+	--font-sans:
+		'Manrope Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+		'Segoe UI Symbol', 'Noto Color Emoji';
+	--font-mono:
+		'Recursive Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+	--font-mono--font-variation-settings: 'MONO' 1;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@variant dark {
+	--color-text-muted: var(--color-slate-400);
+}
+
+/* @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *)) {
+  --color-muted-100: var(--color-slate-400);
+} */
+
+/* transition color (mostly for theme switching) */
+body {
+	transition: color 200ms linear;
+}
