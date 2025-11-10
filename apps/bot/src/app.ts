@@ -41,6 +41,14 @@ process.on('SIGTERM', () => {
   process.exit();
 });
 
+import { serve } from '@hono/node-server';
+import { createRouter } from './router.js';
+
+const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
+serve({ fetch: createRouter(manager).fetch, port });
+console.info(`Server listening on port ${port}`);
+console.info(`[http://localhost:${port}]`);
+
 import type { pino } from 'pino';
 import type { StatFlushCache } from '#bot/statFlushCache.ts';
 import type { XpFlushCache } from '#bot/xpFlushCache.ts';
