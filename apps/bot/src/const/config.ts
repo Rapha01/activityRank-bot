@@ -8,18 +8,16 @@ const loader = await configLoader();
 
 export const config = await loader.loadConfig('config', { schema: schemas.bot.config });
 export const keys = await loader.loadSecret('keys', { schema: schemas.bot.keys });
-export const privileges = await loader.loadConfig('privileges', { schema: schemas.bot.privileges });
-export const emojiIds = await loader.loadConfig('emoji', { schema: schemas.bot.emojis });
 
 export function emoji(name: EmojiNames) {
-  const id = emojiIds[name];
+  const id = config.emoji[name];
   if (!id) {
     throw new Error(`Failed to resolve bot emoji "${name}".`);
   }
   return `<:${name}:${id}>`;
 }
 export function emojiId(name: EmojiNames) {
-  const id = emojiIds[name];
+  const id = config.emoji[name];
   if (!id) {
     throw new Error(`Failed to resolve bot emoji "${name}".`);
   }
@@ -51,5 +49,5 @@ export function hasPrivilege(requirement: PrivilegeLevel, testCase: PrivilegeLev
 }
 
 export function isPrivileged(userId: string) {
-  return Object.keys(privileges).includes(userId);
+  return Object.keys(config.staffEntitlements).includes(userId);
 }

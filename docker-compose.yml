@@ -1,4 +1,4 @@
-name: activityrank
+name: ActivityRank
 
 configs:
   privileges:
@@ -22,8 +22,15 @@ services:
       - ./docker/db/data:/var/lib/mysql
       - ./docker/db/my.cnf:/etc/mysql/my.cnf
     ports:
-      - '3306:3306'
+      - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
+
+  proxy:
+    container_name: Proxy
+    image: ghcr.io/twilight-rs/http-proxy:metrics
+    restart: always
+    ports:
+      - "3001:80"
 
   bot:
     build:
@@ -43,13 +50,13 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    image: 'activityrank/api:dev'
+    image: "activityrank/api:dev"
     depends_on:
       - db
     links:
       - db
     ports:
-      - '3000:3000'
+      - "3000:3000"
     secrets:
       - keys
     configs:

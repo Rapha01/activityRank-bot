@@ -81,14 +81,24 @@
       "uniqueItems": true,
       "type": "array",
       "items": { "$ref": "#/definitions/Snowflake" }
+    },
+    "emoji": {
+      "description": "A record matching bot emoji names to emoji IDs",
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": { "$ref": "#/definitions/Snowflake" }
+    },
+    "staffEntitlements": {
+      "description": "The users that are able to use restricted commands",
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/Snowflake" },
+      "additionalProperties": {
+        "description": "The level of entitlement the staff member should have",
+        "type": "string",
+        "enum": ["DEVELOPER", "MODERATOR", "HELPSTAFF"]
+      }
     }
   },
-  "required": [
-    "supportServer",
-    "invites",
-    "disablePatreon",
-    "developmentServers"
-  ],
   "additionalProperties": false,
   "definitions": {
     "Snowflake": {
