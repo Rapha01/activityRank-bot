@@ -3,6 +3,9 @@ packages:
   - packages/*
 
 onlyBuiltDependencies:
-  - '@swc/core'
-  - '@tailwindcss/oxide'
-  - esbuild
+  - "@swc/core"
+  - "@tailwindcss/oxide"
+  - "esbuild"
+
+# one day
+minimumReleaseAge: 1440
