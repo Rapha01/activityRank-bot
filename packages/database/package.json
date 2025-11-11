@@ -18,13 +18,13 @@
   ],
   "dependencies": {
     "kysely": "^0.27.4",
-    "mysql2": "^3.12.0"
+    "mysql2": "^3.15.3"
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
     "@types/node": "^22.10.2",
-    "markdown-table-prettify": "^3.6.0",
-    "typescript": "^5.7.2",
+    "markdown-table-prettify": "^3.7.0",
+    "typescript": "^5.9.3",
     "vitest": "^2.1.1"
   }
 }
