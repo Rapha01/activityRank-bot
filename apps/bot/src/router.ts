@@ -1,10 +1,10 @@
 import { zValidator } from '@hono/zod-validator';
 import {
   type Client,
-  PermissionFlagsBits,
-  type GuildMember,
-  type ShardingManager,
   type Guild,
+  type GuildMember,
+  PermissionFlagsBits,
+  type ShardingManager,
 } from 'discord.js';
 import { Hono } from 'hono';
 import { z } from 'zod';
