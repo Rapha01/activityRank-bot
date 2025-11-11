@@ -6,7 +6,22 @@ Thank you for your interest in contributing to ActivityRank! Here's some informa
 
 ActivityRank is set up as a monorepo, with all executable components in [apps](apps).
 
-### Deployment
+```
+apps
+|   Each of these can (and should) 
+|   be hosted and ran separately.
+├── api/
+│   |   The public API and the manager.
+│   |   There should be only one of these hosted.
+├── bot/
+│   |   The main processes of the bot.
+├── cli/
+│   |   Internal tools for managing the bot.
+└── web/
+    |   The source code for activityrank.me.
+```
+
+## Deployment
 
 All components should be deployed in production as instances of their Docker containers.
 Ideally, these containers will be built in [GitHub CI](.github/workflows/ci.yml),
@@ -76,7 +91,7 @@ In production, containers tend to be spread out across multiple servers.
         ghcr.io/rapha01/activityrank/manager 
     ```
 
-### Rotating Secrets
+## Rotating Secrets
 
 A deployed service's config may need to be updated. Since a config cannot be deleted while a container is still using it,
 we create a new config and assign it to the container with the appropriate name.
@@ -90,9 +105,7 @@ docker service update <service> --config-rm config --config-add source=config-2,
 docker config rm config
 ```
 
-## Deployment Structure
-
-### Overview
+## Overall Structure
 
 The bot is designed for easy scalability. There should be only one instance of
 the Manager service deployed, and any number of instances of the Bot service
