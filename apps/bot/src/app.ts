@@ -49,7 +49,7 @@ serve({ fetch: createRouter(manager).fetch, port });
 console.info(`Server listening on port ${port}`);
 console.info(`[http://localhost:${port}]`);
 
-import type { pino } from 'pino';
+import type pino from 'pino';
 import type { StatFlushCache } from '#bot/statFlushCache.ts';
 import type { XpFlushCache } from '#bot/xpFlushCache.ts';
 

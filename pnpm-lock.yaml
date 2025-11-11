@@ -57,8 +57,8 @@ importers:
         specifier: ^0.4.2
         version: 0.4.2(hono@4.10.4)
       kysely:
-        specifier: ^0.27.6
-        version: 0.27.6
+        specifier: ^0.28.8
+        version: 0.28.8
       mysql2:
         specifier: ^3.15.3
         version: 3.15.3
@@ -148,8 +148,8 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       kysely:
-        specifier: ^0.27.6
-        version: 0.27.6
+        specifier: ^0.28.8
+        version: 0.28.8
       mysql2:
         specifier: ^3.15.3
         version: 3.15.3
@@ -389,8 +389,8 @@ importers:
   packages/database:
     dependencies:
       kysely:
-        specifier: ^0.27.4
-        version: 0.27.6
+        specifier: ^0.28.8
+        version: 0.28.8
       mysql2:
         specifier: ^3.15.3
         version: 3.15.3
@@ -2576,9 +2576,9 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  kysely@0.27.6:
-    resolution: {integrity: sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ==}
-    engines: {node: '>=14.0.0'}
+  kysely@0.28.8:
+    resolution: {integrity: sha512-QUOgl5ZrS9IRuhq5FvOKFSsD/3+IA6MLE81/bOOTRA/YQpKDza2sFdN5g6JCB9BOpqMJDGefLCQ9F12hRS13TA==}
+    engines: {node: '>=20.0.0'}
 
   lightningcss-android-arm64@1.30.2:
     resolution: {integrity: sha512-BH9sEdOCahSgmkVhBLeU7Hc9DWeZ1Eb6wNS6Da8igvUwAe0sqROHddIlvU06q3WyXVEOYDZ6ykBZQnjTbmo4+A==}
@@ -5978,7 +5978,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  kysely@0.27.6: {}
+  kysely@0.28.8: {}
 
   lightningcss-android-arm64@1.30.2:
     optional: true
