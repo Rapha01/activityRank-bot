@@ -1,8 +1,6 @@
 name: ActivityRank
 
 configs:
-  privileges:
-    file: ./config/privileges.json
   config:
     file: ./config/config.json
 
@@ -38,7 +36,6 @@ services:
       dockerfile: apps/bot/Dockerfile
     container_name: Bot
     configs:
-      - privileges
       - config
     secrets:
       - keys

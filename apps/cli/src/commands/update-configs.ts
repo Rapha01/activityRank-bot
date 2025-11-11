@@ -28,8 +28,6 @@ export class UpdateConfigCommand extends ConfigurableCommand2 {
     const keys = [
       { file: 'config', schema: schemas.config },
       { file: 'keys', schema: schemas.keys },
-      { file: 'privileges', schema: schemas.privileges },
-      { file: 'emoji', schema: schemas.emojis },
     ];
 
     for (const key of keys) {
@@ -71,7 +69,7 @@ export class UpdateConfigCommand extends ConfigurableCommand2 {
 
       for (const [filename, file] of files) {
         if (!file.exists) {
-          // some config files don't need .example schemas, so skip
+          // some config files might not need .example schemas, so skip
           continue;
         }
 

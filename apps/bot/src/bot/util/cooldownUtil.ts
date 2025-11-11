@@ -11,7 +11,7 @@ import { Temporal } from 'temporal-polyfill';
 import { getMemberModel } from '#bot/models/guild/guildMemberModel.js';
 import { getGuildModel } from '#bot/models/guild/guildModel.js';
 import { RESET_GUILD_IDS } from '#bot/models/resetModel.js';
-import { emoji, isPrivileged } from '#const/config.js';
+import { emoji, getStaffEntitlement } from '#const/config.js';
 import fct, { hasValidEntitlement } from '../../util/fct.js';
 import { section, textDisplay } from './component.js';
 import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.js';
@@ -46,7 +46,7 @@ export async function handleStatCommandsCooldown(
   interaction: ChatInputCommandInteraction<'cached'>,
 ): Promise<{ denied: boolean; allowed: boolean }> {
   // ActivityRank staff are exempt from stat command cooldowns
-  if (isPrivileged(interaction.user.id)) return ALLOW;
+  if (getStaffEntitlement(interaction.user.id).isStaff) return ALLOW;
 
   let cd = Time.Minute * 2;
   let skipAds = false;

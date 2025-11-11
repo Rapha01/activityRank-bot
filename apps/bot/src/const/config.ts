@@ -29,25 +29,34 @@ const pkg = JSON.parse(pkgfile.toString());
 
 export const version = pkg.version as string;
 
-export const PrivilegeLevel = {
+export const StaffEntitlementLevel = {
   Developer: 'DEVELOPER',
   Moderator: 'MODERATOR',
   HelpStaff: 'HELPSTAFF',
 } as const;
 
-export type PrivilegeLevel = (typeof PrivilegeLevel)[keyof typeof PrivilegeLevel];
+export type StaffEntitlementLevel =
+  (typeof StaffEntitlementLevel)[keyof typeof StaffEntitlementLevel];
 
-const privilegeLevels: { [k in PrivilegeLevel]: number } = {
-  DEVELOPER: 3,
-  MODERATOR: 2,
+const staffEntitlementLevels: { [k in StaffEntitlementLevel]: number } = {
+  DEVELOPER: 10,
+  MODERATOR: 5,
   HELPSTAFF: 1,
 };
 
-export function hasPrivilege(requirement: PrivilegeLevel, testCase: PrivilegeLevel | undefined) {
-  if (!testCase) return false;
-  return privilegeLevels[testCase] >= privilegeLevels[requirement];
+export function getStaffEntitlement(userId: string) {
+  const isStaff = Object.keys(config.staffEntitlements).includes(userId);
+  if (!isStaff) {
+    return { isStaff } as const;
+  }
+  const entitlementLevel = config.staffEntitlements[userId];
+  return { isStaff, entitlementLevel };
 }
 
-export function isPrivileged(userId: string) {
-  return Object.keys(config.staffEntitlements).includes(userId);
+export function hasStaffEntitlement(
+  requirement: StaffEntitlementLevel,
+  testCase: StaffEntitlementLevel | undefined,
+) {
+  if (!testCase) return false;
+  return staffEntitlementLevels[testCase] >= staffEntitlementLevels[requirement];
 }
