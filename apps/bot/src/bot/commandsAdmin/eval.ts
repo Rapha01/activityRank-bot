@@ -31,7 +31,7 @@ export default command({
     await interaction.deferReply({ ephemeral });
 
     let code = options.eval;
-    const async = options.async ?? serverId !== undefined ?? false;
+    const async = options.async ?? serverId !== undefined;
 
     if (async) {
       code = outdent`

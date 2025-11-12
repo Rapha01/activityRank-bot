@@ -1,8 +1,6 @@
-name: activityrank
+name: ActivityRank
 
 configs:
-  privileges:
-    file: ./config/privileges.json
   config:
     file: ./config/config.json
 
@@ -22,8 +20,18 @@ services:
       - ./docker/db/data:/var/lib/mysql
       - ./docker/db/my.cnf:/etc/mysql/my.cnf
     ports:
-      - '3306:3306'
+      - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
+
+  proxy:
+    container_name: Proxy
+    image: ghcr.io/twilight-rs/http-proxy:metrics
+    restart: always
+    environment:
+      # DISCORD_TOKEN is required but the Authorization header should be used to supply the token.
+      - DISCORD_TOKEN=__required__
+    ports:
+      - "3001:80"
 
   bot:
     build:
@@ -31,7 +39,6 @@ services:
       dockerfile: apps/bot/Dockerfile
     container_name: Bot
     configs:
-      - privileges
       - config
     secrets:
       - keys
@@ -43,13 +50,13 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    image: 'activityrank/api:dev'
+    image: "activityrank/api:dev"
     depends_on:
       - db
     links:
       - db
     ports:
-      - '3000:3000'
+      - "3000:3000"
     secrets:
       - keys
     configs:

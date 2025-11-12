@@ -19,9 +19,9 @@
   "devDependencies": {
     "@biomejs/biome": "2.1.3",
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.5",
+    "@changesets/cli": "^2.29.7",
     "syncpack": "^13.0.4",
-    "turbo": "^2.5.5"
+    "turbo": "^2.6.0"
   },
-  "packageManager": "pnpm@10.14.0"
+  "packageManager": "pnpm@10.21.0"
 }

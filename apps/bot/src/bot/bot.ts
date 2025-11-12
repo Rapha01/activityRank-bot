@@ -2,11 +2,13 @@ import { Time } from '@sapphire/duration';
 import {
   ActivityType,
   Client,
+  type ClientOptions,
   GatewayIntentBits,
   type GuildMember,
   Options,
   Partials,
 } from 'discord.js';
+import { keys } from '#const/config.js';
 import { updateTexts } from '#models/managerDb/textModel.js';
 import fct from '../util/fct.js';
 import globalLogger from '../util/logger.js';
@@ -14,22 +16,6 @@ import { memberCache } from './models/guild/guildMemberModel.js';
 import { ensureI18nLoaded } from './util/i18n.js';
 import loggerManager from './util/logger.js';
 import { registry } from './util/registry/registry.js';
-
-const intents = [
-  GatewayIntentBits.Guilds,
-  GatewayIntentBits.GuildMembers,
-  // FLAGS.GUILD_BANS,
-  // FLAGS.GUILD_EMOJIS_AND_STICKERS,
-  // GatewayIntentBits.GuildIntegrations,
-  // FLAGS.GUILD_WEBHOOKS,
-  GatewayIntentBits.GuildVoiceStates,
-  GatewayIntentBits.GuildMessages,
-  GatewayIntentBits.GuildMessageReactions,
-  // FLAGS.GUILD_MESSAGE_TYPING,
-  // FLAGS.DIRECT_MESSAGES,
-  // FLAGS.DIRECT_MESSAGE_REACTIONS,
-  // FLAGS.DIRECT_MESSAGE_TYPING,
-];
 
 /**
  * Decide whether or not a member should be kept cached.
@@ -48,8 +34,14 @@ function keepMemberCached(member: GuildMember): boolean {
   return false;
 }
 
-const client = new Client({
-  intents,
+const clientOptions: ClientOptions = {
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+  ],
   presence: {
     activities: [
       {
@@ -86,7 +78,13 @@ const client = new Client({
   },
   // Message and Reaction partials are required to listen for reactions on uncached messages (for reactionVotes).
   partials: [Partials.Message, Partials.Reaction],
-});
+};
+
+if (keys.proxy) {
+  clientOptions.rest = { api: keys.proxy };
+}
+
+const client = new Client(clientOptions);
 
 // Adjusts number of threads allocated by libuv
 // @ts-expect-error process.env only expects string values

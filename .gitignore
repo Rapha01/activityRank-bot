@@ -5,7 +5,6 @@ dist
 
 config/keys.json
 config/config.json
-config/privileges.json
 config/*.local.*
 
 docker/db/data

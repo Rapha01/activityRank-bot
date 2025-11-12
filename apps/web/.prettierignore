@@ -1,0 +1,11 @@
+# Package Manager
+pnpm-lock.yaml
+
+# Miscellaneous
+/static/
+
+# Handled by Biome
+.prettierrc
+*.ts
+*.js
+*.json

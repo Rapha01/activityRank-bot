@@ -69,6 +69,15 @@ export const config = z.object({
     description: 'The IDs of servers in which to register development commands',
     uniqueItems: true,
   }),
+  emoji: z.record(z.string(), snowflake).describe('A record matching bot emoji names to emoji IDs'),
+  staffEntitlements: z
+    .record(
+      snowflake,
+      z
+        .enum(['DEVELOPER', 'MODERATOR', 'HELPSTAFF'])
+        .meta({ description: 'The level of entitlement the staff member should have' }),
+    )
+    .describe('The users that are able to use restricted commands'),
 });
 
 export const keys = z.object({
@@ -92,6 +101,8 @@ export const keys = z.object({
   managerDb: dbConnection.describe('Properties concerning manager DB connections'),
   /**Properties concerning shard DB connections*/
   shardDb: dbConnection.describe('Properties concerning shard DB connections'),
+  /**A proxy server to route Discord REST API requests through*/
+  proxy: z.url().nullable().describe('A proxy server to route Discord REST API requests through'),
 });
 
 export const botConfig = config.pick({
@@ -99,6 +110,8 @@ export const botConfig = config.pick({
   invites: true,
   supportServer: true,
   disablePatreon: true,
+  emoji: true,
+  staffEntitlements: true,
 });
 
 export const botKeys = keys.pick({
@@ -110,6 +123,7 @@ export const botKeys = keys.pick({
   managerDb: true,
   managerHost: true,
   shardDb: true,
+  proxy: true,
 });
 
 export const apiConfig = config.pick({
@@ -126,27 +140,10 @@ export const apiKeys = keys.pick({
   shardDb: true,
 });
 
-/**The users that are able to use privileged commands*/
-export const privileges = z
-  .record(
-    snowflake,
-    z
-      .enum(['DEVELOPER', 'MODERATOR', 'HELPSTAFF'])
-      .meta({ description: 'The level of privilege the user should have' }),
-  )
-  .describe('The users that are able to use privileged commands');
-
-/**A record of bot emoji names to IDs*/
-export const emojis = z
-  .record(z.string(), snowflake)
-  .describe('A record of bot emoji names to emoji IDs');
-
 // preset schemas
 export const bot = {
   config: botConfig,
   keys: botKeys,
-  privileges,
-  emojis,
 };
 
 export const api = {

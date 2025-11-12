@@ -13,5 +13,26 @@
     "admin": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=8&scope=bot%20applications.commands%20applications.commands.permissions.update"
   },
   "disablePatreon": true,
-  "developmentServers": ["905898879785005106", "534598374985302027"]
+  "developmentServers": ["905898879785005106", "534598374985302027"],
+  "emoji": {
+    "level": "1363983846495879372",
+    "activityrank": "1363983847724945408",
+    "yes": "1392642761857040465",
+    "no": "1392642763274846288",
+    "deleteduser": "1392642764533141514",
+    "deletedchannel": "1392642765904674938",
+    "message": "1392642766885879919",
+    "voice": "1392642768475521024",
+    "invite": "1392642769595400292",
+    "upvote": "1392642771126583430",
+    "bonus": "1392642772300726514",
+    "store": "1405413979152580668"
+  },
+  "staffEntitlements": {
+    "774660568728469585": "DEVELOPER",
+    "270273690074087427": "DEVELOPER",
+    "181725637940084736": "MODERATOR",
+    "323136330844471298": "HELPSTAFF",
+    "1053466782381383740": "HELPSTAFF"
+  }
 }

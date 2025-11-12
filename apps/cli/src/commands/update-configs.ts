@@ -7,6 +7,7 @@ import pc from 'picocolors';
 import invariant from 'tiny-invariant';
 import { z } from 'zod/v4';
 import { ConfigurableCommand2 } from '../util/classes.ts';
+import { formatFile } from '../util/format.ts';
 import { findWorkspaceConfig } from '../util/loaders.ts';
 
 export class UpdateConfigCommand extends ConfigurableCommand2 {
@@ -28,16 +29,17 @@ export class UpdateConfigCommand extends ConfigurableCommand2 {
     const keys = [
       { file: 'config', schema: schemas.config },
       { file: 'keys', schema: schemas.keys },
-      { file: 'privileges', schema: schemas.privileges },
-      { file: 'emoji', schema: schemas.emojis },
     ];
 
     for (const key of keys) {
       // target `draft-7` because the most-used VSCode extension doesn't support `2020-12`
-      await writeFile(
-        path.join(configRoot, `${key.file}.schema.json`),
-        JSON.stringify(z.toJSONSchema(key.schema, { target: 'draft-7' })),
-      );
+      const jsonSchema = z.toJSONSchema(key.schema, { target: 'draft-7' });
+      // make fields all optional (different services require different keys)
+      delete jsonSchema.required;
+
+      const schemaFilePath = path.join(configRoot, `${key.file}.schema.json`);
+      await writeFile(schemaFilePath, JSON.stringify(jsonSchema));
+      await formatFile(schemaFilePath);
     }
 
     async function loadFile(
@@ -71,7 +73,7 @@ export class UpdateConfigCommand extends ConfigurableCommand2 {
 
       for (const [filename, file] of files) {
         if (!file.exists) {
-          // some config files don't need .example schemas, so skip
+          // some config files might not need .example schemas, so skip
           continue;
         }
 

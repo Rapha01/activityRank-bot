@@ -1,5 +1,5 @@
 import { Kysely, MysqlDialect } from 'kysely';
-import { createConnection, createPool, type PoolOptions } from 'mysql2/promise';
+import { createConnection, createPool, type PoolOptions } from 'mysql2';
 import type { ManagerInstance } from './manager.js';
 import type { ShardDB } from './typings/shard.js';
 
@@ -61,11 +61,7 @@ export function createShardInstance(options: PoolOptions) {
   /**
    * The Kysely instance of this shardDB instance.
    */
-  const db: Kysely<ShardDB> = new Kysely({
-    // `pool.pool` is fed into Kysely because it operates on callback-based
-    // pools, not the promise-based ones we use elsewhere.
-    dialect: new MysqlDialect({ pool: pool.pool }),
-  });
+  const db: Kysely<ShardDB> = new Kysely({ dialect: new MysqlDialect({ pool }) });
 
   /**
    * Returns an async `mysql2.Connection` instance from the pool.
@@ -77,7 +73,7 @@ export function createShardInstance(options: PoolOptions) {
    * This is especially dangerous because shards tend to have a low connection limit.
    */
   async function getConnection() {
-    return await pool.getConnection();
+    return await pool.promise().getConnection();
   }
 
   /**
@@ -85,13 +81,13 @@ export function createShardInstance(options: PoolOptions) {
    * If it fails, an error will be thrown.
    */
   async function testConnection(timeout = 2_000) {
-    const conn = await createConnection({ ...options, connectTimeout: timeout });
-    await conn.end();
+    const conn = createConnection({ ...options, connectTimeout: timeout });
+    await conn.promise().end();
   }
 
   /** @deprecated Prefer querying with Kysely */
   async function _query<T>(sql: string): Promise<T> {
-    return (await pool.query(sql))[0] as T;
+    return (await pool.promise().query(sql))[0] as T;
   }
 
   return { db, getConnection, testConnection, _query };
