@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- [#190](https://github.com/Rapha01/activityRank-bot/pull/190) [`3eef231`](https://github.com/Rapha01/activityRank-bot/commit/3eef231cd4f479ac210cce3695b741061fd3b1b4) Thanks [@piemot](https://github.com/piemot)! - Update dependencies
+
+- Updated dependencies [[`9c7b93d`](https://github.com/Rapha01/activityRank-bot/commit/9c7b93d214929818e9fa05c3d279b5252b46a333), [`bd1a7eb`](https://github.com/Rapha01/activityRank-bot/commit/bd1a7eb684c338a13c5b0506b73d7140d8aa1909), [`3eef231`](https://github.com/Rapha01/activityRank-bot/commit/3eef231cd4f479ac210cce3695b741061fd3b1b4)]:
+  - @activityrank/cfg@0.3.0
+
 ## 1.3.0
 
 ### Minor Changes
