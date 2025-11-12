@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { ShardingManager } from 'discord.js';
+import { ShardingManager, type ShardingManagerOptions } from 'discord.js';
 import { keys } from '#const/config.js';
 import scheduler from './cron/scheduler.js';
 import fct from './util/fct.js';
@@ -8,11 +8,7 @@ import logger from './util/logger.js';
 if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production')
   process.env.NODE_ENV = 'development';
 
-const managerOptions = {
-  token: keys.botAuth,
-  // shardList: Array.from(Array(20).keys()),
-  // totalShards: 20
-};
+const managerOptions: ShardingManagerOptions = { token: keys.botAuth };
 
 const manager = new ShardingManager(
   fileURLToPath(new URL('./bot/bot.js', import.meta.url)),

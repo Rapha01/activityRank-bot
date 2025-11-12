@@ -1,6 +1,7 @@
 {
   "botAuth": "",
   "botId": "888488557352747020",
+  "proxy": "http://127.0.0.1:3001/api",
   "dblApiKey": "",
   "patreonAccessToken": "",
   "managerApiAuth": "",

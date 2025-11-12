@@ -27,6 +27,9 @@ services:
     container_name: Proxy
     image: ghcr.io/twilight-rs/http-proxy:metrics
     restart: always
+    environment:
+      # DISCORD_TOKEN is required but the Authorization header should be used to supply the token.
+      - DISCORD_TOKEN=__required__
     ports:
       - "3001:80"
 

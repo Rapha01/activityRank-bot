@@ -101,6 +101,8 @@ export const keys = z.object({
   managerDb: dbConnection.describe('Properties concerning manager DB connections'),
   /**Properties concerning shard DB connections*/
   shardDb: dbConnection.describe('Properties concerning shard DB connections'),
+  /**A proxy server to route Discord REST API requests through*/
+  proxy: z.url().nullable().describe('A proxy server to route Discord REST API requests through'),
 });
 
 export const botConfig = config.pick({
@@ -121,6 +123,7 @@ export const botKeys = keys.pick({
   managerDb: true,
   managerHost: true,
   shardDb: true,
+  proxy: true,
 });
 
 export const apiConfig = config.pick({

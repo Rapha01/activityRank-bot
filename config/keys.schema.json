@@ -84,19 +84,12 @@
       },
       "required": ["dbUser", "dbPassword", "dbName"],
       "additionalProperties": false
+    },
+    "proxy": {
+      "description": "A proxy server to route Discord REST API requests through",
+      "anyOf": [{ "type": "string", "format": "uri" }, { "type": "null" }]
     }
   },
-  "required": [
-    "botAuth",
-    "botId",
-    "dblApiKey",
-    "patreonAccessToken",
-    "managerApiAuth",
-    "managerApiHost",
-    "managerHost",
-    "managerDb",
-    "shardDb"
-  ],
   "additionalProperties": false,
   "definitions": {
     "Snowflake": {
