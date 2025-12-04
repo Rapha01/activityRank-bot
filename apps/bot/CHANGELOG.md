@@ -1,5 +1,15 @@
 # Changelog
 
+## 7.14.1
+
+### Patch Changes
+
+- [#193](https://github.com/Rapha01/activityRank-bot/pull/193) [`3a5adbf`](https://github.com/Rapha01/activityRank-bot/commit/3a5adbf2539d287de89103b8fd6524afc00aacb1) Thanks [@piemot](https://github.com/piemot)! - move zod to full dependency
+
+- Updated dependencies [[`96f1dd7`](https://github.com/Rapha01/activityRank-bot/commit/96f1dd77ff40167a3e09e986a6bc039f27843165)]:
+  - @activityrank/cfg@0.3.1
+  - @activityrank/database@0.1.2
+
 ## 7.14.0
 
 ### Minor Changes

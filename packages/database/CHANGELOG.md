@@ -1,5 +1,11 @@
 # @activityrank/database
 
+## 0.1.2
+
+### Patch Changes
+
+- [`96f1dd7`](https://github.com/Rapha01/activityRank-bot/commit/96f1dd77ff40167a3e09e986a6bc039f27843165) Thanks [@piemot](https://github.com/piemot)! - Update tsconfig for direct transpilation
+
 ## 0.1.1
 
 ### Patch Changes

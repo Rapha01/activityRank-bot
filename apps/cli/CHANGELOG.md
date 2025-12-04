@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`96f1dd7`](https://github.com/Rapha01/activityRank-bot/commit/96f1dd77ff40167a3e09e986a6bc039f27843165)]:
+  - @activityrank/cfg@0.3.1
+
 ## 1.3.1
 
 ### Patch Changes
