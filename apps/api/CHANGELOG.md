@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.10
+
+### Patch Changes
+
+- [`96f1dd7`](https://github.com/Rapha01/activityRank-bot/commit/96f1dd77ff40167a3e09e986a6bc039f27843165) Thanks [@piemot](https://github.com/piemot)! - Update tsconfig for direct transpilation
+
+- Updated dependencies [[`96f1dd7`](https://github.com/Rapha01/activityRank-bot/commit/96f1dd77ff40167a3e09e986a6bc039f27843165)]:
+  - @activityrank/cfg@0.3.1
+  - @activityrank/database@0.1.2
+
 ## 0.3.9
 
 ### Patch Changes
