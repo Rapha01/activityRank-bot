@@ -1,5 +1,5 @@
 import { type APIEmbed, type Guild, time } from 'discord.js';
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import { command } from '#bot/commands.js';
 import { resolveMember } from '#bot/util/parser.js';
 import { emoji } from '#const/config.js';

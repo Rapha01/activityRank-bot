@@ -6,7 +6,7 @@ import {
   EmbedBuilder,
   StringSelectMenuBuilder,
 } from 'discord.js';
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import { command } from '#bot/commands.js';
 import { requireUser } from '#bot/util/predicates.js';
 import { component } from '#bot/util/registry/component.js';

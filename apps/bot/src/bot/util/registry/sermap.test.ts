@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { type Serializable, SerializableMap } from './serializableMap';
+import { type Serializable, SerializableMap } from './serializableMap.js';
 
 // Mock Serializable class
 class Key implements Serializable {
-  constructor(private numbers: number[]) {}
+  private numbers: number[];
+
+  constructor(numbers: number[]) {
+    this.numbers = numbers;
+  }
 
   get serialized() {
     return this.numbers.join(' ');

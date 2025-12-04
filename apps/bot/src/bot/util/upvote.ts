@@ -18,32 +18,34 @@ const upvoteCache = new Map<string, Date>();
 /**
  * The status of an attempt to upvote another member.
  */
-export enum UpvoteAttempt {
+export const UpvoteAttempt = {
   /** Successfully upvoted the target */
-  Success = 0,
+  Success: 'Success',
   /** The guild has upvotes disabled globally. */
-  DisabledGuild = 1,
+  DisabledGuild: 'DisabledGuild',
   /** Attempted to upvote a bot. */
-  TargetBot = 2,
+  TargetBot: 'TargetBot',
   /** Attempted to upvote self. */
-  TargetSelf = 3,
+  TargetSelf: 'TargetSelf',
   /** The target has a noXP role that prohibits adding XP. */
-  TargetHasNoXP = 4,
+  TargetHasNoXP: 'TargetHasNoXP',
   /** The user has voted recently. */
-  TimeoutNotElapsed = 5,
-}
+  TimeoutNotElapsed: 'TimeoutNotElapsed',
+} as const;
+
+export type UpvoteAttempt = (typeof UpvoteAttempt)[keyof typeof UpvoteAttempt];
 
 type UpvoteAttemptResult =
-  | { status: UpvoteAttempt.Success; multiplier: number }
+  | { status: typeof UpvoteAttempt.Success; multiplier: number }
   | {
       status:
-        | UpvoteAttempt.DisabledGuild
-        | UpvoteAttempt.TargetBot
-        | UpvoteAttempt.TargetSelf
-        | UpvoteAttempt.TargetHasNoXP;
+        | typeof UpvoteAttempt.DisabledGuild
+        | typeof UpvoteAttempt.TargetBot
+        | typeof UpvoteAttempt.TargetSelf
+        | typeof UpvoteAttempt.TargetHasNoXP;
     }
   | {
-      status: UpvoteAttempt.TimeoutNotElapsed;
+      status: typeof UpvoteAttempt.TimeoutNotElapsed;
       nextUpvote: Date;
     };
 

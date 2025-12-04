@@ -21,7 +21,7 @@ import type { TFunction } from 'i18next';
 import i18n from 'i18next';
 import { nanoid } from 'nanoid';
 import invariant from 'tiny-invariant';
-import { type InvalidPredicateCallback, Predicate, type PredicateCheck } from './predicate.js';
+import type { InvalidPredicateCallback, Predicate, PredicateCheck } from './predicate.js';
 import { registry } from './registry.js';
 
 interface PredicateConfig<I extends ComponentInteraction> {
@@ -46,10 +46,12 @@ export type ComponentCallback<TInteraction extends ComponentInteraction, TData> 
 export abstract class ComponentInstance<I extends ComponentInteraction, D> {
   public readonly identifier: string;
 
-  constructor(
-    protected readonly parent: Component<I, D>,
-    public readonly data: D,
-  ) {
+  protected readonly parent: Component<I, D>;
+  public readonly data: D;
+
+  constructor(parent: Component<I, D>, data: D) {
+    this.parent = parent;
+    this.data = data;
     this.identifier = nanoid(20);
     registry.registerComponentInstance(this);
   }
@@ -132,34 +134,32 @@ export abstract class Component<I extends ComponentInteraction, D> {
   }
 }
 
-export enum ComponentKey {
-  Throw = '__THROW_IF_PRESSED__',
-  Warn = '__WARN_IF_PRESSED__',
-  Ignore = '__IGNORE_IF_PRESSED__',
-}
+export const ComponentKey = {
+  Throw: '__THROW_IF_PRESSED__' as const,
+  Warn: '__WARN_IF_PRESSED__' as const,
+  Ignore: '__IGNORE_IF_PRESSED__' as const,
+};
+export type ComponentKey = (typeof ComponentKey)[keyof typeof ComponentKey];
 
 class MessageComponentInstance<
   I extends MessageComponentInteraction<'cached'>,
   D,
 > extends ComponentInstance<I, D> {
-  constructor(
-    parent: Component<I, D>,
-    data: D,
-    public readonly predicate: ComponentPredicateConfig | null,
-  ) {
+  public readonly predicate: ComponentPredicateConfig | null;
+
+  constructor(parent: Component<I, D>, data: D, predicate: ComponentPredicateConfig | null) {
     super(parent, data);
+    this.predicate = predicate;
   }
 
   public checkPredicate(
     interaction: MessageComponentInteraction<'cached'>,
   ): ComponentPredicateCheck {
-    if (!this.predicate) return { status: Predicate.Allow };
+    if (!this.predicate) return { status: 'ALLOW' };
 
     const status = this.predicate.validate(interaction);
 
-    return status === Predicate.Allow
-      ? { status }
-      : { status, callback: this.predicate.invalidCallback };
+    return status === 'ALLOW' ? { status } : { status, callback: this.predicate.invalidCallback };
   }
 
   public async execute(interaction: I): Promise<void> {
@@ -209,22 +209,19 @@ class ModalComponentInstance<
   I extends ModalSubmitInteraction<'cached'>,
   D,
 > extends ComponentInstance<I, D> {
-  constructor(
-    parent: Component<I, D>,
-    data: D,
-    public readonly predicate: ComponentPredicateConfig | null,
-  ) {
+  public readonly predicate: ComponentPredicateConfig | null;
+
+  constructor(parent: Component<I, D>, data: D, predicate: ComponentPredicateConfig | null) {
     super(parent, data);
+    this.predicate = predicate;
   }
 
   public checkPredicate(interaction: ModalSubmitInteraction<'cached'>): ComponentPredicateCheck {
-    if (!this.predicate) return { status: Predicate.Allow };
+    if (!this.predicate) return { status: 'ALLOW' };
 
     const status = this.predicate.validate(interaction);
 
-    return status === Predicate.Allow
-      ? { status }
-      : { status, callback: this.predicate.invalidCallback };
+    return status === 'ALLOW' ? { status } : { status, callback: this.predicate.invalidCallback };
   }
 
   public async execute(interaction: I): Promise<void> {
@@ -238,11 +235,11 @@ class ModalComponentInstance<
 }
 
 class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> extends Component<I, D> {
-  constructor(
-    public readonly callback: ComponentCallback<I, any>,
-    autoDestroy: boolean,
-  ) {
+  public readonly callback: ComponentCallback<I, any>;
+
+  constructor(callback: ComponentCallback<I, any>, autoDestroy: boolean) {
     super(autoDestroy);
+    this.callback = callback;
   }
 
   public instanceId(
@@ -260,8 +257,11 @@ class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> exten
 }
 
 class ModalComponent<I extends ModalSubmitInteraction<'cached'>, D> extends Component<I, D> {
-  constructor(public readonly callback: ComponentCallback<I, any>) {
+  public readonly callback: ComponentCallback<I, any>;
+
+  constructor(callback: ComponentCallback<I, any>) {
     super(false);
+    this.callback = callback;
   }
 
   public instanceId(

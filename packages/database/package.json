@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
-    "@types/node": "^22.10.2",
+    "@types/node": "^24.10.1",
     "markdown-table-prettify": "^3.7.0",
     "typescript": "^5.9.3",
     "vitest": "^2.1.1"

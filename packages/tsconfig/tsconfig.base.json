@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
+    "target": "esnext",
+    "module": "nodenext",
     "skipLibCheck": true,
-    "target": "es2022",
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
+    "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,
     "strict": true,
     "noImplicitOverride": true,
-    "lib": ["es2022"],
     "customConditions": ["@activityrank/dev"]
   }
 }

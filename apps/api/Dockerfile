@@ -1,15 +1,12 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=20.17
+ARG NODE_VERSION=24.11
 ARG APP_DIR_NAME=apps/api
 ARG APP_PKG_NAME=@activityrank/api
 
 FROM node:${NODE_VERSION}-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-
-# TEMP FIX: see https://github.com/nodejs/corepack/issues/627
-RUN npm install -g corepack@^0.31.0
 
 RUN corepack enable
 RUN pnpm add -g turbo@^2
@@ -22,7 +19,6 @@ COPY . .
 
 # Generate a partial monorepo with a pruned lockfile for a target workspace.
 RUN pnpm exec turbo prune $APP_PKG_NAME --docker
-
 
 FROM base AS installer
 WORKDIR /app

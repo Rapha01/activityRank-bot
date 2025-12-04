@@ -1,15 +1,12 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=20.17
+ARG NODE_VERSION=24.11
 ARG APP_DIR_NAME=apps/bot
 ARG APP_PKG_NAME=@activityrank/bot
 
 FROM node:${NODE_VERSION}-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-
-# TEMP FIX: see https://github.com/nodejs/corepack/issues/627
-RUN npm install -g corepack@^0.31.0
 
 RUN corepack enable
 RUN pnpm add -g turbo@^2
