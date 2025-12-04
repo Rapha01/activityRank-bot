@@ -46,10 +46,12 @@ export type ComponentCallback<TInteraction extends ComponentInteraction, TData> 
 export abstract class ComponentInstance<I extends ComponentInteraction, D> {
   public readonly identifier: string;
 
-  constructor(
-    protected readonly parent: Component<I, D>,
-    public readonly data: D,
-  ) {
+  protected readonly parent: Component<I, D>;
+  public readonly data: D;
+
+  constructor(parent: Component<I, D>, data: D) {
+    this.parent = parent;
+    this.data = data;
     this.identifier = nanoid(20);
     registry.registerComponentInstance(this);
   }
@@ -142,12 +144,11 @@ class MessageComponentInstance<
   I extends MessageComponentInteraction<'cached'>,
   D,
 > extends ComponentInstance<I, D> {
-  constructor(
-    parent: Component<I, D>,
-    data: D,
-    public readonly predicate: ComponentPredicateConfig | null,
-  ) {
+  public readonly predicate: ComponentPredicateConfig | null;
+
+  constructor(parent: Component<I, D>, data: D, predicate: ComponentPredicateConfig | null) {
     super(parent, data);
+    this.predicate = predicate;
   }
 
   public checkPredicate(
@@ -209,12 +210,11 @@ class ModalComponentInstance<
   I extends ModalSubmitInteraction<'cached'>,
   D,
 > extends ComponentInstance<I, D> {
-  constructor(
-    parent: Component<I, D>,
-    data: D,
-    public readonly predicate: ComponentPredicateConfig | null,
-  ) {
+  public readonly predicate: ComponentPredicateConfig | null;
+
+  constructor(parent: Component<I, D>, data: D, predicate: ComponentPredicateConfig | null) {
     super(parent, data);
+    this.predicate = predicate;
   }
 
   public checkPredicate(interaction: ModalSubmitInteraction<'cached'>): ComponentPredicateCheck {
@@ -238,11 +238,11 @@ class ModalComponentInstance<
 }
 
 class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> extends Component<I, D> {
-  constructor(
-    public readonly callback: ComponentCallback<I, any>,
-    autoDestroy: boolean,
-  ) {
+  public readonly callback: ComponentCallback<I, any>;
+
+  constructor(callback: ComponentCallback<I, any>, autoDestroy: boolean) {
     super(autoDestroy);
+    this.callback = callback;
   }
 
   public instanceId(
@@ -260,8 +260,11 @@ class MessageComponent<I extends MessageComponentInteraction<'cached'>, D> exten
 }
 
 class ModalComponent<I extends ModalSubmitInteraction<'cached'>, D> extends Component<I, D> {
-  constructor(public readonly callback: ComponentCallback<I, any>) {
+  public readonly callback: ComponentCallback<I, any>;
+
+  constructor(callback: ComponentCallback<I, any>) {
     super(false);
+    this.callback = callback;
   }
 
   public instanceId(

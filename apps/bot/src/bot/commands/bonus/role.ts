@@ -12,7 +12,7 @@ import {
   type Role,
 } from 'discord.js';
 import type { TFunction } from 'i18next';
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import { command } from '#bot/commands.js';
 import statFlushCache from '../../statFlushCache.js';
 

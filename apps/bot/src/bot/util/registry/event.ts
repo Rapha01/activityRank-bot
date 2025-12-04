@@ -34,6 +34,12 @@ export function event<E extends EventKey = EventKey>(
  * Represents an event handler that associates a callback with an event, either from discord.js or manually triggered.
  */
 export class EventHandler {
+  readonly name: EventKey;
+  // intentional use of `any`: type-checking args is only useful when *defining*
+  // the event, which is handled by `event()` and works as intended.
+  readonly callback: (...params: any[]) => Promise<void> | void;
+  readonly once: boolean;
+
   /**
    * Creates an instance of EventHandler.
    * @param name The name of the event.
@@ -41,10 +47,14 @@ export class EventHandler {
    * @param once Whether the event handler should execute only once.
    */
   constructor(
-    readonly name: EventKey,
+    name: EventKey,
     // intentional use of `any`: type-checking args is only useful when *defining*
     // the event, which is handled by `event()` and works as intended.
-    readonly callback: (...params: any[]) => Promise<void> | void,
-    readonly once: boolean,
-  ) {}
+    callback: (...params: any[]) => Promise<void> | void,
+    once: boolean,
+  ) {
+    this.name = name;
+    this.callback = callback;
+    this.once = once;
+  }
 }

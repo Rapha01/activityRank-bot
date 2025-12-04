@@ -5,23 +5,16 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "production": "NODE_ENV=production node ./src/app.js",
-    "development": "NODE_ENV=development node ./src/app.js",
-    "developmentNodemon": "nodemon --exec \"npm run build && npm run dev\"",
+    "start": "node --enable-source-maps src/app.ts",
+    "watch": "nodemon --exec \"node --enable-source-maps src/app.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:check": "vitest --run",
-    "build": "swc src --out-dir dist --copy-files --strip-leading-paths",
-    "dev": "node --enable-source-maps ./dist/app.js",
-    "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\"",
     "tl:push": "crowdin upload sources",
     "tl:pull": "crowdin pull --export-only-approved"
   },
   "imports": {
-    "#*": {
-      "@activityrank/dev": "./src/*",
-      "default": "./dist/*"
-    }
+    "#*": "./src/*"
   },
   "repository": {
     "type": "git",
@@ -38,8 +31,6 @@
     "@sapphire/async-queue": "^1.5.5",
     "@sapphire/duration": "^1.2.0",
     "@sapphire/snowflake": "^3.5.5",
-    "@swc/cli": "^0.4.0",
-    "@swc/core": "^1.15.1",
     "callsites": "^4.2.0",
     "croner": "^8.1.2",
     "discord.js": "^14.24.2",
@@ -67,7 +58,6 @@
     "nodemon": "^3.1.10",
     "pino-pretty": "^11.3.0",
     "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.9"
   },
   "nodemonConfig": {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getWaitTime } from './cooldownUtil';
+import { getWaitTime } from './cooldownUtil.js';
 
 describe('getWaitTime', () => {
   const COOLDOWN = 60000; // 1 minute

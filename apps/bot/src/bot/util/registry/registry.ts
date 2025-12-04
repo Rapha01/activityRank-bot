@@ -55,8 +55,11 @@ export class Registry {
       max: 10_000,
       ttl: 1000 * 60 * 30,
     });
+  private config: { eventFiles: string[]; commandFiles: string[] };
 
-  constructor(private config: { eventFiles: string[]; commandFiles: string[] }) {}
+  constructor(config: { eventFiles: string[]; commandFiles: string[] }) {
+    this.config = config;
+  }
 
   public async loadEvents() {
     for (const eventFile of this.config.eventFiles) {

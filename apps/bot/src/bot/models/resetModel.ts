@@ -63,6 +63,7 @@ const BATCHSIZE = isProduction ? 10_000 : 10;
  * await resetJob.logStatus(interaction);
  */
 abstract class ResetJob {
+  public readonly guild: Guild;
   /** The number of database rows this job has already modified. */
   protected _totalRowsAffected = 0;
   /** The number of database rows this job has already modified on this iteration. Will be reset before each {@link runIter} call. */
@@ -72,7 +73,8 @@ abstract class ResetJob {
   /** A unique ID to this job. Used only for tracking in logs. */
   public readonly jobId: string = nanoid(10);
 
-  constructor(public readonly guild: Guild) {
+  constructor(guild: Guild) {
+    this.guild = guild;
     logger.debug(`Created reset job in guild ${guild.id}: ${this.jobId}`);
     RESET_JOBS.add(this);
     RESET_GUILD_IDS.add(guild.id);
@@ -400,11 +402,11 @@ export async function resetGuildChannelsSettings(guild: Guild, channelIds: strin
 }
 
 export class ResetGuildChannelsStatistics extends ResetJob {
-  constructor(
-    guild: Guild,
-    private channelIds: string[],
-  ) {
+  private channelIds: string[];
+
+  constructor(guild: Guild, channelIds: string[]) {
     super(guild);
+    this.channelIds = channelIds;
   }
 
   protected getStatusContent(): string {
@@ -475,11 +477,11 @@ export class ResetGuildChannelsStatistics extends ResetJob {
 // leave the system vulnerable to manipulation by server admins,
 // by resetting only statistics or only XP for a single user.
 export class ResetGuildMembersStatisticsAndXp extends ResetJob {
-  constructor(
-    guild: Guild,
-    private memberIds: string[],
-  ) {
+  private memberIds: string[];
+
+  constructor(guild: Guild, memberIds: string[]) {
     super(guild);
+    this.memberIds = memberIds;
   }
 
   protected getStatusContent(): string {
@@ -585,10 +587,11 @@ export class ResetGuildStatistics extends ResetJob {
   static readonly ALL_TABLES = ['textMessage', 'voiceMinute', 'vote', 'invite', 'bonus'] as const;
 
   private ranBonusReduction = false;
+  private tables: readonly ('textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus')[];
 
   constructor(
     guild: Guild,
-    private tables: readonly ('textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus')[],
+    tables: readonly ('textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus')[],
   ) {
     if (tables.length < 1) {
       throw new Error('A statistic reset must reset at least one table.');
@@ -597,6 +600,7 @@ export class ResetGuildStatistics extends ResetJob {
       throw new Error('A statistic reset may not provide duplicate tables.');
     }
     super(guild);
+    this.tables = tables;
   }
 
   protected getStatusContent(): string {

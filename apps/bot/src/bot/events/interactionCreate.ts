@@ -9,7 +9,7 @@ import {
   type Interaction,
   RESTJSONErrorCodes,
 } from 'discord.js';
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import { event } from '#bot/util/registry/event.js';
 import { registry } from '#bot/util/registry/registry.js';
 import { config } from '#const/config.js';
