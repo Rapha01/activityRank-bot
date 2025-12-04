@@ -1,8 +1,8 @@
 import type { ShardDB } from '@activityrank/database';
 import type { BaseInteraction, Entitlement, GuildMember } from 'discord.js';
-import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
-import { PREMIUM_SKU_ID } from '#bot/util/constants.js';
-import { getUserModel } from '../bot/models/userModel.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.ts';
+import { PREMIUM_SKU_ID } from '#bot/util/constants.ts';
+import { getUserModel } from '../bot/models/userModel.ts';
 
 // System
 export const waitAndReboot = async (milliseconds: number) => {

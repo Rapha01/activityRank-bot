@@ -4,7 +4,7 @@ import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
 import parseJson, { JSONError } from 'parse-json';
 import { parse as parseToml, TomlError } from 'smol-toml';
 import { z } from 'zod/v4';
-import * as schemas from './schemas.js';
+import * as schemas from './schemas.ts';
 
 type LoadOptions<T extends z.ZodTypeAny> = {
   schema: T;

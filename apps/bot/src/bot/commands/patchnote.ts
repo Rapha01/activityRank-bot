@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { getTexts } from '#models/managerDb/textModel.js';
-import type { PatchnotesEntry, TextsPatchnotes } from '#models/types/external.js';
+import { command } from '#bot/commands.ts';
+import { getTexts } from '#models/managerDb/textModel.ts';
+import type { PatchnotesEntry, TextsPatchnotes } from '#models/types/external.d.ts';
 
 export default command({
   name: 'patchnote',

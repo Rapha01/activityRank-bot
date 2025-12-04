@@ -4,11 +4,11 @@ import {
   ButtonStyle,
   type ChatInputCommandInteraction,
 } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { ResetGuildChannelsStatistics } from '#bot/models/resetModel.js';
-import { useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import nameUtil from '../../util/nameUtil.js';
+import { command } from '#bot/commands.ts';
+import { ResetGuildChannelsStatistics } from '#bot/models/resetModel.ts';
+import { useConfirm } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import nameUtil from '../../util/nameUtil.ts';
 
 export default command({
   name: 'reset channel',

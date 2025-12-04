@@ -12,15 +12,15 @@ import {
 } from 'discord.js';
 import { Temporal } from 'temporal-polyfill';
 import invariant from 'tiny-invariant';
-import { command } from '#bot/commands.js';
-import { runRoleUpdate } from '#bot/levelManager.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { renderProgressBar } from '#bot/models/resetModel.js';
-import { container } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { ComponentKey, component } from '#bot/util/registry/component.js';
-import { shards } from '#models/shardDb/shardDb.js';
-import { getLevelProgression, sleep } from '#util/fct.js';
+import { command } from '#bot/commands.ts';
+import { runRoleUpdate } from '#bot/levelManager.ts';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { renderProgressBar } from '#bot/models/resetModel.ts';
+import { container } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { ComponentKey, component } from '#bot/util/registry/component.ts';
+import { shards } from '#models/shardDb/shardDb.ts';
+import { getLevelProgression, sleep } from '#util/fct.ts';
 
 export const activeUpdates: Map<
   string,

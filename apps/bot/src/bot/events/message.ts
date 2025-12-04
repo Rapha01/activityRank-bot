@@ -1,11 +1,11 @@
 import { ChannelType, Events, type Message, MessageType } from 'discord.js';
-import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
-import { event } from '#bot/util/registry/event.js';
-import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import skip from '../skip.js';
-import statFlushCache from '../statFlushCache.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.ts';
+import { event } from '#bot/util/registry/event.ts';
+import guildChannelModel from '../models/guild/guildChannelModel.ts';
+import { getMemberModel } from '../models/guild/guildMemberModel.ts';
+import { getGuildModel } from '../models/guild/guildModel.ts';
+import skip from '../skip.ts';
+import statFlushCache from '../statFlushCache.ts';
 
 const acceptedChannelTypes = [
   ChannelType.GuildText,

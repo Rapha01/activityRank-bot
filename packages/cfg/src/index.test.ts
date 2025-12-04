@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod/v4';
-import { configLoader, schemas } from './index.js';
+import { configLoader, schemas } from './index.ts';
 
 /* 
   - When in PRODUCTION mode, files are loaded from Docker secrets & configs

@@ -5,10 +5,10 @@ import {
   type ChatInputCommandInteraction,
   PermissionFlagsBits,
 } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
-import { useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
+import { command } from '#bot/commands.ts';
+import { ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.ts';
+import { useConfirm } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
 
 export default command({
   name: 'reset member',

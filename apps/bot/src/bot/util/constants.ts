@@ -6,8 +6,8 @@ import {
   ButtonStyle,
   ComponentType,
 } from 'discord.js';
-import { emojiId, isProduction } from '#const/config.js';
-import { ComponentKey } from './registry/component.js';
+import { emojiId, isProduction } from '#const/config.ts';
+import { ComponentKey } from './registry/component.ts';
 
 export const PREMIUM_SKU_ID = '1393334749568696361';
 

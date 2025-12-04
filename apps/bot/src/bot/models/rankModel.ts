@@ -2,10 +2,10 @@ import type { ShardDB } from '@activityrank/database';
 import type { Guild } from 'discord.js';
 import { type ExpressionBuilder, expressionBuilder } from 'kysely';
 import { jsonBuildObject } from 'kysely/helpers/mysql';
-import type { StatTimeInterval, StatType } from '#models/types/enums.js';
-import { shards } from '../../models/shardDb/shardDb.js';
-import fct from '../../util/fct.js';
-import { getGuildModel } from './guild/guildModel.js';
+import type { StatTimeInterval, StatType } from '#models/types/enums.ts';
+import { shards } from '../../models/shardDb/shardDb.ts';
+import fct from '../../util/fct.ts';
+import { getGuildModel } from './guild/guildModel.ts';
 
 /**
  * Fetch the XP and statistic values of a range of members in a given guild, over a given timespan.

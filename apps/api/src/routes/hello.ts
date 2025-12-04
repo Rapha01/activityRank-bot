@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi';
-import { createPublicAuthRoute } from '#util/routes.js';
-import type { Responses } from '#util/types.js';
+import { createPublicAuthRoute } from '#util/routes.ts';
+import type { Responses } from '#util/types.ts';
 
 const responses: Responses = {
   200: {

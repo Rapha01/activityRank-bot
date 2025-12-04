@@ -8,13 +8,13 @@ import {
 } from 'discord.js';
 import type { TFunction } from 'i18next';
 import { Temporal } from 'temporal-polyfill';
-import { getMemberModel } from '#bot/models/guild/guildMemberModel.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { RESET_GUILD_IDS } from '#bot/models/resetModel.js';
-import { emoji, getStaffEntitlement } from '#const/config.js';
-import fct, { hasValidEntitlement } from '../../util/fct.js';
-import { section, textDisplay } from './component.js';
-import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.js';
+import { getMemberModel } from '#bot/models/guild/guildMemberModel.ts';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { RESET_GUILD_IDS } from '#bot/models/resetModel.ts';
+import { emoji, getStaffEntitlement } from '#const/config.ts';
+import fct, { hasValidEntitlement } from '../../util/fct.ts';
+import { section, textDisplay } from './component.ts';
+import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.ts';
 
 /**
  * Calculates the remaining wait time and the next trigger time based on the last recorded date and a cooldown period.

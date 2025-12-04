@@ -9,8 +9,8 @@ import type {
 } from 'discord.js';
 import type { TFunction } from 'i18next';
 import i18next from 'i18next';
-import { ensureI18nLoaded } from '../i18n.js';
-import type { InvalidPredicateCallback, Predicate } from './predicate.js';
+import { ensureI18nLoaded } from '../i18n.ts';
+import type { InvalidPredicateCallback, Predicate } from './predicate.ts';
 
 await ensureI18nLoaded();
 

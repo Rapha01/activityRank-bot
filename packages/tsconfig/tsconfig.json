@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "noEmit": true,
     "target": "esnext",
     "module": "nodenext",
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,

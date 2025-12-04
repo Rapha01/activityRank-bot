@@ -1,5 +1,5 @@
 {
-  "extends": "@activityrank/tsconfig/tsconfig.app.json",
+  "extends": "@activityrank/tsconfig/tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "nodenext",

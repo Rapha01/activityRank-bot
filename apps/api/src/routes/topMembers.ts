@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi';
-import { createPublicAuthRoute } from '#util/routes.js';
-import { Error400, Error401, Error403, zInt, zSnowflake } from '#util/zod.js';
+import { createPublicAuthRoute } from '#util/routes.ts';
+import { Error400, Error401, Error403, zInt, zSnowflake } from '#util/zod.ts';
 
 const querySchema = z.object({
   'top-rank': z.coerce.number().int().min(1).default(1).openapi({

@@ -1,6 +1,6 @@
 import { Events } from 'discord.js';
-import { event } from '#bot/util/registry/event.js';
-import cronScheduler from '../cron/scheduler.js';
+import { event } from '#bot/util/registry/event.ts';
+import cronScheduler from '../cron/scheduler.ts';
 
 export default event(
   Events.ClientReady,

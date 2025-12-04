@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { fetchDeletedUserIds, ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.js';
-import { useConfirm } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
+import { command } from '#bot/commands.ts';
+import { fetchDeletedUserIds, ResetGuildMembersStatisticsAndXp } from '#bot/models/resetModel.ts';
+import { useConfirm } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
 
 export default command({
   name: 'reset deleted members',

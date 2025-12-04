@@ -1,5 +1,5 @@
-import type { TextsData } from '#models/types/external.js';
-import { managerFetch } from './managerDb.js';
+import type { TextsData } from '#models/types/external.d.ts';
+import { managerFetch } from './managerDb.ts';
 
 let cachedTexts: TextsData | null = null;
 

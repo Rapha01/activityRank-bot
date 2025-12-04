@@ -1,7 +1,7 @@
 import { PermissionFlagsBits } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { parseEmojiString } from '#bot/util/emoji.js';
-import { getGuildModel } from '../../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { parseEmojiString } from '#bot/util/emoji.ts';
+import { getGuildModel } from '../../models/guild/guildModel.ts';
 
 export default command({
   name: 'config-server vote',

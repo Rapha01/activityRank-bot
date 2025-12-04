@@ -8,10 +8,10 @@ import {
   getStaffEntitlement,
   hasStaffEntitlement,
   type StaffEntitlementLevel,
-} from '#const/config.js';
-import type { CommandPredicateConfig } from './registry/command.js';
-import type { ComponentPredicateConfig } from './registry/component.js';
-import type { Predicate } from './registry/predicate.js';
+} from '#const/config.ts';
+import type { CommandPredicateConfig } from './registry/command.ts';
+import type { ComponentPredicateConfig } from './registry/component.ts';
+import type { Predicate } from './registry/predicate.ts';
 
 function userHasStaffLevel(user: User, requiredLevel: StaffEntitlementLevel): Predicate {
   const { isStaff, entitlementLevel } = getStaffEntitlement(user.id);

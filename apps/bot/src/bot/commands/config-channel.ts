@@ -8,13 +8,13 @@ import type {
 import { ButtonStyle, ComponentType, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import type { TFunction } from 'i18next';
 import invariant from 'tiny-invariant';
-import { command } from '#bot/commands.js';
-import { container } from '#bot/util/component.js';
-import { getChannelMention } from '#bot/util/nameUtil.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { component } from '#bot/util/registry/component.js';
-import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { ParserResponseStatus, parseChannel } from '../util/parser.js';
+import { command } from '#bot/commands.ts';
+import { container } from '#bot/util/component.ts';
+import { getChannelMention } from '#bot/util/nameUtil.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { component } from '#bot/util/registry/component.ts';
+import guildChannelModel from '../models/guild/guildChannelModel.ts';
+import { ParserResponseStatus, parseChannel } from '../util/parser.ts';
 
 export default command({
   name: 'config-channel',

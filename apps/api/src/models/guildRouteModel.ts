@@ -1,4 +1,4 @@
-import { manager } from './manager.js';
+import { manager } from './manager.ts';
 
 export async function getGuildHost(guildId: string) {
   const select = manager.db

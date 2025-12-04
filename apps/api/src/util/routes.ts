@@ -1,8 +1,8 @@
 import { createRoute, type RouteConfig } from '@hono/zod-openapi';
-import { isProduction } from '#const/config.js';
-import { InternalAPIAuth, PublicAPIAuth } from '#middleware/auth.js';
-import { getRateLimiter, type RateLimiterOptions } from '#util/ratelimit.js';
-import { Error400, Error401, Error403 } from '#util/zod.js';
+import { isProduction } from '#const/config.ts';
+import { InternalAPIAuth, PublicAPIAuth } from '#middleware/auth.ts';
+import { getRateLimiter, type RateLimiterOptions } from '#util/ratelimit.ts';
+import { Error400, Error401, Error403 } from '#util/zod.ts';
 
 interface ExtraOptions {
   ratelimit?: RateLimiterOptions;

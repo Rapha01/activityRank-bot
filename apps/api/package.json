@@ -5,17 +5,12 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "start": "node ./dist/app.js",
-    "dev": "node --enable-source-maps ./dist/app.js",
-    "dev:watch": "nodemon --exec \"pnpm run build && pnpm run dev\"",
-    "typecheck": "tsc --noEmit",
-    "build": "swc src --out-dir dist --copy-files --strip-leading-paths"
+    "start": "node src/app.ts",
+    "watch": "nodemon --exec \"node src/app.ts\"",
+    "typecheck": "tsc --noEmit"
   },
   "imports": {
-    "#*": {
-      "@activityrank/dev": "./src/*",
-      "default": "./dist/*"
-    }
+    "#*": "./src/*"
   },
   "repository": {
     "type": "git",

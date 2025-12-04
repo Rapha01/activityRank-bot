@@ -21,8 +21,8 @@ import type { TFunction } from 'i18next';
 import i18n from 'i18next';
 import { nanoid } from 'nanoid';
 import invariant from 'tiny-invariant';
-import type { InvalidPredicateCallback, Predicate, PredicateCheck } from './predicate.js';
-import { registry } from './registry.js';
+import type { InvalidPredicateCallback, Predicate, PredicateCheck } from './predicate.ts';
+import { registry } from './registry.ts';
 
 interface PredicateConfig<I extends ComponentInteraction> {
   validate: (interaction: I) => Predicate;

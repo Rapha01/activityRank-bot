@@ -6,12 +6,12 @@ import type {
   GuildMember,
   VoiceBasedChannel,
 } from 'discord.js';
-import fct from '../../util/fct.js';
-import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import skip from '../skip.js';
-import statFlushCache from '../statFlushCache.js';
-import noXpUtil from '../util/noXpUtil.js';
+import fct from '../../util/fct.ts';
+import guildChannelModel from '../models/guild/guildChannelModel.ts';
+import { getGuildModel } from '../models/guild/guildModel.ts';
+import skip from '../skip.ts';
+import statFlushCache from '../statFlushCache.ts';
+import noXpUtil from '../util/noXpUtil.ts';
 
 let minutesToAdd = 0;
 let leftover = 0;

@@ -1,6 +1,6 @@
-import { command } from '#bot/commands.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { shards } from '#models/shardDb/shardDb.js';
+import { command } from '#bot/commands.ts';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { shards } from '#models/shardDb/shardDb.ts';
 
 export default command({
   name: 'reset deleted role',

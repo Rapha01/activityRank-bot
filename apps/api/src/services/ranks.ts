@@ -1,8 +1,8 @@
 import type { ShardDB } from '@activityrank/database';
 import { type ExpressionBuilder, expressionBuilder } from 'kysely';
 import { jsonBuildObject } from 'kysely/helpers/mysql';
-import { getGuildHost } from '#models/guildRouteModel.js';
-import { shards } from '#models/shard.js';
+import { getGuildHost } from '#models/guildRouteModel.ts';
+import { shards } from '#models/shard.ts';
 
 /**
  * ! COPIED from apps/bot/src/bot/models/rankModel.ts

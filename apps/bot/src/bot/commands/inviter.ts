@@ -5,14 +5,14 @@ import {
   type GuildMember,
 } from 'discord.js';
 import type { TFunction } from 'i18next';
-import { command } from '#bot/commands.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { useConfirm } from '#bot/util/component.js';
-import { resolveMember } from '#bot/util/parser.js';
-import { requireUser } from '#bot/util/predicates.js';
-import fct from '../../util/fct.js';
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import statFlushCache from '../statFlushCache.js';
+import { command } from '#bot/commands.ts';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { useConfirm } from '#bot/util/component.ts';
+import { resolveMember } from '#bot/util/parser.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import fct from '../../util/fct.ts';
+import { getMemberModel } from '../models/guild/guildMemberModel.ts';
+import statFlushCache from '../statFlushCache.ts';
 
 export default command({
   name: 'inviter',

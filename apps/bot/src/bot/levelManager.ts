@@ -10,14 +10,14 @@ import {
   type Role,
 } from 'discord.js';
 import invariant from 'tiny-invariant';
-import { emoji } from '#const/config.js';
-import fct from '../util/fct.js';
-import { getMemberModel } from './models/guild/guildMemberModel.js';
-import { getGuildModel } from './models/guild/guildModel.js';
-import { getRoleModel } from './models/guild/guildRoleModel.js';
-import nameUtil from './util/nameUtil.js';
-import { difference, symmetricDifference } from './util/typescript.js';
-import { warnGuild } from './util/warning.js';
+import { emoji } from '#const/config.ts';
+import fct from '../util/fct.ts';
+import { getMemberModel } from './models/guild/guildMemberModel.ts';
+import { getGuildModel } from './models/guild/guildModel.ts';
+import { getRoleModel } from './models/guild/guildRoleModel.ts';
+import nameUtil from './util/nameUtil.ts';
+import { difference, symmetricDifference } from './util/typescript.ts';
+import { warnGuild } from './util/warning.ts';
 
 /** Returns whether or not a member with the given scores would have levelled up. */
 export async function checkLevelup(guild: Guild, oldTotalScore: number, newTotalScore: number) {

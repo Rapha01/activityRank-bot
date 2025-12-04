@@ -1,7 +1,7 @@
 import { AttachmentBuilder, type InteractionReplyOptions } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { RESET_JOBS, RESET_QUEUE } from '#bot/models/resetModel.js';
-import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
+import { command } from '#bot/commands.ts';
+import { RESET_JOBS, RESET_QUEUE } from '#bot/models/resetModel.ts';
+import { HELPSTAFF_ONLY } from '#bot/util/predicates.ts';
 
 export default command({
   predicate: HELPSTAFF_ONLY,

@@ -9,22 +9,22 @@ import type {
   ModalSubmitInteraction,
 } from 'discord.js';
 import fg from 'fast-glob';
-import { Command } from './command.js';
+import { Command } from './command.ts';
 import {
   Component,
   type ComponentInstance,
   type ComponentInteraction,
   ComponentKey,
-} from './component.js';
-import { EventHandler } from './event.js';
+} from './component.ts';
+import { EventHandler } from './event.ts';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
-const EVENT_PATHS = [`${import.meta.dirname}/../../events/*.js`];
+const EVENT_PATHS = [`${import.meta.dirname}/../../events/*.ts`];
 const COMMAND_PATHS = [
-  `${import.meta.dirname}/../../commands/**/*.js`,
-  `${import.meta.dirname}/../../commandsAdmin/**/*.js`,
-  `${import.meta.dirname}/../../contextMenus/**/*.js`,
+  `${import.meta.dirname}/../../commands/**/*.ts`,
+  `${import.meta.dirname}/../../commandsAdmin/**/*.ts`,
+  `${import.meta.dirname}/../../contextMenus/**/*.ts`,
 ];
 
 export async function createRegistry() {

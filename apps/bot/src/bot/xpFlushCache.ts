@@ -1,5 +1,5 @@
 import type { Guild, GuildMember } from 'discord.js';
-import { getGuildModel } from './models/guild/guildModel.js';
+import { getGuildModel } from './models/guild/guildModel.ts';
 
 export async function addXp(member: GuildMember, xp: number) {
   const key = `${member.guild.id}.${member.id}`;

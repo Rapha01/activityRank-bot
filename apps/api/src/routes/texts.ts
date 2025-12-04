@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi';
-import { createInternalRoute } from '#util/routes.js';
-import { Error400, Error401, Error403 } from '#util/zod.js';
+import { createInternalRoute } from '#util/routes.ts';
+import { Error400, Error401, Error403 } from '#util/zod.ts';
 
 const responseSchema = z.object({
   commands: z.record(

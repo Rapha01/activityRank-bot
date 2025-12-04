@@ -9,7 +9,7 @@ import {
   type Role,
   type User,
 } from 'discord.js';
-import { assertUnreachableUnsafe } from './typescript.js';
+import { assertUnreachableUnsafe } from './typescript.ts';
 
 export const ParserResponseStatus = {
   /** Successfully parsed the desired object. */

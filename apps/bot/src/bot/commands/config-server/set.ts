@@ -11,12 +11,12 @@ import {
   type User,
 } from 'discord.js';
 import type { TFunction } from 'i18next';
-import { command } from '#bot/commands.js';
-import { actionrow, container } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { type ComponentPredicateConfig, component } from '#bot/util/registry/component.js';
-import { assertUnreachable } from '#bot/util/typescript.js';
-import { type GuildModel, getGuildModel } from '../../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { actionrow, container } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { type ComponentPredicateConfig, component } from '#bot/util/registry/component.ts';
+import { assertUnreachable } from '#bot/util/typescript.ts';
+import { type GuildModel, getGuildModel } from '../../models/guild/guildModel.ts';
 
 type BooleanGuildKey =
   | 'showNicknames'

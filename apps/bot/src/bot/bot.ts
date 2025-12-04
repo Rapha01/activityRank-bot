@@ -8,14 +8,14 @@ import {
   Options,
   Partials,
 } from 'discord.js';
-import { keys } from '#const/config.js';
-import { updateTexts } from '#models/managerDb/textModel.js';
-import fct from '../util/fct.js';
-import globalLogger from '../util/logger.js';
-import { memberCache } from './models/guild/guildMemberModel.js';
-import { ensureI18nLoaded } from './util/i18n.js';
-import loggerManager from './util/logger.js';
-import { registry } from './util/registry/registry.js';
+import { keys } from '#const/config.ts';
+import { updateTexts } from '#models/managerDb/textModel.ts';
+import fct from '../util/fct.ts';
+import globalLogger from '../util/logger.ts';
+import { memberCache } from './models/guild/guildMemberModel.ts';
+import { ensureI18nLoaded } from './util/i18n.ts';
+import loggerManager from './util/logger.ts';
+import { registry } from './util/registry/registry.ts';
 
 /**
  * Decide whether or not a member should be kept cached.

@@ -9,9 +9,9 @@ import {
   getNewMemberRoles,
   getRoleAssignmentMessages,
   runRoleUpdate,
-} from '#bot/levelManager.js';
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
+} from '#bot/levelManager.ts';
+import { getMemberModel } from '../models/guild/guildMemberModel.ts';
+import { getGuildModel } from '../models/guild/guildModel.ts';
 
 export async function handleMemberJoin(member: GuildMember) {
   // member.client.logger.debug(`Handling member ${member.id} join`);

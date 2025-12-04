@@ -1,15 +1,15 @@
 import { type APIEmbed, type Guild, time } from 'discord.js';
 import { outdent } from 'outdent';
-import { command } from '#bot/commands.js';
-import { resolveMember } from '#bot/util/parser.js';
-import { emoji } from '#const/config.js';
-import { shards } from '#models/shardDb/shardDb.js';
-import fct from '../../util/fct.js';
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from '../models/userModel.js';
-import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.js';
+import { command } from '#bot/commands.ts';
+import { resolveMember } from '#bot/util/parser.ts';
+import { emoji } from '#const/config.ts';
+import { shards } from '#models/shardDb/shardDb.ts';
+import fct from '../../util/fct.ts';
+import { getMemberModel } from '../models/guild/guildMemberModel.ts';
+import { getGuildModel } from '../models/guild/guildModel.ts';
+import { getUserModel } from '../models/userModel.ts';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.ts';
+import nameUtil, { getGuildMemberInfo } from '../util/nameUtil.ts';
 
 export default command({
   name: 'memberinfo',

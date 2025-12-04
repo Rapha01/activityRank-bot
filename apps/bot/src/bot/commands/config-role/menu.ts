@@ -11,12 +11,12 @@ import {
 } from 'discord.js';
 import type { TFunction } from 'i18next';
 import invariant from 'tiny-invariant';
-import { command } from '#bot/commands.js';
-import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.js';
-import { actionrow, container } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { component, modal } from '#bot/util/registry/component.js';
-import { getRoleMention } from '../../util/nameUtil.js';
+import { command } from '#bot/commands.ts';
+import { getRoleModel, type RoleModel } from '#bot/models/guild/guildRoleModel.ts';
+import { actionrow, container } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { component, modal } from '#bot/util/registry/component.ts';
+import { getRoleMention } from '../../util/nameUtil.ts';
 
 type AssignType = 'assignMessage' | 'deassignMessage';
 

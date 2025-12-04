@@ -1,9 +1,9 @@
-export { createManagerInstance, type ManagerInstance } from './manager.js';
+export { createManagerInstance, type ManagerInstance } from './manager.ts';
 export {
   createShardInstance,
   createShardInstanceManager,
   type ShardInstance,
   type ShardInstanceManager,
-} from './shard.js';
-export type { ManagerDB } from './typings/manager.js';
-export type { ShardDB } from './typings/shard.js';
+} from './shard.ts';
+export type { ManagerDB } from './typings/manager.ts';
+export type { ShardDB } from './typings/shard.ts';

@@ -6,8 +6,8 @@
 import { inspect } from 'node:util';
 import { codeBlock } from 'discord.js';
 import { outdent } from 'outdent';
-import { command } from '#bot/commands.js';
-import { DEVELOPER_ONLY } from '#bot/util/predicates.js';
+import { command } from '#bot/commands.ts';
+import { DEVELOPER_ONLY } from '#bot/util/predicates.ts';
 
 export default command({
   predicate: DEVELOPER_ONLY,

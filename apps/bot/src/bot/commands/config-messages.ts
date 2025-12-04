@@ -12,11 +12,11 @@ import {
 } from 'discord.js';
 import type { TFunction } from 'i18next';
 import invariant from 'tiny-invariant';
-import { command } from '#bot/commands.js';
-import { actionrow, container } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { component, modal } from '#bot/util/registry/component.js';
-import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { actionrow, container } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { component, modal } from '#bot/util/registry/component.ts';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.ts';
 
 type ServerMessage =
   | 'serverJoinMessage'

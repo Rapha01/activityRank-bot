@@ -1,6 +1,6 @@
 import type { ShardDB } from '@activityrank/database';
 import type { Kysely, Selectable, Updateable } from 'kysely';
-import { shards } from '#models/shardDb/shardDb.js';
+import { shards } from '#models/shardDb/shardDb.ts';
 
 export abstract class CachedModel<
   Object,

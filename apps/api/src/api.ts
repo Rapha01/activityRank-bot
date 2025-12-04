@@ -1,25 +1,25 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { getShardStats } from '#models/botShardStatModel.js';
-import { helloRoute } from '#routes/hello.js';
-import { memberRankRoute } from '#routes/memberRank.js';
-import { runPatreonRoute } from '#routes/patreon.js';
-import { shardStatsRoute } from '#routes/shard-stats.js';
-import { textsRoute } from '#routes/texts.js';
-import { runTopggRoute } from '#routes/topgg.js';
-import { topMembersRoute } from '#routes/topMembers.js';
+import { getShardStats } from '#models/botShardStatModel.ts';
+import { helloRoute } from '#routes/hello.ts';
+import { memberRankRoute } from '#routes/memberRank.ts';
+import { runPatreonRoute } from '#routes/patreon.ts';
+import { shardStatsRoute } from '#routes/shard-stats.ts';
+import { textsRoute } from '#routes/texts.ts';
+import { runTopggRoute } from '#routes/topgg.ts';
+import { topMembersRoute } from '#routes/topMembers.ts';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
   getGuildMemberRanks,
   getLevelfactor,
   getLevelProgression,
-} from '#services/ranks.js';
-import { runPatreonTask } from '#services/tasks/patreon.js';
-import { runTopggTask } from '#services/tasks/topgg.js';
-import { JSONHTTPException } from '#util/errors.js';
-import commands from './const/commands.js';
-import faqs from './const/faq.js';
-import patchnotes from './const/patchnotes.js';
+} from '#services/ranks.ts';
+import { runPatreonTask } from '#services/tasks/patreon.ts';
+import { runTopggTask } from '#services/tasks/topgg.ts';
+import { JSONHTTPException } from '#util/errors.ts';
+import commands from './const/commands.ts';
+import faqs from './const/faq.ts';
+import patchnotes from './const/patchnotes.ts';
 
 export const apiRouter = new OpenAPIHono();
 

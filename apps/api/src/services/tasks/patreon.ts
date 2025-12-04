@@ -1,8 +1,8 @@
 import { backOff } from 'exponential-backoff';
 import z from 'zod';
-import { keys } from '#const/config.js';
-import { shards } from '#models/shard.js';
-import { updateUser } from '#models/user.js';
+import { keys } from '#const/config.ts';
+import { shards } from '#models/shard.ts';
+import { updateUser } from '#models/user.ts';
 
 const baseURL = new URL('https://www.patreon.com/api/oauth2/v2/campaigns/2925711/members');
 baseURL.searchParams.set('include', 'user,currently_entitled_tiers');

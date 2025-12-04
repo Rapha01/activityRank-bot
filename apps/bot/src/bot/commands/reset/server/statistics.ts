@@ -5,12 +5,12 @@ import {
   ComponentType,
   PermissionFlagsBits,
 } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { ResetGuildStatistics } from '#bot/models/resetModel.js';
-import { actionrow, useConfirm } from '#bot/util/component.js';
-import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { component } from '#bot/util/registry/component.js';
+import { command } from '#bot/commands.ts';
+import { ResetGuildStatistics } from '#bot/models/resetModel.ts';
+import { actionrow, useConfirm } from '#bot/util/component.ts';
+import { handleResetCommandsCooldown } from '#bot/util/cooldownUtil.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { component } from '#bot/util/registry/component.ts';
 
 type Table = 'textMessage' | 'voiceMinute' | 'vote' | 'invite' | 'bonus';
 

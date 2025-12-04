@@ -1,13 +1,13 @@
 import { PermissionFlagsBits } from 'discord.js';
 import invariant from 'tiny-invariant';
-import { command } from '#bot/commands.js';
-import { DANGEROUS_PERMISSIONS, DANGEROUS_PERMISSIONS_NAMES } from '#bot/levelManager.js';
+import { command } from '#bot/commands.ts';
+import { DANGEROUS_PERMISSIONS, DANGEROUS_PERMISSIONS_NAMES } from '#bot/levelManager.ts';
 import {
   fetchRoleAssignmentByRole,
   fetchRoleAssignmentsByLevel,
   getRoleModel,
-} from '#bot/models/guild/guildRoleModel.js';
-import nameUtil from '../../util/nameUtil.js';
+} from '#bot/models/guild/guildRoleModel.ts';
+import nameUtil from '../../util/nameUtil.ts';
 
 export default command({
   name: 'config-role levels',

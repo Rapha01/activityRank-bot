@@ -16,23 +16,23 @@ import {
   type User,
 } from 'discord.js';
 import type { TFunction } from 'i18next';
-import { command } from '#bot/commands.js';
+import { command } from '#bot/commands.ts';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
   getGuildMemberScorePosition,
   getGuildMemberStatPosition,
   getGuildMemberTopChannels,
-} from '#bot/models/rankModel.js';
-import { requireUserId } from '#bot/util/predicates.js';
-import { ComponentKey, component } from '#bot/util/registry/component.js';
-import { assertUnreachable } from '#bot/util/typescript.js';
-import { emoji } from '#const/config.js';
-import { type StatTimeInterval, type StatType, statTimeIntervals } from '#models/types/enums.js';
-import fct from '../../util/fct.js';
-import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
-import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import nameUtil from '../util/nameUtil.js';
+} from '#bot/models/rankModel.ts';
+import { requireUserId } from '#bot/util/predicates.ts';
+import { ComponentKey, component } from '#bot/util/registry/component.ts';
+import { assertUnreachable } from '#bot/util/typescript.ts';
+import { emoji } from '#const/config.ts';
+import { type StatTimeInterval, type StatType, statTimeIntervals } from '#models/types/enums.ts';
+import fct from '../../util/fct.ts';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.ts';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.ts';
+import nameUtil from '../util/nameUtil.ts';
 
 interface CacheInstance {
   window: 'rank' | 'topChannels';

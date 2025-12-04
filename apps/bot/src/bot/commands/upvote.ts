@@ -1,6 +1,6 @@
-import { command } from '#bot/commands.js';
-import { resolveMember } from '#bot/util/parser.js';
-import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.js';
+import { command } from '#bot/commands.ts';
+import { resolveMember } from '#bot/util/parser.ts';
+import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.ts';
 
 export default command({
   name: 'upvote',

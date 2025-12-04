@@ -1,6 +1,6 @@
 import type { Channel, Collection, Guild, GuildBasedChannel, GuildMember, Role } from 'discord.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { emoji } from '#const/config.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { emoji } from '#const/config.ts';
 
 export const getChannelName = (
   channels: Collection<string, GuildBasedChannel>,

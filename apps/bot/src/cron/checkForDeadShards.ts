@@ -1,5 +1,5 @@
 import type { Client, ShardingManager } from 'discord.js';
-import logger from '../util/logger.js';
+import logger from '../util/logger.ts';
 
 function _getStats(client: Client) {
   const obj = {

@@ -1,7 +1,7 @@
 import { Kysely, MysqlDialect } from 'kysely';
 import { createConnection, createPool, type PoolOptions } from 'mysql2';
-import type { ManagerInstance } from './manager.js';
-import type { ShardDB } from './typings/shard.js';
+import type { ManagerInstance } from './manager.ts';
+import type { ShardDB } from './typings/shard.ts';
 
 export function createShardInstanceManager(
   options: Omit<PoolOptions, 'host'>,
