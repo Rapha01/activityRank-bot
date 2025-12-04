@@ -1,9 +1,9 @@
 import { DurationFormat } from '@formatjs/intl-durationformat';
 import { AttachmentBuilder, EmbedBuilder, Status } from 'discord.js';
 import { Temporal } from 'temporal-polyfill';
-import { command } from '#bot/commands.js';
-import { HELPSTAFF_ONLY } from '#bot/util/predicates.js';
-import { managerFetch } from '../../models/managerDb/managerDb.js';
+import { command } from '#bot/commands.ts';
+import { HELPSTAFF_ONLY } from '#bot/util/predicates.ts';
+import { managerFetch } from '../../models/managerDb/managerDb.ts';
 
 interface APIShard {
   shardId: number;

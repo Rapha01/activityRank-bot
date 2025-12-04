@@ -1,4 +1,4 @@
-import masterLogger from '../../util/logger.js';
+import masterLogger from '../../util/logger.ts';
 
 let shardLogger = null;
 

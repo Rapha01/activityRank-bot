@@ -1,6 +1,6 @@
-import { command } from '#bot/commands.js';
-import { resetGuildCache } from '#bot/models/resetModel.js';
-import { getGuildModel } from '../../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { resetGuildCache } from '#bot/models/resetModel.ts';
+import { getGuildModel } from '../../models/guild/guildModel.ts';
 
 export default command({
   name: 'config-xp levelfactor',

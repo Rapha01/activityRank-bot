@@ -1,6 +1,6 @@
 import { type Channel, ComponentType, type Guild, MessageFlags } from 'discord.js';
 import invariant from 'tiny-invariant';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
 
 export async function warnGuild(guild: Guild, content: string) {
   let success = false;

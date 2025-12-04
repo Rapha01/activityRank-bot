@@ -4,11 +4,11 @@ import type {
   StatFlushCache,
   StatFlushCacheChannelEntry,
   StatFlushCacheGuildEntry,
-} from '#bot/statFlushCache.js';
-import type { XpFlushCache } from '#bot/xpFlushCache.js';
-import type { StatType } from '#models/types/enums.js';
-import logger from '../../util/logger.js';
-import { shards } from './shardDb.js';
+} from '#bot/statFlushCache.ts';
+import type { XpFlushCache } from '#bot/xpFlushCache.ts';
+import type { StatType } from '#models/types/enums.ts';
+import logger from '../../util/logger.ts';
+import { shards } from './shardDb.ts';
 
 export default async function (manager: ShardingManager) {
   const shardCaches = (await manager.fetchClientValues('statFlushCache')) as Record<

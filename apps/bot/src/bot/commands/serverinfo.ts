@@ -12,21 +12,21 @@ import {
   time,
 } from 'discord.js';
 import invariant from 'tiny-invariant';
-import { command } from '#bot/commands.js';
-import { actionrow, closeButton } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { ComponentKey, component } from '#bot/util/registry/component.js';
-import { emoji } from '#const/config.js';
-import { shards } from '#models/shardDb/shardDb.js';
-import fct, { getPatreonTiers, hasValidEntitlement, type Pagination } from '../../util/fct.js';
-import guildChannelModel from '../models/guild/guildChannelModel.js';
-import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { actionrow, closeButton } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { ComponentKey, component } from '#bot/util/registry/component.ts';
+import { emoji } from '#const/config.ts';
+import { shards } from '#models/shardDb/shardDb.ts';
+import fct, { getPatreonTiers, hasValidEntitlement, type Pagination } from '../../util/fct.ts';
+import guildChannelModel from '../models/guild/guildChannelModel.ts';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.ts';
 import {
   fetchNoXpRoleIds,
   fetchRoleAssignments,
   getRoleModel,
-} from '../models/guild/guildRoleModel.js';
-import nameUtil, { getRoleMention } from '../util/nameUtil.js';
+} from '../models/guild/guildRoleModel.ts';
+import nameUtil, { getRoleMention } from '../util/nameUtil.ts';
 
 export default command({
   name: 'serverinfo',

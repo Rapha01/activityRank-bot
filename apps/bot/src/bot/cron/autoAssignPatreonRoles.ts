@@ -1,6 +1,6 @@
 import type { Guild } from 'discord.js';
-import { config } from '#const/config.js';
-import { shards } from '#models/shardDb/shardDb.js';
+import { config } from '#const/config.ts';
+import { shards } from '#models/shardDb/shardDb.ts';
 
 export default async (supportGuild: Guild) => {
   // Get active Patrons and support server members

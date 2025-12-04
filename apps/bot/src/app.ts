@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { ShardingManager, type ShardingManagerOptions } from 'discord.js';
-import { keys } from '#const/config.js';
-import scheduler from './cron/scheduler.js';
-import fct from './util/fct.js';
-import logger from './util/logger.js';
+import { keys } from '#const/config.ts';
+import scheduler from './cron/scheduler.ts';
+import fct from './util/fct.ts';
+import logger from './util/logger.ts';
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production')
   process.env.NODE_ENV = 'development';
@@ -11,7 +11,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production')
 const managerOptions: ShardingManagerOptions = { token: keys.botAuth };
 
 const manager = new ShardingManager(
-  fileURLToPath(new URL('./bot/bot.js', import.meta.url)),
+  fileURLToPath(new URL('./bot/bot.ts', import.meta.url)),
   managerOptions,
 );
 
@@ -38,7 +38,7 @@ process.on('SIGTERM', () => {
 });
 
 import { serve } from '@hono/node-server';
-import { createRouter } from './router.js';
+import { createRouter } from './router.ts';
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
 serve({ fetch: createRouter(manager).fetch, port });

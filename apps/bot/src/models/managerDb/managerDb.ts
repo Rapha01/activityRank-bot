@@ -1,5 +1,5 @@
 import { createManagerInstance } from '@activityrank/database';
-import { keys } from '#const/config.js';
+import { keys } from '#const/config.ts';
 
 export const manager = createManagerInstance({
   host: keys.managerHost,

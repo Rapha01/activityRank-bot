@@ -1,6 +1,6 @@
 import type { QueryError } from 'mysql2';
-import { manager } from '#models/manager.js';
-import { shards } from '#models/shard.js';
+import { manager } from '#models/manager.ts';
+import { shards } from '#models/shard.ts';
 
 type ResetPeriod = 'day' | 'week' | 'month' | 'year';
 

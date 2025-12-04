@@ -1,5 +1,5 @@
-import { command } from '#bot/commands.js';
-import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.js';
+import { command } from '#bot/commands.ts';
+import { attemptUpvote, getUpvoteMessage } from '#bot/util/upvote.ts';
 
 export default command({
   name: 'Upvote',

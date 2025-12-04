@@ -1,5 +1,5 @@
-import fct from '../util/fct.js';
-import { logger } from './util/logger.js';
+import fct from '../util/fct.ts';
+import { logger } from './util/logger.ts';
 
 let warmup: number;
 

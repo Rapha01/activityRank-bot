@@ -1,7 +1,7 @@
 import type { ShardDB } from '@activityrank/database';
 import type { Guild, GuildBasedChannel } from 'discord.js';
-import { shards } from '#models/shardDb/shardDb.js';
-import { getGuildModel } from './guildModel.js';
+import { shards } from '#models/shardDb/shardDb.ts';
+import { getGuildModel } from './guildModel.ts';
 
 const cachedFields = ['noXp'] as const;
 let defaultCache: CachedDbFields | null = null;

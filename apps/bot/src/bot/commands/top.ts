@@ -15,26 +15,26 @@ import {
   RESTJSONErrorCodes,
   time,
 } from 'discord.js';
-import { command } from '#bot/commands.js';
+import { command } from '#bot/commands.ts';
 import {
   getChannelMemberRanks,
   getChannelRanks,
   getGuildMemberRanks,
-} from '#bot/models/rankModel.js';
-import { actionrow } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
+} from '#bot/models/rankModel.ts';
+import { actionrow } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
 import {
   ComponentKey,
   type ComponentPredicateConfig,
   component,
-} from '#bot/util/registry/component.js';
-import { assertUnreachable } from '#bot/util/typescript.js';
-import { emoji } from '#const/config.js';
-import { type StatTimeInterval, type StatType, statTimeIntervals } from '#models/types/enums.js';
-import fct, { type Pagination } from '../../util/fct.js';
-import { type GuildModel, getGuildModel } from '../models/guild/guildModel.js';
-import { handleStatCommandsCooldown } from '../util/cooldownUtil.js';
-import { getChannelMention, getGuildMemberNamesWithRanks } from '../util/nameUtil.js';
+} from '#bot/util/registry/component.ts';
+import { assertUnreachable } from '#bot/util/typescript.ts';
+import { emoji } from '#const/config.ts';
+import { type StatTimeInterval, type StatType, statTimeIntervals } from '#models/types/enums.ts';
+import fct, { type Pagination } from '../../util/fct.ts';
+import { type GuildModel, getGuildModel } from '../models/guild/guildModel.ts';
+import { handleStatCommandsCooldown } from '../util/cooldownUtil.ts';
+import { getChannelMention, getGuildMemberNamesWithRanks } from '../util/nameUtil.ts';
 
 const _prettifyTime = {
   day: 'Today',

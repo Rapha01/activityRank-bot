@@ -1,8 +1,8 @@
 import type { Client, ShardingManager } from 'discord.js';
 import { type Expression, sql } from 'kysely';
 import { publicIpv4 } from 'public-ip';
-import { isProduction } from '#const/config.js';
-import { manager } from '../models/managerDb/managerDb.js';
+import { isProduction } from '#const/config.ts';
+import { manager } from '../models/managerDb/managerDb.ts';
 
 function _save(client: Client) {
   if (!client.shard || client.shard.ids.length < 1) {

@@ -1,4 +1,4 @@
-import { manager } from './manager.js';
+import { manager } from './manager.ts';
 
 export async function getShardServerCounts() {
   const results = await manager.db

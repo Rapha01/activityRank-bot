@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { config, isProduction } from '#const/config.js';
+import { command } from '#bot/commands.ts';
+import { config, isProduction } from '#const/config.ts';
 
 export default command({
   name: 'ping',

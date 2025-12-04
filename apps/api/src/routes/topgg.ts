@@ -1,5 +1,5 @@
-import { createInternalRoute } from '#util/routes.js';
-import { Error400, Error401, Error403 } from '#util/zod.js';
+import { createInternalRoute } from '#util/routes.ts';
+import { Error400, Error401, Error403 } from '#util/zod.ts';
 
 export const runTopggRoute = createInternalRoute({
   method: 'post',

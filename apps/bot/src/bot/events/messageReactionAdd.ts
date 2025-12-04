@@ -1,14 +1,14 @@
 import { Events } from 'discord.js';
-import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
-import { getEmoji, getNativeEmoji } from '#bot/util/emoji.js';
-import { event } from '#bot/util/registry/event.js';
-import { getVoteMultiplier } from '../../util/fct.js';
-import { getMemberModel } from '../models/guild/guildMemberModel.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from '../models/userModel.js';
-import skip from '../skip.js';
-import statFlushCache from '../statFlushCache.js';
-import { getWaitTime } from '../util/cooldownUtil.js';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.ts';
+import { getEmoji, getNativeEmoji } from '#bot/util/emoji.ts';
+import { event } from '#bot/util/registry/event.ts';
+import { getVoteMultiplier } from '../../util/fct.ts';
+import { getMemberModel } from '../models/guild/guildMemberModel.ts';
+import { getGuildModel } from '../models/guild/guildModel.ts';
+import { getUserModel } from '../models/userModel.ts';
+import skip from '../skip.ts';
+import statFlushCache from '../statFlushCache.ts';
+import { getWaitTime } from '../util/cooldownUtil.ts';
 
 export default event(Events.MessageReactionAdd, async (partialReaction, user) => {
   const reaction = partialReaction.partial ? await partialReaction.fetch() : partialReaction;

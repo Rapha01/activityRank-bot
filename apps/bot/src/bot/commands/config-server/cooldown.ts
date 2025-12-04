@@ -1,8 +1,8 @@
 import { DurationFormat } from '@formatjs/intl-durationformat';
 import { PermissionFlagsBits } from 'discord.js';
 import { Temporal } from 'temporal-polyfill';
-import { command } from '#bot/commands.js';
-import { getGuildModel } from '../../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { getGuildModel } from '../../models/guild/guildModel.ts';
 
 export default command({
   name: 'config-server cooldown',

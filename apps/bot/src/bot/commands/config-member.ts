@@ -1,10 +1,10 @@
 import { ButtonStyle, ComponentType, type Interaction } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { type GuildModel, getGuildModel } from '#bot/models/guild/guildModel.js';
-import { actionrow, closeButton } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { component } from '#bot/util/registry/component.js';
-import { type GuildMemberModel, getMemberModel } from '../models/guild/guildMemberModel.js';
+import { command } from '#bot/commands.ts';
+import { type GuildModel, getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { actionrow, closeButton } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { component } from '#bot/util/registry/component.ts';
+import { type GuildMemberModel, getMemberModel } from '../models/guild/guildMemberModel.ts';
 
 const generateRow = (
   interaction: Interaction<'cached'>,

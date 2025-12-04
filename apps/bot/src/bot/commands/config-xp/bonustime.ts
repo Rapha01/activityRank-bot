@@ -1,6 +1,6 @@
 import { PermissionFlagsBits } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { getGuildModel } from '../../models/guild/guildModel.js';
+import { command } from '#bot/commands.ts';
+import { getGuildModel } from '../../models/guild/guildModel.ts';
 
 export default command({
   name: 'config-xp bonustime',

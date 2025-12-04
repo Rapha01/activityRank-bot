@@ -359,7 +359,7 @@ export class GenerateCommand extends ConfigurableCommand2 {
 
     const output = [
       `/* 🛠️ This file was generated with \`activityrank generate\` on ${new Date().toDateString()}. */\n\n`,
-      "import { Command, type OptionKey, type CommandPredicateConfig } from './command.js';",
+      "import { Command, type OptionKey, type CommandPredicateConfig } from './command.ts';",
       `import type {
   Attachment,
   AutocompleteInteraction,

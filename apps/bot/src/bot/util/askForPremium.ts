@@ -1,12 +1,12 @@
 import { type ChatInputCommandInteraction, ComponentType, MessageFlags } from 'discord.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { emoji } from '#const/config.js';
-import fct, { hasValidEntitlement } from '../../util/fct.js';
-import { getUserModel } from '../models/userModel.js';
-import { section } from './component.js';
-import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.js';
-import { getWaitTime } from './cooldownUtil.js';
-import { oneline } from './templateStrings.js';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { emoji } from '#const/config.ts';
+import fct, { hasValidEntitlement } from '../../util/fct.ts';
+import { getUserModel } from '../models/userModel.ts';
+import { section } from './component.ts';
+import { PATREON_BUTTON, PATREON_URL, PREMIUM_BUTTON } from './constants.ts';
+import { getWaitTime } from './cooldownUtil.ts';
+import { oneline } from './templateStrings.ts';
 
 const isDev = process.env.NODE_ENV !== 'production';
 

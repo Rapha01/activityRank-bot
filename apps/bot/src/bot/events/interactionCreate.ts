@@ -10,12 +10,12 @@ import {
   RESTJSONErrorCodes,
 } from 'discord.js';
 import { outdent } from 'outdent';
-import { event } from '#bot/util/registry/event.js';
-import { registry } from '#bot/util/registry/registry.js';
-import { config } from '#const/config.js';
-import { getGuildModel } from '../models/guild/guildModel.js';
-import { getUserModel } from '../models/userModel.js';
-import { askForPremium } from '../util/askForPremium.js';
+import { event } from '#bot/util/registry/event.ts';
+import { registry } from '#bot/util/registry/registry.ts';
+import { config } from '#const/config.ts';
+import { getGuildModel } from '../models/guild/guildModel.ts';
+import { getUserModel } from '../models/userModel.ts';
+import { askForPremium } from '../util/askForPremium.ts';
 
 export default event(Events.InteractionCreate, async (interaction) => {
   try {

@@ -1,5 +1,5 @@
-import { keys } from '#const/config.js';
-import { getShardServerCounts } from '#models/botShardStatModel.js';
+import { keys } from '#const/config.ts';
+import { getShardServerCounts } from '#models/botShardStatModel.ts';
 
 export async function runTopggTask() {
   console.log('[task | top.gg] Sending server count');

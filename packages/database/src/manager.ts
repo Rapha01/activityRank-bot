@@ -1,6 +1,6 @@
 import { Kysely, MysqlDialect } from 'kysely';
 import { createConnection, createPool, type PoolOptions } from 'mysql2';
-import type { ManagerDB } from './typings/manager.js';
+import type { ManagerDB } from './typings/manager.ts';
 
 export function createManagerInstance(options: PoolOptions) {
   const pool = createPool({

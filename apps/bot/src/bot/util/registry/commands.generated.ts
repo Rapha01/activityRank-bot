@@ -12,7 +12,7 @@ import type {
   UserContextMenuCommandInteraction,
 } from 'discord.js';
 import type { TFunction } from 'i18next';
-import { Command, type CommandPredicateConfig, type OptionKey } from './command.js';
+import { Command, type CommandPredicateConfig, type OptionKey } from './command.ts';
 
 type CommandReturn = Promise<void> | void;
 

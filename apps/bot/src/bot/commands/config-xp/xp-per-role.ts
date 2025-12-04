@@ -1,12 +1,12 @@
 import { ButtonStyle, ComponentType, type Role } from 'discord.js';
-import { command } from '#bot/commands.js';
-import { getGuildModel } from '#bot/models/guild/guildModel.js';
-import { getRoleModel } from '#bot/models/guild/guildRoleModel.js';
-import { actionrow, closeButton } from '#bot/util/component.js';
-import { requireUser } from '#bot/util/predicates.js';
-import { component } from '#bot/util/registry/component.js';
-import { shards } from '#models/shardDb/shardDb.js';
-import fct from '#util/fct.js';
+import { command } from '#bot/commands.ts';
+import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { getRoleModel } from '#bot/models/guild/guildRoleModel.ts';
+import { actionrow, closeButton } from '#bot/util/component.ts';
+import { requireUser } from '#bot/util/predicates.ts';
+import { component } from '#bot/util/registry/component.ts';
+import { shards } from '#models/shardDb/shardDb.ts';
+import fct from '#util/fct.ts';
 
 type XpPerEntry = 'xpPerTextMessage' | 'xpPerVoiceMinute' | 'xpPerVote' | 'xpPerInvite';
 
