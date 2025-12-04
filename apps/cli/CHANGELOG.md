@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.3
+
+### Patch Changes
+
+- [#195](https://github.com/Rapha01/activityRank-bot/pull/195) [`9941b85`](https://github.com/Rapha01/activityRank-bot/commit/9941b853907f8f0e65a7fa945b4010c3d413a38a) Thanks [@piemot](https://github.com/piemot)! - Use .ts file extensions instead of .js
+
+- Updated dependencies [[`aab152e`](https://github.com/Rapha01/activityRank-bot/commit/aab152ebcc4ba9516411085bed8abb0b59b0ed6c), [`9941b85`](https://github.com/Rapha01/activityRank-bot/commit/9941b853907f8f0e65a7fa945b4010c3d413a38a)]:
+  - @activityrank/cfg@0.4.0
+
 ## 1.3.2
 
 ### Patch Changes
