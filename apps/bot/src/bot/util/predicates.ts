@@ -11,13 +11,11 @@ import {
 } from '#const/config.js';
 import type { CommandPredicateConfig } from './registry/command.js';
 import type { ComponentPredicateConfig } from './registry/component.js';
-import { Predicate } from './registry/predicate.js';
+import type { Predicate } from './registry/predicate.js';
 
 function userHasStaffLevel(user: User, requiredLevel: StaffEntitlementLevel): Predicate {
   const { isStaff, entitlementLevel } = getStaffEntitlement(user.id);
-  return isStaff && hasStaffEntitlement(requiredLevel, entitlementLevel)
-    ? Predicate.Allow
-    : Predicate.Deny;
+  return isStaff && hasStaffEntitlement(requiredLevel, entitlementLevel) ? 'ALLOW' : 'DENY';
 }
 
 async function INVALID_CALLBACK(
@@ -53,7 +51,7 @@ export const requireUserId = (memberId: string): ComponentPredicateConfig => ({
     await interaction.reply({ content: 'This component is not for you!', ephemeral: true });
   },
   validate(interaction) {
-    return interaction.user.id === memberId ? Predicate.Allow : Predicate.Deny;
+    return interaction.user.id === memberId ? 'ALLOW' : 'DENY';
   },
 });
 

@@ -17,7 +17,6 @@ import {
   ComponentKey,
 } from './component.js';
 import { EventHandler } from './event.js';
-import { Predicate } from './predicate.js';
 
 const glob = async (paths: string | string[]) => await fg(paths, { absolute: true });
 
@@ -262,7 +261,7 @@ export class Registry {
     }
 
     const predicate = component.checkPredicate(interaction);
-    if (predicate.status !== Predicate.Allow) {
+    if (predicate.status !== 'ALLOW') {
       await predicate.callback(interaction);
       return;
     }

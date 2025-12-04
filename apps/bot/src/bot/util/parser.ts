@@ -11,19 +11,20 @@ import {
 } from 'discord.js';
 import { assertUnreachableUnsafe } from './typescript.js';
 
-export enum ParserResponseStatus {
+export const ParserResponseStatus = {
   /** Successfully parsed the desired object. */
-  Success = 0,
+  Success: 'SUCCESS' as const,
   /** The user has provided different objects in the `id` and `object` fields. */
-  ConflictingInputs = 1,
+  ConflictingInputs: 'CONFLICT' as const,
   /** The user has not provided an object in either the `id` or `object` fields. */
-  NoInput = 2,
-}
+  NoInput: 'NOINPUT' as const,
+};
+export type ParserResponseStatus = (typeof ParserResponseStatus)[keyof typeof ParserResponseStatus];
 
 type ParsedResponse<T> =
-  | { status: ParserResponseStatus.Success; object: T | undefined; id: string }
-  | { status: ParserResponseStatus.ConflictingInputs }
-  | { status: ParserResponseStatus.NoInput };
+  | { status: typeof ParserResponseStatus.Success; object: T | undefined; id: string }
+  | { status: typeof ParserResponseStatus.ConflictingInputs }
+  | { status: typeof ParserResponseStatus.NoInput };
 
 function parseObject<T>(
   interaction: ChatInputCommandInteraction<'cached'>,

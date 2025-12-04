@@ -20,20 +20,21 @@ export const RESET_QUEUE = new AsyncQueue();
 /**
  * The status of a {@link ResetJob}
  */
-export enum ResetStatus {
+export const ResetStatus = {
   /** Job is waiting to start */
-  Waiting = 0,
+  Waiting: 'WAITING' as const,
   /** Getting number of rows to reset */
-  Planning = 1,
+  Planning: 'PLANNING' as const,
   /** Job is done planning and is ready to execute */
-  Ready = 2,
+  Ready: 'READY' as const,
   /** Actively resetting */
-  Executing = 3,
+  Executing: 'EXECUTING' as const,
   /** All done! */
-  Complete = 4,
+  Complete: 'COMPLETE' as const,
   /** An error occurred. */
-  Error = 5,
-}
+  Error: 'ERROR' as const,
+};
+export type ResetStatus = (typeof ResetStatus)[keyof typeof ResetStatus];
 
 const BATCHSIZE = isProduction ? 10_000 : 10;
 
