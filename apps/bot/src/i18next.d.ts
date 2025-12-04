@@ -1,5 +1,5 @@
 import 'i18next';
-import type cmdContent from '../locales/en-US/command-content.tson';
+import type cmdContent from '../locales/en-US/command-content.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {

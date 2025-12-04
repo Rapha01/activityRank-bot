@@ -9,7 +9,7 @@ let loaded = false;
 export async function ensureI18nLoaded() {
   if (loaded) return;
 
-  const loadPath = fileURLToPath(new URL('../../../locales/{{lng}}/{{ns}}.tson', import.meta.url));
+  const loadPath = fileURLToPath(new URL('../../../locales/{{lng}}/{{ns}}.json', import.meta.url));
 
   await i18next.use(Backend).init<FsBackendOptions>({
     lng: 'en-US',
