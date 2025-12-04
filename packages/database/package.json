@@ -4,10 +4,9 @@
   "version": "0.1.1",
   "private": "true",
   "type": "module",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "test": "vitest --run",
     "format": "node ./scripts/format.mjs"
   },

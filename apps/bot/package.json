@@ -5,8 +5,8 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "start": "node --enable-source-maps src/app.ts",
-    "watch": "nodemon --exec \"node --enable-source-maps src/app.ts\"",
+    "start": "node src/app.ts",
+    "watch": "nodemon --exec \"node src/app.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:check": "vitest --run",
