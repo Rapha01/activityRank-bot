@@ -180,6 +180,9 @@ importers:
       unicode-emoji-json:
         specifier: ^0.6.0
         version: 0.6.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@activityrank/tsconfig':
         specifier: workspace:*
@@ -205,9 +208,6 @@ importers:
       vitest:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@24.1.0)(lightningcss@1.30.2)
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
 
   apps/cli:
     dependencies:

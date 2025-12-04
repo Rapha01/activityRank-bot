@@ -38,6 +38,8 @@ services:
       context: .
       dockerfile: apps/bot/Dockerfile
     container_name: Bot
+    ports:
+      - "3010:3000"
     configs:
       - config
     secrets:
