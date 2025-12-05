@@ -373,7 +373,7 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
           ]
         : []),
     ],
-    allowedMentions: { parse: ['users'], users: [member.id] },
+    allowedMentions: { users: [member.id] },
     flags: [MessageFlags.IsComponentsV2],
   });
 

@@ -200,7 +200,7 @@ abstract class ResetJob {
       if (options?.bufferTime) await sleep(options.bufferTime);
     } catch (err) {
       this._resetStatus = ResetStatus.Error;
-      logger.warn(`Reset job ${this.jobId} failed.`, { error: err });
+      logger.warn({ error: err }, `Reset job ${this.jobId} failed.`);
       // return `completed: true` to indicate that run() should not be called again
       result = true;
     } finally {

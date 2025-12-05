@@ -8,6 +8,7 @@ import {
   Options,
   Partials,
 } from 'discord.js';
+import invariant from 'tiny-invariant';
 import { keys } from '#const/config.ts';
 import { updateTexts } from '#models/managerDb/textModel.ts';
 import fct from '../util/fct.ts';
@@ -94,7 +95,11 @@ start();
 
 async function start() {
   try {
-    client.logger = loggerManager.init(client.shard?.ids ?? []);
+    // see https://github.com/discordjs/discord.js/blob/14.25.1/packages/discord.js/src/sharding/Shard.js#L69
+    invariant(process.env.SHARDS, 'SHARDS should always be set by the Discord.JS sharding manager');
+    const shardId = parseInt(process.env.SHARDS);
+    invariant(Number.isSafeInteger(shardId), 'SHARDS should always be a single integer');
+    client.logger = loggerManager.init(shardId);
     client.logger.info('Initialising...');
 
     await ensureI18nLoaded();

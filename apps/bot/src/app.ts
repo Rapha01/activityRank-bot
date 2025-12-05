@@ -40,10 +40,10 @@ process.on('SIGTERM', () => {
 import { serve } from '@hono/node-server';
 import { createRouter } from './router.ts';
 
-const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
+const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3010;
 serve({ fetch: createRouter(manager).fetch, port });
-console.info(`Server listening on port ${port}`);
-console.info(`[http://localhost:${port}]`);
+logger.info(`Server listening on port ${port}`);
+logger.info(`[http://0.0.0.0:${port}]`);
 
 import type pino from 'pino';
 import type { StatFlushCache } from '#bot/statFlushCache.ts';

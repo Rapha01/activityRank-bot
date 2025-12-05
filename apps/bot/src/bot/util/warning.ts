@@ -1,6 +1,13 @@
-import { type Channel, ComponentType, type Guild, MessageFlags } from 'discord.js';
+import {
+  type Channel,
+  ComponentType,
+  type Guild,
+  MessageFlags,
+  RESTJSONErrorCodes,
+} from 'discord.js';
 import invariant from 'tiny-invariant';
 import { getGuildModel } from '#bot/models/guild/guildModel.ts';
+import { catchDjsError } from './parser.ts';
 
 export async function warnGuild(guild: Guild, content: string) {
   let success = false;
@@ -36,9 +43,16 @@ export async function warnGuild(guild: Guild, content: string) {
     }
   }
 
+  async function fetchIfExists(channelId: string) {
+    if (channelId === '0') return null;
+    return await guild.channels
+      .fetch(channelId)
+      .catch(catchDjsError(RESTJSONErrorCodes.UnknownChannel));
+  }
+
   const guildModel = await getGuildModel(guild);
-  const levelupChannel = await guild.channels.fetch(guildModel.db.autopost_levelup);
-  const joinChannel = await guild.channels.fetch(guildModel.db.autopost_serverJoin);
+  const levelupChannel = await fetchIfExists(guildModel.db.autopost_levelup);
+  const joinChannel = await fetchIfExists(guildModel.db.autopost_serverJoin);
 
   await tryToSend(guild.safetyAlertsChannel);
   await tryToSend(guild.publicUpdatesChannel);

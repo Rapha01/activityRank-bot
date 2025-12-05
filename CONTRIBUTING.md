@@ -18,7 +18,7 @@ apps
 ├── cli/
 │   |   Internal tools for managing the bot.
 └── web/
-    |   The source code for activityrank.me.
+    |   The source code for https://activityrank.me.
 ```
 
 ## Deployment
@@ -30,9 +30,9 @@ but they may also be built on the target VPS.
 In development, semi-permanent containers such as the database can be deployed
 via the root docker-compose file ([docker-compose.yml](docker-compose.yml)).
 Other components, like the bot module, should be run via a typical node process
-through their `pnpm run dev` scripts.
+through their `pnpm run watch` scripts.
 
----
+### Development
 
 An example of running in development (to work primarily on the bot module)
 is shown here:
@@ -40,16 +40,16 @@ is shown here:
 1. Run the api and database in Docker containers.
 
     ```sh
-    docker compose up db api
+    docker compose up -d db api
     ```
 
 2. Run the development script for the bot.
 
     ```sh
-    pnpm --filter bot run dev:watch
+    pnpm --filter bot run watch
     ```
 
----
+### Production
 
 In production, containers tend to be spread out across multiple servers.
 
@@ -87,11 +87,12 @@ In production, containers tend to be spread out across multiple servers.
     docker service create --name manager \
         --secret keys \
         --config config \
+        --log-driver "local" \
         -p 3005:3000 \
         ghcr.io/rapha01/activityrank/manager 
     ```
 
-## Rotating Secrets
+### Rotating Secrets
 
 A deployed service's config may need to be updated. Since a config cannot be deleted while a container is still using it,
 we create a new config and assign it to the container with the appropriate name.
