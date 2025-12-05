@@ -8,6 +8,7 @@ import {
   Options,
   Partials,
 } from 'discord.js';
+import invariant from 'tiny-invariant';
 import { keys } from '#const/config.ts';
 import { updateTexts } from '#models/managerDb/textModel.ts';
 import fct from '../util/fct.ts';
@@ -16,7 +17,6 @@ import { memberCache } from './models/guild/guildMemberModel.ts';
 import { ensureI18nLoaded } from './util/i18n.ts';
 import loggerManager from './util/logger.ts';
 import { registry } from './util/registry/registry.ts';
-import invariant from 'tiny-invariant';
 
 /**
  * Decide whether or not a member should be kept cached.
