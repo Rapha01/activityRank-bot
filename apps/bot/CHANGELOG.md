@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.14.3
+
+### Patch Changes
+
+- [#197](https://github.com/Rapha01/activityRank-bot/pull/197) [`48510b9`](https://github.com/Rapha01/activityRank-bot/commit/48510b979836b8a0dfb3108d39f931caa36aa8a9) Thanks [@piemot](https://github.com/piemot)! - Fix two issues (with warning and levelup messages)
+
+- [#197](https://github.com/Rapha01/activityRank-bot/pull/197) [`66642bb`](https://github.com/Rapha01/activityRank-bot/commit/66642bb9234fbe44b009c76a602b5dfd44fae208) Thanks [@piemot](https://github.com/piemot)! - Update logger for accurate shard readings
+
 ## 7.14.2
 
 ### Patch Changes
