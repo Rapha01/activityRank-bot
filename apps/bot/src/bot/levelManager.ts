@@ -60,11 +60,36 @@ export async function runRoleUpdate(
   member: GuildMember,
   newLevel: number,
   newRoles?: string[],
+  appendOnly: boolean = false,
 ): Promise<void> {
   const roles = newRoles ?? (await getNewMemberRoles(member, newLevel));
   const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
-  if (canAssign.ok) {
+  if (!canAssign.ok && !alreadyWarnedGuilds.has(member.guild.id)) {
+    await warnGuild(
+      member.guild,
+      `## Warning\n${getWarningMessage(canAssign.errors, member.guild)}`,
+    );
+    alreadyWarnedGuilds.add(member.guild.id);
+    return;
+  }
+
+  if (appendOnly) {
     try {
+      for (const role of roles) {
+        if (!member.roles.cache.keys().some((id) => id === role)) {
+          // via idempotent PUT request
+          await member.roles.add(role);
+        }
+      }
+    } catch (err) {
+      member.client.logger.warn(
+        { err, memberId: member.id, guildId: member.guild.id, newLevel },
+        'Failed to add member roles on role update',
+      );
+    }
+  } else {
+    try {
+      // via PATCH request
       await member.roles.set(roles);
     } catch (err) {
       member.client.logger.warn(
@@ -72,12 +97,6 @@ export async function runRoleUpdate(
         'Failed to set member roles on role update',
       );
     }
-  } else if (!alreadyWarnedGuilds.has(member.guild.id)) {
-    await warnGuild(
-      member.guild,
-      `## Warning\n${getWarningMessage(canAssign.errors, member.guild)}`,
-    );
-    alreadyWarnedGuilds.add(member.guild.id);
   }
 }
 
