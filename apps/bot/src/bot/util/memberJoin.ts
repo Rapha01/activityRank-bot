@@ -24,13 +24,15 @@ export async function handleMemberJoin(member: GuildMember) {
   if (cachedGuild.db.stickyLevelRoles) {
     // Roleassignments
     const totalXp = cachedMember.cache.totalXp ?? 0;
-    const { isLevelup, newLevel } = await checkLevelup(member.guild, 0, totalXp);
+    const { newLevel } = await checkLevelup(member.guild, 0, totalXp);
 
     const newRoles = await getNewMemberRoles(member, newLevel);
     roleAssignmentMessages = await getRoleAssignmentMessages(member, newRoles);
-    if (newLevel > 1 && isLevelup) {
-      await runRoleUpdate(member, newLevel, newRoles);
-    }
+    await runRoleUpdate(member, newLevel, newRoles);
+  } else {
+    // only level 1 assignments
+    const newRoles = await getNewMemberRoles(member, 1);
+    await runRoleUpdate(member, 1, newRoles);
   }
 
   // AutoPost serverjoin
