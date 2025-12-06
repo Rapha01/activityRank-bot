@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0
+
+### Minor Changes
+
+- [#199](https://github.com/Rapha01/activityRank-bot/pull/199) [`9d92577`](https://github.com/Rapha01/activityRank-bot/commit/9d92577c9b9dd9e706a383c0f485ca4b34a0fd9c) Thanks [@piemot](https://github.com/piemot)! - Create a `pino-pretty`-like formatting command for pino log files
+
 ## 1.3.3
 
 ### Patch Changes

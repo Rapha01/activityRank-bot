@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.14.4
+
+### Patch Changes
+
+- [#199](https://github.com/Rapha01/activityRank-bot/pull/199) [`1adf023`](https://github.com/Rapha01/activityRank-bot/commit/1adf023292e7f8d9193dae640a78a13231192a0c) Thanks [@piemot](https://github.com/piemot)! - fix: levelups not being given at level 1
+
 ## 7.14.3
 
 ### Patch Changes
