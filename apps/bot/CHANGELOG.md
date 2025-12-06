@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.15.0
+
+### Minor Changes
+
+- [#201](https://github.com/Rapha01/activityRank-bot/pull/201) [`7214203`](https://github.com/Rapha01/activityRank-bot/commit/7214203616f40cea7bab374d94d582660cc1edab) Thanks [@piemot](https://github.com/piemot)! - feat: only add roles on member join
+
 ## 7.14.4
 
 ### Patch Changes
