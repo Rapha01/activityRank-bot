@@ -28,11 +28,11 @@ export async function handleMemberJoin(member: GuildMember) {
 
     const newRoles = await getNewMemberRoles(member, newLevel);
     roleAssignmentMessages = await getRoleAssignmentMessages(member, newRoles);
-    await runRoleUpdate(member, newLevel, newRoles);
+    await runRoleUpdate(member, newLevel, newRoles, true);
   } else {
     // only level 1 assignments
     const newRoles = await getNewMemberRoles(member, 1);
-    await runRoleUpdate(member, 1, newRoles);
+    await runRoleUpdate(member, 1, newRoles, true);
   }
 
   // AutoPost serverjoin
