@@ -510,12 +510,6 @@
     "name": "update-roles"
   },
   {
-    "default_member_permissions": "8",
-    "type": 1,
-    "contexts": [0],
-    "name": "leaderboard"
-  },
-  {
     "default_member_permissions": "6",
     "type": 1,
     "deployment": "LOCAL_ONLY",
