@@ -6,7 +6,7 @@ CREATE TABLE `botShardStat` (
   `serverCount` int NOT NULL DEFAULT '0',
   `uptimeSeconds` int NOT NULL DEFAULT '0',
   `readyDate` bigint NOT NULL DEFAULT '0',
-  `ip` varchar(15) NOT NULL,
+  `ip` varchar(64) NOT NULL,
   `changedHealthDate` bigint NOT NULL DEFAULT '0',
   `commands1h` int NOT NULL DEFAULT '0',
   `botInvites1h` int NOT NULL DEFAULT '0',
