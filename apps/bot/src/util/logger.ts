@@ -1,7 +1,7 @@
 import pino from 'pino';
 
 const logger = pino({
-  base: { pid: process.pid },
+  base: null,
   level: process.env.SUPPRESS_LOGGING !== 'true' ? 'debug' : 'silent',
 });
 

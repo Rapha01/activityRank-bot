@@ -17,7 +17,8 @@ const manager = new ShardingManager(
 
 start().catch(async (e) => {
   logger.fatal(e);
-  await fct.waitAndReboot(3000);
+  await fct.sleep(500);
+  process.exit();
 });
 
 async function start() {

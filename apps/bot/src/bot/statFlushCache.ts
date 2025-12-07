@@ -198,9 +198,10 @@ const addTotalXp = async (member: GuildMember, xp: number) => {
 
   const { isLevelup, newLevel } = await checkLevelup(member.guild, oldTotalXp, newTotalXp);
   if (isLevelup) {
+    member.client.logger.debug('Running levelup');
     const newRoles = await getNewMemberRoles(member, newLevel);
-    await runRoleUpdate(member, newLevel, newRoles);
     await sendLevelupMessage(member, newLevel, newRoles);
+    await runRoleUpdate(member, newLevel, newRoles);
   }
 };
 

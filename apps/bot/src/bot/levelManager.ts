@@ -44,6 +44,7 @@ export async function sendLevelupMessage(
   const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
   if (canAssign.ok) {
     const messages = await getRoleAssignmentMessages(member, roles);
+    member.client.logger.debug({ messages }, 'Sending levelup message');
     await sendGratulationMessage(member, messages, newLevel);
   } else {
     // TODO: error handling
@@ -375,10 +376,13 @@ async function sendGratulationMessage(member: GuildMember, roleMessages: string[
                 type: ComponentType.TextDisplay,
                 content: `## ${nameUtil.getGuildMemberAlias(member, cachedGuild.db.showNicknames === 1)} ${emoji('level')}${level}`,
               },
+              {
+                type: ComponentType.TextDisplay,
+                content,
+              },
             ],
             accessory: { type: ComponentType.Thumbnail, media: { url: member.displayAvatarURL() } },
           },
-          { type: ComponentType.TextDisplay, content },
         ],
       },
       ...(isDMs
