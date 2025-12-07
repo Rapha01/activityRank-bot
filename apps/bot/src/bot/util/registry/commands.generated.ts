@@ -1,4 +1,4 @@
-/* 🛠️ This file was generated with `activityrank generate` on Mon Aug 18 2025. */
+/* 🛠️ This file was generated with `activityrank generate` on Sat Dec 06 2025. */
 
 import type {
   AutocompleteInteraction,
@@ -497,7 +497,28 @@ export function command(options: {
   }) => CommandReturn;
 }): Command;
 export function command(options: {
-  name: 'leaderboard';
+  name: 'customize-bot';
+  predicate?: CommandPredicateConfig;
+  execute: (args: {
+    interaction: ChatInputCommandInteraction<'cached'>;
+    client: Client;
+    t: TFunction<'command-content'>;
+  }) => CommandReturn;
+}): Command;
+export function command(options: {
+  name: 'leaderboard activate';
+  predicate?: CommandPredicateConfig;
+  execute: (args: {
+    interaction: ChatInputCommandInteraction<'cached'>;
+    client: Client;
+    t: TFunction<'command-content'>;
+    options: {
+      channel: Extract<GuildChannel | ThreadChannel, { type: ChannelType }>;
+    };
+  }) => CommandReturn;
+}): Command;
+export function command(options: {
+  name: 'leaderboard destroy';
   predicate?: CommandPredicateConfig;
   execute: (args: {
     interaction: ChatInputCommandInteraction<'cached'>;
@@ -689,7 +710,9 @@ export const COMMAND_META: {
   top: { optionGetters: {}, type: 'base-command' },
   rank: { optionGetters: { member: ['user'] }, type: 'base-command' },
   'update-roles': { optionGetters: {}, type: 'base-command' },
-  leaderboard: { optionGetters: {}, type: 'base-command' },
+  'customize-bot': { optionGetters: {}, type: 'base-command' },
+  'leaderboard activate': { optionGetters: { channel: ['channel'] }, type: 'subcommand' },
+  'leaderboard destroy': { optionGetters: {}, type: 'subcommand' },
   'blacklist user': { optionGetters: { user: ['user'] }, type: 'subcommand' },
   'blacklist guild': { optionGetters: { id: ['value'] }, type: 'subcommand' },
   eval: {

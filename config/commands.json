@@ -512,8 +512,31 @@
   {
     "default_member_permissions": "8",
     "type": 1,
+    "name": "customize-bot"
+  },
+  {
+    "default_member_permissions": "8",
+    "type": 1,
     "contexts": [0],
-    "name": "leaderboard"
+    "name": "leaderboard",
+    "options": [
+      {
+        "type": 1,
+        "name": "activate",
+        "options": [
+          {
+            "type": 7,
+            "name": "channel",
+            "required": true,
+            "channel_types": [0, 2, 5]
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "destroy"
+      }
+    ]
   },
   {
     "default_member_permissions": "6",

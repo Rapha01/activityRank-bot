@@ -2,12 +2,14 @@ import { Cron } from 'croner';
 import type { Client } from 'discord.js';
 import { config } from '#const/config.ts';
 import autoAssignPatreonRoles from './autoAssignPatreonRoles.ts';
+import { updateLeaderboards } from './updateLeaderboards.ts';
 import voiceXpRound from './voiceXpRound.ts';
 
 const isProd = process.env.NODE_ENV === 'production';
 
 const LOG_SHARD_DIAGNOSTICS_CRON = isProd ? '0 */10 * * * *' : '*/20 * * * * *';
 const ASSIGN_PATREON_ROLES_CRON = isProd ? '15 */15 * * * *' : '*/15 * * * * *';
+export const UPDATE_LEADERBOARDS_CRON = '*/10 * * * *';
 
 export const start = (client: Client) => {
   // Loops
@@ -48,6 +50,16 @@ export const start = (client: Client) => {
       client.logger.debug({ attrs }, 'Shard diagnostics');
     } catch (e) {
       client.logger.warn(e, 'Error in shard diagnostics');
+    }
+  });
+
+  new Cron(UPDATE_LEADERBOARDS_CRON, async () => {
+    try {
+      await updateLeaderboards(client);
+
+      client.logger.info('Updated leaderboards');
+    } catch (e) {
+      client.logger.warn(e, 'Error in updateLeaderboards');
     }
   });
 
