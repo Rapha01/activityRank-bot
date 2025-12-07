@@ -1,5 +1,19 @@
 # Changelog
 
+## 7.16.0
+
+### Minor Changes
+
+- [#203](https://github.com/Rapha01/activityRank-bot/pull/203) [`1d79901`](https://github.com/Rapha01/activityRank-bot/commit/1d79901af9752ba9252e004def011999bebed966) Thanks [@piemot](https://github.com/piemot)! - Allow Premium users to change the avatar and banner of the bot in their server
+
+- [#203](https://github.com/Rapha01/activityRank-bot/pull/203) [`80e39fc`](https://github.com/Rapha01/activityRank-bot/commit/80e39fc4d50bb5775332e5eb596b07bd13f1397b) Thanks [@piemot](https://github.com/piemot)! - Allow Premium members to create a persistent leaderboard
+
+### Patch Changes
+
+- [#206](https://github.com/Rapha01/activityRank-bot/pull/206) [`8eedc00`](https://github.com/Rapha01/activityRank-bot/commit/8eedc00a0c97bf359fdafe78863c1e37777aca7e) Thanks [@piemot](https://github.com/piemot)! - Ensure that role messages are sent on level up
+
+- [#205](https://github.com/Rapha01/activityRank-bot/pull/205) [`baaeb57`](https://github.com/Rapha01/activityRank-bot/commit/baaeb5745019c6b10fb44ab6b6ee4908c1e359e2) Thanks [@piemot](https://github.com/piemot)! - Include port in ip line of botShardHealth
+
 ## 7.15.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- [#205](https://github.com/Rapha01/activityRank-bot/pull/205) [`197d0dc`](https://github.com/Rapha01/activityRank-bot/commit/197d0dc06369760b973374fc0c39ea9ceb666b47) Thanks [@piemot](https://github.com/piemot)! - Allow manager to request data from bot instances via HTTP
+
 ## 0.3.11
 
 ### Patch Changes
