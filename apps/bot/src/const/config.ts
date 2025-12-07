@@ -60,3 +60,5 @@ export function hasStaffEntitlement(
   if (!testCase) return false;
   return staffEntitlementLevels[testCase] >= staffEntitlementLevels[requirement];
 }
+
+export const exposedPort = Number.parseInt(process.env.PORT as string) || 3010;

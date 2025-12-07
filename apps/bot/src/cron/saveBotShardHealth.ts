@@ -1,8 +1,8 @@
 import type { Client, ShardingManager } from 'discord.js';
 import { type Expression, sql } from 'kysely';
 import { publicIpv4 } from 'public-ip';
-import { isProduction } from '#const/config.ts';
 import { manager } from '../models/managerDb/managerDb.ts';
+import { exposedPort } from '#const/config.ts';
 
 function _save(client: Client) {
   if (!client.shard || client.shard.ids.length < 1) {
@@ -22,19 +22,17 @@ function _save(client: Client) {
 }
 
 export default async (shardManager: ShardingManager) => {
-  //logger.debug('Saving shard health');
-  const round = Math.round;
-  const nowDate = round(Date.now() / 1000);
+  const nowDate = Math.round(Date.now() / 1000);
   const shards = await shardManager.broadcastEval(_save);
 
   const ip = await publicIpv4();
 
   const dataShards = shards.map((shard) => ({
     ...shard,
-    ip,
+    ip: `${ip}:${exposedPort}`,
     changedHealthDate: nowDate,
     readyDate: Math.round(new Date(shard.readyDate ?? 0).getTime() / 1000),
-    shardId: isProduction ? shard.shardId : shard.shardId + 1000000,
+    shardId: shard.shardId,
   }));
 
   function values<T>(expr: Expression<T>) {
