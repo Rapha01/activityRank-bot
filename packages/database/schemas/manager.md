@@ -20,7 +20,7 @@ This document describes deprecations, requirements, and other notes for tables i
 |          `serverCount` | int         |    ×     | 0       |
 |        `uptimeSeconds` | int         |    ×     | 0       |
 |            `readyDate` | bigint      |    ×     | 0       |
-|                   `ip` | varchar(15) |    ×     |         |
+|                   `ip` | varchar(64) |    ×     |         |
 |    `changedHealthDate` | bigint      |    ×     | 0       |
 |           `commands1h` | int         |    ×     | 0       |
 |         `botInvites1h` | int         |    ×     | 0       |

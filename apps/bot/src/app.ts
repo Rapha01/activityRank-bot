@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { ShardingManager, type ShardingManagerOptions } from 'discord.js';
-import { keys } from '#const/config.ts';
+import { exposedPort, keys } from '#const/config.ts';
 import scheduler from './cron/scheduler.ts';
 import fct from './util/fct.ts';
 import logger from './util/logger.ts';
@@ -40,10 +40,9 @@ process.on('SIGTERM', () => {
 import { serve } from '@hono/node-server';
 import { createRouter } from './router.ts';
 
-const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3010;
-serve({ fetch: createRouter(manager).fetch, port });
-logger.info(`Server listening on port ${port}`);
-logger.info(`[http://0.0.0.0:${port}]`);
+serve({ fetch: createRouter(manager).fetch, port: exposedPort });
+logger.info(`Server listening on port ${exposedPort}`);
+logger.info(`[http://0.0.0.0:${exposedPort}]`);
 
 import type pino from 'pino';
 import type { StatFlushCache } from '#bot/statFlushCache.ts';

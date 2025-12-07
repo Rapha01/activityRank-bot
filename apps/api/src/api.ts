@@ -1,5 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { getShardStats } from '#models/botShardStatModel.ts';
+import { broadcastRoute } from '#routes/broadcast.ts';
 import { helloRoute } from '#routes/hello.ts';
 import { memberRankRoute } from '#routes/memberRank.ts';
 import { runPatreonRoute } from '#routes/patreon.ts';
@@ -7,6 +8,7 @@ import { shardStatsRoute } from '#routes/shard-stats.ts';
 import { textsRoute } from '#routes/texts.ts';
 import { runTopggRoute } from '#routes/topgg.ts';
 import { topMembersRoute } from '#routes/topMembers.ts';
+import { broadcastRequest } from '#services/broadcast.ts';
 import {
   fetchGuildMemberScores,
   fetchGuildMemberStatistics,
@@ -77,6 +79,11 @@ apiRouter.openapi(shardStatsRoute, async (c) => {
     },
     200,
   );
+});
+
+apiRouter.openapi(broadcastRoute, async (c) => {
+  const broadcastResults = await broadcastRequest(c.req);
+  return c.json(broadcastResults, 200);
 });
 
 apiRouter.openapi(runPatreonRoute, async (c) => {

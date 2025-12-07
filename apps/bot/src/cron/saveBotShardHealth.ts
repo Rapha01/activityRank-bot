@@ -1,7 +1,8 @@
+import { networkInterfaces } from 'node:os';
 import type { Client, ShardingManager } from 'discord.js';
 import { type Expression, sql } from 'kysely';
 import { publicIpv4 } from 'public-ip';
-import { isProduction } from '#const/config.ts';
+import { exposedPort, isProduction } from '#const/config.ts';
 import { manager } from '../models/managerDb/managerDb.ts';
 
 function _save(client: Client) {
@@ -22,19 +23,17 @@ function _save(client: Client) {
 }
 
 export default async (shardManager: ShardingManager) => {
-  //logger.debug('Saving shard health');
-  const round = Math.round;
-  const nowDate = round(Date.now() / 1000);
+  const nowDate = Math.round(Date.now() / 1000);
   const shards = await shardManager.broadcastEval(_save);
 
-  const ip = await publicIpv4();
+  const ip = isProduction ? await publicIpv4() : privateIpv4();
 
   const dataShards = shards.map((shard) => ({
     ...shard,
-    ip,
+    ip: `${ip}:${exposedPort}`,
     changedHealthDate: nowDate,
     readyDate: Math.round(new Date(shard.readyDate ?? 0).getTime() / 1000),
-    shardId: isProduction ? shard.shardId : shard.shardId + 1000000,
+    shardId: shard.shardId,
   }));
 
   function values<T>(expr: Expression<T>) {
@@ -57,3 +56,13 @@ export default async (shardManager: ShardingManager) => {
     }))
     .executeTakeFirstOrThrow();
 };
+
+function privateIpv4(): string {
+  for (const addressList of Object.values(networkInterfaces())) {
+    const address = addressList?.find((address) => address.family === 'IPv4' && !address.internal);
+    if (address) {
+      return address.address;
+    }
+  }
+  throw new Error('Failed to find a non-loopback private IP address.');
+}

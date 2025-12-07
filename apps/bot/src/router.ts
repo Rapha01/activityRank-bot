@@ -1,11 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import {
-  type Client,
-  type Guild,
-  type GuildMember,
-  PermissionFlagsBits,
-  type ShardingManager,
-} from 'discord.js';
+import type { Client, Guild, GuildMember, ShardingManager } from 'discord.js';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -20,6 +14,7 @@ async function getSharedGuildInfo(
   client: Client,
   context: { userGuildIds: string[]; userId: string },
 ) {
+  const { PermissionFlagsBits } = await import('discord.js');
   if (!client.isReady) return { ok: false, err: 'NOT_READY' } as const;
   async function mapGuild(guild: Guild) {
     let member: GuildMember | null = null;

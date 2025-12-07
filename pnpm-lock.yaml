@@ -62,6 +62,9 @@ importers:
       mysql2:
         specifier: ^3.15.3
         version: 3.15.3
+      undici:
+        specifier: ^7.16.0
+        version: 7.16.0
       zod:
         specifier: ^4.1.12
         version: 4.1.13
@@ -3194,6 +3197,10 @@ packages:
     resolution: {integrity: sha512-gBLkYIlEnSp8pFbT64yFgGE6UIB9tAkhukC23PmMDCe5Nd+cRqKxSjw5y54MK2AZMgZfJWMaNE4nYUHgi1XEOw==}
     engines: {node: '>=18.17'}
 
+  undici@7.16.0:
+    resolution: {integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==}
+    engines: {node: '>=20.18.1'}
+
   unicode-emoji-json@0.6.0:
     resolution: {integrity: sha512-tAYF+EsOxa8jo/XPNYHRX7Nc8uoII+/edIpHM4DQI4nMp3AuRmwGZhL8fEBe0kUk0zHK+6wiwxxxNwfW5ap2Tg==}
 
@@ -5991,6 +5998,8 @@ snapshots:
   undici-types@7.16.0: {}
 
   undici@6.21.3: {}
+
+  undici@7.16.0: {}
 
   unicode-emoji-json@0.6.0: {}
 
