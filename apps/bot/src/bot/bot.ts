@@ -118,8 +118,9 @@ async function start() {
     await client.login();
     client.logger.info('Initialized');
   } catch (e) {
-    globalLogger.warn(e, 'Error while launching shard');
-    await fct.waitAndReboot(3_000);
+    globalLogger.error(e, 'Error while launching shard');
+    await fct.sleep(500);
+    process.exit();
   }
 }
 
