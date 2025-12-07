@@ -506,6 +506,27 @@ export function command(options: {
   }) => CommandReturn;
 }): Command;
 export function command(options: {
+  name: 'leaderboard activate';
+  predicate?: CommandPredicateConfig;
+  execute: (args: {
+    interaction: ChatInputCommandInteraction<'cached'>;
+    client: Client;
+    t: TFunction<'command-content'>;
+    options: {
+      channel: Extract<GuildChannel | ThreadChannel, { type: ChannelType }>;
+    };
+  }) => CommandReturn;
+}): Command;
+export function command(options: {
+  name: 'leaderboard destroy';
+  predicate?: CommandPredicateConfig;
+  execute: (args: {
+    interaction: ChatInputCommandInteraction<'cached'>;
+    client: Client;
+    t: TFunction<'command-content'>;
+  }) => CommandReturn;
+}): Command;
+export function command(options: {
   name: 'blacklist user';
   predicate?: CommandPredicateConfig;
   execute: (args: {
@@ -690,6 +711,8 @@ export const COMMAND_META: {
   rank: { optionGetters: { member: ['user'] }, type: 'base-command' },
   'update-roles': { optionGetters: {}, type: 'base-command' },
   'customize-bot': { optionGetters: {}, type: 'base-command' },
+  'leaderboard activate': { optionGetters: { channel: ['channel'] }, type: 'subcommand' },
+  'leaderboard destroy': { optionGetters: {}, type: 'subcommand' },
   'blacklist user': { optionGetters: { user: ['user'] }, type: 'subcommand' },
   'blacklist guild': { optionGetters: { id: ['value'] }, type: 'subcommand' },
   eval: {
