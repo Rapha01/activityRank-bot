@@ -83,9 +83,11 @@ apiRouter.openapi(shardStatsRoute, async (c) => {
 
 type BotSharedGuildsResponse = {
   id: string;
+  name: string;
   isMember: true;
   permission: 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR' | 'MEMBER';
-  guildIcon: string | null;
+  icon: string | null;
+  banner: string | null;
 }[];
 
 apiRouter.openapi(sharedGuildsRoute, async (c) => {

@@ -27,9 +27,11 @@ export const sharedGuildsRoute = createInternalRoute({
             guilds: z.array(
               z.object({
                 id: zSnowflake,
+                name: z.string(),
                 isMember: z.literal(true),
                 permission: z.enum(['OWNER', 'ADMINISTRATOR', 'MODERATOR', 'MEMBER']),
-                guildIcon: z.string().nullable(),
+                icon: z.string().nullable(),
+                banner: z.string().nullable(),
               }),
             ),
             complete: z
