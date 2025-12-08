@@ -27,7 +27,7 @@ export async function broadcastRequest<T>(
       if (response.statusCode !== 200) {
         console.debug(
           `Error [${response.statusCode}] while broadcasting to shard=${shardId}`,
-          response,
+          await response.body.text(),
         );
         return {
           ok: false as const,

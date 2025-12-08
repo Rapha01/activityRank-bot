@@ -82,17 +82,20 @@ apiRouter.openapi(shardStatsRoute, async (c) => {
 });
 
 type BotSharedGuildsResponse = {
-  id: string;
-  name: string;
-  isMember: true;
-  permission: 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR' | 'MEMBER';
-  icon: string | null;
-  banner: string | null;
-}[];
+  sharedGuilds: {
+    id: string;
+    name: string;
+    isMember: true;
+    permission: 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR' | 'MEMBER';
+    icon: string | null;
+    banner: string | null;
+  }[];
+};
 
 apiRouter.openapi(sharedGuildsRoute, async (c) => {
   const body = c.req.valid('json');
   const broadcastResults = await broadcastRequest<BotSharedGuildsResponse>('/shared-guilds', {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -100,7 +103,9 @@ apiRouter.openapi(sharedGuildsRoute, async (c) => {
   });
 
   const complete = broadcastResults.every((result) => result.ok);
-  const guilds = broadcastResults.filter((result) => result.ok).flatMap((result) => result.data);
+  const guilds = broadcastResults
+    .filter((result) => result.ok)
+    .flatMap((result) => result.data.sharedGuilds);
   return c.json({ guilds, complete }, 200);
 });
 
