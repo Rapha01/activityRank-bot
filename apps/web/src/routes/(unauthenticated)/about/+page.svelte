@@ -8,7 +8,7 @@
 <h1 class="my-8 text-4xl font-extrabold text-slate-900 dark:text-slate-100">About Us</h1>
 <ul class="w-full max-w-2xl space-y-4 px-4 py-4 md:mb-8">
 	{#each data.staff as member}
-		<div class="w-full rounded-xl bg-gradient-to-br from-theme-400 to-theme-700 p-1">
+		<div class="w-full rounded-xl bg-linear-to-br from-theme-400 to-theme-700 p-1">
 			<li
 				class="flex w-full flex-col items-center gap-2 rounded-xl bg-slate-300 px-2 py-4 md:flex-row dark:bg-slate-800"
 			>
@@ -41,7 +41,7 @@
 				>
 					{#if member.role === 'CUSTOM'}
 						Support Staff &
-						<span class="bg-gradient-to-b from-orange-500 to-red-600 bg-clip-text text-transparent">
+						<span class="bg-linear-to-b from-orange-500 to-red-600 bg-clip-text text-transparent">
 							Breaker of Bots
 						</span>
 					{:else}

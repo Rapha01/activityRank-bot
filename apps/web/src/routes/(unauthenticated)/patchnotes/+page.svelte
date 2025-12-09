@@ -1,20 +1,59 @@
 <script lang="ts">
-	import GithubLogo from '$lib/assets/logos/github.svelte';
+	import type { PageProps } from './$types'
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import { Accordion } from 'bits-ui';
+
+  	const props: PageProps = $props();
 </script>
 
-<main class="flex h-full flex-1 flex-col items-center justify-center">
-	<div class="flex flex-col items-center gap-6 px-8 md:gap-10">
-		<span class="text-8xl">🚧</span>
-		<h1 class="text-4xl font-extrabold text-slate-900 dark:text-slate-100">Patchnotes</h1>
-		<p class="text-slate-800 dark:text-slate-200">
-			The patchnotes are currently under construction. Please check the GitHub releases and commits
-			for updates.
-		</p>
-		<a
-			href="/github"
-			class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-theme-200 to-theme-400 px-12 py-4 text-xl font-semibold text-slate-800"
-		>
-			<GithubLogo class="size-8" /> GitHub
-		</a>
-	</div>
+<main class="max-w-3xl w-full px-4 py-8 text-slate-800 dark:text-slate-200">
+	<h1 class="text-4xl/snug font-extrabold">Patchnotes</h1>
+	<Accordion.Root class="w-full" type="multiple">
+		{#each props.data.patchnotes as entry (entry.version)}
+			<Accordion.Item
+				value={entry.version}
+				class="group border-b border-slate-500/20 px-1.5"
+			>
+				<Accordion.Header>
+					<Accordion.Trigger
+						class="flex w-full flex-1 select-none items-center justify-between py-5 font-medium transition-all [&[data-state=open]>span>svg]:rotate-180"
+					>
+						<div class="w-full flex flex-col items-start text-start">
+							<span class="text-xl"><span class="text-theme-700">{entry.version}</span> • {entry.title}</span>
+							<span class="pr-4">{entry.desc}</span>
+						</div>
+						<span
+							class="hover:bg-slate-500/20 inline-flex size-8 items-center justify-center rounded-md"
+						>
+							<ChevronDownIcon class="size-7 transition-transform duration-200" />
+						</span>
+					</Accordion.Trigger>
+				</Accordion.Header>
+				<Accordion.Content
+					class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden tracking-[-0.01em]"
+				>
+					<div class="pb-6">
+						{#if entry.features.length > 0}
+						<div class="font-bold text-theme-700 dark:text-theme-400/80 text-xl">Features</div>
+							{#each entry.features as feature} 
+								<div class="pl-4 py-1 flex flex-col">	
+									<span class="font-bold">{feature.title}</span>
+									<span class="pl-4">{feature.desc}</span>
+								</div>
+							{/each}
+						{/if}
+						{#if entry.fixes.length > 0}
+							<div class="mt-4 font-bold text-theme-700 dark:text-theme-400/80 text-xl">Bug Fixes</div>
+							{#each entry.fixes as fix} 
+								<div class="pl-4 py-1 flex flex-col">	
+									<span class="font-bold">{fix.title}</span>
+									<span class="pl-4">{fix.desc}</span>
+								</div>
+							{/each}
+						{/if}
+					</div>
+				</Accordion.Content>
+			</Accordion.Item>
+		{/each}
+	</Accordion.Root>
 </main>

@@ -1,22 +1,41 @@
 <script lang="ts">
-	import DiscordLogo from '$lib/assets/logos/discord.svelte';
+	import type { PageProps } from './$types'
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import { Accordion } from 'bits-ui';
+
+  const props: PageProps = $props();
 </script>
 
-<main class="flex h-full flex-1 flex-col items-center justify-center">
-	<div class="flex flex-col items-center gap-6 px-8 md:gap-10">
-		<span class="text-8xl">🚧</span>
-		<h1 class="text-4xl font-extrabold text-slate-900 dark:text-slate-100">
-			Frequently Asked Questions
-		</h1>
-		<p class="text-slate-800 dark:text-slate-200">
-			The FAQ page is currently under construction. Please check our Discord Support Server's #faq
-			channel for info.
-		</p>
-		<a
-			href="/support"
-			class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-theme-200 to-theme-400 px-12 py-4 text-xl font-semibold text-slate-800"
-		>
-			<DiscordLogo class="size-8" /> Support Server
-		</a>
-	</div>
+<main class="max-w-3xl w-full px-4 py-8 text-slate-800 dark:text-slate-200">
+	<h1 class="text-4xl/snug font-extrabold">Frequently Asked Questions</h1>
+	<Accordion.Root class="w-full" type="multiple">
+		{#each props.data.faqs as entry (entry.id)}
+			<Accordion.Item
+				value={entry.id.toString()}
+				class="group border-b border-slate-500/20 px-1.5"
+			>
+				<Accordion.Header>
+					<Accordion.Trigger
+						class="flex w-full flex-1 select-none items-center justify-between py-5 font-medium transition-all [&[data-state=open]>span>svg]:rotate-180"
+					>
+						<span class="w-full text-left">
+							{entry.title}
+						</span>
+						<span
+							class="hover:bg-slate-500/20 inline-flex size-8 items-center justify-center rounded-md"
+						>
+							<ChevronDownIcon class="size-7 transition-transform duration-200" />
+						</span>
+					</Accordion.Trigger>
+				</Accordion.Header>
+				<Accordion.Content
+					class="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm tracking-[-0.01em]"
+				>
+					<div class="pb-6">
+						{@html entry.desc}
+					</div>
+				</Accordion.Content>
+			</Accordion.Item>
+		{/each}
+	</Accordion.Root>
 </main>
