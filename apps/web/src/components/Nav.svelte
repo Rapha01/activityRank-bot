@@ -8,6 +8,8 @@
 	import logo from '$lib/assets/favicon.svg';
 	import ThemeSwitcher from './ThemeSwitcher.svelte';
 	import { Dialog } from 'bits-ui';
+	import type { User } from '$lib/server/auth/user';
+	import { getUserAvatarUrl } from '$lib/util';
 
 	let navigation = [
 		{ href: '/faq/', name: 'FAQ', external: false },
@@ -15,6 +17,12 @@
 		{ href: '/support/', name: 'Support', external: true },
 		{ href: '/premium/', name: 'Premium', external: true },
 	];
+
+	type Props = {
+		user: User | null
+	}
+
+	const props: Props = $props()
 </script>
 
 <header
@@ -75,11 +83,21 @@
 			{/each}
 		</ul>
 	</nav>
-	{#await Promise.resolve() then _}
+	<div class="flex gap-1 items-center">
 		<ThemeSwitcher />
-	{/await}
-	<a href="/login" class="mx-2 flex items-center gap-1">
-		<span>Log In</span>
-		<ArrowRightIcon class="size-4" />
-	</a>
+		{#if props.user}
+			<a href="/dashboard" class="mx-2 flex items-center gap-1">
+				<span class="flex items-center gap-2">
+					Dashboard
+					<img src={getUserAvatarUrl(props.user)} class="size-7 border border-slate-950 rounded-full" alt=""/>
+				</span>
+				<ArrowRightIcon class="size-4" />
+			</a>
+		{:else}
+			<a href="/login" class="mx-2 flex items-center gap-1">
+				<span>Log In</span>
+				<ArrowRightIcon class="size-4" />
+			</a>
+		{/if}
+	</div>
 </header>

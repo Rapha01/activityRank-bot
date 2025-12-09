@@ -3,19 +3,18 @@ import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/se
 import type { Actions, RequestEvent } from './$types';
 
 export async function load(event) {
-  if (event.locals.session === null || event.locals.user === null) {
-    return redirect(302, '/login?callback=/dashboard');
-  }
+  const { session, user } = event.locals.auth();
+
   return {
-    user: event.locals.user,
+    user,
   };
 }
 
 export const actions: Actions = {
-  default: action,
+  signout,
 };
 
-async function action(event: RequestEvent) {
+async function signout(event: RequestEvent) {
   if (event.locals.session === null) {
     return fail(401);
   }

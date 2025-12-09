@@ -6,7 +6,7 @@
 	import ThemeSwitcherItem from './ThemeSwitcherItem.svelte';
 	import { ThemeManager } from '../themes.svelte';
 
-	const manager = ThemeManager.getInstance();
+  const loadManager = async () => ThemeManager.getInstance();
 </script>
 
 <DropdownMenu.Root>
@@ -15,29 +15,31 @@
 		<MoonStarIcon class="hidden dark:block" />
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content
-			class="z-10 w-32 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200"
-			sideOffset={8}
-		>
-			<ThemeSwitcherItem
-				isActive={manager.isThemeOverridden && manager.theme === 'light'}
-				onclick={() => manager.overrideTheme('light')}
-			>
-				<SunIcon class="me-2 size-5" />
-				Light
-			</ThemeSwitcherItem>
-			<ThemeSwitcherItem
-				isActive={manager.isThemeOverridden && manager.theme === 'dark'}
-				onclick={() => manager.overrideTheme('dark')}
-			>
-				<MoonStarIcon class="me-2 size-5" />
-				Dark
-			</ThemeSwitcherItem>
-			<ThemeSwitcherItem isActive={!manager.isThemeOverridden} onclick={() => manager.resetTheme()}>
-				<SunMoonIcon class="me-2 size-5" />
-				System
-			</ThemeSwitcherItem>
-		</DropdownMenu.Content>
+    {#await loadManager() then manager}
+      <DropdownMenu.Content
+        class="z-10 w-32 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200"
+        sideOffset={8}
+      >
+        <ThemeSwitcherItem
+          isActive={manager.isThemeOverridden && manager.theme === 'light'}
+          onclick={() => manager.overrideTheme('light')}
+        >
+          <SunIcon class="me-2 size-5" />
+          Light
+        </ThemeSwitcherItem>
+        <ThemeSwitcherItem
+          isActive={manager.isThemeOverridden && manager.theme === 'dark'}
+          onclick={() => manager.overrideTheme('dark')}
+        >
+          <MoonStarIcon class="me-2 size-5" />
+          Dark
+        </ThemeSwitcherItem>
+        <ThemeSwitcherItem isActive={!manager.isThemeOverridden} onclick={() => manager.resetTheme()}>
+          <SunMoonIcon class="me-2 size-5" />
+          System
+        </ThemeSwitcherItem>
+      </DropdownMenu.Content>
+    {/await}
 	</DropdownMenu.Portal>
 </DropdownMenu.Root>
 
