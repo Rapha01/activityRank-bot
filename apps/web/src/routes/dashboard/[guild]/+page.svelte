@@ -5,8 +5,7 @@
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 
-	import arLogo from '$lib/assets/favicon.svg';
-	import { getUserAvatarUrl } from '$lib/util';
+	import { getGuildIconUrl, getUserAvatarUrl } from '$lib/util';
 
 	let { data }: PageProps = $props();
 </script>
@@ -18,13 +17,12 @@
 				<span
 					class="flex size-9 items-center justify-center rounded-md bg-white p-1.5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
 				>
-					<img src={arLogo} alt="" class="size-6" />
+					<img src={getGuildIconUrl(data.guild)} alt="" class="size-6" />
 				</span>
 				<div>
-					<span class="block text-sm font-semibold text-slate-900 dark:text-slate-50">
-						ActivityRank
+					<span class="block truncate font-semibold text-slate-900 dark:text-slate-50">
+						{data.guild.name}
 					</span>
-					<span class="block text-xs text-slate-900 dark:text-slate-50"> Support Server </span>
 				</div>
 			</div>
 			<ChevronDownIcon

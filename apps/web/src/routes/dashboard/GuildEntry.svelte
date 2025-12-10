@@ -23,7 +23,7 @@
     const props: Props = $props();
 </script>
 
-<li class="flex items-center gap-4 p-4 bg-slate-950/10 dark:bg-white/5 rounded-md border-2 border-slate-950/50 dark:border-slate-50/20 h-full">
+<li class="flex items-center gap-4 p-4 bg-slate-950/5 dark:bg-white/5 rounded-md border-2 border-slate-950/30 dark:border-slate-50/20 h-full">
     <img src={getGuildIconUrl(props.id, props.icon)} class="size-16 rounded-md" alt=""/>
     <div class="flex flex-col gap-2">
         <h2 class="flex gap-2 font-bold">

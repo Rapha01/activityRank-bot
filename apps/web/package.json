@@ -17,6 +17,8 @@
 	},
 	"dependencies": {
 		"@activityrank/database": "workspace:*",
+		"@discordjs/core": "^2.4.0",
+		"@discordjs/rest": "^2.6.0",
 		"@fontsource-variable/manrope": "^5.2.6",
 		"@fontsource-variable/recursive": "^5.2.6",
 		"@lucide/svelte": "^0.540.0",
@@ -25,6 +27,7 @@
 		"@oslojs/encoding": "^1.1.0",
 		"arctic": "^3.7.0",
 		"bits-ui": "^2.14.2",
+		"discord-api-types": "^0.38.36",
 		"tiny-invariant": "^1.3.3"
 	},
 	"devDependencies": {
@@ -35,7 +38,6 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.1.17",
 		"@vitest/browser": "^3.2.3",
-		"discord-api-types": "^0.38.33",
 		"playwright": "^1.53.0",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",

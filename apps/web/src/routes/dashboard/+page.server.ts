@@ -1,8 +1,6 @@
-import {
-  PermissionFlagsBits as PermissionFlags,
-  type RESTAPIPartialCurrentUserGuild,
-} from 'discord-api-types/v10';
+import { PermissionFlagsBits as PermissionFlags } from 'discord-api-types/v10';
 import { MANAGER_AUTH, MANAGER_HOST } from '$env/static/private';
+import { userApiHandle } from '$lib/server/discord.js';
 
 type APISharedGuildsResponse = {
   guilds: {
@@ -19,11 +17,9 @@ type APISharedGuildsResponse = {
 export async function load(event) {
   const { session, user } = event.locals.auth();
 
-  const userGuildsResponse = await fetch('https://discord.com/api/v10/users/@me/guilds', {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  const userGuilds: RESTAPIPartialCurrentUserGuild[] = await userGuildsResponse.json();
+  const userGuilds = await userApiHandle(session).users.getGuilds();
   const userGuildIds = userGuilds.map((guild) => guild.id);
+
   const sharedGuildsResponse = await fetch(`http://${MANAGER_HOST}/api/v0/shared-guilds`, {
     method: 'POST',
     headers: {
@@ -33,6 +29,7 @@ export async function load(event) {
     body: JSON.stringify({ userId: user.id, userGuildIds }),
   });
   const sharedGuilds: APISharedGuildsResponse = await sharedGuildsResponse.json();
+
   const unsharedGuilds = userGuilds
     .filter(
       (guild) =>

@@ -3,10 +3,12 @@
 	import type { PageProps } from './$types';
 	import CloudAlertIcon from '@lucide/svelte/icons/cloud-alert';
 	import GuildEntry from './GuildEntry.svelte';
+	import Nav from '../../components/Nav.svelte';
 
 	let { data }: PageProps = $props();
 </script>
 
+<Nav user={data.user} />
 <div class="py-8 px-8 md:px-48 grid space-y-8 text-slate-800 dark:text-slate-200">
 	<h1 class="flex items-center gap-6 text-2xl font-bold">
 		<img

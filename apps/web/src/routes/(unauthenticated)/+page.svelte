@@ -11,13 +11,13 @@
 	<div class="flex flex-col items-center gap-12">
 		<img src={arLogo} alt="" class="w-32 md:w-48" />
 		<h1
-			class="bg-gradient-to-b from-theme-700 to-theme-800 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl/relaxed dark:from-theme-200 dark:to-theme-400"
+			class="bg-linear-to-b from-theme-700 to-theme-800 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl/relaxed dark:from-theme-200 dark:to-theme-400"
 		>
 			ActivityRank
 		</h1>
 		<a
 			href="/invite"
-			class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-theme-200 to-theme-400 px-12 py-4 text-xl font-semibold text-slate-800"
+			class="flex items-center gap-2 rounded-xl bg-linear-to-r from-theme-200 to-theme-400 px-12 py-4 text-xl font-semibold text-slate-800"
 		>
 			Invite
 			<Plus class="size-4" />
