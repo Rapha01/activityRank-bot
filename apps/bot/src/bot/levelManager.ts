@@ -268,9 +268,13 @@ async function checkRolesAreAssignable(
   invariant(member.guild.members.me);
 
   const guildRoles = member.guild.roles.cache;
-  // const memberRoles = new Set(member.roles.cache.keys());
 
   const modifiedRoles = symmetricDifference(new Set(roleIds), new Set(member.roles.cache.keys()));
+  if (modifiedRoles.size < 1) {
+    // If no roles are actually going to be modified, exit early
+    // prevents warning about missing permissions if a server doesn't use the role assignment feature
+    return { ok: true };
+  }
 
   const cachedGuild = await getGuildModel(member.guild);
 
