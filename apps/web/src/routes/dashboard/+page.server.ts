@@ -1,13 +1,14 @@
 import { PermissionFlagsBits as PermissionFlags } from 'discord-api-types/v10';
 import { MANAGER_AUTH, MANAGER_HOST } from '$env/static/private';
 import { userApiHandle } from '$lib/server/discord.js';
+import { hasManageGuild, type ExtendedPermissionLevel } from './permissisons/permissions.js';
 
 type APISharedGuildsResponse = {
   guilds: {
     id: string;
     name: string;
     isMember: true;
-    permission: 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR' | 'MEMBER';
+    permission: ExtendedPermissionLevel;
     icon: string | null;
     banner: string | null;
   }[];
@@ -17,9 +18,11 @@ type APISharedGuildsResponse = {
 export async function load(event) {
   const { session, user } = event.locals.auth();
 
+  // TODO: cache this (probably in a cookie)
   const userGuilds = await userApiHandle(session).users.getGuilds();
   const userGuildIds = userGuilds.map((guild) => guild.id);
 
+  // TODO(@piemot): cache this result on the API end
   const sharedGuildsResponse = await fetch(`http://${MANAGER_HOST}/api/v0/shared-guilds`, {
     method: 'POST',
     headers: {
@@ -31,12 +34,8 @@ export async function load(event) {
   const sharedGuilds: APISharedGuildsResponse = await sharedGuildsResponse.json();
 
   const unsharedGuilds = userGuilds
-    .filter(
-      (guild) =>
-        bitfield(guild.permissions).has(PermissionFlags.Administrator) ||
-        bitfield(guild.permissions).has(PermissionFlags.ManageGuild),
-    )
-    .filter((guild) => !sharedGuilds.guilds.some((sharedGuild) => sharedGuild.id === guild.id));
+    .filter((userGuild) => hasManageGuild(userGuild.permissions))
+    .filter((userGuild) => !sharedGuilds.guilds.some((botGuild) => botGuild.id === userGuild.id));
 
   sharedGuilds.guilds.sort(sortByPermission);
   unsharedGuilds.sort(sortByName);
@@ -51,7 +50,7 @@ export async function load(event) {
 
 type SharedGuildSortParams = {
   name: string;
-  permission: 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR' | 'MEMBER';
+  permission: ExtendedPermissionLevel;
 };
 
 function sortByPermission(a: SharedGuildSortParams, b: SharedGuildSortParams): number {
@@ -73,22 +72,4 @@ function sortByPermission(a: SharedGuildSortParams, b: SharedGuildSortParams): n
 function sortByName(a: { name: string }, b: { name: string }): number {
   // sensitivity: 'base' ignores case
   return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-}
-
-function bitfield(bits: bigint | string) {
-  let bitfield: bigint;
-
-  if (typeof bits === 'string') {
-    bitfield = BigInt(bits);
-  } else {
-    bitfield = bits;
-  }
-
-  function any(bit: bigint): boolean {
-    return (bitfield & bit) !== 0n;
-  }
-  function has(bit: bigint): boolean {
-    return (bitfield & bit) === bit;
-  }
-  return { bitfield, any, has };
 }

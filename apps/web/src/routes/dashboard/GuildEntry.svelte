@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { getGuildIconUrl, getGuildInviteUrl } from "$lib/util";
+	import PermissionIcon from "./permissisons/PermissionIcon.svelte";
     import SettingsIcon from '@lucide/svelte/icons/settings-2';
-    import ShieldUserIcon from '@lucide/svelte/icons/shield-user';
-	import ShieldBanIcon from '@lucide/svelte/icons/shield-ban';
-	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import UserPlusIcon from '@lucide/svelte/icons/user-plus';
-	import PermissionPopover from "./PermissionPopover.svelte";
+	import type { ExtendedPermissionLevel } from "./permissisons/permissions";
 
 
     type Props = {
@@ -13,7 +11,7 @@
         icon: string | null;
         name: string;
         bot: true;
-        permission: "OWNER" | "ADMINISTRATOR" | "MODERATOR" | "MEMBER"
+        permission: ExtendedPermissionLevel
     } | {
         id: string;
         icon: string | null;
@@ -29,22 +27,17 @@
         <h2 class="flex gap-2 font-bold">
             {props.name} 
             {#if props.bot}
-                <PermissionPopover permission={props.permission}>
-                    {#if props.permission ==='OWNER'}
-                        <ShieldUserIcon class="" />
-                    {:else if props.permission ==='ADMINISTRATOR'}
-                        <ShieldBanIcon class="" />
-                    {:else if props.permission ==='MODERATOR'}
-                        <ShieldCheckIcon class="" />
-                    {:else if props.permission ==='MEMBER'}
-                        ...member
-                    {/if}
-                </PermissionPopover>
+                <PermissionIcon permission={props.permission} />
             {/if}
         </h2>
         <a href={props.bot ? `/dashboard/${props.id}` : getGuildInviteUrl(props.id)} class="flex gap-2 rounded-md py-1 px-2 bg-slate-500/20 hover:bg-slate-500/30 self-start">
             {#if props.bot}
-                <SettingsIcon class="size-6" /> Manage
+                {#if props.permission === 'MEMBER'}
+                    <!-- TODO -->
+                    <SettingsIcon class="size-6" /> View Leaderboard 
+                {:else}
+                    <SettingsIcon class="size-6" /> Manage
+                {/if}
             {:else}
                 <UserPlusIcon class="size-6" /> Invite ActivityRank
             {/if}

@@ -1,19 +1,15 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
 	import { Popover } from "bits-ui";
+	import { namePermission, type ExtendedPermissionLevel } from "./permissions";
 
     type Props = { 
-        permission: "OWNER" | "ADMINISTRATOR" | "MODERATOR" | "MEMBER";
+        permission: ExtendedPermissionLevel;
         children: Snippet
     };
 
     const { children, permission }: Props = $props()
-    const dispPermission = $derived.by(() => {
-        if (permission === 'OWNER') return 'Server Owner';
-        if (permission === 'ADMINISTRATOR') return 'Administrator';
-        if (permission === 'MODERATOR') return 'Moderator';
-        if (permission === 'MEMBER') return 'Member';
-    })
+    const dispPermission = $derived.by(() => namePermission(permission))
 </script>
 
 <Popover.Root>
