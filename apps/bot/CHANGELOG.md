@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.16.1
+
+### Patch Changes
+
+- [#207](https://github.com/Rapha01/activityRank-bot/pull/207) [`1a4bce1`](https://github.com/Rapha01/activityRank-bot/commit/1a4bce1af82c88d3f9aecf7fadc4a8ceec01dbd8) Thanks [@piemot](https://github.com/piemot)! - fix: avoid permisison warnings for servers that don't use levelroles
+
 ## 7.16.0
 
 ### Minor Changes
