@@ -19,7 +19,7 @@ export async function load(event) {
   url.searchParams.set('prompt', 'none');
 
   const callback = sanitiseRedirect(event.url.searchParams.get('callback'));
-  await createOauthProcessCookie(event, state, callback ?? '/');
+  createOauthProcessCookie(event, state, callback ?? '/');
 
   redirect(307, url.toString());
 }

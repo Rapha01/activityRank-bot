@@ -16,7 +16,7 @@ function badRequest(): never {
 export async function GET(event) {
   const code = event.url.searchParams.get('code');
   const state = event.url.searchParams.get('state');
-  const storedState = await parseOauthProcessCookie(event);
+  const storedState = parseOauthProcessCookie(event);
 
   // OAuth2 standard guarantees `code` and `state`;
   // `storedState` should exist unless the user took over 10 minutes
