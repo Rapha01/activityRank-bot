@@ -18,8 +18,6 @@
   const desktopOpen = $derived(open && !smallScreen.current)
 </script>
 
-{@debug open}
-
 <Dialog.Root bind:open={getMobileOpen, setMobileOpen}>
 	<Dialog.Portal >
 		<Dialog.Content interactOutsideBehavior="ignore" class={[

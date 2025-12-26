@@ -7,13 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!**/package.json",
-      "!**/CHANGELOG.md",
-      "!**/*.svelte",
-      "!apps/web/src/app.css"
-    ]
+    "includes": ["**", "!**/package.json", "!**/CHANGELOG.md", "!**/*.svelte"]
   },
   "formatter": {
     "enabled": true,
@@ -25,6 +19,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "useParseIntRadix": "off"
+      },
       "style": {
         "noParameterAssign": "info"
       },
@@ -53,6 +50,11 @@
       "includes": ["**/*.test.ts", "**/*.spec.ts"],
       "linter": {
         "rules": {
+          "suspicious": {
+            // it's fine to not *require* an error;
+            // ts-ignore comments are often used to get around typescript privacy issues
+            "noTsIgnore": "off"
+          },
           "style": {
             // Correctness is not essential in tests
             "noNonNullAssertion": "off"
@@ -64,5 +66,15 @@
         }
       }
     }
-  ]
+  ],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "html": {
+    "formatter": {
+      "indentScriptAndStyle": true
+    }
+  }
 }

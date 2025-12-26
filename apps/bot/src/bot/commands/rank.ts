@@ -260,7 +260,7 @@ async function generateRankCard(
 
   return {
     components: [container, ...getGlobalComponents(state, disabled)],
-    // @ts-ignore incorrect Discord.JS typings
+    // @ts-expect-error incorrect Discord.JS typings
     flags: [MessageFlags.IsComponentsV2],
   };
 }

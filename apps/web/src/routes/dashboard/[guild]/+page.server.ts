@@ -1,8 +1,8 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
 import { userApiHandle } from '$lib/server/discord';
-import type { Actions, RequestEvent } from './$types';
 import { getPermissionLevel } from '../permissisons/permissions';
+import type { Actions, RequestEvent } from './$types';
 
 export async function load(event) {
   const guildId = event.params.guild;

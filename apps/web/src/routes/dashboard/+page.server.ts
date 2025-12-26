@@ -1,7 +1,6 @@
-import { PermissionFlagsBits as PermissionFlags } from 'discord-api-types/v10';
 import { MANAGER_AUTH, MANAGER_HOST } from '$env/static/private';
 import { userApiHandle } from '$lib/server/discord.js';
-import { hasManageGuild, type ExtendedPermissionLevel } from './permissisons/permissions.js';
+import { type ExtendedPermissionLevel, hasManageGuild } from './permissisons/permissions.js';
 
 type APISharedGuildsResponse = {
   guilds: {
