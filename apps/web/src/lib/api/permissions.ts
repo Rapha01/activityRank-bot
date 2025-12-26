@@ -1,26 +1,26 @@
 import { PermissionFlagsBits as PermissionFlags } from 'discord-api-types/v10';
 
-export type PermissionLevel = 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR';
-export type ExtendedPermissionLevel = PermissionLevel | 'MEMBER';
+export type ApiPermissionLevel = 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR';
+export type ExtendedApiPermissionLevel = ApiPermissionLevel | 'MEMBER';
 
-export const PERMISSION_NAMES: { [K in ExtendedPermissionLevel]: string } = {
+export const API_PERMISSION_NAMES: { [K in ExtendedApiPermissionLevel]: string } = {
   OWNER: 'Server Owner',
   ADMINISTRATOR: 'Administrator',
   MODERATOR: 'Moderator',
   MEMBER: 'Server Member',
 };
 
-export function namePermission(key: ExtendedPermissionLevel): string {
-  return PERMISSION_NAMES[key];
+export function nameApiPermission(key: ExtendedApiPermissionLevel): string {
+  return API_PERMISSION_NAMES[key];
 }
 
-export function getPermissionLevel(
-  permissions: string | bigint,
-  isOwner: boolean,
-): ExtendedPermissionLevel {
-  const field = bitfield(permissions);
+export function getApiPermissionLevel(
+  discordPermissions: string | bigint,
+  isGuildOwner: boolean,
+): ExtendedApiPermissionLevel {
+  const field = bitfield(discordPermissions);
 
-  if (isOwner) return 'OWNER';
+  if (isGuildOwner) return 'OWNER';
   if (field.has(PermissionFlags.Administrator)) return 'ADMINISTRATOR';
   if (field.has(PermissionFlags.ManageGuild)) return 'MODERATOR';
   return 'MEMBER';

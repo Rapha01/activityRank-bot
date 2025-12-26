@@ -1,25 +1,19 @@
 import { error, fail, redirect } from '@sveltejs/kit';
+import { getSharedGuilds } from '$lib/api/shared-guilds';
 import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
-import { userApiHandle } from '$lib/server/discord';
-import { getPermissionLevel } from '../permissisons/permissions';
 import type { Actions, RequestEvent } from './$types';
 
 export async function load(event) {
   const guildId = event.params.guild;
   if (!/^\d{17,20}$/.test(guildId)) error(404);
 
-  const { session, user } = event.locals.auth();
-
-  const guilds = await userApiHandle(session).users.getGuilds();
-  const guild = guilds.find((guild) => guild.id === guildId);
+  const { user } = event.locals.auth();
+  const { sharedGuilds } = await getSharedGuilds(event);
+  const guild = sharedGuilds.find((guild) => guild.id === guildId);
 
   if (!guild) error(404);
 
-  return {
-    user,
-    guild,
-    permissionLevel: getPermissionLevel(guild.permissions, guild.owner),
-  };
+  return { user, guild, sharedGuilds };
 }
 
 export const actions: Actions = {
