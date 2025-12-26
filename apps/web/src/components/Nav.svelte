@@ -38,7 +38,7 @@
 			/>
 			<Dialog.Content
 				class={[
-					'z-50 rounded-lg data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+					'z-50 rounded-lg data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95',
 					'z-10 min-w-32 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200',
 					'absolute top-2 left-2 p-4',
 				]}

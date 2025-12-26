@@ -5,7 +5,7 @@
 	import '@fontsource-variable/recursive/mono.css';
 
 	import { onMount } from 'svelte';
-	import { ThemeManager } from '../themes.svelte';
+	import { ThemeManager } from '$lib/themes.svelte';
 
 	const { children } = $props();
 

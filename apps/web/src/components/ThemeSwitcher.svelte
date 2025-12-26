@@ -4,21 +4,21 @@
 	import MoonStarIcon from '@lucide/svelte/icons/moon-star';
 	import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
 	import ThemeSwitcherItem from './ThemeSwitcherItem.svelte';
-	import { ThemeManager } from '../themes.svelte';
+	import { ThemeManager } from '$lib/themes.svelte';
 
   const loadManager = async () => ThemeManager.getInstance();
 </script>
 
 <DropdownMenu.Root>
-	<DropdownMenu.Trigger>
+	<DropdownMenu.Trigger class="p-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5">
 		<SunIcon class="block dark:hidden" />
 		<MoonStarIcon class="hidden dark:block" />
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
     {#await loadManager() then manager}
       <DropdownMenu.Content
-        class="z-10 w-32 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200"
-        sideOffset={8}
+        class="z-10 w-32 space-y-1 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200"
+        sideOffset={4}
       >
         <ThemeSwitcherItem
           isActive={manager.isThemeOverridden && manager.theme === 'light'}

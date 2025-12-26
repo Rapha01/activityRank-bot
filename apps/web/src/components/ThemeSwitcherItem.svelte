@@ -13,7 +13,8 @@
 
 <DropdownMenu.Item
 	data-active={isActive ? '' : undefined}
-	class="flex h-10 cursor-default items-center rounded-md py-3 pr-1.5 pl-3 hover:bg-slate-950/10 data-active:text-slate-500 hover:dark:bg-white/10 dark:data-active:text-slate-400"
+	disabled={isActive}
+	class="flex cursor-default items-center rounded-md py-1.5 pr-1.5 pl-3 text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-950/5 data-active:text-slate-900 data-active:bg-slate-950/5 dark:hover:text-slate-100 dark:hover:bg-white/10 dark:data-active:text-slate-100 dark:data-active:bg-white/10"
 	{onclick}
 >
 	<div class="flex items-center">
