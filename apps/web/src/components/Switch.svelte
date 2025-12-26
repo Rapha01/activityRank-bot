@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Switch, Label, useId, type WithoutChildrenOrChild } from "bits-ui";
- 
+  import { Label, Switch, useId, type WithoutChildrenOrChild } from 'bits-ui';
+
   let {
     id = useId(),
     checked = $bindable(false),

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { SvelteHTMLElements } from 'svelte/elements';
+  import type { SvelteHTMLElements } from 'svelte/elements';
 
-	let props: SvelteHTMLElements['svg'] = $props();
+  let props: SvelteHTMLElements['svg'] = $props();
 </script>
 
 <svg {...props} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

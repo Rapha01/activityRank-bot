@@ -1,28 +1,27 @@
 <script lang="ts">
-	import { page } from '$app/state';
+  import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
+  import PanelLeftCloseIcon from '@lucide/svelte/icons/panel-left-close';
+  import PanelLeftOpenIcon from '@lucide/svelte/icons/panel-left-open';
+  import SquareArrowOutUpRightIcon from '@lucide/svelte/icons/square-arrow-out-up-right';
+  import { Dialog } from 'bits-ui';
+  import { page } from '$app/state';
+  import logo from '$lib/assets/favicon.svg';
+  import type { User } from '$lib/server/auth/user';
+  import { getUserAvatarUrl } from '$lib/util';
+  import ThemeSwitcher from './ThemeSwitcher.svelte';
 
-	import PanelLeftOpenIcon from '@lucide/svelte/icons/panel-left-open';
-	import PanelLeftCloseIcon from '@lucide/svelte/icons/panel-left-close';
-	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import SquareArrowOutUpRightIcon from '@lucide/svelte/icons/square-arrow-out-up-right';
-	import logo from '$lib/assets/favicon.svg';
-	import ThemeSwitcher from './ThemeSwitcher.svelte';
-	import { Dialog } from 'bits-ui';
-	import type { User } from '$lib/server/auth/user';
-	import { getUserAvatarUrl } from '$lib/util';
+  let navigation = [
+    { href: '/faq/', name: 'FAQ', external: false },
+    { href: '/patchnotes/', name: 'Patchnotes', external: false },
+    { href: '/support/', name: 'Support', external: true },
+    { href: '/premium/', name: 'Premium', external: true },
+  ];
 
-	let navigation = [
-		{ href: '/faq/', name: 'FAQ', external: false },
-		{ href: '/patchnotes/', name: 'Patchnotes', external: false },
-		{ href: '/support/', name: 'Support', external: true },
-		{ href: '/premium/', name: 'Premium', external: true },
-	];
+  type Props = {
+    user: User | null;
+  };
 
-	type Props = {
-		user: User | null
-	}
-
-	const props: Props = $props()
+  const props: Props = $props();
 </script>
 
 <header

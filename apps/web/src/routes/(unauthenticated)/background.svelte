@@ -1,6 +1,6 @@
 <script lang="ts">
-	import lightBg from '$lib/assets/backgrounds/light.svg';
-	import darkBg from '$lib/assets/backgrounds/dark.svg';
+  import darkBg from '$lib/assets/backgrounds/dark.svg';
+  import lightBg from '$lib/assets/backgrounds/light.svg';
 </script>
 
 <img

@@ -1,9 +1,9 @@
 <script>
-	import Plus from '@lucide/svelte/icons/plus';
-	import Background from './background.svelte';
-	import GithubLogo from '$lib/assets/logos/github.svelte';
-	import arLogo from '$lib/assets/favicon.svg';
-	import { PUBLIC_COMMIT_HASH } from '$env/static/public';
+  import Plus from '@lucide/svelte/icons/plus';
+  import { PUBLIC_COMMIT_HASH } from '$env/static/public';
+  import arLogo from '$lib/assets/favicon.svg';
+  import GithubLogo from '$lib/assets/logos/github.svelte';
+  import Background from './background.svelte';
 </script>
 
 <Background />

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { LayoutProps } from './$types';
-	import Nav from '../../components/Nav.svelte';
+  import Nav from '../../components/Nav.svelte';
+  import type { LayoutProps } from './$types';
 
-	const { children, data }: LayoutProps = $props();
+  const { children, data }: LayoutProps = $props();
 </script>
 
 <div class="flex min-h-dvh w-full flex-col items-center justify-center">

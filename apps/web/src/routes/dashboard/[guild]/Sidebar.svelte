@@ -1,21 +1,21 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
-	import { Dialog } from 'bits-ui';
-	import XIcon from '@lucide/svelte/icons/x';
-	import { MediaQuery } from 'svelte/reactivity';
+  import XIcon from '@lucide/svelte/icons/x';
+  import { Dialog } from 'bits-ui';
+  import { type Snippet } from 'svelte';
+  import { MediaQuery } from 'svelte/reactivity';
 
-	interface Props {
-		open: boolean;
-		children: Snippet;
-	}
-	let { children, open = $bindable() }: Props = $props();
+  interface Props {
+    open: boolean;
+    children: Snippet;
+  }
+  let { children, open = $bindable() }: Props = $props();
 
-  const MD_BREAKPOINT = '48rem'
-  let smallScreen = new MediaQuery(`width <= ${MD_BREAKPOINT}`)
+  const MD_BREAKPOINT = '48rem';
+  let smallScreen = new MediaQuery(`width <= ${MD_BREAKPOINT}`);
 
-  const getMobileOpen = () => open && smallScreen.current
-  const setMobileOpen = (set: boolean) => (open = set)
-  const desktopOpen = $derived(open && !smallScreen.current)
+  const getMobileOpen = () => open && smallScreen.current;
+  const setMobileOpen = (set: boolean) => (open = set);
+  const desktopOpen = $derived(open && !smallScreen.current);
 </script>
 
 <Dialog.Root bind:open={getMobileOpen, setMobileOpen}>

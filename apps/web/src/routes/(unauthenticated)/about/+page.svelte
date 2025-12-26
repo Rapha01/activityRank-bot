@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
-	import GithubLogo from '$lib/assets/logos/github.svelte';
+  import GithubLogo from '$lib/assets/logos/github.svelte';
+  import type { PageProps } from './$types';
 
-	let { data }: PageProps = $props();
+  let { data }: PageProps = $props();
 </script>
 
 <h1 class="my-8 text-4xl font-extrabold text-slate-900 dark:text-slate-100">About Us</h1>

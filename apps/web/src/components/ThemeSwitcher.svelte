@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { DropdownMenu } from 'bits-ui';
-	import SunIcon from '@lucide/svelte/icons/sun';
-	import MoonStarIcon from '@lucide/svelte/icons/moon-star';
-	import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
-	import ThemeSwitcherItem from './ThemeSwitcherItem.svelte';
-	import { ThemeManager } from '$lib/themes.svelte';
+  import MoonStarIcon from '@lucide/svelte/icons/moon-star';
+  import SunIcon from '@lucide/svelte/icons/sun';
+  import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
+  import { DropdownMenu } from 'bits-ui';
+  import { ThemeManager } from '$lib/themes.svelte';
+  import ThemeSwitcherItem from './ThemeSwitcherItem.svelte';
 
   const loadManager = async () => ThemeManager.getInstance();
 </script>

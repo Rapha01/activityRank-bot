@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { getUserAvatarUrl } from '$lib/util';
-	import type { PageProps } from './$types';
-	import CloudAlertIcon from '@lucide/svelte/icons/cloud-alert';
-	import GuildEntry from './GuildEntry.svelte';
-	import Nav from '../../components/Nav.svelte';
+  import CloudAlertIcon from '@lucide/svelte/icons/cloud-alert';
+  import { getUserAvatarUrl } from '$lib/util';
+  import Nav from '../../components/Nav.svelte';
+  import type { PageProps } from './$types';
+  import GuildEntry from './GuildEntry.svelte';
 
-	let { data }: PageProps = $props();
+  let { data }: PageProps = $props();
 </script>
 
 <Nav user={data.user} />

@@ -1,28 +1,27 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+  import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+  import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
+  import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
+  import { DropdownMenu } from 'bits-ui';
+  import { ThemeManager } from '$lib/themes.svelte';
 
-	import Sidebar from './Sidebar.svelte';
-	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-	import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
+  import { getGuildIconUrl, getUserAvatarUrl } from '$lib/util';
+  import Switch from '../../../components/Switch.svelte';
+  import PermissionIcon from '../permissisons/PermissionIcon.svelte';
+  import { namePermission } from '../permissisons/permissions';
+  import type { PageProps } from './$types';
+  import Sidebar from './Sidebar.svelte';
+  import ThemeSwitcher from './ThemeSwitcher.svelte';
 
-	import { getGuildIconUrl, getUserAvatarUrl } from '$lib/util';
-	import Switch from '../../../components/Switch.svelte';
-	import PermissionIcon from '../permissisons/PermissionIcon.svelte';
-	import { namePermission } from '../permissisons/permissions';
-	import { DropdownMenu } from 'bits-ui';
-	import { ThemeManager } from '$lib/themes.svelte';
-	import ThemeSwitcher from './ThemeSwitcher.svelte';
+  const loadManager = async () => ThemeManager.getInstance();
 
-	const loadManager = async () => ThemeManager.getInstance();
+  let { data }: PageProps = $props();
 
-	let { data }: PageProps = $props();
-
-	let sidebarOpen = $state(true)
-	function toggleSidebar() {
-		sidebarOpen = !sidebarOpen;
-	}
+  let sidebarOpen = $state(true);
+  function toggleSidebar() {
+    sidebarOpen = !sidebarOpen;
+  }
 </script>
 
 <div class="flex min-h-dvh w-full">

@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { DropdownMenu } from 'bits-ui';
+  import { DropdownMenu } from 'bits-ui';
+  import type { Snippet } from 'svelte';
 
-	interface Props {
-		isActive: boolean;
-		onclick: () => void;
-		children: Snippet;
-	}
+  interface Props {
+    isActive: boolean;
+    onclick: () => void;
+    children: Snippet;
+  }
 
-	const { isActive, onclick, children }: Props = $props();
+  const { isActive, onclick, children }: Props = $props();
 </script>
 
 <DropdownMenu.Item

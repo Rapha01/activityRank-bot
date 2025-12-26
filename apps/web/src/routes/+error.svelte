@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import Nav from '../components/Nav.svelte';
+  import { page } from '$app/state';
+  import Nav from '../components/Nav.svelte';
 </script>
 
 <div class="flex h-full grow flex-col items-center justify-center *:z-10">

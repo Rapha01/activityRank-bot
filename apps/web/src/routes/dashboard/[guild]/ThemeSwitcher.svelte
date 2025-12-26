@@ -1,17 +1,18 @@
 <script lang="ts">
-	import SunIcon from '@lucide/svelte/icons/sun';
-	import MoonStarIcon from '@lucide/svelte/icons/moon-star';
-	import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
-	import { DropdownMenu } from 'bits-ui';
-	import type { ThemeManager } from '$lib/themes.svelte';
+  import MoonStarIcon from '@lucide/svelte/icons/moon-star';
+  import SunIcon from '@lucide/svelte/icons/sun';
+  import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
+  import { DropdownMenu } from 'bits-ui';
+  import type { ThemeManager } from '$lib/themes.svelte';
 
-	interface Props {
-		themeManager: ThemeManager
-	}
-	const {themeManager: manager}: Props = $props();
+  interface Props {
+    themeManager: ThemeManager;
+  }
+  const { themeManager: manager }: Props = $props();
 
-	const getRadioValue = () => manager.isThemeOverridden ? manager.theme : 'system';
-	const setRadioValue = (value: 'system' | 'dark' | 'light') => value === 'system' ? manager.resetTheme() : manager.overrideTheme(value);
+  const getRadioValue = () => (manager.isThemeOverridden ? manager.theme : 'system');
+  const setRadioValue = (value: 'system' | 'dark' | 'light') =>
+    value === 'system' ? manager.resetTheme() : manager.overrideTheme(value);
 </script>
 
 <DropdownMenu.SubContent class={[

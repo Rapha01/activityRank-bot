@@ -1,17 +1,17 @@
 <script lang="ts">
-	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
-	import '@fontsource-variable/manrope';
-	import '@fontsource-variable/recursive/mono.css';
+  import '../app.css';
+  import favicon from '$lib/assets/favicon.svg';
+  import '@fontsource-variable/manrope';
+  import '@fontsource-variable/recursive/mono.css';
 
-	import { onMount } from 'svelte';
-	import { ThemeManager } from '$lib/themes.svelte';
+  import { onMount } from 'svelte';
+  import { ThemeManager } from '$lib/themes.svelte';
 
-	const { children } = $props();
+  const { children } = $props();
 
-	onMount(() => {
-		ThemeManager.getInstance();
-	});
+  onMount(() => {
+    ThemeManager.getInstance();
+  });
 </script>
 
 <svelte:head>

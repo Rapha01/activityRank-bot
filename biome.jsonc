@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!**/package.json", "!**/CHANGELOG.md", "!**/*.svelte"]
+    "includes": ["**", "!**/package.json", "!**/CHANGELOG.md"]
   },
   "formatter": {
     "enabled": true,
@@ -62,6 +62,22 @@
           "complexity": {
             // often used to get around typescript privacy limitations
             "useLiteralKeys": "off"
+          }
+        }
+      }
+    },
+    {
+      // https://biomejs.dev/internals/language-support/#linting-html-ish-languages
+      "includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off",
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
           }
         }
       }

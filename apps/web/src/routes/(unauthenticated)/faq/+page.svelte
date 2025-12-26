@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { PageProps } from './$types'
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import { Accordion } from 'bits-ui';
+  import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+  import { Accordion } from 'bits-ui';
+  import type { PageProps } from './$types';
 
   const props: PageProps = $props();
 </script>
