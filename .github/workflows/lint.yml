@@ -45,7 +45,7 @@ jobs:
         run: pnpm install
 
       - name: Check lints and formatting
-        run: pnpm check
+        run: pnpm check --reporter=github
 
       - name: Check types with tsc
         run: pnpm exec turbo run --affected typecheck
