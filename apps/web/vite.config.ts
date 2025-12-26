@@ -4,7 +4,9 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
-process.env.PUBLIC_APP_VERSION = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+process.env.PUBLIC_APP_VERSION = packageFile.version;
+
 process.env.PUBLIC_COMMIT_HASH = childProcess
   .execSync('git log --pretty=format:"%h" -n1')
   .toString()
