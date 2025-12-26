@@ -14,7 +14,9 @@
   let smallScreen = new MediaQuery(`width <= ${MD_BREAKPOINT}`);
 
   const getMobileOpen = () => open && smallScreen.current;
-  const setMobileOpen = (set: boolean) => (open = set);
+  function setMobileOpen(set: boolean) {
+    open = set;
+  }
   const desktopOpen = $derived(open && !smallScreen.current);
 </script>
 
