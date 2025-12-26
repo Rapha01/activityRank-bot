@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { findWorkspaceDir } from '@pnpm/find-workspace-dir';
+import isDocker from 'is-docker';
 import parseJson, { JSONError } from 'parse-json';
 import { parse as parseToml, TomlError } from 'smol-toml';
 import { z } from 'zod/v4';
@@ -12,8 +13,6 @@ type LoadOptions<T extends z.ZodTypeAny> = {
 };
 
 async function configLoader(pathOverride?: string) {
-  const isProduction = process.env.NODE_ENV === 'production';
-
   const override = pathOverride ?? process.env.CONFIG_PATH ?? null;
 
   let configPath: string;
@@ -22,7 +21,7 @@ async function configLoader(pathOverride?: string) {
   if (override) {
     configPath = override;
     secretPath = override;
-  } else if (isProduction) {
+  } else if (isDocker()) {
     // Configs are mounted into the root dir.
     // Secrets are mounted into `/run/secrets`.
     configPath = path.resolve('/');
