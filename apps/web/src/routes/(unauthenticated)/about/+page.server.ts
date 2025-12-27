@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { discordBotApiHandle } from '$lib/server/discord';
 
 type SocialInfo = { type: 'GITHUB'; username: string };
 
@@ -74,14 +75,7 @@ export async function load(): Promise<{ staff: StaffInfo[] }> {
   headers.set('Authorization', `Bot ${env.DISCORD_TOKEN}`);
 
   async function extendStaffInfo(user: BaseStaffInfo): Promise<StaffInfo> {
-    const discordUser = await fetch(`https://discord.com/api/v10/users/${user.discordId}`, {
-      headers,
-    }).then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      throw new Error('Failed to update Discord staff user', { cause: res });
-    });
+    const discordUser = await discordBotApiHandle.users.get(user.discordId);
 
     return {
       ...user,

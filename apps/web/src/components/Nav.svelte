@@ -1,20 +1,27 @@
 <script lang="ts">
-	import { page } from '$app/state';
+  import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
+  import PanelLeftCloseIcon from '@lucide/svelte/icons/panel-left-close';
+  import PanelLeftOpenIcon from '@lucide/svelte/icons/panel-left-open';
+  import SquareArrowOutUpRightIcon from '@lucide/svelte/icons/square-arrow-out-up-right';
+  import { Dialog } from 'bits-ui';
+  import { page } from '$app/state';
+  import logo from '$lib/assets/favicon.svg';
+  import type { User } from '$lib/server/auth/user';
+  import { getUserAvatarUrl } from '$lib/util';
+  import ThemeSwitcher from './ThemeSwitcher.svelte';
 
-	import PanelLeftOpenIcon from '@lucide/svelte/icons/panel-left-open';
-	import PanelLeftCloseIcon from '@lucide/svelte/icons/panel-left-close';
-	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
-	import SquareArrowOutUpRightIcon from '@lucide/svelte/icons/square-arrow-out-up-right';
-	import logo from '$lib/assets/favicon.svg';
-	import ThemeSwitcher from './ThemeSwitcher.svelte';
-	import { Dialog } from 'bits-ui';
+  let navigation = [
+    { href: '/faq/', name: 'FAQ', external: false },
+    { href: '/patchnotes/', name: 'Patchnotes', external: false },
+    { href: '/support/', name: 'Support', external: true },
+    { href: '/premium/', name: 'Premium', external: true },
+  ];
 
-	let navigation = [
-		{ href: '/faq/', name: 'FAQ', external: false },
-		{ href: '/patchnotes/', name: 'Patchnotes', external: false },
-		{ href: '/support/', name: 'Support', external: true },
-		{ href: '/premium/', name: 'Premium', external: true },
-	];
+  type Props = {
+    user: User | null;
+  };
+
+  const props: Props = $props();
 </script>
 
 <header
@@ -30,7 +37,7 @@
 			/>
 			<Dialog.Content
 				class={[
-					'z-50 rounded-lg data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+					'z-50 rounded-lg data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95',
 					'z-10 min-w-32 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200',
 					'absolute top-2 left-2 p-4',
 				]}
@@ -75,11 +82,21 @@
 			{/each}
 		</ul>
 	</nav>
-	{#await Promise.resolve() then _}
+	<div class="flex gap-1 items-center">
 		<ThemeSwitcher />
-	{/await}
-	<a href="/login" class="mx-2 flex items-center gap-1">
-		<span>Log In</span>
-		<ArrowRightIcon class="size-4" />
-	</a>
+		{#if props.user}
+			<a href="/dashboard" class="mx-2 flex items-center gap-1">
+				<span class="flex items-center gap-2">
+					Dashboard
+					<img src={getUserAvatarUrl(props.user)} class="size-7 border border-slate-950 rounded-full" alt=""/>
+				</span>
+				<ArrowRightIcon class="size-4" />
+			</a>
+		{:else}
+			<a href="/login" class="mx-2 flex items-center gap-1">
+				<span>Log In</span>
+				<ArrowRightIcon class="size-4" />
+			</a>
+		{/if}
+	</div>
 </header>

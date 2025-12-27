@@ -1,10 +1,10 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { getShardStats } from '#models/botShardStatModel.ts';
-import { broadcastRoute } from '#routes/broadcast.ts';
 import { helloRoute } from '#routes/hello.ts';
 import { memberRankRoute } from '#routes/memberRank.ts';
 import { runPatreonRoute } from '#routes/patreon.ts';
 import { shardStatsRoute } from '#routes/shard-stats.ts';
+import { sharedGuildsRoute } from '#routes/shared-guilds.ts';
 import { textsRoute } from '#routes/texts.ts';
 import { runTopggRoute } from '#routes/topgg.ts';
 import { topMembersRoute } from '#routes/topMembers.ts';
@@ -81,9 +81,32 @@ apiRouter.openapi(shardStatsRoute, async (c) => {
   );
 });
 
-apiRouter.openapi(broadcastRoute, async (c) => {
-  const broadcastResults = await broadcastRequest(c.req);
-  return c.json(broadcastResults, 200);
+type BotSharedGuildsResponse = {
+  sharedGuilds: {
+    id: string;
+    name: string;
+    isMember: true;
+    permission: 'OWNER' | 'ADMINISTRATOR' | 'MODERATOR' | 'MEMBER';
+    icon: string | null;
+    banner: string | null;
+  }[];
+};
+
+apiRouter.openapi(sharedGuildsRoute, async (c) => {
+  const body = c.req.valid('json');
+  const broadcastResults = await broadcastRequest<BotSharedGuildsResponse>('/shared-guilds', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  const complete = broadcastResults.every((result) => result.ok);
+  const guilds = broadcastResults
+    .filter((result) => result.ok)
+    .flatMap((result) => result.data.sharedGuilds);
+  return c.json({ guilds, complete }, 200);
 });
 
 apiRouter.openapi(runPatreonRoute, async (c) => {

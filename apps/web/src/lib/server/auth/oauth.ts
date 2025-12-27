@@ -6,7 +6,7 @@ import { getCanonicalUrl } from '$lib/redirect';
 
 invariant(env.DISCORD_ID && env.DISCORD_SECRET);
 
-const REDIRECT = getCanonicalUrl('/auth/callback');
+const REDIRECT = getCanonicalUrl('/login/callback');
 
 export const discord = new Discord(env.DISCORD_ID, env.DISCORD_SECRET, REDIRECT);
 
@@ -17,11 +17,7 @@ interface OauthState {
   redirect: string;
 }
 
-export async function createOauthProcessCookie(
-  event: RequestEvent,
-  state: string,
-  redirect: string,
-) {
+export function createOauthProcessCookie(event: RequestEvent, state: string, redirect: string) {
   const cookie = { state, redirect };
   event.cookies.set(OAUTH_COOKIE_NAME, encodeURIComponent(JSON.stringify(cookie)), {
     path: '/',
@@ -32,12 +28,12 @@ export async function createOauthProcessCookie(
   });
 }
 
-export async function getOauthProcessCookie(event: RequestEvent): Promise<string | undefined> {
+export function getOauthProcessCookie(event: RequestEvent): string | undefined {
   return event.cookies.get(OAUTH_COOKIE_NAME);
 }
 
-export async function parseOauthProcessCookie(event: RequestEvent): Promise<OauthState | null> {
-  const cookie = await getOauthProcessCookie(event);
+export function parseOauthProcessCookie(event: RequestEvent): OauthState | null {
+  const cookie = getOauthProcessCookie(event);
   if (!cookie) {
     return null;
   }
@@ -51,7 +47,7 @@ export async function parseOauthProcessCookie(event: RequestEvent): Promise<Oaut
   }
 }
 
-export async function deleteOauthProcessCookie(event: RequestEvent) {
+export function deleteOauthProcessCookie(event: RequestEvent) {
   event.cookies.set(OAUTH_COOKIE_NAME, '', {
     path: '/',
     secure: process.env.NODE_ENV === 'production',

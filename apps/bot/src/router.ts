@@ -33,9 +33,14 @@ async function getSharedGuildInfo(
             ? ('MODERATOR' as const)
             : ('MEMBER' as const);
 
-    const guildIcon = guild.icon;
-
-    return { id: guild.id, isMember: true, permission, guildIcon } as const;
+    return {
+      id: guild.id,
+      name: guild.name,
+      isMember: true,
+      permission,
+      icon: guild.icon,
+      banner: guild.banner,
+    } as const;
   }
   const sharedGuilds = await Promise.all(
     client.guilds.cache.filter((_guild, id) => context.userGuildIds.includes(id)).map(mapGuild),
