@@ -3,7 +3,7 @@
   import UserPlusIcon from '@lucide/svelte/icons/user-plus';
   import type { ExtendedApiPermissionLevel } from '$lib/api/permissions';
   import { getGuildIconUrl, getGuildInviteUrl } from '$lib/util';
-  import PermissionIcon from './permissisons/PermissionIcon.svelte';
+  import PermissionIcon from './PermissionIcon.svelte';
 
   type Props =
     | {

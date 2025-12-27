@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Popover } from 'bits-ui';
   import type { Snippet } from 'svelte';
-  import { type ExtendedApiPermissionLevel, nameApiPermission } from '../../../lib/api/permissions';
+  import { type ExtendedApiPermissionLevel, nameApiPermission } from '$lib/api/permissions';
 
   type Props = {
     permission: ExtendedApiPermissionLevel;

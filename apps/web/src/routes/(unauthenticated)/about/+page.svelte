@@ -1,9 +1,15 @@
 <script lang="ts">
+  import Head from '$components/Head.svelte';
   import GithubLogo from '$lib/assets/logos/github.svelte';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();
 </script>
+
+<Head
+  title="About Us"
+  description="Discover the faces behind ActivityRank. From our lead developers to our dedicated support staff, meet the team working 24/7 to keep your bot running smoothly."
+/>
 
 <h1 class="my-8 text-4xl font-extrabold text-slate-900 dark:text-slate-100">About Us</h1>
 <ul class="w-full max-w-2xl space-y-4 px-4 py-4 md:mb-8">

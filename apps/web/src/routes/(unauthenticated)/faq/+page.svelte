@@ -1,10 +1,16 @@
 <script lang="ts">
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { Accordion } from 'bits-ui';
+  import Head from '../../../components/Head.svelte';
   import type { PageProps } from './$types';
 
   const props: PageProps = $props();
 </script>
+
+<Head
+  title="Frequently Asked Questions"
+  description="Find answers to common questions about ActivityRank. Learn how to set up leveling, configure custom rewards, and troubleshoot activity tracking on your Discord server."
+/>
 
 <main class="max-w-3xl w-full px-4 py-8 text-slate-800 dark:text-slate-200">
 	<h1 class="text-4xl/snug font-extrabold">Frequently Asked Questions</h1>

@@ -1,3 +1,12 @@
+<script lang="ts">
+	import Head from "$components/Head.svelte";
+</script>
+
+<Head
+  title="Terms and Conditions"
+  description="Read the ActivityRank Terms of Service. Learn about the rules, guidelines, and user agreements for using our Discord leveling and statistics services."
+/>
+
 <h1>Terms and Conditions</h1>
 <div>
 	<h2>Welcome to ActivityRank!</h2>

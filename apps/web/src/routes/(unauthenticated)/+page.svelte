@@ -1,10 +1,16 @@
 <script>
   import Plus from '@lucide/svelte/icons/plus';
+  import Head from '$components/Head.svelte';
   import { PUBLIC_COMMIT_HASH } from '$env/static/public';
   import arLogo from '$lib/assets/favicon.svg';
   import GithubLogo from '$lib/assets/logos/github.svelte';
   import Background from './background.svelte';
 </script>
+
+<Head 
+  title="ActivityRank"
+  description="Trusted by over 100,000 communities, ActivityRank is a comprehensive Discord leveling system. Automate member rewards with flexible activity tracking, advanced role management, and comprehensive server statistics designed for community growth."
+/>
 
 <Background />
 <main class="flex h-full flex-1 flex-col items-center justify-center">
