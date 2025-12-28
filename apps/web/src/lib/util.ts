@@ -1,5 +1,6 @@
 import { getCanonicalUrl } from './redirect';
 import type { User } from './server/auth/user';
+import defaultIconUrl from './assets/default-icon.svg';
 
 type AvatarUser = Pick<User, 'id' | 'avatarHash'>;
 
@@ -22,8 +23,7 @@ export function getUserAvatarUrl(
   if (hash) {
     return `https://cdn.discordapp.com/avatars/${userId}/${hash}.png`;
   } else {
-    // TODO replace placeholder?
-    return getCanonicalUrl('/favicon.svg');
+    return defaultIconUrl;
   }
 }
 
@@ -45,8 +45,7 @@ export function getGuildIconUrl(guildOrId: string | IconGuild, iconHash?: string
   if (hash) {
     return `https://cdn.discordapp.com/icons/${guildId}/${hash}.png`;
   } else {
-    // TODO replace placeholder?
-    return getCanonicalUrl('/favicon.svg');
+    return defaultIconUrl;
   }
 }
 

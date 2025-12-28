@@ -13,6 +13,9 @@
     "**/src/**/+page.*": "Page – ${dirname} (.${extname})",
     "**/src/**/+layout.*": "Layout – ${dirname} (.${extname})"
   },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.formatOnSave": true
