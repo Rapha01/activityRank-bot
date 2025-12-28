@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Head from "$components/Head.svelte";
+  import Head from '$components/Head.svelte';
 </script>
 
 <Head
@@ -165,7 +165,7 @@
 		See
 		<a
 			href="/privacy"
-			class="bg-gradient-to-br from-theme-200 to-theme-700 bg-clip-text text-transparent"
+			class="bg-linear-to-br from-theme-200 to-theme-700 bg-clip-text text-transparent"
 		>
 			our privacy policy
 		</a>

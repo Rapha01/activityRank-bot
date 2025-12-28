@@ -23,7 +23,7 @@ export function getUserAvatarUrl(
     return `https://cdn.discordapp.com/avatars/${userId}/${hash}.png`;
   } else {
     // TODO replace placeholder?
-    return `https://activityrank.me/favicon.png`;
+    return getCanonicalUrl('/favicon.svg');
   }
 }
 
@@ -46,7 +46,7 @@ export function getGuildIconUrl(guildOrId: string | IconGuild, iconHash?: string
     return `https://cdn.discordapp.com/icons/${guildId}/${hash}.png`;
   } else {
     // TODO replace placeholder?
-    return `https://activityrank.me/favicon.png`;
+    return getCanonicalUrl('/favicon.svg');
   }
 }
 

@@ -23,10 +23,13 @@
 		</h1>
 		<a
 			href="/invite"
-			class="flex items-center gap-2 rounded-xl bg-linear-to-r from-theme-200 to-theme-400 px-12 py-4 text-xl font-semibold text-slate-800"
+			class={[
+        "flex items-center gap-2 rounded-xl px-12 py-4 text-xl font-semibold text-slate-800",
+        "bg-linear-to-r from-theme-200 via-50% via-theme-400 to-theme-700 transition-[background-position] duration-500 bg-size-[200%_100%] bg-position-[0_0] hover:bg-position-[100%_0]"
+      ]}
 		>
 			Invite
-			<Plus class="size-4" />
+			<Plus class="size-5" strokeWidth={3} />
 		</a>
 	</div>
 </main>

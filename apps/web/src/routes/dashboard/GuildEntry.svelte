@@ -22,16 +22,16 @@
   const props: Props = $props();
 </script>
 
-<li class="flex items-center gap-4 p-4 bg-slate-950/5 dark:bg-white/5 rounded-md border-2 border-slate-950/30 dark:border-slate-50/20 h-full">
+<li class="flex items-center gap-4 p-4 shadow-md bg-slate-200 dark:bg-slate-800 rounded-md">
   <img src={getGuildIconUrl(props.id, props.icon)} class="size-16 rounded-md" alt=""/>
   <div class="flex flex-col gap-2">
     <h2 class="flex gap-2 font-bold">
       {props.name} 
       {#if props.bot}
-          <PermissionIcon permission={props.permission} />
+          <PermissionIcon permission={props.permission} class="size-6" />
       {/if}
     </h2>
-    <a href={props.bot ? `/dashboard/${props.id}` : getGuildInviteUrl(props.id)} class="flex gap-2 rounded-md py-1 px-2 bg-slate-500/20 hover:bg-slate-500/30 self-start">
+    <a href={props.bot ? `/dashboard/${props.id}` : getGuildInviteUrl(props.id)} class="flex gap-2 rounded-md py-1 px-2 bg-slate-300/50 hover:bg-slate-300/80 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 self-start font-medium">
       {#if props.bot}
         {#if props.permission === 'MEMBER'}
           <!-- TODO -->

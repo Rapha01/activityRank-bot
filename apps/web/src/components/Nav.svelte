@@ -6,15 +6,16 @@
   import { Dialog } from 'bits-ui';
   import { page } from '$app/state';
   import logo from '$lib/assets/favicon.svg';
+  import DiscordLogo from '$lib/assets/logos/discord.svelte';
   import type { User } from '$lib/server/auth/user';
   import { getUserAvatarUrl } from '$lib/util';
   import ThemeSwitcher from './ThemeSwitcher.svelte';
 
   let navigation = [
-    { href: '/faq/', name: 'FAQ', external: false },
-    { href: '/patchnotes/', name: 'Patchnotes', external: false },
-    { href: '/support/', name: 'Support', external: true },
-    { href: '/premium/', name: 'Premium', external: true },
+    { href: '/faq', name: 'FAQ', external: false },
+    { href: '/patchnotes', name: 'Patchnotes', external: false },
+    { href: '/support', name: 'Support', external: true },
+    { href: '/premium', name: 'Premium', external: true },
   ];
 
   type Props = {
@@ -51,7 +52,7 @@
 						<a
 							href={nav.href}
 							data-active={page.url.pathname === nav.href ? '' : undefined}
-							class="flex items-center gap-2 data-active:text-theme-800 dark:data-active:text-theme-400"
+							class="flex items-center gap-2 data-active:font-semibold data-active:text-slate-800/80 dark:data-active:text-slate-200/80"
 						>
 							{nav.name}
 							{#if nav.external}
@@ -72,7 +73,7 @@
 				<a
 					href={nav.href}
 					data-active={page.url.pathname === nav.href ? '' : undefined}
-					class="flex items-center gap-2 px-4 py-2 data-active:text-theme-800 dark:data-active:text-theme-400"
+					class="flex items-center gap-2 px-4 py-2 hover:text-slate-800/80 dark:hover:text-slate-200/80 data-active:font-semibold data-active:text-slate-800/80 dark:data-active:text-slate-200/80"
 				>
 					{nav.name}
 					{#if nav.external}
@@ -93,7 +94,8 @@
 				<ArrowRightIcon class="size-4" />
 			</a>
 		{:else}
-			<a href="/login" class="mx-2 flex items-center gap-1">
+			<a href="/login" class="mx-2 px-2 py-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5 flex items-center gap-2">
+        <DiscordLogo class="size-5" />
 				<span>Log In</span>
 				<ArrowRightIcon class="size-4" />
 			</a>
