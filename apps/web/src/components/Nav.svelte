@@ -72,11 +72,14 @@
 			</Dialog.Content>
 		</Dialog.Portal>
 	</Dialog.Root>
-	<a href="/" class="m-1 size-10 p-1">
-		<img src={logo} alt="" class="size-full" />
+	<a href="/" class="m-1 flex gap-2 items-center md:mr-8">
+		<img src={logo} alt="" class="size-10 p-1" />
+    <span class="hidden md:inline bg-linear-to-b from-theme-700 to-theme-800 dark:from-theme-200/90 dark:to-theme-400/90 bg-clip-text text-lg font-semibold text-transparent">
+      ActivityRank
+    </span>
 	</a>
 	<nav class="flex-1">
-		<ul class="hidden gap-4 md:flex">
+		<ul class="hidden gap-4 md:flex md:justify-center">
 			{#each navigation as nav}
 				<a
 					href={nav.href}

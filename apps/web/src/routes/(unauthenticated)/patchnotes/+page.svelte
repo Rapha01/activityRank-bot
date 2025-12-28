@@ -14,7 +14,7 @@
 />
 
 <main class="max-w-3xl w-full px-4 py-8 text-slate-800 dark:text-slate-200">
-	<h1 class="text-4xl/snug font-extrabold">Patchnotes</h1>
+	<h1 class="text-4xl/snug font-bold mb-8">Patchnotes</h1>
 	<Accordion.Root class="w-full" type="multiple">
 		{#each props.data.patchnotes as entry (entry.version)}
 			<Accordion.Item
@@ -27,7 +27,7 @@
 					>
 						<div class="w-full flex flex-col items-start text-start">
 							<h2 class="text-xl"><span class="text-theme-700">{entry.version}</span> • {entry.title}</h2>
-							<span class="pr-4">{entry.desc}</span>
+							<span class="pr-4"><span class="text-theme-700">{entry.date}</span> • {entry.desc}</span>
 						</div>
 						<span
 							class="hover:bg-slate-500/20 inline-flex size-8 items-center justify-center rounded-md"

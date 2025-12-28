@@ -15,7 +15,7 @@
 <Background />
 <main class="flex h-full flex-1 flex-col items-center justify-center">
 	<div class="flex flex-col items-center gap-12">
-		<img src={arLogo} alt="" class="w-32 md:w-48" />
+		<img src={arLogo} alt="" class="w-24 md:w-40" />
 		<h1
 			class="bg-linear-to-b from-theme-700 to-theme-800 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl/relaxed dark:from-theme-200 dark:to-theme-400"
 		>

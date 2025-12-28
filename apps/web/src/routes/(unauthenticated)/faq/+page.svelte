@@ -13,7 +13,7 @@
 />
 
 <main class="max-w-3xl w-full px-4 py-8 text-slate-800 dark:text-slate-200">
-	<h1 class="text-4xl/snug font-extrabold">Frequently Asked Questions</h1>
+	<h1 class="text-4xl/snug font-bold mb-8">Frequently Asked Questions</h1>
 	<Accordion.Root class="w-full" type="multiple">
 		{#each props.data.faqs as entry (entry.id)}
 			<Accordion.Item
