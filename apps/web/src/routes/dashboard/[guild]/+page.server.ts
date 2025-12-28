@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { getSharedGuilds } from '$lib/api/shared-guilds';
 import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
+import { hasAccess } from '../hasAccess';
 import type { Actions, RequestEvent } from './$types';
 
 export async function load(event) {
@@ -8,6 +9,10 @@ export async function load(event) {
   if (!/^\d{17,20}$/.test(guildId)) error(404);
 
   const { user } = event.locals.auth();
+
+  const access = await hasAccess(user.id);
+  if (!access) error(403);
+
   const { sharedGuilds } = await getSharedGuilds(event);
   const guild = sharedGuilds.find((guild) => guild.id === guildId);
 

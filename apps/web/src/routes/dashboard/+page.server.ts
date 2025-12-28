@@ -1,4 +1,5 @@
 import { getSharedGuilds } from '$lib/api/shared-guilds.js';
+import { hasAccess } from './hasAccess.js';
 
 export async function load(event) {
   const { user } = event.locals.auth();
@@ -9,5 +10,6 @@ export async function load(event) {
     sharedGuilds,
     listIsComplete,
     unsharedGuilds,
+    hasAccess: await hasAccess(user.id),
   };
 }

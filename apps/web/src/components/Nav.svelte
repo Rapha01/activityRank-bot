@@ -86,13 +86,17 @@
 	<div class="flex gap-1 items-center">
 		<ThemeSwitcher />
 		{#if props.user}
-			<a href="/dashboard" class="mx-2 flex items-center gap-1">
-				<span class="flex items-center gap-2">
-					Dashboard
-					<img src={getUserAvatarUrl(props.user)} class="size-7 border border-slate-950 rounded-full" alt=""/>
-				</span>
-				<ArrowRightIcon class="size-4" />
-			</a>
+      {#if page.url.pathname !== '/dashboard'}
+        <a href="/dashboard" class="mx-2 px-2 py-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5 flex items-center gap-1">
+          <span class="flex items-center gap-2">
+            Dashboard
+            <img src={getUserAvatarUrl(props.user)} class="size-7 border border-slate-950 rounded-full" alt=""/>
+          </span>
+          <ArrowRightIcon class="size-4" />
+        </a>
+      {:else}
+        <img src={getUserAvatarUrl(props.user)} class="size-7 mr-2 border border-slate-950 rounded-full" alt=""/>
+      {/if}
 		{:else}
 			<a href="/login" class="mx-2 px-2 py-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5 flex items-center gap-2">
         <DiscordLogo class="size-5" />

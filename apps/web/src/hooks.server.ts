@@ -61,7 +61,7 @@ const authenticationHandle: Handle = async ({ event, resolve }) => {
 const authorizationHandle: Handle = async ({ event, resolve }) => {
   if (event.url.pathname.startsWith('/dashboard')) {
     if (!event.locals.session) {
-      throw redirect(303, `/login?callback=${event.url.pathname}`);
+      redirect(303, `/login?callback=${event.url.pathname}`);
     }
   }
 
