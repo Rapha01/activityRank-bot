@@ -1,6 +1,6 @@
+import defaultIconUrl from './assets/default-icon.svg';
 import { getCanonicalUrl } from './redirect';
 import type { User } from './server/auth/user';
-import defaultIconUrl from './assets/default-icon.svg';
 
 type AvatarUser = Pick<User, 'id' | 'avatarHash'>;
 

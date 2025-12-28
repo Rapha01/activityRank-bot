@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { generateState } from 'arctic';
 import { sanitiseRedirect } from '$lib/redirect';
-import { createOauthProcessCookie, arcticClient } from '$lib/server/auth/oauth';
+import { arcticClient, createOauthProcessCookie } from '$lib/server/auth/oauth';
 
 // TODO: add any other needed scopes
 const SCOPES = [
