@@ -1,3 +1,7 @@
+import { verifyEnvVariables } from '$lib/server/env';
+
+verifyEnvVariables();
+
 import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import {

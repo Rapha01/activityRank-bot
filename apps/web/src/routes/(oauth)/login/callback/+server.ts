@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { OAuth2Tokens } from 'arctic';
-import { discord, parseOauthProcessCookie } from '$lib/server/auth/oauth';
+import { arcticClient, parseOauthProcessCookie } from '$lib/server/auth/oauth';
 import {
   createSession,
   generateSessionToken,
@@ -31,7 +31,7 @@ export async function GET(event) {
 
   let tokens: OAuth2Tokens;
   try {
-    tokens = await discord.validateAuthorizationCode(code, null);
+    tokens = await arcticClient().validateAuthorizationCode(code, null);
   } catch {
     // Invalid code or client credentials
     badRequest();

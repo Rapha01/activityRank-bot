@@ -2,7 +2,7 @@ import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase32LowerCase, encodeHexLowerCase } from '@oslojs/encoding';
 import type { RequestEvent } from '@sveltejs/kit';
 import { manager } from './database';
-import { discord } from './oauth';
+import { arcticClient } from './oauth';
 import type { User } from './user';
 
 export const SESSION_COOKIE_NAME = 'session';
@@ -59,7 +59,7 @@ export async function validateSessionToken(token: string): Promise<SessionValida
   //   b) the time until the token expires is less than SESSION_REISSUE_THRESHOLD (5 days).
 
   if (Date.now() >= session.expiresAt.getTime() - SESSION_REISSUE_THRESHOLD) {
-    const newTokens = await discord.refreshAccessToken(session.refreshToken);
+    const newTokens = await arcticClient().refreshAccessToken(session.refreshToken);
     session.accessToken = newTokens.accessToken();
     session.refreshToken = newTokens.refreshToken();
     session.expiresAt = newTokens.accessTokenExpiresAt();
@@ -120,7 +120,7 @@ export async function invalidateSession(sessionId: string) {
   await manager.db.deleteFrom('session').where('session.id', '=', sessionId).execute();
 
   if (token?.access_token) {
-    await discord.revokeToken(token.access_token);
+    await arcticClient().revokeToken(token.access_token);
   }
 }
 
@@ -141,7 +141,7 @@ export async function invalidateUserSessions(userId: string) {
   await manager.db.deleteFrom('session').where('session.user_id', '=', userId).execute();
 
   for (const { access_token } of tokens) {
-    await discord.revokeToken(access_token);
+    await arcticClient().revokeToken(access_token);
   }
 }
 

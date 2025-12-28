@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { MANAGER_AUTH, MANAGER_HOST } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import {
   type ExtendedApiPermissionLevel,
   getApiPermissionLevel,
@@ -27,10 +27,10 @@ export async function getSharedGuilds(event: RequestEvent) {
   const userGuildIds = userGuilds.map((guild) => guild.id);
 
   // TODO(@piemot): cache this result on the API end
-  const sharedGuildsResponse = await fetch(`http://${MANAGER_HOST}/api/v0/shared-guilds`, {
+  const sharedGuildsResponse = await fetch(`http://${env.MANAGER_HOST}/api/v0/shared-guilds`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${MANAGER_AUTH}`,
+      Authorization: `Bearer ${env.MANAGER_AUTH}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ userId: user.id, userGuildIds }),

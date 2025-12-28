@@ -7,10 +7,14 @@ import { defineConfig } from 'vite';
 const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 process.env.PUBLIC_APP_VERSION = packageFile.version;
 
-process.env.PUBLIC_COMMIT_HASH = childProcess
+process.env.PUBLIC_COMMIT_HASH ??= childProcess
   .execSync('git log --pretty=format:"%h" -n1')
   .toString()
   .trim();
+
+// if (!process.env.ORIGIN) {
+//   throw new Error('ORIGIN is required')
+// }
 
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],

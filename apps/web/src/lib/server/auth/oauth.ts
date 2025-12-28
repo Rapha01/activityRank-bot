@@ -4,11 +4,13 @@ import invariant from 'tiny-invariant';
 import { env } from '$env/dynamic/private';
 import { getCanonicalUrl } from '$lib/redirect';
 
-invariant(env.DISCORD_ID && env.DISCORD_SECRET);
-
-const REDIRECT = getCanonicalUrl('/login/callback');
-
-export const discord = new Discord(env.DISCORD_ID, env.DISCORD_SECRET, REDIRECT);
+export const discord = null;
+let client = null;
+export function arcticClient() {
+  invariant(env.DISCORD_ID, env.DISCORD_SECRET);
+  client ??= new Discord(env.DISCORD_ID, env.DISCORD_SECRET, getCanonicalUrl('/login/callback'));
+  return client;
+}
 
 const OAUTH_COOKIE_NAME = 'oauth_state';
 
