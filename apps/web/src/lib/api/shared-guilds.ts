@@ -1,11 +1,11 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { MANAGER_AUTH, MANAGER_HOST } from '$env/static/private';
-import { userApiHandle } from '$lib/server/discord.js';
 import {
   type ExtendedApiPermissionLevel,
   getApiPermissionLevel,
   hasManageGuild,
 } from '$lib/api/permissions';
-import type { RequestEvent } from '@sveltejs/kit';
+import { userApiHandle } from '$lib/server/discord.js';
 
 type APISharedGuildsResponse = {
   guilds: {

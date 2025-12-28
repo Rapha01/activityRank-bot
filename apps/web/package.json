@@ -10,8 +10,6 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"format": "prettier --write .",
-		"lint": "prettier --check .",
 		"test:unit": "vitest",
 		"test": "vitest --run"
 	},
@@ -39,9 +37,6 @@
 		"@tailwindcss/vite": "^4.1.17",
 		"@vitest/browser": "^3.2.3",
 		"playwright": "^1.53.0",
-		"prettier": "^3.4.2",
-		"prettier-plugin-svelte": "^3.3.3",
-		"prettier-plugin-tailwindcss": "^0.6.11",
 		"svelte": "^5.43.5",
 		"svelte-check": "^4.3.3",
 		"tailwindcss": "^4.1.17",
