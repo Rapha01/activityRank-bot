@@ -18,9 +18,17 @@
     { href: '/premium', name: 'Premium', external: true },
   ];
 
-  type Props = {
-    user: User | null;
-  };
+  type Props =
+    | {
+        /** The user to show in the navbar. If none is provided, a Log In button is displayed instead. */
+        user: User | null;
+        /** whether to skip including the user / Log In button at all */
+        skipUserInfo?: false;
+      }
+    | {
+        /** whether to skip including the user / Log In button at all */
+        skipUserInfo: true;
+      };
 
   const props: Props = $props();
 </script>
@@ -85,8 +93,8 @@
 	</nav>
 	<div class="flex gap-1 items-center">
 		<ThemeSwitcher />
-		{#if props.user}
-      {#if page.url.pathname !== '/dashboard'}
+    {#if !props.skipUserInfo}
+      {#if props.user}
         <a href="/dashboard" class="mx-2 px-2 py-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5 flex items-center gap-1">
           <span class="flex items-center gap-2">
             Dashboard
@@ -95,14 +103,12 @@
           <ArrowRightIcon class="size-4" />
         </a>
       {:else}
-        <img src={getUserAvatarUrl(props.user)} class="size-7 mr-2 border border-slate-950 rounded-full" alt=""/>
+        <a href="/login" class="mx-2 px-2 py-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5 flex items-center gap-2">
+          <DiscordLogo class="size-5" />
+          <span>Log In</span>
+          <ArrowRightIcon class="size-4" />
+        </a>
       {/if}
-		{:else}
-			<a href="/login" class="mx-2 px-2 py-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5 flex items-center gap-2">
-        <DiscordLogo class="size-5" />
-				<span>Log In</span>
-				<ArrowRightIcon class="size-4" />
-			</a>
 		{/if}
 	</div>
 </header>
