@@ -53,7 +53,9 @@ endpoints may have breaking changes made without warning.',
 app.get(
   '/api/docs',
   apiReference({
-    theme: 'purple',
+    theme: 'kepler',
+    hideClientButton: true,
+    hideTestRequestButton: true,
     spec: {
       url: '/api/openapi.json',
     },
