@@ -65,6 +65,22 @@ services:
     configs:
       - config
 
+  caddy:
+    container_name: Caddy
+    image: caddy:2.10
+    restart: unless-stopped
+    command: caddy run --config /etc/caddy/Caddyfile
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./apps/web/caddy:/etc/caddy
+      - caddy-data:/data
+      - caddy-config:/config
+
   web:
     container_name: Website
     init: true
@@ -88,3 +104,7 @@ services:
       - PUBLIC_ORIGIN=http://localhost:3050
       - DB_HOST=db
       - MANAGER_HOST=api:3000
+
+volumes:
+  caddy-data:
+  caddy-config:
