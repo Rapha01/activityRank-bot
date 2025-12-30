@@ -1,43 +1,45 @@
 <script lang="ts">
-	import { DropdownMenu } from 'bits-ui';
-	import SunIcon from '@lucide/svelte/icons/sun';
-	import MoonStarIcon from '@lucide/svelte/icons/moon-star';
-	import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
-	import ThemeSwitcherItem from './ThemeSwitcherItem.svelte';
-	import { ThemeManager } from '../themes.svelte';
+  import MoonStarIcon from '@lucide/svelte/icons/moon-star';
+  import SunIcon from '@lucide/svelte/icons/sun';
+  import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
+  import { DropdownMenu } from 'bits-ui';
+  import { ThemeManager } from '$lib/themes.svelte';
+  import ThemeSwitcherItem from './ThemeSwitcherItem.svelte';
 
-	const manager = ThemeManager.getInstance();
+  const loadManager = async () => ThemeManager.getInstance();
 </script>
 
 <DropdownMenu.Root>
-	<DropdownMenu.Trigger>
+	<DropdownMenu.Trigger class="p-1 rounded-md hover:bg-slate-900/10 dark:hover:bg-white/5">
 		<SunIcon class="block dark:hidden" />
 		<MoonStarIcon class="hidden dark:block" />
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content
-			class="z-10 w-32 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200"
-			sideOffset={8}
-		>
-			<ThemeSwitcherItem
-				isActive={manager.isThemeOverridden && manager.theme === 'light'}
-				onclick={() => manager.overrideTheme('light')}
-			>
-				<SunIcon class="me-2 size-5" />
-				Light
-			</ThemeSwitcherItem>
-			<ThemeSwitcherItem
-				isActive={manager.isThemeOverridden && manager.theme === 'dark'}
-				onclick={() => manager.overrideTheme('dark')}
-			>
-				<MoonStarIcon class="me-2 size-5" />
-				Dark
-			</ThemeSwitcherItem>
-			<ThemeSwitcherItem isActive={!manager.isThemeOverridden} onclick={() => manager.resetTheme()}>
-				<SunMoonIcon class="me-2 size-5" />
-				System
-			</ThemeSwitcherItem>
-		</DropdownMenu.Content>
+    {#await loadManager() then manager}
+      <DropdownMenu.Content
+        class="z-10 w-32 space-y-1 rounded-lg border border-slate-950/20 bg-slate-100 p-1 text-slate-800 not-dark:shadow-md dark:border-white/20 dark:bg-slate-900 dark:text-slate-200"
+        sideOffset={4}
+      >
+        <ThemeSwitcherItem
+          isActive={manager.isThemeOverridden && manager.theme === 'light'}
+          onclick={() => manager.overrideTheme('light')}
+        >
+          <SunIcon class="me-2 size-5" />
+          Light
+        </ThemeSwitcherItem>
+        <ThemeSwitcherItem
+          isActive={manager.isThemeOverridden && manager.theme === 'dark'}
+          onclick={() => manager.overrideTheme('dark')}
+        >
+          <MoonStarIcon class="me-2 size-5" />
+          Dark
+        </ThemeSwitcherItem>
+        <ThemeSwitcherItem isActive={!manager.isThemeOverridden} onclick={() => manager.resetTheme()}>
+          <SunMoonIcon class="me-2 size-5" />
+          System
+        </ThemeSwitcherItem>
+      </DropdownMenu.Content>
+    {/await}
 	</DropdownMenu.Portal>
 </DropdownMenu.Root>
 

@@ -1,3 +1,12 @@
+<script lang="ts">
+  import Head from '$components/Head.svelte';
+</script>
+
+<Head
+  title="Privacy Policy"
+  description="Your privacy matters. Review the ActivityRank Privacy Policy to understand how we collect, use, and protect your data while providing Discord leveling services."
+/>
+
 <h1>Privacy Policy</h1>
 <div>
 	<h2>Overview</h2>

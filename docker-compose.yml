@@ -34,10 +34,11 @@ services:
       - "3001:80"
 
   bot:
+    container_name: Bot
     build:
       context: .
       dockerfile: apps/bot/Dockerfile
-    container_name: Bot
+    image: "activityrank/bot:dev"
     ports:
       - "3010:3000"
     configs:
@@ -63,3 +64,47 @@ services:
       - keys
     configs:
       - config
+
+  caddy:
+    container_name: Caddy
+    image: caddy:2.10
+    restart: unless-stopped
+    command: caddy run --config /etc/caddy/Caddyfile
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./apps/web/caddy:/etc/caddy
+      - caddy-data:/data
+      - caddy-config:/config
+
+  web:
+    container_name: Website
+    init: true
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        - COMMIT_HASH=develop
+    image: "activityrank/web:dev"
+    depends_on:
+      - db
+      - api
+    links:
+      - db
+      - api
+    ports:
+      - "3050:3000"
+    env_file: apps/web/.env
+    environment:
+      - ORIGIN=http://localhost:3050
+      - PUBLIC_ORIGIN=http://localhost:3050
+      - DB_HOST=db
+      - MANAGER_HOST=api:3000
+
+volumes:
+  caddy-data:
+  caddy-config:

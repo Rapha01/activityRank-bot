@@ -9,7 +9,7 @@ import { env } from '$env/dynamic/public';
  * getCanonicalUrl('/about') // => 'https://example.com/about'
  */
 export function getCanonicalUrl(relativePath?: string) {
-  return new URL(relativePath ?? '.', env.PUBLIC_BASE_URL).toString();
+  return new URL(relativePath ?? '.', env.PUBLIC_ORIGIN).toString();
 }
 
 /**

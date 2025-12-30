@@ -1,0 +1,25 @@
+(proxy) {
+    # don't allow infinitely long WS connections
+    stream_timeout 24h
+}
+
+activityrank.me {
+    # log requests
+    log stdout
+
+    # enable gzip, zstd
+    encode
+
+    reverse_proxy * http://web:3000 {
+        import proxy
+    }
+
+    reverse_proxy /api/* http://88.99.189.124:3005 {
+        import proxy
+    }
+}
+
+# Redirect from IP or `www.` route to `activityrank.me`
+94.130.180.70 www.activityrank.me {
+    redir https://activityrank.me{uri} permanent
+}

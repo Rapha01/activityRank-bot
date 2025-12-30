@@ -304,7 +304,7 @@ const levels: Window = {
         // TODO(style): consider replacing `-` and `+` with emojis
         roleAssignments
           .filter((r) => r.deassignLevel === level)
-          .map((r) => `**\-** <@&${r.roleId}>`),
+          .map((r) => `**-** <@&${r.roleId}>`),
         roleAssignments.filter((r) => r.assignLevel === level).map((r) => `**+** <@&${r.roleId}>`),
       ]
         .flat()
@@ -358,7 +358,7 @@ const roles: Window = {
           value: [
             roleAssignments
               .filter((r) => r.deassignLevel === level)
-              .map((r) => `**\-** ${getRoleMention(interaction.guild.roles.cache, r.roleId)}`),
+              .map((r) => `**-** ${getRoleMention(interaction.guild.roles.cache, r.roleId)}`),
             roleAssignments
               .filter((r) => r.assignLevel === level)
               .map((r) => `**+** ${getRoleMention(interaction.guild.roles.cache, r.roleId)}`),

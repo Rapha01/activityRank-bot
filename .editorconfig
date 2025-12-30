@@ -3,8 +3,10 @@ root = true
 [*]
 end_of_line = lf
 insert_final_newline = true
-
-[*.{js,ts,json,yml,py}]
 charset = utf-8
 indent_style = space
 indent_size = 2
+
+[apps/web/caddy/*]
+indent_size = 4
+

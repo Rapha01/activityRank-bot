@@ -1,4 +1,8 @@
-import type { Handle } from '@sveltejs/kit';
+import { verifyEnvVariables } from '$lib/server/env';
+
+verifyEnvVariables();
+
+import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import {
   deleteSessionTokenCookie,
@@ -30,7 +34,7 @@ const rateLimitHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-const authHandle: Handle = async ({ event, resolve }) => {
+const authenticationHandle: Handle = async ({ event, resolve }) => {
   const token = event.cookies.get(SESSION_COOKIE_NAME) ?? null;
   if (token === null) {
     event.locals.user = null;
@@ -47,7 +51,25 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
   event.locals.session = session;
   event.locals.user = user;
+  // inspired by authjs: https://authjs.dev/reference/sveltekit
+  event.locals.auth = () => {
+    if (session === null || user === null) {
+      return redirect(303, '/login');
+    }
+    return { session, user };
+  };
+
   return resolve(event);
 };
 
-export const handle = sequence(rateLimitHandle, authHandle);
+const authorizationHandle: Handle = async ({ event, resolve }) => {
+  if (event.url.pathname.startsWith('/dashboard')) {
+    if (!event.locals.session) {
+      redirect(303, `/login?callback=${event.url.pathname}`);
+    }
+  }
+
+  return resolve(event);
+};
+
+export const handle = sequence(rateLimitHandle, authenticationHandle, authorizationHandle);

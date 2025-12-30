@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { generateState } from 'arctic';
 import { sanitiseRedirect } from '$lib/redirect';
-import { createOauthProcessCookie, discord } from '$lib/server/auth/oauth';
+import { arcticClient, createOauthProcessCookie } from '$lib/server/auth/oauth';
 
 // TODO: add any other needed scopes
 const SCOPES = [
@@ -14,12 +14,12 @@ const SCOPES = [
 export async function load(event) {
   const state = generateState();
   // codeVerifier: null because Discord doesn't support PKCE
-  const url = discord.createAuthorizationURL(state, null, SCOPES);
+  const url = arcticClient().createAuthorizationURL(state, null, SCOPES);
   // prompt=none skips authorization flow if already authed
   url.searchParams.set('prompt', 'none');
 
   const callback = sanitiseRedirect(event.url.searchParams.get('callback'));
-  await createOauthProcessCookie(event, state, callback ?? '/');
+  createOauthProcessCookie(event, state, callback ?? '/');
 
   redirect(307, url.toString());
 }

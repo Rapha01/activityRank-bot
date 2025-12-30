@@ -1,13 +1,13 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { OAuth2Tokens } from 'arctic';
-import type { APIUser } from 'discord-api-types/v10';
-import { discord, parseOauthProcessCookie } from '$lib/server/auth/oauth';
+import { arcticClient, parseOauthProcessCookie } from '$lib/server/auth/oauth';
 import {
   createSession,
   generateSessionToken,
   setSessionTokenCookie,
 } from '$lib/server/auth/session';
 import { createUser, getUser, updateUserDetails } from '$lib/server/auth/user';
+import { userApiHandle } from '$lib/server/discord.js';
 
 function badRequest(): never {
   error(400, { message: 'Bad Request: Please restart the OAuth login process.' });
@@ -16,7 +16,7 @@ function badRequest(): never {
 export async function GET(event) {
   const code = event.url.searchParams.get('code');
   const state = event.url.searchParams.get('state');
-  const storedState = await parseOauthProcessCookie(event);
+  const storedState = parseOauthProcessCookie(event);
 
   // OAuth2 standard guarantees `code` and `state`;
   // `storedState` should exist unless the user took over 10 minutes
@@ -31,16 +31,13 @@ export async function GET(event) {
 
   let tokens: OAuth2Tokens;
   try {
-    tokens = await discord.validateAuthorizationCode(code, null);
+    tokens = await arcticClient().validateAuthorizationCode(code, null);
   } catch {
     // Invalid code or client credentials
     badRequest();
   }
 
-  const userRequest = new Request('https://discord.com/api/v10/users/@me');
-  userRequest.headers.set('Authorization', `Bearer ${tokens.accessToken()}`);
-  const userResponse = await fetch(userRequest);
-  const userResult: APIUser = await userResponse.json();
+  const userResult = await userApiHandle(tokens.accessToken()).users.getCurrent();
 
   const existingUser = await getUser(userResult.id);
 

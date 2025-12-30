@@ -1,26 +1,35 @@
 <script>
-	import Plus from '@lucide/svelte/icons/plus';
-	import Background from './background.svelte';
-	import GithubLogo from '$lib/assets/logos/github.svelte';
-	import arLogo from '$lib/assets/favicon.svg';
-	import { PUBLIC_COMMIT_HASH } from '$env/static/public';
+  import Plus from '@lucide/svelte/icons/plus';
+  import Head from '$components/Head.svelte';
+  import { PUBLIC_COMMIT_HASH } from '$env/static/public';
+  import arLogo from '$lib/assets/favicon.svg';
+  import GithubLogo from '$lib/assets/logos/github.svelte';
+  import Background from './background.svelte';
 </script>
+
+<Head 
+  title="ActivityRank"
+  description="Trusted by over 100,000 communities, ActivityRank is a comprehensive Discord leveling system. Automate member rewards with flexible activity tracking, advanced role management, and comprehensive server statistics designed for community growth."
+/>
 
 <Background />
 <main class="flex h-full flex-1 flex-col items-center justify-center">
 	<div class="flex flex-col items-center gap-12">
-		<img src={arLogo} alt="" class="w-32 md:w-48" />
+		<img src={arLogo} alt="" class="w-24 md:w-40" />
 		<h1
-			class="bg-gradient-to-b from-theme-700 to-theme-800 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl/relaxed dark:from-theme-200 dark:to-theme-400"
+			class="bg-linear-to-b from-theme-700 to-theme-800 bg-clip-text text-4xl font-semibold text-transparent md:text-6xl/relaxed dark:from-theme-200 dark:to-theme-400"
 		>
 			ActivityRank
 		</h1>
 		<a
 			href="/invite"
-			class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-theme-200 to-theme-400 px-12 py-4 text-xl font-semibold text-slate-800"
+			class={[
+        "flex items-center gap-2 rounded-xl px-12 py-4 text-xl font-semibold text-slate-800",
+        "bg-linear-to-r from-theme-200 via-50% via-theme-400 to-theme-700 transition-[background-position] duration-500 bg-size-[200%_100%] bg-position-[0_0] hover:bg-position-[100%_0]"
+      ]}
 		>
 			Invite
-			<Plus class="size-4" />
+			<Plus class="size-5" strokeWidth={3} />
 		</a>
 	</div>
 </main>

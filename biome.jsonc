@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,13 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!**/package.json",
-      "!**/CHANGELOG.md",
-      "!**/*.svelte",
-      "!apps/web/src/app.css"
-    ]
+    "includes": ["**", "!**/package.json", "!**/CHANGELOG.md"]
   },
   "formatter": {
     "enabled": true,
@@ -25,6 +19,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "useParseIntRadix": "off"
+      },
       "style": {
         "noParameterAssign": "info"
       },
@@ -53,6 +50,11 @@
       "includes": ["**/*.test.ts", "**/*.spec.ts"],
       "linter": {
         "rules": {
+          "suspicious": {
+            // it's fine to not *require* an error;
+            // ts-ignore comments are often used to get around typescript privacy issues
+            "noTsIgnore": "off"
+          },
           "style": {
             // Correctness is not essential in tests
             "noNonNullAssertion": "off"
@@ -63,6 +65,32 @@
           }
         }
       }
+    },
+    {
+      // https://biomejs.dev/internals/language-support/#linting-html-ish-languages
+      "includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off",
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
     }
-  ]
+  ],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "html": {
+    "formatter": {
+      "indentScriptAndStyle": true
+    }
+  }
 }

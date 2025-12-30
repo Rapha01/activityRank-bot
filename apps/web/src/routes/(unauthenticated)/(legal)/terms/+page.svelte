@@ -1,3 +1,12 @@
+<script lang="ts">
+  import Head from '$components/Head.svelte';
+</script>
+
+<Head
+  title="Terms and Conditions"
+  description="Read the ActivityRank Terms of Service. Learn about the rules, guidelines, and user agreements for using our Discord leveling and statistics services."
+/>
+
 <h1>Terms and Conditions</h1>
 <div>
 	<h2>Welcome to ActivityRank!</h2>
@@ -156,7 +165,7 @@
 		See
 		<a
 			href="/privacy"
-			class="bg-gradient-to-br from-theme-200 to-theme-700 bg-clip-text text-transparent"
+			class="bg-linear-to-br from-theme-200 to-theme-700 bg-clip-text text-transparent"
 		>
 			our privacy policy
 		</a>

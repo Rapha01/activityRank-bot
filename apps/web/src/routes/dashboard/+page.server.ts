@@ -1,25 +1,15 @@
-import { fail, redirect } from '@sveltejs/kit';
-import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
-import type { Actions, RequestEvent } from './$types';
+import { getSharedGuilds } from '$lib/api/shared-guilds.js';
+import { hasAccess } from './hasAccess.js';
 
 export async function load(event) {
-  if (event.locals.session === null || event.locals.user === null) {
-    return redirect(302, '/login?callback=/dashboard');
-  }
+  const { user } = event.locals.auth();
+  const { sharedGuilds, listIsComplete, unsharedGuilds } = await getSharedGuilds(event);
+
   return {
-    user: event.locals.user,
+    user,
+    sharedGuilds,
+    listIsComplete,
+    unsharedGuilds,
+    hasAccess: await hasAccess(user.id),
   };
-}
-
-export const actions: Actions = {
-  default: action,
-};
-
-async function action(event: RequestEvent) {
-  if (event.locals.session === null) {
-    return fail(401);
-  }
-  invalidateSession(event.locals.session.id);
-  deleteSessionTokenCookie(event);
-  return redirect(302, '/');
 }
