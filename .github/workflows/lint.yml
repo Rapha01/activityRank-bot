@@ -2,9 +2,9 @@ name: Linting Quality checks
 
 on:
   push:
-    branches: ['master']
+    branches: ["master"]
   pull_request:
-    branches: ['master']
+    branches: ["master"]
 
 concurrency:
   # Immediately rerun when the PR is updated.
@@ -45,7 +45,7 @@ jobs:
         run: pnpm install
 
       - name: Check lints and formatting
-        run: pnpm check --reporter=github
+        run: pnpm run check --reporter=github
 
       - name: Check types with tsc
         run: pnpm exec turbo run --affected typecheck

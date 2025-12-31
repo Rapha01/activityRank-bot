@@ -73,9 +73,11 @@ wget https://raw.githubusercontent.com/Rapha01/activityRank-bot/refs/heads/maste
 docker volume create caddy-data
 docker volume create caddy-config
 
+docker run activityrank/web:latest --env-file ./.env --name web
+
 docker run \
-  --cap-add=NET_ADMIN \
+  --cap-add=NET_ADMIN --name caddy \
   -p 80:80 -p 443:443 -p 443:443/udp \
   -v ./Caddyfile:/etc/caddy/Caddyfile -v caddy-data:/data -v caddy-config:/config \
-  caddy:2.10 caddy run
+  caddy:2.10 caddy run --config /etc/caddy/Caddyfile
 ```

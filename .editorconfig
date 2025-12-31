@@ -7,6 +7,6 @@ charset = utf-8
 indent_style = space
 indent_size = 2
 
-[apps/web/caddy/*]
-indent_size = 4
+[Caddyfile]
+indent_size = 8
 

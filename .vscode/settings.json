@@ -14,7 +14,8 @@
     "**/src/**/+layout.*": "Layout – ${dirname} (.${extname})"
   },
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    "Caddyfile": "properties"
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome",
