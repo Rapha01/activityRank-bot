@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { getShardStats } from '#models/botShardStatModel.ts';
 import { helloRoute } from '#routes/hello.ts';
+import { memberBonusRoute } from '#routes/memberBonus.ts';
 import { memberRankRoute } from '#routes/memberRank.ts';
 import { runPatreonRoute } from '#routes/patreon.ts';
 import { shardStatsRoute } from '#routes/shard-stats.ts';
@@ -8,6 +9,7 @@ import { sharedGuildsRoute } from '#routes/shared-guilds.ts';
 import { textsRoute } from '#routes/texts.ts';
 import { runTopggRoute } from '#routes/topgg.ts';
 import { topMembersRoute } from '#routes/topMembers.ts';
+import { addBonusXP } from '#services/bonus.ts';
 import { broadcastRequest } from '#services/broadcast.ts';
 import {
   fetchGuildMemberScores,
@@ -65,6 +67,19 @@ apiRouter.openapi(memberRankRoute, async (c) => {
     },
     200,
   );
+});
+
+apiRouter.openapi(memberBonusRoute, async (c) => {
+  const { guildId, userId } = c.req.valid('param');
+  const { delta } = c.req.valid('json');
+
+  if (guildId !== c.get('authorisedGuildId')) {
+    throw new JSONHTTPException(403, 'Inconsistent Guild IDs');
+  }
+
+  await addBonusXP(guildId, userId, delta);
+
+  return c.body(null, 204);
 });
 
 apiRouter.openapi(shardStatsRoute, async (c) => {

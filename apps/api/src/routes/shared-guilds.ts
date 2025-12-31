@@ -34,11 +34,10 @@ export const sharedGuildsRoute = createInternalRoute({
                 banner: z.string().nullable(),
               }),
             ),
-            complete: z
-              .boolean()
-              .openapi(
+            complete: z.boolean().openapi({
+              description:
                 'If this is false, one or more of the shards could not be reached and so data may be inaccurate.',
-              ),
+            }),
           }),
         },
       },
