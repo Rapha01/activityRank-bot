@@ -70,6 +70,9 @@ jobs:
           )'
           )" >> $GITHUB_OUTPUT
 
+      - name: Debug Output
+        run: 'echo "The filtered packages are: ${{ steps.filter.outputs.FILTERED_PACKAGES }}"'
+
   publish-docker:
     name: Publish Docker Images
     runs-on: ubuntu-latest
