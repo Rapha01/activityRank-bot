@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1
+
+### Patch Changes
+
+- [#209](https://github.com/Rapha01/activityRank-bot/pull/209) [`b6770ab`](https://github.com/Rapha01/activityRank-bot/commit/b6770abd8085e150556d9bf433d995941ae45d6e) Thanks [@piemot](https://github.com/piemot)! - Replace /broadcast internal route with /shared-guilds
+
+- [#210](https://github.com/Rapha01/activityRank-bot/pull/210) [`31c8f1e`](https://github.com/Rapha01/activityRank-bot/commit/31c8f1ee23455e83c5c166d9b0202b177ba471fb) Thanks [@piemot](https://github.com/piemot)! - Allow Public API users to add/remove bonus XP
+
 ## 0.4.0
 
 ### Minor Changes
