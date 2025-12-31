@@ -60,7 +60,7 @@ jobs:
       - name: Filter published packages
         id: filter
         run: |-
-          echo ${{ steps.changesets.outputs.publishedPackages }}
+          echo '${{ steps.changesets.outputs.publishedPackages }}'
           | jq -c '
             map(
               (.name | match("@activityrank\\/([a-z-]+)") | .captures[0].string) as $package_name 
