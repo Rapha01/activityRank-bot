@@ -59,7 +59,7 @@ jobs:
 
       - name: Filter published packages
         id: filter
-        run: |-
+        run: >-
           echo '${{ steps.changesets.outputs.publishedPackages }}'
           | jq -c '
             map(
