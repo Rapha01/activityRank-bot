@@ -29,7 +29,7 @@ jobs:
       # format: [{"name": "@xx/xx", "version": "1.2.0"}, {"name": "@xx/xy", "version": "0.8.9"}]
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
       # format: [{"name": "xx", "version": "1.2.0"}, {"name": "xy", "version": "0.8.9"}]
-      filteredPackages: ${{ steps.filter.outputs.output }}
+      filteredPackages: ${{ steps.filter.outputs.FILTERED_PACKAGES }}
 
     steps:
       - name: Checkout repository
@@ -60,13 +60,15 @@ jobs:
       - name: Filter published packages
         id: filter
         run: >-
+          echo "FILTERED_PACKAGES=$(
           echo '${{ steps.changesets.outputs.publishedPackages }}'
           | jq -c '
           map(
           (.name | match("@activityrank\\/([a-z-]+)") | .captures[0].string) as $package_name 
           | select($package_name | . == "api" or . == "bot" or . == "web")
           | { "name": $package_name, "version": .version }
-          )' >> $GITHUB_ENV
+          )'
+          )" >> $GITHUB_OUTPUT
 
   publish-docker:
     name: Publish Docker Images
