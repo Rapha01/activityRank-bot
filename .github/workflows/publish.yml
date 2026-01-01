@@ -24,12 +24,10 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      # format: boolean
-      published: ${{ steps.changesets.outputs.published }}
-      # format: [{"name": "@xx/xx", "version": "1.2.0"}, {"name": "@xx/xy", "version": "0.8.9"}]
-      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
-      # format: [{"name": "xx", "version": "1.2.0"}, {"name": "xy", "version": "0.8.9"}]
-      filteredPackages: ${{ steps.filter.outputs.FILTERED_PACKAGES }}
+      # format: [{"name": "bot", "version": "1.2.0"}, {"name": "xy", "version": "0.8.9"}]
+      apps: ${{ steps.filter.outputs.FILTERED_PACKAGES }}
+      # format: integer
+      numberOfApps: ${{ steps.filter.outputs.FILTERED_PACKAGES_LEN }}
 
     steps:
       - name: Checkout repository
@@ -47,6 +45,7 @@ jobs:
       - name: Install development dependencies
         run: pnpm install --frozen-lockfile --dev
 
+      # outputs.publishedPackages format: [{"name": "@activityrank/bot", "version": "1.2.0"}, {"name": "@xx/xy", "version": "0.8.9"}]
       - name: Create and publish versions
         id: changesets
         uses: changesets/action@v1
@@ -59,16 +58,10 @@ jobs:
 
       - name: Filter published packages
         id: filter
-        run: >-
-          echo "FILTERED_PACKAGES=$(
-          echo '${{ steps.changesets.outputs.publishedPackages }}'
-          | jq -c '
-          map(
-          (.name | match("@activityrank\\/([a-z-]+)") | .captures[0].string) as $package_name 
-          | select($package_name | . == "api" or . == "bot" or . == "web")
-          | { "name": $package_name, "version": .version }
-          )'
-          )" >> $GITHUB_OUTPUT
+        run: |
+          FILTERED_PACKAGES=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -c 'map((.name | match("@activityrank\\/([a-z-]+)") | .captures[0].string) as $package_name | select($package_name | . == "api" or . == "bot" or . == "web") | { "name": $package_name, "version": .version })')
+          echo "FILTERED_PACKAGES=$FILTERED_PACKAGES" >> $GITHUB_OUTPUT
+          echo "FILTERED_PACKAGES_LEN=$(echo $FILTERED_PACKAGES | jq 'length')" >> $GITHUB_OUTPUT
 
       - name: Debug Output
         run: 'echo "The filtered packages are: ${{ steps.filter.outputs.FILTERED_PACKAGES }}"'
@@ -78,12 +71,12 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: version
-    if: fromJson(needs.version.outputs.filteredPackages).length > 0
+    if: fromJson(needs.version.outputs.numberOfApps) > 0
 
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJson(needs.version.outputs.filteredPackages) }}
+        package: ${{ fromJson(needs.version.outputs.apps) }}
 
     steps:
       - name: Checkout repository
