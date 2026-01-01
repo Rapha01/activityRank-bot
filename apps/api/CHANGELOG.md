@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+### Patch Changes
+
+- [`20110c0`](https://github.com/Rapha01/activityRank-bot/commit/20110c012d41f1bf0388687157a3aa437d1d8826) Thanks [@piemot](https://github.com/piemot)! -
+
 ## 0.4.1
 
 ### Patch Changes
