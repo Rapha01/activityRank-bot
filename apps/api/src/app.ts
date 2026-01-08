@@ -99,7 +99,9 @@ if (config.disablePatreon === null || config.disablePatreon === undefined) {
 }
 
 if (runPatreon) {
-  new Cron('*/15 * * * *', runPatreonTask);
+  if (config.patreon) {
+    new Cron('*/15 * * * *', runPatreonTask);
+  }
   new Cron('*/20 * * * *', runTopggTask);
 } else {
   console.warn('[!] Ignoring top.gg and Patreon requests due to environment');
