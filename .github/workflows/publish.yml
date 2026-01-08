@@ -54,8 +54,9 @@ jobs:
           commit: "chore: update versions"
           title: "chore: update versions"
         env:
-          GITHUB_TOKEN: ${{ secrets.PIEMOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # outputs.FILTERED_PACKAGES format: [{"name": "bot", "version": "1.2.0"}, {"name": "xy", "version": "0.8.9"}]
       - name: Filter published packages
         id: filter
         run: |

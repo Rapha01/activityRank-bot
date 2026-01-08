@@ -6,7 +6,9 @@ export async function hasAccess(userId: string): Promise<boolean> {
     '181725637940084736',
   ];
 
-  const TESTERS = ['774660568728469585'];
+  const TESTERS = [
+    '772394467339534336', // @toptashka
+  ];
 
   if (STAFF.includes(userId)) return true;
   if (TESTERS.includes(userId)) return true;

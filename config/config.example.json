@@ -12,6 +12,13 @@
     "standard": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=294172224721&scope=bot%20applications.commands%20applications.commands.permissions.update",
     "admin": "https://discord.com/api/oauth2/authorize?client_id=534589798267224065&permissions=8&scope=bot%20applications.commands%20applications.commands.permissions.update"
   },
+  "patreon": {
+    "tiers": [
+      { "tier": 1, "id": "9376859", "discordRole": "734769115495137300" },
+      { "tier": 2, "id": "9376860", "discordRole": "1059900445759385650" },
+      { "tier": 3, "id": "9376867", "discordRole": "1059900590852944035" }
+    ]
+  },
   "disablePatreon": true,
   "developmentServers": [],
   "emoji": {},

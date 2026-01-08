@@ -67,17 +67,39 @@ docker run activityrank/web:dev \
 We use Caddy as our reverse proxy. Caddy is fairly simple compared to something like nginx, and it 
 automatically handles SSL certificates from Let's Encrypt or ZeroSSL.
 
-```sh
-wget https://raw.githubusercontent.com/Rapha01/activityRank-bot/refs/heads/master/apps/web/caddy/Caddyfile
+To run the website in production,
 
-docker volume create caddy-data
-docker volume create caddy-config
+1. Copy the `Caddyfile` and populate the required `.env` variables
+    ```sh
+    wget https://raw.githubusercontent.com/Rapha01/activityRank-bot/refs/heads/master/apps/web/caddy/Caddyfile
+    nano .env
+    ```
 
-docker run activityrank/web:latest --env-file ./.env --name web
+1. Create a network for the website and reverse proxy to communicate on
+    ```sh
+    docker network create -d overlay reverse-proxy
+    ```
 
-docker run \
-  --cap-add=NET_ADMIN --name caddy \
-  -p 80:80 -p 443:443 -p 443:443/udp \
-  -v ./Caddyfile:/etc/caddy/Caddyfile -v caddy-data:/data -v caddy-config:/config \
-  caddy:2.10 caddy run --config /etc/caddy/Caddyfile
-```
+1. Create persistent volumes for Caddy
+    ```sh
+    docker volume create caddy-data
+    docker volume create caddy-config
+    ```
+
+1. Create a Docker Swarm service for the website on the reverse proxy network
+    ```sh
+    docker service create --name web \
+        --log-driver "local" --env-file .env --network reverse-proxy \
+        ghcr.io/rapha01/activityrank/web:latest
+    ```
+
+1. Create a Docker Swarm service for Caddy with the network and volumes
+    ```sh
+    docker service create --name caddy \
+        --cap-add=NET_ADMIN \
+        -p 80:80 -p 443:443 -p 443:443/udp \
+        --mount type=bind,source=./Caddyfile,target=/etc/caddy/Caddyfile \
+        --mount type=volume,source=caddy-data,target=/data \
+        --mount type=volume,source=caddy-config,target=/config \
+        caddy:2.10 caddy run --config /etc/caddy/Caddyfile
+    ```

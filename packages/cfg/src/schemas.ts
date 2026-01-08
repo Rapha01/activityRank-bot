@@ -61,6 +61,17 @@ export const config = z.object({
       title: 'Links to invite the bot',
       description: "The Discord OAuth URLs to add the bot to a user's server.",
     }),
+  patreon: z
+    .object({
+      tiers: z.array(
+        z.object({ tier: z.int(), id: z.string().regex(/^\d+$/), discordRole: snowflake }).meta({
+          description:
+            'A Patreon tier and its corresponding Patreon ID and Discord Supporter Role ID',
+        }),
+      ),
+    })
+    .nullable()
+    .meta({ description: 'Settings for the Patreon integration' }),
   disablePatreon: z.boolean().optional().default(false).meta({
     description:
       'Whether to disable Patreon-related features like role updates and Patreon API queries.',
@@ -127,6 +138,7 @@ export const botKeys = keys.pick({
 });
 
 export const apiConfig = config.pick({
+  patreon: true,
   disablePatreon: true,
 });
 

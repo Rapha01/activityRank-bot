@@ -71,6 +71,37 @@
       "required": ["standard", "admin"],
       "additionalProperties": false
     },
+    "patreon": {
+      "description": "Settings for the Patreon integration",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "tiers": {
+              "type": "array",
+              "items": {
+                "description": "A Patreon tier and its corresponding Patreon ID and Discord Supporter Role ID",
+                "type": "object",
+                "properties": {
+                  "tier": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "id": { "type": "string", "pattern": "^\\d+$" },
+                  "discordRole": { "$ref": "#/definitions/Snowflake" }
+                },
+                "required": ["tier", "id", "discordRole"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["tiers"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
     "disablePatreon": {
       "description": "Whether to disable Patreon-related features like role updates and Patreon API queries.",
       "default": false,
