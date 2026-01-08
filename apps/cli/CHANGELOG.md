@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1
+
+### Patch Changes
+
+- Updated dependencies [[`f706359`](https://github.com/Rapha01/activityRank-bot/commit/f706359dc6c86e5673c63ac0764274834bace57f)]:
+  - @activityrank/cfg@0.4.1
+
 ## 1.4.0
 
 ### Minor Changes
