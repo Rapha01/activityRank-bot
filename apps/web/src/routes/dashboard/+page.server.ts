@@ -3,13 +3,14 @@ import { hasAccess } from './hasAccess.js';
 
 export async function load(event) {
   const { user } = event.locals.auth();
-  const { sharedGuilds, listIsComplete, unsharedGuilds } = await getSharedGuilds(event);
+  const guildData = async () => {
+    const { sharedGuilds, listIsComplete, unsharedGuilds } = await getSharedGuilds(event);
+    return { shared: sharedGuilds, complete: listIsComplete, unshared: unsharedGuilds };
+  };
 
   return {
     user,
-    sharedGuilds,
-    listIsComplete,
-    unsharedGuilds,
+    guilds: guildData(),
     hasAccess: await hasAccess(user.id),
   };
 }

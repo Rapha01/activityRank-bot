@@ -33,23 +33,47 @@
     </div>
   </div>
   {#if data.hasAccess}
-    {#if !data.listIsComplete}
+    {#await data.guilds}
+      <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {#each { length: 5 }}
+          <li class="animate-pulse flex items-center gap-4 p-4 shadow-md bg-slate-200 dark:bg-slate-800 rounded-md">
+            <div class="bg-slate-300 dark:bg-slate-700 size-16 rounded-md"></div>
+            <div class="flex flex-col gap-2">
+              <div class="bg-slate-300 dark:bg-slate-700 h-4 w-16 rounded-sm"></div>
+              <div class="bg-slate-300 dark:bg-slate-700 rounded-md py-1 px-2 self-start">
+                <div class="h-6 w-36"></div>
+              </div>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    {:then guilds}
+      {#if !guilds.complete}
+        <div class="border border-red-700 dark:border-red-300 bg-red-500/10 rounded-md flex items-center px-4 py-2 gap-4">
+          <CloudAlertIcon class="size-8 text-red-700 dark:text-red-300" />
+          <div class="flex flex-col">
+            <span class="font-bold">Failed to load servers.</span>
+            <span>Some servers may be missing from this list.</span>
+          </div>
+        </div>
+      {/if}
+      <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {#each guilds.shared as guild}
+          <GuildEntry bot={true} {...guild} />
+        {/each}
+        {#each guilds.unshared as guild}
+          <GuildEntry bot={false} {...guild} />
+        {/each}
+      </ul>
+    {:catch}
       <div class="border border-red-700 dark:border-red-300 bg-red-500/10 rounded-md flex items-center px-4 py-2 gap-4">
         <CloudAlertIcon class="size-8 text-red-700 dark:text-red-300" />
         <div class="flex flex-col">
-          <span class="font-bold">Failed to load servers.</span>
-          <span>Some servers may be missing from this list.</span>
+          <span class="font-bold">Sorry!</span>
+          <span>Failed to load servers.</span>
         </div>
       </div>
-    {/if}
-    <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {#each data.sharedGuilds as guild}
-        <GuildEntry bot={true} {...guild} />
-      {/each}
-      {#each data.unsharedGuilds as guild}
-        <GuildEntry bot={false} {...guild} />
-      {/each}
-    </ul>
+    {/await}
   {:else}
     <div class="border border-orange-700 dark:border-orange-300 bg-orange-500/10 rounded-md flex flex-col md:flex-row justify-center items-center px-4 md:px-6 py-2 md:py-6 gap-2 md:gap-8">
       <ConstructionIcon class="size-12 text-orange-700 dark:text-orange-300" />
