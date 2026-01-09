@@ -2,18 +2,12 @@ import { serve } from '@hono/node-server';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { apiReference } from '@scalar/hono-api-reference';
 import { Cron } from 'croner';
-import { createFactory } from 'hono/factory';
 import { logger } from 'hono/logger';
 import { apiRouter } from '#api.ts';
 import { config, isProduction } from '#const/config.ts';
-import { InternalAPIAuth } from '#middleware/auth.ts';
-import { getShardStats } from '#models/botShardStatModel.ts';
 import { runResetByTime } from '#services/reset.ts';
 import { runPatreonTask } from '#services/tasks/patreon.ts';
 import { runTopggTask } from '#services/tasks/topgg.ts';
-import commands from './const/commands.ts';
-import faqs from './const/faq.ts';
-import patchnotes from './const/patchnotes.ts';
 
 const app = new OpenAPIHono();
 app.use(logger());
@@ -63,23 +57,6 @@ app.get(
 );
 
 app.route('/api/v0/', apiRouter);
-
-//  ---- Deprecated (legacy) endpoints ----  //
-
-const factory = createFactory();
-
-const stats = factory.createHandlers(async (c) => c.json({ stats: await getShardStats() }));
-const texts = factory.createHandlers((c) => c.json({ commands, patchnotes, faqs }));
-
-/** @deprecated routes for compatibility; should be removed asap because of not being versioned. */
-app.get('/api/stats', InternalAPIAuth, ...stats);
-app.get('/api/texts', InternalAPIAuth, ...texts);
-
-/** @deprecated routes for compatibility; should be removed asap because of inconsistent versioning. */
-app.get('/api/v1/stats', InternalAPIAuth, ...stats);
-app.get('/api/v1/texts', InternalAPIAuth, ...texts);
-
-//  ----        =======+=======        ----  //
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3000;
 serve({ fetch: app.fetch, port });
