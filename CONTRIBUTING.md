@@ -21,42 +21,62 @@ apps
     |   The source code for https://activityrank.me.
 ```
 
-## Deployment
+## Getting Started
 
-All components should be deployed in production as instances of their Docker containers.
-Ideally, these containers will be built in [GitHub CI](.github/workflows/ci.yml),
-but they may also be built on the target VPS.
+In production, all components should be part of a Docker container as we tend to deploy them to VPSs. These images are build in [GitHub CI](.github/workflows/ci.yml).
 
-In development, semi-permanent containers such as the database can be deployed
-via the root docker-compose file ([docker-compose.yml](docker-compose.yml)).
-Other components, like the bot module, should be run via a typical node process
-through their `pnpm run watch` scripts.
+In development, an actively-developed app should probably be run via a `pnpm run dev` script. More permanent elements, like the reverse proxy or database, should be run as local Docker instances.
 
-### Development
+### Database
 
-An example of running in development (to work primarily on the bot module)
-is shown here:
+On first startup, the database will be created. It will output a root password to stdout. 
+If you will need root access (to manage user accounts, etc.), run 
+```sh
+docker compose up db | grep "GENERATED ROOT PASSWORD"
+```
+The database also creates an `activityrank` user by default with the password `PASSWORD`.
 
-1. Run the api and database in Docker containers.
+Once the database is launched, migrations can be ran. The SQL files in 
+[`packages/database/schemas/full`](./packages/database/schemas/full) should 
+contain the end-result of the migrations, but if migration steps are necessary,
+[`packages/database/migrations`](./packages/database/migrations) can be ran one at a time instead.
 
-    ```sh
-    docker compose up -d db api
-    ```
+To run the files from `schemas/full`, run
+```sh
+mysql -h 127.0.0.1 -u activityrank -p -e "CREATE DATABASE `manager`"
+mysql -h 127.0.0.1 -u activityrank -p manager < packages/database/schemas/full/manager.sql
+mysql -h 127.0.0.1 -u activityrank -p -e "CREATE DATABASE `dbShard`"
+mysql -h 127.0.0.1 -u activityrank -p dbShard < packages/database/schemas/full/shard.sql
+```
 
-2. Run the development script for the bot.
+The manager database contains a table called `dbShard`. 
+This table represents a list of the hosts where shard databases live.
+To initialise it for development (where the default shard is run on localhost), run 
 
-    ```sh
-    pnpm --filter bot run watch
-    ```
+```sql
+INSERT INTO `manager`.`dbShard` (id, host) VALUES (0, localhost);
+```
 
-### Production
+### Other containers
+
+Other containers should tend to work fine by default, or with modifications to the [`config`](./config) files.
+Running in detached mode (with the `-d` flag) is useful for less-frequently altered containers.
+
+For instance, to launch the api and database in the background, run
+```sh
+docker compose up -d db api
+```
+
+## Deploying to Production
+
+> _See also [`apps/web/README.md`](./apps/web/README.md) for dashboard-specific information 
+> like running with a reverse proxy._
 
 In production, containers tend to be spread out across multiple servers.
 
 1. Initialise Swarm mode
 
-    Keys and configs are Swarm features; we run the container as a service with a
-    size of 1.
+    Keys and configs are Swarm features; we run containers as services with a size of 1.
 
     ```sh
     docker swarm init

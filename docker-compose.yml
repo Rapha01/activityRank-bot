@@ -11,17 +11,16 @@ secrets:
 services:
   db:
     container_name: Database
-    image: mysql:8.0
+    image: mysql:8.4
     restart: always
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
     volumes:
-      - ./docker/db/init:/docker-entrypoint-initdb.d
-      - ./docker/db/data:/var/lib/mysql
-      - ./docker/db/my.cnf:/etc/mysql/my.cnf
+      - ./packages/database/init/my.cnf:/etc/mysql/my.cnf
+      - ./packages/database/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:/var/lib/mysql
     ports:
       - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
 
   proxy:
     container_name: Proxy
@@ -106,5 +105,6 @@ services:
       - MANAGER_HOST=api:3000
 
 volumes:
+  db-data:
   caddy-data:
   caddy-config:
