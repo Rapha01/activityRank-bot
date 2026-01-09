@@ -7,7 +7,7 @@ const params = z
   .openapi({ example: { guildId: '12345678901234567', userId: '774660568728469585' } });
 
 export const memberBonusRoute = createPublicAuthRoute({
-  method: 'patch', //?
+  method: 'patch',
   path: '/guilds/:guildId/member/:userId/bonus',
   summary: '/guilds/:guildId/member/:userId/bonus',
   description: 'Give or take bonus XP to/from a member.',
