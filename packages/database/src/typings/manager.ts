@@ -22,7 +22,7 @@ export interface BotShardStatSchema {
 }
 
 export interface DbShardSchema {
-  id: Generated<string>;
+  id: Generated<number>;
   host: Generated<string>;
 }
 
