@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
+import { keys } from '#const/config.ts';
 import { getShardStats } from '#models/botShardStatModel.ts';
 import { helloRoute } from '#routes/hello.ts';
 import { memberBonusRoute } from '#routes/memberBonus.ts';
@@ -24,7 +25,6 @@ import { JSONHTTPException } from '#util/errors.ts';
 import commands from './const/commands.ts';
 import faqs from './const/faq.ts';
 import patchnotes from './const/patchnotes.ts';
-import { keys } from '#const/config.ts';
 
 export const apiRouter = new OpenAPIHono();
 
