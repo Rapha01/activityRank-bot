@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
+import { keys } from '#const/config.ts';
 import { getShardStats } from '#models/botShardStatModel.ts';
 import { helloRoute } from '#routes/hello.ts';
 import { memberBonusRoute } from '#routes/memberBonus.ts';
@@ -112,6 +113,7 @@ apiRouter.openapi(sharedGuildsRoute, async (c) => {
   const broadcastResults = await broadcastRequest<BotSharedGuildsResponse>('/shared-guilds', {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${keys.managerApiAuth}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),

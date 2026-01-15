@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.ts",
-    "watch": "nodemon --exec \"node src/app.ts\"",
+    "watch": "node --watch src/app.ts",
     "typecheck": "tsc --noEmit"
   },
   "imports": {
@@ -35,14 +35,7 @@
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
     "@types/node": "^24.10.1",
-    "nodemon": "^3.1.10",
     "typescript": "^5.9.3",
     "vitest": "^2.1.9"
-  },
-  "nodemonConfig": {
-    "ext": "js,ts",
-    "watch": [
-      "src/**/*.ts"
-    ]
   }
 }

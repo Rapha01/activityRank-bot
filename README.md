@@ -37,9 +37,9 @@ It allows all components to be developed, deployed, and maintained in a unified 
 
 Before you start developing, make sure you have the following installed:
 
-* Node.js (v20.x or higher recommended)
-* Pnpm
-* Docker (optional, for containerized deployment)
+* [Node.js](https://nodejs.org) (v24.x or higher strongly recommended)
+* [pnpm](https://pnpm.io)
+* [Docker](https://docker.com)
 
 ### Setting Up the Project
 
@@ -65,44 +65,7 @@ Before you start developing, make sure you have the following installed:
 
 ### Running the Services
 
-You can run all the services (bot, manager, and website) individually, or spin up everything at once using Docker or pnpm scripts. It is strongly recommended that you run at least the database via Docker.
-
-#### Running with Docker
-
-Build and run the database using Docker:
-
-```sh
-docker compose up db
-```
-
-Build and run the database and manager using Docker:
-
-```sh
-docker compose up db manager
-```
-
-Build and run the database, manager, and bot using Docker:
-
-```sh
-docker compose up db manager bot
-```
-
-This will build and start all the services listed - which are defined in the [docker-compose.yml](docker-compose.yml) file.
-
-#### Running Individually
-
-1. Ensure a valid MySQL connection is available and configured.
-2. Start the manager:
-
-    ```sh
-    pnpm --filter=@activityrank/manager run start
-    ```
-
-3. Start the bot:
-
-    ```sh
-    pnpm --filter=@activityrank/bot run start
-    ```
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for more information on running services.
 
 ## Contributing
 

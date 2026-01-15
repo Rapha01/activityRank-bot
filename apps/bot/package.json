@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.ts",
-    "watch": "nodemon --exec \"node src/app.ts\"",
+    "watch": "node --watch src/app.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:check": "vitest --run",
@@ -23,7 +23,6 @@
   "dependencies": {
     "@activityrank/cfg": "workspace:*",
     "@activityrank/database": "workspace:*",
-    "@discordjs/rest": "^2.6.0",
     "@formatjs/intl-durationformat": "^0.7.6",
     "@hono/node-server": "^1.19.6",
     "@hono/zod-validator": "^0.7.4",
@@ -31,7 +30,6 @@
     "@sapphire/async-queue": "^1.5.5",
     "@sapphire/duration": "^1.2.0",
     "@sapphire/snowflake": "^3.5.5",
-    "callsites": "^4.2.0",
     "croner": "^8.1.2",
     "discord.js": "^14.24.2",
     "fast-glob": "^3.3.3",
@@ -54,16 +52,7 @@
   "devDependencies": {
     "@activityrank/tsconfig": "workspace:*",
     "@crowdin/cli": "^4.11.0",
-    "@discordjs/core": "^2.3.0",
-    "nodemon": "^3.1.10",
-    "pino-pretty": "^11.3.0",
     "typescript": "^5.9.3",
     "vitest": "^2.1.9"
-  },
-  "nodemonConfig": {
-    "ext": "js,ts",
-    "watch": [
-      "src/**/*.ts"
-    ]
   }
 }

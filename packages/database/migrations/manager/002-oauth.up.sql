@@ -1,3 +1,5 @@
+USE `manager`;
+
 CREATE TABLE `session` (
   `id` varchar(255) NOT NULL PRIMARY KEY,
   `user_id` bigint(20) NOT NULL REFERENCES web_user(id),

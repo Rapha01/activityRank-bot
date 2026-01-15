@@ -15,7 +15,7 @@ This document describes deprecations, requirements, and other notes for tables i
 
 |                    Key | Type        | Nullable | Default |
 |-----------------------:|-------------|:--------:|---------|
-|          **`shardId`** | mediumint   |    ×     |         |
+|          **`shardId`** | int         |    ×     |         |
 |               `status` | tinyint     |    ×     |         |
 |          `serverCount` | int         |    ×     | 0       |
 |        `uptimeSeconds` | int         |    ×     | 0       |
@@ -40,7 +40,7 @@ This document describes deprecations, requirements, and other notes for tables i
 
 |      Key | Type        | Nullable | Default |
 |---------:|-------------|:--------:|---------|
-| **`id`** | bigint      |    ×     | 0       |
+| **`id`** | smallint    |    ×     | 0       |
 |   `host` | varchar(45) |    ×     | 0       |
 
 **Primary Key**: `id`
@@ -102,7 +102,7 @@ Represents dashboard users. Keeps a cache of their username and avatar hash.
 |--------------:|-------------|:--------:|---------|
 |      **`id`** | bigint(20)  |    ×     |         |
 |    `username` | varchar(32) |    ×     |         |
-| `avatar_hash` | varchar(32) |    ☑︎    | NULL    |
+| `avatar_hash` | varchar(34) |    ☑︎    | NULL    |
 
 **Primary Key**: `id`
 

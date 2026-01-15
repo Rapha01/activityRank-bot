@@ -1,7 +1,7 @@
 USE `manager`;
 
 CREATE TABLE `botShardStat` (
-  `shardId` mediumint NOT NULL,
+  `shardId` int NOT NULL,
   `status` tinyint NOT NULL,
   `serverCount` int NOT NULL DEFAULT '0',
   `uptimeSeconds` int NOT NULL DEFAULT '0',
@@ -35,7 +35,7 @@ CREATE TABLE `botStat` (
 );
 
 CREATE TABLE `dbShard` (
-  `id` bigint NOT NULL DEFAULT '0',
+  `id` smallint NOT NULL DEFAULT '0',
   `hostExtern` varchar(45) NOT NULL DEFAULT '0',
   `hostIntern` varchar(45) NOT NULL DEFAULT '0',
   `host` varchar(45) NOT NULL DEFAULT '0',
@@ -80,5 +80,5 @@ CREATE TABLE `userRoute` (
 CREATE TABLE `web_user` (
   `id` bigint(20) NOT NULL PRIMARY KEY,
   `username` varchar(32) NOT NULL UNIQUE,
-  `avatar_hash` varchar(32) DEFAULT NULL
+  `avatar_hash` varchar(34) DEFAULT NULL
 );

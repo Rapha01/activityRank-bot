@@ -1,7 +1,13 @@
+import { subtle } from 'node:crypto';
+import consume from 'node:stream/consumers';
+import { getHeapSnapshot } from 'node:v8';
 import { zValidator } from '@hono/zod-validator';
 import type { Client, Guild, GuildMember, ShardingManager } from 'discord.js';
 import { Hono } from 'hono';
+import { createMiddleware } from 'hono/factory';
+import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
+import { keys } from '#const/config.ts';
 
 /*
   This function is passed to [`broadcastEval`]. Therefore, it must be written in a specific way.
@@ -48,10 +54,43 @@ async function getSharedGuildInfo(
   return { ok: true, data: sharedGuilds } as const;
 }
 
+async function getShardHeap() {
+  const { getHeapSnapshot } = await import('node:v8');
+  const { text } = await import('node:stream/consumers');
+
+  const then = performance.now();
+  const snapshot = JSON.parse(await text(getHeapSnapshot()));
+  return { snapshot, duration: performance.now() - then };
+}
+
 export function createRouter(manager: ShardingManager) {
   const app = new Hono();
 
+  app.use(InternalAuth);
+
   app.get('/', (c) => c.text('Bot server'));
+
+  app.get('/snapshot', async (c) => {
+    const then = performance.now();
+    const snapshot = JSON.parse(await consume.text(getHeapSnapshot()));
+    return c.json({ snapshot, duration: performance.now() - then });
+  });
+
+  app.get('/snapshot/:shard', async (c) => {
+    const shardParam = c.req.param('shard');
+    const shardId = Number.parseInt(shardParam);
+    if (shardId < 0 || Number.isNaN(shardId)) {
+      return c.text('Invalid shard ID', 400);
+    }
+
+    const shard = manager.shards.get(shardId);
+    if (!shard) {
+      return c.text('Shard not found', 404);
+    }
+
+    const res = await shard.eval(getShardHeap);
+    return c.json(res);
+  });
 
   const zSnowflake = z.string().min(17).max(20);
   app.post(
@@ -68,4 +107,47 @@ export function createRouter(manager: ShardingManager) {
   );
 
   return app;
+}
+
+const PREFIX = 'Bearer';
+const HEADER = 'Authorization';
+const HEADER_RE = new RegExp(`^${PREFIX} ([A-Za-z0-9-]+) *$`);
+
+export const InternalAuth = createMiddleware(async (c, next) => {
+  const headerToken = c.req.header(HEADER);
+  if (!headerToken) {
+    // No Authorization header
+    throw new HTTPException(401, { message: 'No Authorization header provided' });
+  }
+  const headerMatch = HEADER_RE.exec(headerToken);
+  if (!headerMatch) {
+    // Incorrectly formatted Authorization header
+    throw new HTTPException(400, { message: 'Invalid Authorization Header' });
+  }
+
+  const token = headerMatch[1];
+  const equal = await timingSafeEqual(token, keys.managerApiAuth);
+
+  if (!equal) {
+    // Invalid Token
+    throw new HTTPException(401, { message: 'Invalid Token' });
+  }
+
+  await next();
+});
+
+// https://github.com/honojs/hono/blob/2ead4d8faa58d187bf7ec74bac2160bab882eab0/src/utils/buffer.ts#L29
+async function timingSafeEqual(a: string, b: string) {
+  const [sa, sb] = await Promise.all([sha256(a), sha256(b)]);
+  return sa === sb && a === b;
+}
+
+// https://github.com/honojs/hono/blob/2ead4d8faa58d187bf7ec74bac2160bab882eab0/src/utils/crypto.ts#L33
+async function sha256(data: string): Promise<string> {
+  const sourceBuffer = new TextEncoder().encode(data);
+  const buffer = await subtle.digest({ name: 'SHA-256' }, sourceBuffer);
+  const hash = Array.prototype.map
+    .call(new Uint8Array(buffer), (x) => `00${x.toString(16)}`.slice(-2))
+    .join('');
+  return hash;
 }
