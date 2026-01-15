@@ -1,5 +1,12 @@
 # @activityrank/database
 
+## 0.3.0
+
+### Minor Changes
+
+- [#214](https://github.com/Rapha01/activityRank-bot/pull/214) [`b35e729`](https://github.com/Rapha01/activityRank-bot/commit/b35e7291d29c04651acc81b73ce7420bcbd12568) Thanks [@piemot](https://github.com/piemot)! - - Swap a `mediumint` column to the standard `int`
+  - Use `smallint` for `dbShard` ids (`dbShard(id)` is referenced in `guildRoute` and `userRoute` by `smallint`s anyways)
+
 ## 0.2.0
 
 ### Minor Changes
