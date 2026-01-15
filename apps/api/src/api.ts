@@ -24,6 +24,7 @@ import { JSONHTTPException } from '#util/errors.ts';
 import commands from './const/commands.ts';
 import faqs from './const/faq.ts';
 import patchnotes from './const/patchnotes.ts';
+import { keys } from '#const/config.ts';
 
 export const apiRouter = new OpenAPIHono();
 
@@ -112,6 +113,7 @@ apiRouter.openapi(sharedGuildsRoute, async (c) => {
   const broadcastResults = await broadcastRequest<BotSharedGuildsResponse>('/shared-guilds', {
     method: 'POST',
     headers: {
+      Authorization: `Bearer ${keys.managerApiAuth}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),

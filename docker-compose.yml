@@ -39,7 +39,7 @@ services:
       dockerfile: apps/bot/Dockerfile
     image: "activityrank/bot:dev"
     ports:
-      - "3010:3000"
+      - "3010:3010"
     configs:
       - config
     secrets:
