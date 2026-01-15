@@ -80,5 +80,5 @@ CREATE TABLE `userRoute` (
 CREATE TABLE `web_user` (
   `id` bigint(20) NOT NULL PRIMARY KEY,
   `username` varchar(32) NOT NULL UNIQUE,
-  `avatar_hash` varchar(32) DEFAULT NULL
+  `avatar_hash` varchar(34) DEFAULT NULL
 );

@@ -102,7 +102,7 @@ Represents dashboard users. Keeps a cache of their username and avatar hash.
 |--------------:|-------------|:--------:|---------|
 |      **`id`** | bigint(20)  |    ×     |         |
 |    `username` | varchar(32) |    ×     |         |
-| `avatar_hash` | varchar(32) |    ☑︎    | NULL    |
+| `avatar_hash` | varchar(34) |    ☑︎    | NULL    |
 
 **Primary Key**: `id`
 
