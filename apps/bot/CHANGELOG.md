@@ -1,5 +1,15 @@
 # Changelog
 
+## 7.16.3
+
+### Patch Changes
+
+- [#214](https://github.com/Rapha01/activityRank-bot/pull/214) [`6e05ae1`](https://github.com/Rapha01/activityRank-bot/commit/6e05ae1e5dbf252e696295d76b529166f5b2f367) Thanks [@piemot](https://github.com/piemot)! - Require authentication when accessing the bot API
+
+- Updated dependencies [[`b35e729`](https://github.com/Rapha01/activityRank-bot/commit/b35e7291d29c04651acc81b73ce7420bcbd12568), [`f706359`](https://github.com/Rapha01/activityRank-bot/commit/f706359dc6c86e5673c63ac0764274834bace57f)]:
+  - @activityrank/database@0.3.0
+  - @activityrank/cfg@0.4.1
+
 ## 7.16.2
 
 ### Patch Changes

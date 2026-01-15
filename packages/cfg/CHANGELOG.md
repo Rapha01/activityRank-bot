@@ -1,5 +1,11 @@
 # @activityrank/cfg
 
+## 0.4.1
+
+### Patch Changes
+
+- [#212](https://github.com/Rapha01/activityRank-bot/pull/212) [`f706359`](https://github.com/Rapha01/activityRank-bot/commit/f706359dc6c86e5673c63ac0764274834bace57f) Thanks [@piemot](https://github.com/piemot)! - Refactor config loader
+
 ## 0.4.0
 
 ### Minor Changes
