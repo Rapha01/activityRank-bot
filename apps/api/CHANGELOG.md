@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+
+### Patch Changes
+
+- [#215](https://github.com/Rapha01/activityRank-bot/pull/215) [`578e7d5`](https://github.com/Rapha01/activityRank-bot/commit/578e7d547b577d4216bcf4168b0935253ab44d54) Thanks [@piemot](https://github.com/piemot)! - fix shared-guilds requests being sent per-shard
+
 ## 0.5.0
 
 ### Minor Changes
