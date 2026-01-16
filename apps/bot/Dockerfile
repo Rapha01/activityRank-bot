@@ -33,7 +33,7 @@ FROM base AS runner
 ARG APP_DIR_NAME
 # ARGs are only available at build time, so they don't work in CMD instructions
 ENV APP_PATH="$APP_DIR_NAME/src/app.ts"
-ENV NODE_ENV=NOT-PROD
+ENV NODE_ENV=production
 WORKDIR /app
 
 # Don't run production as root
