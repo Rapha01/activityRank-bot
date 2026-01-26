@@ -2,12 +2,13 @@ import { error, redirect } from '@sveltejs/kit';
 import { generateState } from 'arctic';
 import { env } from '$env/dynamic/private';
 import { getCanonicalUrl } from '$lib/redirect';
+import type { PageServerLoad } from './$types';
 
 // NOTE: we do the full Authorization Code Grant flow here (yes, just to add a bot to a server)
 // because it allows us to specify a `redirect_uri` parameter.
 // If we only used the Bot Authorization Flow (https://discord.com/developers/docs/topics/oauth2#bot-authorization-flow),
 // users wouldn't be redirected to the dashboard after adding the bot.
-export async function load(event) {
+export const load: PageServerLoad = (event) => {
   const guildId = event.url.searchParams.get('guild_id');
   if (!guildId) error(400);
 
@@ -36,4 +37,4 @@ export async function load(event) {
   });
 
   redirect(307, url.toString());
-}
+};
