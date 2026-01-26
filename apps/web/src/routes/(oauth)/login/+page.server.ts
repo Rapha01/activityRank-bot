@@ -2,6 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import { generateState } from 'arctic';
 import { sanitiseRedirect } from '$lib/redirect';
 import { arcticClient, createOauthProcessCookie } from '$lib/server/auth/oauth';
+import type { PageServerLoad } from './$types';
 
 // TODO: add any other needed scopes
 const SCOPES = [
@@ -11,7 +12,7 @@ const SCOPES = [
   'guilds',
 ];
 
-export async function load(event) {
+export const load: PageServerLoad = (event) => {
   const state = generateState();
   // codeVerifier: null because Discord doesn't support PKCE
   const url = arcticClient().createAuthorizationURL(state, null, SCOPES);
@@ -22,4 +23,4 @@ export async function load(event) {
   createOauthProcessCookie(event, state, callback ?? '/');
 
   redirect(307, url.toString());
-}
+};

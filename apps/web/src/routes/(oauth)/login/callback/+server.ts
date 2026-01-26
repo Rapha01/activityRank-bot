@@ -8,12 +8,13 @@ import {
 } from '$lib/server/auth/session';
 import { createUser, getUser, updateUserDetails } from '$lib/server/auth/user';
 import { userApiHandle } from '$lib/server/discord.js';
+import type { RequestHandler } from './$types';
 
 function badRequest(): never {
   error(400, { message: 'Bad Request: Please restart the OAuth login process.' });
 }
 
-export async function GET(event) {
+export const GET: RequestHandler = async (event) => {
   const code = event.url.searchParams.get('code');
   const state = event.url.searchParams.get('state');
   const storedState = parseOauthProcessCookie(event);
@@ -66,4 +67,4 @@ export async function GET(event) {
   });
   setSessionTokenCookie(event, sessionToken, session.expiresAt);
   redirect(307, storedState.redirect);
-}
+};

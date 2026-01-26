@@ -1,11 +1,12 @@
 import { error, redirect } from '@sveltejs/kit';
 import { getCanonicalUrl } from '$lib/redirect.js';
+import type { RequestHandler } from './$types';
 
 function badRequest(): never {
   error(400, { message: 'Bad Request: Please restart the OAuth login process.' });
 }
 
-export async function GET(event) {
+export const GET: RequestHandler = async (event) => {
   const code = event.url.searchParams.get('code');
   const state = event.url.searchParams.get('state');
   const guildId = event.url.searchParams.get('guild_id');
@@ -26,4 +27,4 @@ export async function GET(event) {
   }
 
   redirect(307, getCanonicalUrl(`/dashboard/${guildId}`));
-}
+};
