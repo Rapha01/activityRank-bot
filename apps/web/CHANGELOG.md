@@ -1,5 +1,11 @@
 # @activityrank/web
 
+## 0.1.2
+
+### Patch Changes
+
+- [#217](https://github.com/Rapha01/activityRank-bot/pull/217) [`2036684`](https://github.com/Rapha01/activityRank-bot/commit/2036684e5671cd8799bde72a7e5ed5a47d408977) Thanks [@piemot](https://github.com/piemot)! - web: general dashboard layout (with bool options) and text editor component
+
 ## 0.1.1
 
 ### Patch Changes
