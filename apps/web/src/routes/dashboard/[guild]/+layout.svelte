@@ -6,9 +6,9 @@
   import SettingsIcon from '@lucide/svelte/icons/settings';
   import SparklesIcon from '@lucide/svelte/icons/sparkles';
   import { DropdownMenu } from 'bits-ui';
+  import { page as currentPage } from '$app/state';
   import { nameApiPermission } from '$lib/api/permissions';
   import { ThemeManager } from '$lib/themes.svelte';
-
   import { getGuildIconUrl, getUserAvatarUrl } from '$lib/util';
   import PermissionIcon from '../PermissionIcon.svelte';
   import type { LayoutProps } from './$types';
@@ -24,10 +24,12 @@
     sidebarOpen = !sidebarOpen;
   }
 
-  const page = (path: string) => `/dashboard/${data.guild.id}/${path}`;
+  const page = (path: string) =>
+    path ? `/dashboard/${data.guild.id}/${path}` : `/dashboard/${data.guild.id}`;
+
   const pages = [
     { icon: SettingsIcon, name: 'General', path: page('') },
-    { icon: SparklesIcon, name: 'Bonus', path: page('bonus') },
+    { icon: SettingsIcon, name: 'Notifications', path: page('notifications') },
   ];
 </script>
 
@@ -87,7 +89,7 @@
                   <img src={getGuildIconUrl(guild)} alt="" class="size-8 rounded-md" />
                   <div class="flex flex-col">
                     <span class="font-semibold">{guild.name}</span>
-                    <span class="uppercase font-semibold text-slate-400 dark:text-slate-500 text-sm font-mono flex gap-1">
+                    <span class="uppercase font-semibold text-slate-400 dark:text-slate-500 text-xs font-mono flex items-center gap-1">
                       <PermissionIcon class="size-5" permission={guild.permission} /> {nameApiPermission(guild.permission)}
                     </span>
                   </div>
@@ -103,11 +105,15 @@
 			<ul class="flex flex-col gap-1 p-3">
         {#each pages as page}
           <li>
-            <a href={page.path} class={[
-              "flex gap-2.5 items-center rounded-md p-2 text-base transitio hover:bg-slate-200/50 sm:text-sm hover:dark:bg-slate-800",
-              "text-gray-900 dark:text-gray-400 hover:dark:text-gray-50",
-              "data-active:text-teal-600 data-active:dark:text-teal-400",
-            ]}>
+            <a 
+              href={page.path}
+              data-active={currentPage.url.pathname === page.path ? "" : null}
+              class={[
+                "flex gap-2.5 items-center rounded-md p-2 text-base transition hover:bg-slate-200/50 sm:text-sm hover:dark:bg-slate-800",
+                "text-slate-700 dark:text-slate-400 hover:dark:text-gray-50",
+                "data-active:font-medium data-active:text-slate-900 data-active:dark:text-slate-200",
+              ]} 
+            >
               <page.icon class="size-4" aria-hidden="true" />
               {page.name}
             </a>
