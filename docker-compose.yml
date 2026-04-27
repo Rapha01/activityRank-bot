@@ -37,6 +37,7 @@ services:
     build:
       context: .
       dockerfile: apps/bot/Dockerfile
+    pull_policy: build
     image: "activityrank/bot:dev"
     ports:
       - "3010:3010"
@@ -52,6 +53,7 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    pull_policy: build
     image: "activityrank/api:dev"
     depends_on:
       - db
@@ -88,6 +90,7 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         - COMMIT_HASH=develop
+    pull_policy: build
     image: "activityrank/web:dev"
     depends_on:
       - db
