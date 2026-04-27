@@ -44,7 +44,6 @@ export async function sendLevelupMessage(
   const canAssign = await checkRolesAreAssignable(member, newLevel, roles);
   if (canAssign.ok) {
     const messages = await getRoleAssignmentMessages(member, roles);
-    member.client.logger.debug({ messages }, 'Sending levelup message');
     await sendGratulationMessage(member, messages, newLevel);
   } else {
     // TODO: error handling
