@@ -14,7 +14,6 @@ import { getMemberModel } from '../models/guild/guildMemberModel.ts';
 import { getGuildModel } from '../models/guild/guildModel.ts';
 
 export async function handleMemberJoin(member: GuildMember) {
-  // member.client.logger.debug(`Handling member ${member.id} join`);
   if (member.user.bot) return;
 
   const cachedGuild = await getGuildModel(member.guild);
