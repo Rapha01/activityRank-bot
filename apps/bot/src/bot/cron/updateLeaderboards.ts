@@ -35,17 +35,13 @@ export async function updateLeaderboards(client: Client) {
   );
 
   for (const guildData of guilds) {
-    const guild = await client.guilds
-      .fetch(guildData.guildId)
-      .catch(ignoreDjsError(RESTJSONErrorCodes.UnknownGuild));
+    const guild = client.guilds.cache.get(guildData.guildId);
 
+    // skip guilds that this shard cannot access
     if (!guild) {
-      client.logger.warn(
-        { guildId: guildData.guildId },
-        'Unable to find guild while updating leaderboards',
-      );
       continue;
     }
+
     await updateLeaderboard(rest, guild);
   }
 }
