@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.16.4
+
+### Patch Changes
+
+- [#220](https://github.com/Rapha01/activityRank-bot/pull/220) [`85e04fa`](https://github.com/Rapha01/activityRank-bot/commit/85e04fa261217e4b66e6af97c35ebb2ce692b367) Thanks [@piemot](https://github.com/piemot)! - feat: try to fix auto-updating leaderboards
+
 ## 7.16.3
 
 ### Patch Changes
