@@ -48,7 +48,9 @@ export default command({
 
     const hook = await options.channel.createWebhook({
       name: 'Leaderboard',
-      avatar: interaction.guild.members.me?.avatarURL() ?? interaction.client.user.avatarURL(),
+      avatar:
+        interaction.guild.members.me?.avatarURL({ size: 512, extension: 'png' }) ??
+        interaction.client.user.avatarURL({ size: 512, extension: 'png' }),
     });
 
     const guildModel = await getGuildModel(interaction.guild);
