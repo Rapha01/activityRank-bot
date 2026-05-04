@@ -39,6 +39,8 @@ services:
       dockerfile: apps/bot/Dockerfile
     pull_policy: build
     image: "activityrank/bot:dev"
+    environment:
+      NODE_ENV: dev
     ports:
       - "3010:3010"
     configs:
