@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.3
+
+### Patch Changes
+
+- [#224](https://github.com/Rapha01/activityRank-bot/pull/224) [`320a744`](https://github.com/Rapha01/activityRank-bot/commit/320a74473e005556ded72e6a7dd1257e4e168821) Thanks [@piemot](https://github.com/piemot)! - Prevent errors in Patreon service from killing the process
+
+- [#224](https://github.com/Rapha01/activityRank-bot/pull/224) [`ead7fa9`](https://github.com/Rapha01/activityRank-bot/commit/ead7fa98428b7884099479e47bcec0396d37b8e0) Thanks [@piemot](https://github.com/piemot)! - fix(api, ci): add corepack prepare command
+
 ## 0.5.2
 
 ### Patch Changes
