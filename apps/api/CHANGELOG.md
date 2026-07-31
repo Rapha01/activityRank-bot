@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2
+
+### Patch Changes
+
+- [#222](https://github.com/Rapha01/activityRank-bot/pull/222) [`cc013be`](https://github.com/Rapha01/activityRank-bot/commit/cc013be51c66662fb3537e74ee732eec6ea1ad9a) Thanks [@piemot](https://github.com/piemot)! - Prevent errors in Patreon service from killing the process
+
 ## 0.5.1
 
 ### Patch Changes
