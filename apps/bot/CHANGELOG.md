@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.16.7
+
+### Patch Changes
+
+- [#226](https://github.com/Rapha01/activityRank-bot/pull/226) [`9d736ec`](https://github.com/Rapha01/activityRank-bot/commit/9d736ec1eeef258b839fb0f65212edc023f9ea5c) Thanks [@piemot](https://github.com/piemot)! - chore: remove unnecessary debug messages
+
 ## 7.16.6
 
 ### Patch Changes
