@@ -1,4 +1,6 @@
 import { createWriteStream } from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import type { Writable } from 'node:stream';
 import type { schemas } from '@activityrank/cfg';
 import * as p from '@clack/prompts';
@@ -67,7 +69,11 @@ export class ExportCommand extends ConfigurableCommand2 {
     if (!this.output || this.output.trim() === '-') {
       outputStream = process.stdout;
     } else {
-      outputStream = createWriteStream(this.output);
+      let filePath = this.output;
+      if (filePath.startsWith('~/')) {
+        filePath = filePath.replace(/^~/, os.homedir());
+      }
+      outputStream = createWriteStream(path.resolve(filePath));
     }
 
     const entries = await this.loadDatabaseEntries(this.guildId, keys);
@@ -118,7 +124,7 @@ export class ExportCommand extends ConfigurableCommand2 {
   }
 
   getOutputFormat(): OutputFormat {
-    /* 
+    /*
       Priority:
       1) --format
       2) --pretty
