@@ -7,6 +7,9 @@ FROM node:24-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
+WORKDIR /app
+COPY package.json .
+
 RUN corepack enable
 RUN corepack prepare
 RUN pnpm add -g turbo@^2
