@@ -158,7 +158,7 @@ export const PatreonResponseData = z.object({
   id: z.string(),
   type: z.literal('member'),
   attributes: z.object({
-    full_name: z.string(),
+    full_name: z.string().nullable().optional(), // Per the docs: Can be empty if the user has opted to hide their identity for this membership. Can be null.
     last_charge_date: z.string().nullable(),
     last_charge_status: z
       .enum(['Paid', 'Declined', 'Deleted', 'Pending', 'Refunded', 'Fraud', 'Other'])

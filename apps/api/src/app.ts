@@ -77,7 +77,13 @@ if (config.disablePatreon === null || config.disablePatreon === undefined) {
 
 if (runPatreon) {
   if (config.patreon) {
-    new Cron('*/15 * * * *', runPatreonTask);
+    new Cron('*/15 * * * *', async function run() {
+      try {
+        await runPatreonTask();
+      } catch (e) {
+        console.warn('Failed to run Patreon task. Error:', e);
+      }
+    });
   }
   new Cron('*/20 * * * *', runTopggTask);
 } else {
