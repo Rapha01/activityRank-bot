@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.4
+
+### Patch Changes
+
+- [#226](https://github.com/Rapha01/activityRank-bot/pull/226) [`f4914aa`](https://github.com/Rapha01/activityRank-bot/commit/f4914aa974b6c7e777d6cc1c4e003253f8e74e48) Thanks [@piemot](https://github.com/piemot)! - Prevent errors in Patreon service from killing the process
+
+- [#226](https://github.com/Rapha01/activityRank-bot/pull/226) [`d7dc5fd`](https://github.com/Rapha01/activityRank-bot/commit/d7dc5fd4a1e55ae6b30bbe4f4bc0a72d4a15af1a) Thanks [@piemot](https://github.com/piemot)! - Try to fix API Dockerfile again
+
+- [#226](https://github.com/Rapha01/activityRank-bot/pull/226) [`441fbe6`](https://github.com/Rapha01/activityRank-bot/commit/441fbe6348ef7b5a52ce63bd97db3c01b129857b) Thanks [@piemot](https://github.com/piemot)! - fix(api, ci): add corepack prepare command
+
 ## 0.5.3
 
 ### Patch Changes
