@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.3
+
+### Patch Changes
+
+- [#224](https://github.com/Rapha01/activityRank-bot/pull/224) [`a449764`](https://github.com/Rapha01/activityRank-bot/commit/a44976417fe3fa59f77c35371a6c6daed1006ca5) Thanks [@piemot](https://github.com/piemot)! - Resolve relative and home-based paths in the export command
+
 ## 1.4.2
 
 ### Patch Changes
