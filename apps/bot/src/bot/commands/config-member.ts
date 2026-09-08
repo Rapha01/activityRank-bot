@@ -56,6 +56,7 @@ export default command({
     await interaction.reply({
       embeds: [{ author: { name: t('config-member.personalSettings') }, fields }],
       components: [generateRow(interaction, cachedMember, cachedGuild), closeRow(interaction)],
+      ephemeral: true,
     });
   },
 });
